@@ -24,5 +24,79 @@ body{margin:0;background:#f7f1e8;color:#3b281c;font-family:-apple-system,BlinkMa
   .mobile-menu{display:none;position:fixed;top:108px;left:16px;right:16px;z-index:9998;background:#fffaf3;border-radius:16px;padding:8px 18px;box-shadow:0 8px 30px rgba(0,0,0,.25)}
   .mobile-menu.open{display:block}
   .mobile-menu a{display:block;padding:15px 5px;color:#3b281c;text-decoration:none;font-size:18px;border-bottom:1px solid #e7d8c5}
-  .mobile-menu a:last-child{border-bottom:0}
+  .mobile-menu a:last-child{border-bottom:/* 關於老爹 */
+.about{
+  padding:80px 20px;
+  background:#f4eadc;
+}
+
+.about-inner{
+  width:min(860px,100%);
+  margin:0 auto;
+  padding:55px 48px;
+  background:#fffaf3;
+  border-radius:24px;
+  box-shadow:0 12px 35px rgba(80,55,35,.08);
+}
+
+.about .section-kicker{
+  margin:0 0 8px;
+  text-align:center;
+  color:#a8784f;
+  font-size:15px;
+  letter-spacing:5px;
+}
+
+.about h2{
+  margin:0;
+  text-align:center;
+  color:#3f2c20;
+  font-size:38px;
+}
+
+.about h3{
+  margin:12px 0 38px;
+  text-align:center;
+  color:#8a6b55;
+  font-size:19px;
+  font-weight:500;
+}
+
+.about p{
+  margin:0 0 22px;
+  color:#574438;
+  font-size:17px;
+  line-height:2;
+}
+
+.about strong{
+  color:#8b5e34;
+  font-weight:700;
+}
+
+@media(max-width:768px){
+  .about{
+    padding:55px 14px;
+  }
+
+  .about-inner{
+    padding:38px 24px;
+    border-radius:18px;
+  }
+
+  .about h2{
+    font-size:30px;
+  }
+
+  .about h3{
+    font-size:17px;
+    line-height:1.7;
+    margin-bottom:30px;
+  }
+
+  .about p{
+    font-size:16px;
+    line-height:1.9;
+    margin-bottom:20px;
+  }
 }
