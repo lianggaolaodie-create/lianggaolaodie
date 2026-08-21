@@ -1,1 +1,1 @@
-document.querySelector('.top-link')?.addEventListener('click',e=>{e.preventDefault();window.scrollTo({top:0,behavior:'smooth'});});
+// 指定版官網
