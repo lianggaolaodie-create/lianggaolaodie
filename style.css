@@ -100,3 +100,81 @@ body{margin:0;background:#f7f1e8;color:#3b281c;font-family:-apple-system,BlinkMa
     margin-bottom:20px;
   }
 }
+          /* 老爹・涼糕 周邊商品 */
+.merch{
+  padding:70px 20px;
+  background:#fffaf3;
+}
+
+.merch-inner{
+  width:min(1120px,100%);
+  margin:0 auto;
+}
+
+.merch h2{
+  margin:0;
+  font-size:34px;
+  text-align:center;
+}
+
+.merch .section-kicker{
+  text-align:center;
+  color:#a8784f;
+  letter-spacing:4px;
+  margin-bottom:8px;
+}
+
+.merch .section-note{
+  text-align:center;
+  color:#7c6658;
+  margin:10px 0 30px;
+}
+
+.merch-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:22px;
+}
+
+.merch-card{
+  background:#ffffff;
+  border-radius:20px;
+  overflow:hidden;
+  box-shadow:0 8px 25px rgba(80,50,30,.12);
+  text-align:center;
+}
+
+.merch-placeholder{
+  height:220px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#f2e5d5;
+  color:#9b7656;
+  font-size:16px;
+}
+
+.merch-card h3{
+  margin:0;
+  padding:18px 10px;
+  font-size:19px;
+}
+
+@media(max-width:768px){
+  .merch{
+    padding:50px 14px;
+  }
+
+  .merch h2{
+    font-size:28px;
+  }
+
+  .merch-grid{
+    grid-template-columns:1fr;
+    gap:16px;
+  }
+
+  .merch-placeholder{
+    height:190px;
+  }
+}                  
