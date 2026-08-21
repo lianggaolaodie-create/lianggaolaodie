@@ -7,24 +7,61 @@
   <meta name="description" content="老爹・涼糕官方網站">
   <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
   <main class="page">
     <picture>
-   <source media="(max-width: 768px)" srcset="official-design-mobile.jpg">
+      <source media="(max-width: 768px)" srcset="official-design-mobile.jpg">
       <img src="official-design.png" alt="老爹・涼糕官方網站" class="full-design">
     </picture>
-  </main>
-  <button class="menu-toggle" id="menuToggle" aria-label="開啟選單"></button>
-<nav class="mobile-menu" id="mobileMenu">
-  <a href="#">首頁</a>
-  <a href="#products">產品中心</a>
-  <a href="#">關於老爹</a>
-  <a href="#">最新消息</a>
-  <a href="#">聯絡我們</a>
-</nav>
-  
 
+    <section class="products" id="products">
+      <div class="products-inner">
+        <p class="section-kicker">OUR PRODUCTS</p>
+        <h2>產品介紹</h2>
+        <p class="section-note">手工製作・每日新鮮</p>
+
+        <div class="product-grid">
+          <article class="product-card">
+            <div class="placeholder-image">原本商品保留</div>
+            <h3>芋頭涼糕</h3>
+          </article>
+          <article class="product-card">
+            <img src="product-pudding.jpg" alt="雞蛋布丁涼糕">
+            <h3>雞蛋布丁涼糕</h3>
+          </article>
+          <article class="product-card">
+            <img src="product-brown-sugar-taro.jpg" alt="黑糖芋頭涼糕">
+            <h3>黑糖芋頭涼糕</h3>
+          </article>
+          <article class="product-card">
+            <img src="product-grass-jelly.jpg" alt="仙草涼糕">
+            <h3>仙草涼糕</h3>
+          </article>
+          <article class="product-card">
+            <img src="product-almond-taro.jpg" alt="杏仁芋頭涼糕">
+            <h3>杏仁芋頭涼糕</h3>
+          </article>
+          <article class="product-card">
+            <img src="product-fruit.jpg" alt="水果涼糕">
+            <h3>水果涼糕</h3>
+          </article>
+          <article class="product-card">
+            <img src="product-almond.jpg" alt="杏仁涼糕">
+            <h3>杏仁涼糕</h3>
+          </article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <button class="menu-toggle" id="menuToggle" aria-label="開啟選單" aria-expanded="false"></button>
+  <nav class="mobile-menu" id="mobileMenu">
+    <a href="#">首頁</a>
+    <a href="#products">產品中心</a>
+    <a href="#">關於老爹</a>
+    <a href="#">最新消息</a>
+    <a href="#">聯絡我們</a>
+  </nav>
   <script src="script.js"></script>
 </body>
 </html>
