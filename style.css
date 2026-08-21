@@ -2,5 +2,11 @@
 html,body{margin:0;padding:0;background:#111}
 body{font-family:-apple-system,BlinkMacSystemFont,"PingFang TC","Microsoft JhengHei",sans-serif}
 .page{width:100%;margin:0 auto;background:#fff}
-.full-design{display:block;width:100%;height:auto;margin:0 auto}
+picture{display:block}
+.full-design,picture img{display:block;width:100%;height:auto;margin:0 auto}
 @media (min-width:1920px){.page{max-width:1920px}}
+@media (max-width:768px){
+  html,body{background:#fff}
+  .page{width:100%;max-width:none}
+  picture img{display:block;width:100%;height:auto}
+}

@@ -1,1 +1,1 @@
-// 指定版官網
+// Desktop stays unchanged; mobile uses a dedicated mobile image.
