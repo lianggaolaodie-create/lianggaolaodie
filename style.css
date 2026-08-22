@@ -262,3 +262,19 @@ body{margin:0;background:#f7f1e8;color:#3b281c;font-family:-apple-system,BlinkMa
     object-fit: contain !important;
   }
 }                            
+/* 修正手機版主視覺超出螢幕 */
+@media (max-width: 768px) {
+  .full-design {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    object-fit: contain !important;
+  }
+
+  body {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+  }
+}
