@@ -243,3 +243,21 @@ body{margin:0;background:#f7f1e8;color:#3b281c;font-family:-apple-system,BlinkMa
     margin: 0 !important;
   }
 }                           
+@media (max-width: 768px) {
+  body {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+  }
+
+  .page {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+  }
+
+  .products {
+    width: 100vw !important;
+    max-width: 100vw !important;
+  }
+}
