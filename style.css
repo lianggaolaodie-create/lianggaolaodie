@@ -17,7 +17,7 @@ body{margin:0;background:#f7f1e8;color:#3b281c;font-family:-apple-system,BlinkMa
 @media(max-width:768px){
   .products{padding:42px 14px 58px}
   .products h2{font-size:28px}
-  .product-grid{grid-template-columns:repeat(2,1fr);gap:12px}
+.product-grid{grid-template-columns:1fr !important}
   .product-card{border-radius:14px}
   .product-card h3{padding:12px 6px 14px;font-size:16px}
   .menu-toggle{display:block;position:absolute;top:15px;right:12px;width:86px;height:100px;z-index:9999;border:0;background:transparent;padding:0}
