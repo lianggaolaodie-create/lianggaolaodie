@@ -246,35 +246,31 @@ body{margin:0;background:#f7f1e8;color:#3b281c;font-family:-apple-system,BlinkMa
 }
  
 
-/* 手機版最上方主視覺完整顯示 */
+/* 手機版主視覺修正版 */
 @media (max-width: 768px) {
-  picture {
-    display: block !important;
-    width: 100% !important;
-    overflow: hidden !important;
+  html,
+  body {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
   }
 
-  picture img {
-    display: block !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    height: auto !important;
-    object-fit: contain !important;
+  picture {
+    display: block;
+    width: 100%;
+    margin: 0;
+    padding: 0;
   }
-}                            
-/* 修正手機版主視覺超出螢幕 */
-@media (max-width: 768px) {
+
   .full-design {
     display: block !important;
     width: 100% !important;
     max-width: 100% !important;
     height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
     object-fit: contain !important;
-  }
-
-  body {
-    width: 100% !important;
-    max-width: 100% !important;
-    overflow-x: hidden !important;
   }
 }
