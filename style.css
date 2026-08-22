@@ -274,3 +274,17 @@ body{margin:0;background:#f7f1e8;color:#3b281c;font-family:-apple-system,BlinkMa
     object-fit: contain !important;
   }
 }
+/* 手機版產品一個一排 */
+@media screen and (max-width: 768px) {
+  .product-grid {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+  }
+
+  .product-card {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+  }
+}
