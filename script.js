@@ -1,12 +1,16 @@
 document.addEventListener("DOMContentLoaded", function () {
   const menuButton = document.getElementById("menuToggle");
   const menu = document.getElementById("mobileMenu");
-  if (!menuButton || !menu) return;
 
-  menuButton.addEventListener("click", function (event) {
-    event.preventDefault();
-    event.stopPropagation();
-    const isOpen = menu.classList.toggle("open");
+  if (!menuButton || !menu) {
+    console.log("找不到手機選單");
+    return;
+  }
+
+  menuButton.addEventListener("click", function () {
+    menu.classList.toggle("open");
+
+    const isOpen = menu.classList.contains("open");
     menuButton.setAttribute("aria-expanded", isOpen ? "true" : "false");
   });
 
