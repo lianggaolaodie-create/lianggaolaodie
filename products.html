@@ -1,119 +1,724 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>涼糕專區｜老爹・涼糕</title>
+
   <link rel="stylesheet" href="style.css">
+
+  <style>
+    *{
+      box-sizing:border-box;
+    }
+
+    body{
+      margin:0;
+      background:#f7f1e8;
+      color:#3b281c;
+      font-family:-apple-system,BlinkMacSystemFont,
+      "Noto Sans TC","Microsoft JhengHei",sans-serif;
+    }
+
+    .products-page{
+      max-width:1000px;
+      margin:0 auto;
+      padding:55px 20px 90px;
+    }
+
+    .products-title{
+      text-align:center;
+      margin-bottom:45px;
+    }
+
+    .products-title .en{
+      color:#a87958;
+      letter-spacing:5px;
+      font-size:16px;
+      margin-bottom:8px;
+    }
+
+    .products-title h1{
+      margin:0;
+      font-size:40px;
+    }
+
+    .products-title p{
+      margin-top:10px;
+      color:#816c5e;
+      font-size:18px;
+    }
+
+    .product-list{
+      display:flex;
+      flex-direction:column;
+      gap:38px;
+    }
+
+    .product-item{
+      background:#fffaf3;
+      border-radius:24px;
+      overflow:hidden;
+      box-shadow:0 10px 30px rgba(70,45,25,.08);
+    }
+
+    .product-item img{
+      width:100%;
+      height:auto;
+      display:block;
+    }
+
+    .product-content{
+      padding:30px 28px 34px;
+    }
+
+    .product-content h2{
+      margin:0 0 18px;
+      font-size:28px;
+      text-align:center;
+    }
+
+    .description{
+      font-size:17px;
+      line-height:1.9;
+      margin-bottom:22px;
+    }
+
+    .product-details{
+      list-style:none;
+      padding:0;
+      margin:0;
+      font-size:16px;
+      line-height:1.9;
+    }
+
+    .product-details li{
+      padding:5px 0;
+    }
+
+    .notice{
+      margin-top:20px;
+      padding-top:16px;
+      border-top:1px solid #e7d9ca;
+      color:#806b5c;
+      font-size:14px;
+      line-height:1.7;
+    }
+
+    .back-home{
+      text-align:center;
+      margin-top:50px;
+    }
+
+    .back-home a{
+      display:inline-block;
+      padding:13px 30px;
+      border-radius:30px;
+      background:#3b281c;
+      color:white;
+      text-decoration:none;
+    }
+
+    .menu-toggle{
+      position:fixed;
+      right:18px;
+      top:18px;
+      z-index:9999;
+      border:0;
+      background:#fffaf3;
+      border-radius:14px;
+      padding:12px 16px;
+      font-size:20px;
+      cursor:pointer;
+      box-shadow:0 4px 15px rgba(0,0,0,.12);
+    }
+
+    .mobile-menu{
+      display:none;
+      position:fixed;
+      top:75px;
+      right:18px;
+      z-index:9998;
+      width:230px;
+      background:#fffaf3;
+      border-radius:18px;
+      box-shadow:0 12px 35px rgba(0,0,0,.18);
+      overflow:hidden;
+    }
+
+    .mobile-menu.open{
+      display:block;
+    }
+
+    .mobile-menu a{
+      display:block;
+      padding:15px 20px;
+      text-decoration:none;
+      color:#3b281c;
+      border-bottom:1px solid #eadfd3;
+    }
+
+    .mobile-menu a:last-child{
+      border-bottom:0;
+    }
+
+    @media(max-width:600px){
+
+      .products-page{
+        padding:45px 16px 70px;
+      }
+
+      .products-title h1{
+        font-size:34px;
+      }
+
+      .product-content{
+        padding:25px 20px 30px;
+      }
+
+      .product-content h2{
+        font-size:25px;
+      }
+
+      .description{
+        font-size:16px;
+      }
+
+      .product-details{
+        font-size:15px;
+      }
+    }
+  </style>
 </head>
+
 
 <body>
 
-<main class="page">
+<button
+  class="menu-toggle"
+  id="menuToggle"
+  aria-expanded="false"
+  aria-label="開啟選單">
+  ☰
+</button>
 
-  <section class="products">
-    <div class="products-inner">
 
-      <p class="section-kicker">OUR PRODUCTS</p>
-      <h2>涼糕專區</h2>
-      <p class="section-note">手工製作・每日新鮮</p>
+<nav id="mobileMenu" class="mobile-menu">
 
-      <div class="product-grid">
+  <a href="./">首頁</a>
 
-        <article class="product-card">
-          <img src="product-taro.png" alt="芋頭涼糕">
-          <div class="product-info">
-            <h3>芋頭涼糕</h3>
-            <p class="product-description">
-              選用香濃芋頭製作，口感柔軟滑嫩、清爽Q彈，
-              每一口都能品嚐到自然芋香。
-            </p>
-          </div>
-        </article>
+  <a href="rules.html">購買涼糕規則</a>
 
-        <article class="product-card">
-          <img src="product-pudding.png" alt="雞蛋布丁涼糕">
-          <div class="product-info">
-            <h3>雞蛋布丁涼糕</h3>
-            <p class="product-description">
-              香醇雞蛋布丁風味融入Q彈滑嫩的涼糕，
-              蛋香與奶香濃郁順口。
-            </p>
-          </div>
-        </article>
+  <a href="products.html">涼糕專區</a>
 
-        <article class="product-card">
-          <img src="product-brown-sugar-taro.jpg" alt="黑糖芋頭涼糕">
-          <div class="product-info">
-            <h3>黑糖芋頭涼糕</h3>
-            <p class="product-description">
-              黑糖香氣搭配香濃芋頭，
-              口感Q彈滑嫩，香甜而不膩。
-            </p>
-          </div>
-        </article>
+  <a href="radish-cake.html">純米蘿蔔糕專區</a>
 
-        <article class="product-card">
-          <img src="product-grass-jelly.jpg" alt="仙草涼糕">
-          <div class="product-info">
-            <h3>仙草涼糕</h3>
-            <p class="product-description">
-              清香仙草風味，冰涼爽口，
-              適合喜歡清爽口感的您。
-            </p>
-          </div>
-        </article>
+  <a href="merch.html">周邊商品</a>
 
-        <article class="product-card">
-          <img src="product-almond-taro.jpg" alt="杏仁芋頭涼糕">
-          <div class="product-info">
-            <h3>杏仁芋頭涼糕</h3>
-            <p class="product-description">
-              杏仁香氣搭配綿密芋頭，
-              雙層風味一次享受。
-            </p>
-          </div>
-        </article>
+  <a href="about.html">關於老爹</a>
 
-        <article class="product-card">
-          <img src="product-fruit.jpg" alt="水果涼糕">
-          <div class="product-info">
-            <h3>水果涼糕</h3>
-            <p class="product-description">
-              一盒多種水果口味，每日搭配可能不同，
-              每次品嚐都有不同驚喜。
-            </p>
-          </div>
-        </article>
+  <a href="schedule.html">出攤時間</a>
 
-        <article class="product-card">
-          <img src="product-almond.jpg" alt="純杏仁涼糕">
-          <div class="product-info">
-            <h3>純杏仁涼糕</h3>
-            <p class="product-description">
-              使用純杏仁製作，杏仁香氣濃郁，
-              口感細緻滑嫩、清爽不膩。
-            </p>
-          </div>
-        </article>
+  <a href="contact.html">聯絡我們</a>
+
+</nav>
+
+
+<main class="products-page">
+
+  <header class="products-title">
+
+    <div class="en">OUR PRODUCTS</div>
+
+    <h1>涼糕專區</h1>
+
+    <p>手工製作・每日新鮮</p>
+
+  </header>
+
+
+  <section class="product-list">
+
+
+    <!-- 芋頭涼糕 -->
+
+    <article class="product-item">
+
+      <img
+        src="product-taro.png"
+        alt="芋頭涼糕">
+
+      <div class="product-content">
+
+        <h2>芋頭涼糕</h2>
+
+        <p class="description">
+          選用香濃芋頭製作，將自然芋香融入Q彈滑嫩的涼糕中。
+          入口柔軟細緻，帶著芋頭本身溫潤甘甜的風味，
+          冷藏後享用更加清爽，是經典耐吃的傳統口味。
+        </p>
+
+        <ul class="product-details">
+
+          <li>
+            <strong>口感：</strong>
+            Q彈滑嫩、芋香綿密
+          </li>
+
+          <li>
+            <strong>風味：</strong>
+            自然芋香、甘甜順口
+          </li>
+
+          <li>
+            <strong>特色：</strong>
+            經典芋頭風味，清爽不膩
+          </li>
+
+          <li>
+            <strong>建議食用：</strong>
+            冷藏後享用風味更佳
+          </li>
+
+          <li>
+            <strong>保存方式：</strong>
+            需冷藏保存，開封後請儘快食用
+          </li>
+
+        </ul>
+
+        <p class="notice">
+          ※ 手工製作，每批產品的顏色、大小及外觀可能略有差異，屬正常現象。
+        </p>
 
       </div>
-    </div>
+
+    </article>
+
+
+
+    <!-- 鹹蛋芋頭涼糕 -->
+
+    <article class="product-item">
+
+      <img
+        src="IMG_2889.png"
+        alt="鹹蛋芋頭涼糕">
+
+      <div class="product-content">
+
+        <h2>鹹蛋芋頭涼糕</h2>
+
+        <p class="description">
+          以綿密芋頭搭配鹹蛋黃製作，
+          將芋頭自然香甜與鹹蛋黃濃郁鹹香融合在Q彈滑嫩的涼糕中。
+          入口先感受到淡雅芋香，
+          接著帶出鹹蛋黃特有的沙沙濃香，
+          鹹甜交織、層次豐富，冷藏後享用更加清爽。
+        </p>
+
+        <ul class="product-details">
+
+          <li>
+            <strong>口感：</strong>
+            Q彈滑嫩、芋頭綿密、鹹蛋黃細緻沙香
+          </li>
+
+          <li>
+            <strong>風味：</strong>
+            芋香甘甜 × 鹹蛋黃濃郁鹹香
+          </li>
+
+          <li>
+            <strong>特色：</strong>
+            鹹甜雙重風味，越吃越有層次
+          </li>
+
+          <li>
+            <strong>建議食用：</strong>
+            冷藏後享用風味更佳
+          </li>
+
+          <li>
+            <strong>保存方式：</strong>
+            需冷藏保存，開封後請儘快食用
+          </li>
+
+        </ul>
+
+        <p class="notice">
+          ※ 手工製作，每批產品的顏色、大小及外觀可能略有差異，屬正常現象。
+        </p>
+
+      </div>
+
+    </article>
+
+
+
+    <!-- 雞蛋布丁涼糕 -->
+
+    <article class="product-item">
+
+      <img
+        src="product-pudding.jpg"
+        alt="雞蛋布丁涼糕">
+
+      <div class="product-content">
+
+        <h2>雞蛋布丁涼糕</h2>
+
+        <p class="description">
+          將香醇雞蛋布丁風味融入Q彈滑嫩的涼糕中，
+          入口散發淡淡蛋香與奶香，
+          口感柔嫩細緻、香甜順口。
+          冰涼享用更加清爽，大人與小朋友都適合。
+        </p>
+
+        <ul class="product-details">
+
+          <li>
+            <strong>口感：</strong>
+            柔嫩滑順、Q彈細緻
+          </li>
+
+          <li>
+            <strong>風味：</strong>
+            雞蛋香 × 淡雅奶香
+          </li>
+
+          <li>
+            <strong>特色：</strong>
+            香甜柔和、清爽不厚重
+          </li>
+
+          <li>
+            <strong>建議食用：</strong>
+            冷藏後享用更加美味
+          </li>
+
+          <li>
+            <strong>保存方式：</strong>
+            需冷藏保存，開封後請儘快食用
+          </li>
+
+        </ul>
+
+        <p class="notice">
+          ※ 手工製作，每批產品的顏色、大小及外觀可能略有差異，屬正常現象。
+        </p>
+
+      </div>
+
+    </article>
+
+
+
+    <!-- 黑糖芋頭涼糕 -->
+
+    <article class="product-item">
+
+      <img
+        src="product-brown-sugar-taro.jpg"
+        alt="黑糖芋頭涼糕">
+
+      <div class="product-content">
+
+        <h2>黑糖芋頭涼糕</h2>
+
+        <p class="description">
+          將黑糖溫潤焦香與芋頭自然甜香結合，
+          Q彈涼糕帶著濃郁黑糖香氣，
+          搭配芋頭綿密風味，
+          入口甜香而不膩，層次豐富。
+        </p>
+
+        <ul class="product-details">
+
+          <li>
+            <strong>口感：</strong>
+            Q彈滑嫩、芋香綿密
+          </li>
+
+          <li>
+            <strong>風味：</strong>
+            黑糖焦香 × 芋頭甘甜
+          </li>
+
+          <li>
+            <strong>特色：</strong>
+            黑糖與芋頭雙重香氣
+          </li>
+
+          <li>
+            <strong>建議食用：</strong>
+            冷藏後享用口感最佳
+          </li>
+
+          <li>
+            <strong>保存方式：</strong>
+            需冷藏保存，開封後請儘快食用
+          </li>
+
+        </ul>
+
+        <p class="notice">
+          ※ 手工製作，每批產品的顏色、大小及外觀可能略有差異，屬正常現象。
+        </p>
+
+      </div>
+
+    </article>
+
+
+
+    <!-- 水果綜合涼糕 -->
+
+    <article class="product-item">
+
+      <img
+        src="product-fruit.jpg"
+        alt="水果綜合涼糕">
+
+      <div class="product-content">
+
+        <h2>水果綜合涼糕</h2>
+
+        <p class="description">
+          將多種水果風味融入涼糕，
+          一盒可以品嚐不同水果帶來的清新香氣與酸甜滋味。
+          口味會依每日製作及水果搭配有所不同，
+          每次開盒都有不同驚喜。
+        </p>
+
+        <ul class="product-details">
+
+          <li>
+            <strong>口感：</strong>
+            Q彈滑嫩、清爽多汁感
+          </li>
+
+          <li>
+            <strong>風味：</strong>
+            多種水果清香與自然酸甜
+          </li>
+
+          <li>
+            <strong>特色：</strong>
+            每日搭配口味可能不同
+          </li>
+
+          <li>
+            <strong>建議食用：</strong>
+            冰涼享用最清爽
+          </li>
+
+          <li>
+            <strong>保存方式：</strong>
+            需冷藏保存，開封後請儘快食用
+          </li>
+
+        </ul>
+
+        <p class="notice">
+          ※ 水果綜合口味依每日製作調整，實際內容以當日供應為準。
+        </p>
+
+      </div>
+
+    </article>
+
+
+
+    <!-- 仙草涼糕 -->
+
+    <article class="product-item">
+
+      <img
+        src="product-grass-jelly.jpg"
+        alt="仙草涼糕">
+
+      <div class="product-content">
+
+        <h2>仙草涼糕</h2>
+
+        <p class="description">
+          將仙草獨有的清香融入Q彈涼糕中，
+          入口清爽滑嫩，
+          帶著淡雅草本香氣，
+          甜度溫和，是適合冰涼享用的清爽系口味。
+        </p>
+
+        <ul class="product-details">
+
+          <li>
+            <strong>口感：</strong>
+            Q彈滑嫩、清爽細緻
+          </li>
+
+          <li>
+            <strong>風味：</strong>
+            仙草清香、淡雅回甘
+          </li>
+
+          <li>
+            <strong>特色：</strong>
+            清爽系口味、不易膩口
+          </li>
+
+          <li>
+            <strong>建議食用：</strong>
+            冷藏後享用更清爽
+          </li>
+
+          <li>
+            <strong>保存方式：</strong>
+            需冷藏保存，開封後請儘快食用
+          </li>
+
+        </ul>
+
+        <p class="notice">
+          ※ 手工製作，每批產品的顏色、大小及外觀可能略有差異，屬正常現象。
+        </p>
+
+      </div>
+
+    </article>
+
+
+
+    <!-- 杏仁芋頭涼糕 -->
+
+    <article class="product-item">
+
+      <img
+        src="product-almond-taro.jpg"
+        alt="杏仁芋頭涼糕">
+
+      <div class="product-content">
+
+        <h2>杏仁芋頭涼糕</h2>
+
+        <p class="description">
+          將杏仁自然濃郁香氣與芋頭的溫潤甜香融合，
+          杏仁香先入口，
+          接著帶出芋頭綿密柔和的風味，
+          搭配Q彈涼糕口感，香氣層次更加完整。
+        </p>
+
+        <ul class="product-details">
+
+          <li>
+            <strong>口感：</strong>
+            Q彈細緻、芋頭綿密
+          </li>
+
+          <li>
+            <strong>風味：</strong>
+            杏仁濃香 × 芋頭甘甜
+          </li>
+
+          <li>
+            <strong>特色：</strong>
+            雙重香氣、層次豐富
+          </li>
+
+          <li>
+            <strong>建議食用：</strong>
+            冷藏後享用風味最佳
+          </li>
+
+          <li>
+            <strong>保存方式：</strong>
+            需冷藏保存，開封後請儘快食用
+          </li>
+
+        </ul>
+
+        <p class="notice">
+          ※ 手工製作，每批產品的顏色、大小及外觀可能略有差異，屬正常現象。
+        </p>
+
+      </div>
+
+    </article>
+
+
+
+    <!-- 純杏仁涼糕 -->
+
+    <article class="product-item">
+
+      <img
+        src="product-almond.jpg"
+        alt="純杏仁涼糕">
+
+      <div class="product-content">
+
+        <h2>純杏仁涼糕</h2>
+
+        <p class="description">
+          使用純杏仁製作，
+          保留杏仁本身自然濃郁的香氣，
+          搭配涼糕細緻Q彈的口感，
+          入口杏仁香明顯、滑順清爽，
+          適合喜歡純粹杏仁風味的顧客。
+        </p>
+
+        <ul class="product-details">
+
+          <li>
+            <strong>口感：</strong>
+            Q彈細緻、滑嫩順口
+          </li>
+
+          <li>
+            <strong>風味：</strong>
+            純杏仁濃郁自然香氣
+          </li>
+
+          <li>
+            <strong>特色：</strong>
+            純杏仁製作、香氣直接
+          </li>
+
+          <li>
+            <strong>建議食用：</strong>
+            冷藏後享用風味更加清爽
+          </li>
+
+          <li>
+            <strong>保存方式：</strong>
+            需冷藏保存，開封後請儘快食用
+          </li>
+
+        </ul>
+
+        <p class="notice">
+          ※ 手工製作，每批產品的顏色、大小及外觀可能略有差異，屬正常現象。
+        </p>
+
+      </div>
+
+    </article>
+
+
   </section>
+
+
+  <div class="back-home">
+
+    <a href="./">
+      返回官網首頁
+    </a>
+
+  </div>
 
 </main>
 
-<button class="menu-toggle" id="menuToggle" aria-label="開啟選單">☰</button>
-
-<nav class="mobile-menu" id="mobileMenu">
-  <a href="index.html">首頁</a>
-  <a href="rules.html">購買涼糕規則</a>
-  <a href="products.html">涼糕專區</a>
-  <a href="radish-cake.html">純米蘿蔔糕專區</a>
-  <a href="merch.html">周邊商品</a>
-  <a href="about.html">品牌故事</a>
-  <a href="contact.html">聯絡我們</a>
-</nav>
 
 <script src="script.js"></script>
 
