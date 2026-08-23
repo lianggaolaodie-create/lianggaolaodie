@@ -20,7 +20,7 @@ body{margin:0;background:#f7f1e8;color:#3b281c;font-family:-apple-system,BlinkMa
 .product-grid{grid-template-columns:1fr !important}
   .product-card{border-radius:14px}
   .product-card h3{padding:12px 6px 14px;font-size:16px}
-  .menu-toggle{display:block;position:absolute;top:15px;right:12px;width:86px;height:100px;z-index:9999;border:0;background:transparent;padding:0}
+  .menu-toggle{display:block;position:absolute;top:20px;right:10px;width:100px;height:110px;background:transparent;border:0;opacity:0;z-index:9999;cursor:pointer}
   .mobile-menu{display:none;position:fixed;top:108px;left:16px;right:16px;z-index:9998;background:#fffaf3;border-radius:16px;padding:8px 18px;box-shadow:0 8px 30px rgba(0,0,0,.25)}
   .mobile-menu.open{display:block}
   .mobile-menu a{display:block;padding:15px 5px;color:#3b281c;text-decoration:none;font-size:18px;border-bottom:1px solid #e7d8c5}
