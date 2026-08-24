@@ -7,12 +7,12 @@
   <title>老爹涼糕｜手工涼糕・涼糕餐車｜官方網站</title>
 
   <meta name="description"
-        content="老爹涼糕官方網站，手工製作新鮮涼糕，提供芋頭涼糕、雞蛋布丁涼糕、黑糖芋頭、仙草、杏仁、巧克力、水果綜合等多種口味。">
+        content="老爹涼糕官方網站，手工製作新鮮涼糕、特色涼糕口味、涼糕餐車與周邊商品。">
 
   <meta name="robots" content="index, follow">
 
   <meta name="keywords"
-        content="老爹涼糕,老爹涼糕餐車,手工涼糕,芋頭涼糕,水果涼糕,杏仁涼糕,仙草涼糕,黑糖芋頭,雞蛋布丁涼糕">
+        content="老爹涼糕,老爹涼糕餐車,手工涼糕,芋頭涼糕,水果涼糕,杏仁涼糕,仙草涼糕,黑糖芋頭涼糕">
 
   <style>
     * {
@@ -22,219 +22,404 @@
     }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Noto Sans TC",
-                   "Microsoft JhengHei", sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont,
+        "Segoe UI", "Microsoft JhengHei", sans-serif;
       background: #fffaf4;
-      color: #3f3029;
+      color: #2b211c;
       line-height: 1.7;
     }
 
     img {
       display: block;
-      width: 100%;
+      max-width: 100%;
     }
 
     a {
-      text-decoration: none;
       color: inherit;
+      text-decoration: none;
     }
 
-    .hero {
-      width: 100%;
-      background: #fff;
-    }
-
-    .hero img {
-      width: 100%;
-      height: auto;
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: rgba(255,255,255,.96);
+      border-bottom: 1px solid #eadfd5;
+      backdrop-filter: blur(12px);
     }
 
     .nav {
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      background: rgba(255,255,255,.96);
-      border-bottom: 1px solid #eee3d8;
-      box-shadow: 0 4px 18px rgba(0,0,0,.05);
-    }
-
-    .nav-inner {
       max-width: 1180px;
       margin: auto;
-      min-height: 70px;
-      padding: 0 22px;
+      padding: 14px 20px;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      gap: 20px;
     }
 
     .brand {
       font-size: 22px;
       font-weight: 900;
-      color: #653b2b;
+      letter-spacing: 1px;
+    }
+
+    .brand small {
+      display: block;
+      font-size: 11px;
+      color: #9b6b4c;
+      letter-spacing: 3px;
+    }
+
+    .desktop-menu {
+      display: flex;
+      gap: 24px;
+      align-items: center;
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .desktop-menu a:hover {
+      color: #a35f35;
     }
 
     .menu-toggle {
+      display: none;
       border: 0;
-      background: #6b3f2d;
+      background: #2d211b;
       color: white;
-      width: 46px;
-      height: 42px;
-      border-radius: 12px;
-      font-size: 24px;
+      border-radius: 10px;
+      width: 44px;
+      height: 44px;
+      font-size: 22px;
       cursor: pointer;
     }
 
     .mobile-menu {
       display: none;
+      padding: 10px 20px 20px;
       background: white;
       border-top: 1px solid #eee;
-      padding: 10px 22px 20px;
     }
 
     .mobile-menu.open {
-      display: block;
+      display: grid;
     }
 
     .mobile-menu a {
-      display: block;
-      padding: 13px 5px;
+      padding: 12px 5px;
       border-bottom: 1px solid #eee;
       font-weight: 700;
     }
 
-    .section {
-      padding: 65px 20px;
+    .hero {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 28px 20px 15px;
     }
 
-    .container {
+    .hero-photo {
+      position: relative;
+      border-radius: 28px;
+      overflow: hidden;
+      min-height: 460px;
+      background: #efe2d6;
+      box-shadow: 0 20px 50px rgba(80,50,30,.12);
+    }
+
+    .hero-photo img {
+      width: 100%;
+      min-height: 460px;
+      object-fit: cover;
+    }
+
+    .hero-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: flex-end;
+      padding: 45px;
+      background:
+        linear-gradient(
+          to top,
+          rgba(25,15,10,.78),
+          rgba(25,15,10,.05) 65%
+        );
+    }
+
+    .hero-text {
+      color: white;
+      max-width: 650px;
+    }
+
+    .hero-kicker {
+      font-size: 13px;
+      letter-spacing: 4px;
+      font-weight: 800;
+      opacity: .9;
+    }
+
+    .hero h1 {
+      font-size: clamp(38px, 7vw, 78px);
+      line-height: 1.05;
+      margin: 8px 0 15px;
+      font-weight: 950;
+    }
+
+    .hero p {
+      font-size: 17px;
+      max-width: 560px;
+    }
+
+    .section {
       max-width: 1180px;
       margin: auto;
-    }
-
-    .section-kicker {
-      text-align: center;
-      color: #a76d4f;
-      font-weight: 800;
-      letter-spacing: 3px;
-      font-size: 13px;
-      margin-bottom: 5px;
-    }
-
-    h1,
-    h2 {
-      color: #553326;
+      padding: 75px 20px;
     }
 
     .section-title {
       text-align: center;
-      font-size: clamp(28px, 5vw, 42px);
+      margin-bottom: 42px;
+    }
+
+    .section-title span {
+      color: #b6764e;
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 4px;
+    }
+
+    .section-title h2 {
+      font-size: clamp(30px, 5vw, 48px);
+      margin-top: 5px;
+    }
+
+    .section-title p {
+      color: #75665e;
+      margin-top: 8px;
+    }
+
+    .products {
+      display: grid;
+      grid-template-columns: repeat(4,1fr);
+      gap: 18px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 22px;
+      overflow: hidden;
+      box-shadow: 0 12px 35px rgba(60,40,30,.08);
+      border: 1px solid #f0e6de;
+    }
+
+    .card-image {
+      aspect-ratio: 1 / 1;
+      background: #f1e4d9;
+      overflow: hidden;
+    }
+
+    .card-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .card-body {
+      padding: 20px;
+    }
+
+    .card h3 {
+      font-size: 20px;
       margin-bottom: 8px;
     }
 
-    .section-note {
-      text-align: center;
-      color: #806d63;
-      margin-bottom: 38px;
+    .card p {
+      color: #75665e;
+      font-size: 14px;
     }
 
-    .intro {
-      text-align: center;
-      max-width: 780px;
+    .story {
+      background: #2c201a;
+      color: white;
+    }
+
+    .story-inner {
+      max-width: 1180px;
       margin: auto;
-      font-size: 17px;
-    }
-
-    .product-grid {
+      padding: 80px 20px;
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 22px;
+      grid-template-columns: 1fr 1fr;
+      align-items: center;
+      gap: 55px;
     }
 
-    .product-card {
+    .story-image {
+      border-radius: 28px;
+      overflow: hidden;
+    }
+
+    .story-image img {
+      width: 100%;
+      min-height: 420px;
+      object-fit: cover;
+    }
+
+    .story-text span {
+      color: #e8b38e;
+      letter-spacing: 4px;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .story-text h2 {
+      font-size: clamp(34px, 5vw, 55px);
+      line-height: 1.15;
+      margin: 12px 0 20px;
+    }
+
+    .story-text p {
+      color: #e7dcd5;
+      margin-bottom: 14px;
+    }
+
+    .features {
+      display: grid;
+      grid-template-columns: repeat(3,1fr);
+      gap: 20px;
+    }
+
+    .feature {
+      padding: 32px 25px;
       background: white;
-      border-radius: 22px;
-      padding: 25px;
-      box-shadow: 0 10px 30px rgba(70,45,30,.08);
-      border: 1px solid #f1e7de;
-    }
-
-    .product-card h3 {
-      font-size: 22px;
-      margin-bottom: 10px;
-      color: #603c2d;
-    }
-
-    .product-card p {
-      color: #6f625b;
-    }
-
-    .tag {
-      display: inline-block;
-      margin-top: 15px;
-      padding: 6px 12px;
-      background: #fff0df;
-      color: #8a563c;
-      border-radius: 999px;
-      font-size: 13px;
-      font-weight: 800;
-    }
-
-    .about {
-      background: #f5eadf;
-    }
-
-    .about-box {
-      max-width: 850px;
-      margin: auto;
+      border-radius: 20px;
+      border: 1px solid #eee2d8;
       text-align: center;
-      background: rgba(255,255,255,.7);
-      padding: 40px 28px;
-      border-radius: 24px;
     }
 
-    .about-box h2 {
-      margin-bottom: 15px;
+    .feature-icon {
+      font-size: 36px;
+      margin-bottom: 10px;
+    }
+
+    .feature h3 {
+      font-size: 20px;
+      margin-bottom: 7px;
+    }
+
+    .feature p {
+      color: #75665e;
+      font-size: 14px;
+    }
+
+    .announcement {
+      max-width: 1180px;
+      margin: 0 auto 70px;
+      padding: 0 20px;
+    }
+
+    .announcement-box {
+      padding: 45px 30px;
+      background: #e8d2bd;
+      border-radius: 28px;
+      text-align: center;
+    }
+
+    .announcement-box h2 {
       font-size: 32px;
+      margin-bottom: 10px;
+    }
+
+    .announcement-box p {
+      color: #5d4c42;
     }
 
     footer {
+      background: #17110e;
+      color: white;
+      padding: 50px 20px;
       text-align: center;
-      padding: 35px 20px;
-      background: #513326;
-      color: #fff;
     }
 
     footer strong {
-      font-size: 20px;
+      display: block;
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+
+    footer p {
+      color: #bfb2aa;
+      font-size: 14px;
+      margin: 4px 0;
     }
 
     @media (max-width: 900px) {
-      .product-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-    }
-
-    @media (max-width: 600px) {
-      .section {
-        padding: 45px 16px;
+      .products {
+        grid-template-columns: repeat(2,1fr);
       }
 
-      .product-grid {
+      .story-inner {
         grid-template-columns: 1fr;
       }
 
-      .product-card {
-        padding: 22px;
+      .features {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 700px) {
+      .desktop-menu {
+        display: none;
       }
 
-      .nav-inner {
-        min-height: 62px;
-        padding: 0 16px;
+      .menu-toggle {
+        display: block;
       }
 
-      .brand {
-        font-size: 19px;
+      .hero {
+        padding: 12px;
+      }
+
+      .hero-photo,
+      .hero-photo img {
+        min-height: 520px;
+      }
+
+      .hero-photo {
+        border-radius: 20px;
+      }
+
+      .hero-overlay {
+        padding: 28px 22px;
+      }
+
+      .section {
+        padding: 55px 15px;
+      }
+
+      .products {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+
+      .card-body {
+        padding: 14px;
+      }
+
+      .card h3 {
+        font-size: 17px;
+      }
+
+      .card p {
+        font-size: 13px;
+      }
+
+      .story-inner {
+        padding: 60px 15px;
+      }
+
+      .story-image img {
+        min-height: 320px;
       }
     }
   </style>
@@ -242,185 +427,359 @@
 
 <body>
 
-  <!-- 手機選單 -->
-  <nav class="nav">
-    <div class="nav-inner">
-      <a class="brand" href="./">老爹・涼糕</a>
+<header>
+  <div class="nav">
 
-      <button
-        id="menuToggle"
-        class="menu-toggle"
-        aria-expanded="false"
-        aria-label="開啟選單">
-        ☰
-      </button>
-    </div>
+    <a href="./" class="brand">
+      老爹・涼糕
+      <small>LAO DIE LIANG GAO</small>
+    </a>
 
-    <div id="mobileMenu" class="mobile-menu">
+    <nav class="desktop-menu">
       <a href="./">首頁</a>
-      <a href="rules.html">購買涼糕規則</a>
-      <a href="products.html">涼糕專區</a>
-      <a href="radish-cake.html">純米蘿蔔糕專區</a>
+      <a href="#products">涼糕專區</a>
+      <a href="radish-cake.html">純米蘿蔔糕</a>
       <a href="merch.html">周邊商品</a>
       <a href="about.html">關於老爹</a>
       <a href="schedule.html">出攤時間</a>
       <a href="contact.html">聯絡我們</a>
-    </div>
+    </nav>
+
+    <button
+      id="menuToggle"
+      class="menu-toggle"
+      aria-expanded="false"
+      aria-label="開啟選單">
+      ☰
+    </button>
+
+  </div>
+
+  <nav id="mobileMenu" class="mobile-menu">
+    <a href="./">首頁</a>
+    <a href="#products">涼糕專區</a>
+    <a href="radish-cake.html">純米蘿蔔糕專區</a>
+    <a href="merch.html">周邊商品</a>
+    <a href="about.html">關於老爹</a>
+    <a href="schedule.html">出攤時間</a>
+    <a href="contact.html">聯絡我們</a>
   </nav>
+</header>
 
-  <!-- 首頁主視覺 -->
-  <header class="hero">
-    <img
-      src="IMG_2660.png"
-      alt="老爹涼糕 手作涼糕餐車 官方網站">
-  </header>
 
-  <!-- 品牌介紹 -->
-  <section class="section">
-    <div class="container">
-      <p class="section-kicker">LAODIE LIANG GAO</p>
-      <h1 class="section-title">老爹・涼糕</h1>
+<main>
 
-      <p class="intro">
-        堅持手工製作，把熟悉的傳統涼糕做出更多不同風味。
-        Q彈、清爽、不膩口，冷藏後享用更加冰涼滑順。
-        跟著老爹涼糕餐車，一起尋找今天的美味。
-      </p>
+  <section class="hero">
+
+    <div class="hero-photo">
+
+      <img
+        src="IMG_2660.png"
+        alt="老爹涼糕">
+
+      <div class="hero-overlay">
+
+        <div class="hero-text">
+          <div class="hero-kicker">
+            HANDMADE LIANG GAO
+          </div>
+
+          <h1>老爹・涼糕</h1>
+
+          <p>
+            堅持手工製作，把熟悉的台灣涼糕，
+            做出屬於老爹自己的味道。
+          </p>
+        </div>
+
+      </div>
     </div>
+
   </section>
 
-  <!-- 產品介紹 -->
+
   <section class="section" id="products">
-    <div class="container">
 
-      <p class="section-kicker">OUR PRODUCTS</p>
-      <h2 class="section-title">產品介紹</h2>
-      <p class="section-note">手工製作・每日新鮮・口味依當日供應為準</p>
+    <div class="section-title">
+      <span>OUR PRODUCTS</span>
+      <h2>人氣涼糕</h2>
+      <p>手工製作・每日新鮮・口味依當日供應為準</p>
+    </div>
 
-      <div class="product-grid">
 
-        <article class="product-card">
+    <div class="products">
+
+      <article class="card">
+        <div class="card-image">
+          <img src="product-taro.png"
+               alt="芋頭涼糕">
+        </div>
+
+        <div class="card-body">
           <h3>芋頭涼糕</h3>
           <p>
-            選用香濃芋頭製作，口感柔軟滑嫩、清爽Q彈，
-            每一口都能品嚐自然芋香。
+            選用香濃芋頭製作，
+            柔軟滑嫩、清爽Q彈，
+            經典耐吃。
           </p>
-          <span class="tag">人氣經典</span>
-        </article>
+        </div>
+      </article>
 
-        <article class="product-card">
-          <h3>水果綜合涼糕</h3>
+
+      <article class="card">
+        <div class="card-image">
+          <img src="product-fruit.png"
+               alt="水果涼糕">
+        </div>
+
+        <div class="card-body">
+          <h3>水果涼糕</h3>
           <p>
-            一盒集結多種水果風味，色彩繽紛、清爽好吃。
-            每日製作口味可能不同，天天都有不同驚喜。
+            一盒多種水果風味，
+            每日搭配可能不同，
+            每次都有不同驚喜。
           </p>
-          <span class="tag">每日口味不同</span>
-        </article>
+        </div>
+      </article>
 
-        <article class="product-card">
-          <h3>杏仁涼糕</h3>
-          <p>
-            使用純杏仁製作，杏仁香氣濃郁自然，
-            口感細緻柔嫩，甜度適中、不膩口。
-          </p>
-          <span class="tag">純杏仁製作</span>
-        </article>
 
-        <article class="product-card">
+      <article class="card">
+        <div class="card-image">
+          <img src="product-almond-taro.png"
+               alt="杏仁芋頭涼糕">
+        </div>
+
+        <div class="card-body">
           <h3>杏仁芋頭涼糕</h3>
           <p>
-            杏仁香氣搭配綿密芋頭風味，
-            兩種經典香氣融合，層次豐富又順口。
+            杏仁清香搭配綿密芋頭，
+            層次豐富，
+            香氣自然不膩口。
           </p>
-          <span class="tag">雙重風味</span>
-        </article>
+        </div>
+      </article>
 
-        <article class="product-card">
+
+      <article class="card">
+        <div class="card-image">
+          <img src="product-brown-taro.png"
+               alt="黑糖芋頭涼糕">
+        </div>
+
+        <div class="card-body">
           <h3>黑糖芋頭涼糕</h3>
           <p>
-            黑糖的醇厚香氣搭配芋頭，
-            入口Q彈滑嫩，甜香中帶有濃郁芋頭風味。
+            黑糖香氣搭配芋頭，
+            甜香濃郁，
+            冰涼享用更加美味。
           </p>
-          <span class="tag">濃郁黑糖</span>
-        </article>
+        </div>
+      </article>
 
-        <article class="product-card">
-          <h3>黑糖地瓜涼糕</h3>
-          <p>
-            黑糖外皮搭配香甜地瓜風味，
-            口感柔嫩Q彈，是傳統與創意結合的特色口味。
-          </p>
-          <span class="tag">特色口味</span>
-        </article>
 
-        <article class="product-card">
+      <article class="card">
+        <div class="card-image">
+          <img src="product-grass-jelly.png"
+               alt="仙草涼糕">
+        </div>
+
+        <div class="card-body">
           <h3>仙草涼糕</h3>
           <p>
-            清新的仙草香氣，口感滑嫩清爽，
-            冰涼享用更適合炎熱天氣。
+            清爽仙草香氣，
+            Q嫩滑順，
+            是炎熱天氣的清涼選擇。
           </p>
-          <span class="tag">清爽推薦</span>
-        </article>
+        </div>
+      </article>
 
-        <article class="product-card">
+
+      <article class="card">
+        <div class="card-image">
+          <img src="product-chocolate.png"
+               alt="巧克力涼糕">
+        </div>
+
+        <div class="card-body">
           <h3>巧克力涼糕</h3>
           <p>
-            香濃巧克力融入Q彈涼糕，
-            帶有滑順可可香氣，大人小朋友都適合。
+            巧克力香氣融入Q彈涼糕，
+            大人小朋友都喜歡。
           </p>
-          <span class="tag">香濃可可</span>
-        </article>
+        </div>
+      </article>
 
-        <article class="product-card">
+
+      <article class="card">
+        <div class="card-image">
+          <img src="product-pudding.png"
+               alt="雞蛋布丁涼糕">
+        </div>
+
+        <div class="card-body">
           <h3>雞蛋布丁涼糕</h3>
           <p>
-            布丁般柔和蛋香搭配涼糕Q彈口感，
-            香甜滑順，風味溫和。
+            溫潤雞蛋與布丁香氣，
+            口感柔嫩，
+            香甜順口。
           </p>
-          <span class="tag">蛋香滑順</span>
-        </article>
+        </div>
+      </article>
 
-      </div>
+
+      <article class="card">
+        <div class="card-image">
+          <img src="product-almond.png"
+               alt="杏仁涼糕">
+        </div>
+
+        <div class="card-body">
+          <h3>杏仁涼糕</h3>
+          <p>
+            使用杏仁製作，
+            保留自然杏仁香氣，
+            清爽滑嫩。
+          </p>
+        </div>
+      </article>
+
     </div>
   </section>
 
-  <!-- 關於 -->
-  <section class="section about">
-    <div class="container">
-      <div class="about-box">
-        <p class="section-kicker">ABOUT LAODIE</p>
-        <h2>手工製作・新鮮出攤</h2>
+
+  <section class="story">
+
+    <div class="story-inner">
+
+      <div class="story-image">
+        <img src="IMG_1729.jpeg"
+             alt="老爹涼糕餐車">
+      </div>
+
+      <div class="story-text">
+
+        <span>OUR STORY</span>
+
+        <h2>
+          一台餐車，<br>
+          一份手作的堅持。
+        </h2>
+
         <p>
-          老爹涼糕以手工製作為核心，
-          不定期推出不同口味與限定商品。
-          實際販售品項、出攤地點及時間，
-          請以老爹最新公告為準。
+          老爹・涼糕從手工製作出發，
+          希望把新鮮、Q彈又熟悉的台灣味，
+          帶到更多地方。
+        </p>
+
+        <p>
+          從經典涼糕到不同創意口味，
+          我們持續嘗試新的搭配，
+          也堅持每一份產品用心製作。
+        </p>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <section class="section">
+
+    <div class="section-title">
+      <span>WHY LAODIE</span>
+      <h2>老爹的堅持</h2>
+    </div>
+
+    <div class="features">
+
+      <div class="feature">
+        <div class="feature-icon">🤲</div>
+        <h3>手工製作</h3>
+        <p>
+          每一份涼糕用心製作，
+          保留我們想呈現的口感與風味。
         </p>
       </div>
+
+      <div class="feature">
+        <div class="feature-icon">✨</div>
+        <h3>每日新鮮</h3>
+        <p>
+          依每日製作與現場供應為準，
+          希望讓大家吃到新鮮美味。
+        </p>
+      </div>
+
+      <div class="feature">
+        <div class="feature-icon">🚚</div>
+        <h3>涼糕餐車</h3>
+        <p>
+          老爹餐車持續前往不同地區，
+          最新出攤資訊請關注官方公告。
+        </p>
+      </div>
+
     </div>
+
   </section>
 
-  <footer>
-    <strong>老爹・涼糕</strong>
-    <p>手作涼糕・涼糕餐車</p>
-    <p>© 2026 老爹涼糕 All Rights Reserved.</p>
-  </footer>
 
-  <script>
-    const menuToggle = document.getElementById("menuToggle");
-    const mobileMenu = document.getElementById("mobileMenu");
+  <section class="announcement">
 
-    menuToggle.addEventListener("click", function () {
-      const isOpen = mobileMenu.classList.toggle("open");
+    <div class="announcement-box">
 
-      menuToggle.setAttribute(
-        "aria-expanded",
-        isOpen ? "true" : "false"
-      );
+      <h2>📣 老爹涼糕餐車出發</h2>
 
-      menuToggle.textContent = isOpen ? "✕" : "☰";
-    });
-  </script>
+      <p>
+        每週出攤地點、當日限定口味及最新消息，
+        以老爹官方公告為準。
+      </p>
+
+    </div>
+
+  </section>
+
+</main>
+
+
+<footer>
+
+  <strong>老爹・涼糕</strong>
+
+  <p>手作涼糕・涼糕餐車</p>
+
+  <p>
+    © 2026 老爹涼糕 All Rights Reserved.
+  </p>
+
+</footer>
+
+
+<script>
+
+  const menuToggle =
+    document.getElementById("menuToggle");
+
+  const mobileMenu =
+    document.getElementById("mobileMenu");
+
+  menuToggle.addEventListener("click", function () {
+
+    const isOpen =
+      mobileMenu.classList.toggle("open");
+
+    menuToggle.setAttribute(
+      "aria-expanded",
+      isOpen ? "true" : "false"
+    );
+
+    menuToggle.textContent =
+      isOpen ? "✕" : "☰";
+
+  });
+
+</script>
 
 </body>
 </html>
