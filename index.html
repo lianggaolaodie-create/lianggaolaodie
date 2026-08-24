@@ -3,327 +3,424 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>老爹涼糕｜手工涼糕・涼糕餐車｜台北・新北涼糕</title>
-<meta name="description" content="老爹．涼糕官方網站，提供手工涼糕、芋頭涼糕、雞蛋布丁涼糕、杏仁涼糕、水果涼糕、仙草涼糕等產品介紹，以及雙北涼糕餐車最新出車<link rel="canonical" href="https://lianggaolaodie-create.github.io/lianggaolaodie/">
+
+  <title>老爹涼糕｜手工涼糕・涼糕餐車｜官方網站</title>
+
+  <meta name="description"
+        content="老爹涼糕官方網站，手工製作新鮮涼糕，提供芋頭涼糕、雞蛋布丁涼糕、黑糖芋頭、仙草、杏仁、巧克力、水果綜合等多種口味。">
+
   <meta name="robots" content="index, follow">
-  <link rel="canonical" href="https://lianggaolaodie-create.github.io/lianggaolaodie/">
-  <meta name="keywords" content="老爹涼糕, 老爹涼糕餐車, 涼糕, 手工涼糕, 雙北涼糕, 台北涼糕, 新北涼糕, 芋頭涼糕, 水果涼糕, 杏仁涼糕">
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "LocalBusiness",
-  "name": "老爹涼糕",
-  "url": "https://lianggaolaodie-create.github.io/lianggaolaodie/",
-  "description": "老爹涼糕，手工製作涼糕與涼糕餐車，提供多種涼糕口味。"
-}
-</script>
+
+  <meta name="keywords"
+        content="老爹涼糕,老爹涼糕餐車,手工涼糕,芋頭涼糕,水果涼糕,杏仁涼糕,仙草涼糕,黑糖芋頭,雞蛋布丁涼糕">
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Noto Sans TC",
+                   "Microsoft JhengHei", sans-serif;
+      background: #fffaf4;
+      color: #3f3029;
+      line-height: 1.7;
+    }
+
+    img {
+      display: block;
+      width: 100%;
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .hero {
+      width: 100%;
+      background: #fff;
+    }
+
+    .hero img {
+      width: 100%;
+      height: auto;
+    }
+
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(255,255,255,.96);
+      border-bottom: 1px solid #eee3d8;
+      box-shadow: 0 4px 18px rgba(0,0,0,.05);
+    }
+
+    .nav-inner {
+      max-width: 1180px;
+      margin: auto;
+      min-height: 70px;
+      padding: 0 22px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand {
+      font-size: 22px;
+      font-weight: 900;
+      color: #653b2b;
+    }
+
+    .menu-toggle {
+      border: 0;
+      background: #6b3f2d;
+      color: white;
+      width: 46px;
+      height: 42px;
+      border-radius: 12px;
+      font-size: 24px;
+      cursor: pointer;
+    }
+
+    .mobile-menu {
+      display: none;
+      background: white;
+      border-top: 1px solid #eee;
+      padding: 10px 22px 20px;
+    }
+
+    .mobile-menu.open {
+      display: block;
+    }
+
+    .mobile-menu a {
+      display: block;
+      padding: 13px 5px;
+      border-bottom: 1px solid #eee;
+      font-weight: 700;
+    }
+
+    .section {
+      padding: 65px 20px;
+    }
+
+    .container {
+      max-width: 1180px;
+      margin: auto;
+    }
+
+    .section-kicker {
+      text-align: center;
+      color: #a76d4f;
+      font-weight: 800;
+      letter-spacing: 3px;
+      font-size: 13px;
+      margin-bottom: 5px;
+    }
+
+    h1,
+    h2 {
+      color: #553326;
+    }
+
+    .section-title {
+      text-align: center;
+      font-size: clamp(28px, 5vw, 42px);
+      margin-bottom: 8px;
+    }
+
+    .section-note {
+      text-align: center;
+      color: #806d63;
+      margin-bottom: 38px;
+    }
+
+    .intro {
+      text-align: center;
+      max-width: 780px;
+      margin: auto;
+      font-size: 17px;
+    }
+
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 22px;
+    }
+
+    .product-card {
+      background: white;
+      border-radius: 22px;
+      padding: 25px;
+      box-shadow: 0 10px 30px rgba(70,45,30,.08);
+      border: 1px solid #f1e7de;
+    }
+
+    .product-card h3 {
+      font-size: 22px;
+      margin-bottom: 10px;
+      color: #603c2d;
+    }
+
+    .product-card p {
+      color: #6f625b;
+    }
+
+    .tag {
+      display: inline-block;
+      margin-top: 15px;
+      padding: 6px 12px;
+      background: #fff0df;
+      color: #8a563c;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .about {
+      background: #f5eadf;
+    }
+
+    .about-box {
+      max-width: 850px;
+      margin: auto;
+      text-align: center;
+      background: rgba(255,255,255,.7);
+      padding: 40px 28px;
+      border-radius: 24px;
+    }
+
+    .about-box h2 {
+      margin-bottom: 15px;
+      font-size: 32px;
+    }
+
+    footer {
+      text-align: center;
+      padding: 35px 20px;
+      background: #513326;
+      color: #fff;
+    }
+
+    footer strong {
+      font-size: 20px;
+    }
+
+    @media (max-width: 900px) {
+      .product-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 600px) {
+      .section {
+        padding: 45px 16px;
+      }
+
+      .product-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .product-card {
+        padding: 22px;
+      }
+
+      .nav-inner {
+        min-height: 62px;
+        padding: 0 16px;
+      }
+
+      .brand {
+        font-size: 19px;
+      }
+    }
+  </style>
 </head>
+
 <body>
-  <main class="page">
-   <picture>
-<img class="full-design" src="IMG_2660.png" alt="老爹・涼糕官方網站">
-</picture>
 
-    <section class="products" id="products">
-      <div class="products-inner">
-        <p class="section-kicker">OUR PRODUCTS</p>
-        <h2>產品介紹</h2>
-        <p class="section-note">手工製作・每日新鮮</<div class="product-grid">
+  <!-- 手機選單 -->
+  <nav class="nav">
+    <div class="nav-inner">
+      <a class="brand" href="./">老爹・涼糕</a>
 
-  <div class="product-grid">
-    <article class="product-card">
-    <img src="product-taro.png" alt="芋頭涼糕">
-    <div class="product-info">
-      <h3>芋頭涼糕</h3>
-      <p class="product-description">
-        選用香濃芋頭製作，口感柔軟滑嫩、清爽Q彈，
-        每一口都能品嚐到自然芋香。甜度適中、不膩口，
-        冰涼享用更加美味，是大人與小朋友都喜歡的經典口味。
-      </p>
-      <ul class="product-details">
-        <li><strong>口感：</strong>Q彈滑嫩、細緻綿密</li>
-        <li><strong>風味：</strong>自然芋香、甜而不膩</li>
-        <li><strong>建議食用：</strong>冷藏後享用風味更佳</li>
-        <li><strong>保存方式：</strong>需冷藏保存，開封後請儘快食用</li>
-        <li><strong>適合場合：</strong>下午茶、日常點心、家庭聚會及送禮</li>
-      </ul>
-      <p class="product-notice">
-        ※手工製作，每批產品的顏色、大小及外觀可能略有差異，屬正常現象。
+      <button
+        id="menuToggle"
+        class="menu-toggle"
+        aria-expanded="false"
+        aria-label="開啟選單">
+        ☰
+      </button>
+    </div>
+
+    <div id="mobileMenu" class="mobile-menu">
+      <a href="./">首頁</a>
+      <a href="rules.html">購買涼糕規則</a>
+      <a href="products.html">涼糕專區</a>
+      <a href="radish-cake.html">純米蘿蔔糕專區</a>
+      <a href="merch.html">周邊商品</a>
+      <a href="about.html">關於老爹</a>
+      <a href="schedule.html">出攤時間</a>
+      <a href="contact.html">聯絡我們</a>
+    </div>
+  </nav>
+
+  <!-- 首頁主視覺 -->
+  <header class="hero">
+    <img
+      src="IMG_2660.png"
+      alt="老爹涼糕 手作涼糕餐車 官方網站">
+  </header>
+
+  <!-- 品牌介紹 -->
+  <section class="section">
+    <div class="container">
+      <p class="section-kicker">LAODIE LIANG GAO</p>
+      <h1 class="section-title">老爹・涼糕</h1>
+
+      <p class="intro">
+        堅持手工製作，把熟悉的傳統涼糕做出更多不同風味。
+        Q彈、清爽、不膩口，冷藏後享用更加冰涼滑順。
+        跟著老爹涼糕餐車，一起尋找今天的美味。
       </p>
     </div>
-  </article>
-<article class="product-card">
-  <img src="IMG_2889.png" alt="鹹蛋芋頭涼糕">
-  <div class="product-info">
-    <h3>鹹蛋芋頭涼糕</h3>
+  </section>
 
-    <p class="product-description">
-      以綿密芋頭搭配鹹蛋黃製作，將芋頭自然香甜與鹹蛋黃濃郁鹹香融合在Q彈滑嫩的涼糕中。
-      入口先感受到淡雅芋香，接著帶出鹹蛋黃特有的沙沙濃香，鹹甜交織、層次豐富，冷藏後享用更加清爽。
-    </p>
+  <!-- 產品介紹 -->
+  <section class="section" id="products">
+    <div class="container">
 
-    <ul class="product-details">
-      <li><strong>口感：</strong>Q彈滑嫩、芋頭綿密、鹹蛋黃細緻沙香</li>
-      <li><strong>風味：</strong>芋香甘甜 × 鹹蛋黃濃郁鹹香</li>
-      <li><strong>特色：</strong>鹹甜雙重風味，越吃越有層次</li>
-      <li><strong>建議食用：</strong>冷藏後享用風味更佳</li>
-      <li><strong>保存方式：</strong>需冷藏保存，開封後請儘快食用</li>
-    </ul>
+      <p class="section-kicker">OUR PRODUCTS</p>
+      <h2 class="section-title">產品介紹</h2>
+      <p class="section-note">手工製作・每日新鮮・口味依當日供應為準</p>
 
-    <p class="product-notice">
-      ※ 手工製作，每批產品的顏色、大小及外觀可能略有差異，屬正常現象。
-    </p>
-  </div>
-</article>
-  <article class="product-card">
-    <img src="product-pudding.jpg" alt="雞蛋布丁涼糕">
-    <div class="product-info">
-      <h3>雞蛋布丁涼糕</h3>
-      <p class="product-description">
-        將香醇雞蛋布丁風味融入Q彈滑嫩的涼糕中，
-        入口散發淡淡蛋香與奶香，口感柔嫩細緻、香甜不膩。
-        冰涼後享用更加清爽，熟悉的布丁滋味搭配涼糕的彈嫩口感，
-        大人小孩都喜歡。
-      </p>
-      <ul class="product-details">
-        <li><strong>口感：</strong>Q彈滑嫩、柔軟細緻</li>
-        <li><strong>風味：</strong>濃郁蛋香、香甜順口</li>
-        <li><strong>建議食用：</strong>冷藏後風味更佳</li>
-        <li><strong>保存方式：</strong>需冷藏保存，開封後請儘快食用</li>
-        <li><strong>適合場合：</strong>日常點心、下午茶、親子分享及聚會甜點</li>
-      </ul>
-      <p class="product-notice">
-        ※手工製作，每批產品的顏色、大小及外觀可能略有差異，屬正常現象。
-      </p>
+      <div class="product-grid">
+
+        <article class="product-card">
+          <h3>芋頭涼糕</h3>
+          <p>
+            選用香濃芋頭製作，口感柔軟滑嫩、清爽Q彈，
+            每一口都能品嚐自然芋香。
+          </p>
+          <span class="tag">人氣經典</span>
+        </article>
+
+        <article class="product-card">
+          <h3>水果綜合涼糕</h3>
+          <p>
+            一盒集結多種水果風味，色彩繽紛、清爽好吃。
+            每日製作口味可能不同，天天都有不同驚喜。
+          </p>
+          <span class="tag">每日口味不同</span>
+        </article>
+
+        <article class="product-card">
+          <h3>杏仁涼糕</h3>
+          <p>
+            使用純杏仁製作，杏仁香氣濃郁自然，
+            口感細緻柔嫩，甜度適中、不膩口。
+          </p>
+          <span class="tag">純杏仁製作</span>
+        </article>
+
+        <article class="product-card">
+          <h3>杏仁芋頭涼糕</h3>
+          <p>
+            杏仁香氣搭配綿密芋頭風味，
+            兩種經典香氣融合，層次豐富又順口。
+          </p>
+          <span class="tag">雙重風味</span>
+        </article>
+
+        <article class="product-card">
+          <h3>黑糖芋頭涼糕</h3>
+          <p>
+            黑糖的醇厚香氣搭配芋頭，
+            入口Q彈滑嫩，甜香中帶有濃郁芋頭風味。
+          </p>
+          <span class="tag">濃郁黑糖</span>
+        </article>
+
+        <article class="product-card">
+          <h3>黑糖地瓜涼糕</h3>
+          <p>
+            黑糖外皮搭配香甜地瓜風味，
+            口感柔嫩Q彈，是傳統與創意結合的特色口味。
+          </p>
+          <span class="tag">特色口味</span>
+        </article>
+
+        <article class="product-card">
+          <h3>仙草涼糕</h3>
+          <p>
+            清新的仙草香氣，口感滑嫩清爽，
+            冰涼享用更適合炎熱天氣。
+          </p>
+          <span class="tag">清爽推薦</span>
+        </article>
+
+        <article class="product-card">
+          <h3>巧克力涼糕</h3>
+          <p>
+            香濃巧克力融入Q彈涼糕，
+            帶有滑順可可香氣，大人小朋友都適合。
+          </p>
+          <span class="tag">香濃可可</span>
+        </article>
+
+        <article class="product-card">
+          <h3>雞蛋布丁涼糕</h3>
+          <p>
+            布丁般柔和蛋香搭配涼糕Q彈口感，
+            香甜滑順，風味溫和。
+          </p>
+          <span class="tag">蛋香滑順</span>
+        </article>
+
+      </div>
     </div>
-  </article>
+  </section>
 
-  <article class="product-card">
-    <img src="product-brown-sugar-taro.jpg" alt="黑糖芋頭涼糕">
-    <div class="product-info">
-      <h3>黑糖芋頭涼糕</h3>
-      <p class="product-description">
-        以香醇黑糖風味搭配綿密芋頭，
-        黑糖的濃郁焦香與芋頭的自然香氣完美融合。
-        外層涼糕Q彈滑嫩，內餡細緻飽滿，
-        入口香甜而不膩，冷藏後享用更加冰涼爽口。
-      </p>
-      <ul class="product-details">
-        <li><strong>口感：</strong>外皮Q彈、內餡綿密</li>
-        <li><strong>風味：</strong>黑糖焦香、芋香濃郁</li>
-        <li><strong>建議食用：</strong>冷藏後風味更佳</li>
-        <li><strong>保存方式：</strong>需冷藏保存，開封後請儘快食用</li>
-        <li><strong>適合場合：</strong>下午茶、日常點心、聚會分享及送禮</li>
-      </ul>
-      <p class="product-notice">
-        ※手工製作，每批產品的顏色、大小及外觀可能略有差異，屬正常現象。
-      </p>
+  <!-- 關於 -->
+  <section class="section about">
+    <div class="container">
+      <div class="about-box">
+        <p class="section-kicker">ABOUT LAODIE</p>
+        <h2>手工製作・新鮮出攤</h2>
+        <p>
+          老爹涼糕以手工製作為核心，
+          不定期推出不同口味與限定商品。
+          實際販售品項、出攤地點及時間，
+          請以老爹最新公告為準。
+        </p>
+      </div>
     </div>
-  </article>
+  </section>
 
-  <article class="product-card">
-    <img src="product-grass-jelly.jpg" alt="仙草涼糕">
-    <div class="product-info">
-      <h3>仙草涼糕</h3>
-      <p class="product-description">
-        以清香仙草風味製作，搭配Q彈滑嫩的涼糕口感，
-        入口帶有淡雅仙草香氣，清爽順口、甜而不膩。
-        冷藏後享用更加冰涼爽口，是炎熱天氣與下午茶的清爽選擇。
-      </p>
-      <ul class="product-details">
-        <li><strong>口感：</strong>Q彈滑嫩、清爽順口</li>
-        <li><strong>風味：</strong>淡雅仙草香、香甜不膩</li>
-        <li><strong>建議食用：</strong>冷藏後風味更佳</li>
-        <li><strong>保存方式：</strong>需冷藏保存，開封後請儘快食用</li>
-        <li><strong>適合場合：</strong>下午茶、日常點心、聚會分享及消暑甜點</li>
-      </ul>
-      <p class="product-notice">
-        ※手工製作，每批產品的顏色、大小及外觀可能略有差異，屬正常現象。
-      </p>
-    </div>
-  </article>
+  <footer>
+    <strong>老爹・涼糕</strong>
+    <p>手作涼糕・涼糕餐車</p>
+    <p>© 2026 老爹涼糕 All Rights Reserved.</p>
+  </footer>
 
-  <article class="product-card">
-    <img src="product-almond-taro.jpg" alt="杏仁芋頭涼糕">
-    <div class="product-info">
-      <h3>杏仁芋頭涼糕</h3>
-      <p class="product-description">
-        將杏仁的清雅香氣與綿密芋頭完美結合，
-        外層涼糕Q彈滑嫩，內餡保留細緻濃郁的芋頭風味。
-        入口先感受到淡雅杏仁香，接著是自然醇厚的芋香，
-        層次豐富、甜而不膩。
-      </p>
-      <ul class="product-details">
-        <li><strong>口感：</strong>外皮Q彈、內餡綿密</li>
-        <li><strong>風味：</strong>杏仁清香、芋香濃郁</li>
-        <li><strong>建議食用：</strong>冷藏後享用風味更佳</li>
-        <li><strong>保存方式：</strong>需冷藏保存，開封後請儘快食用</li>
-        <li><strong>適合場合：</strong>下午茶、日常點心、聚會分享及送禮</li>
-      </ul>
-      <p class="product-notice">
-        ※手工製作，每批產品的顏色、大小及外觀可能略有差異，屬正常現象。
-      </p>
-    </div>
-  </article>
+  <script>
+    const menuToggle = document.getElementById("menuToggle");
+    const mobileMenu = document.getElementById("mobileMenu");
 
-  <article class="product-card">
-    <img src="product-fruit.jpg" alt="水果綜合涼糕">
-    <div class="product-info">
-      <h3>水果綜合涼糕</h3>
-      <p class="product-description">
-        一盒集結多種水果風味，色彩繽紛、口感Q彈滑嫩，
-        每一塊都帶有不同的清甜果香，讓您一次品嚐多種驚喜。
-        每日會依照當天備料與製作情況搭配不同口味，
-        因此每盒內容可能不盡相同，每次品嚐都有新鮮感。
-      </p>
-      <ul class="product-details">
-        <li><strong>口感：</strong>Q彈滑嫩、冰涼爽口</li>
-        <li><strong>風味：</strong>多種水果香氣、清甜不膩</li>
-        <li><strong>口味搭配：</strong>每日隨機搭配多種水果口味</li>
-        <li><strong>建議食用：</strong>冷藏後享用風味更佳</li>
-        <li><strong>保存方式：</strong>需冷藏保存，開封後請儘快食用</li>
-      </ul>
-      <p class="product-notice">
-        ※每日水果口味依現場供應及製作為主，恕無法指定全部口味。
-        手工製作，每批產品的顏色、大小及外觀可能略有差異。
-      </p>
-    </div>
-  </article>
+    menuToggle.addEventListener("click", function () {
+      const isOpen = mobileMenu.classList.toggle("open");
 
-  <article class="product-card">
-    <img src="product-almond.jpg" alt="純杏仁涼糕">
-    <div class="product-info">
-      <h3>純杏仁涼糕</h3>
-      <p class="product-description">
-        選用純杏仁製作，將濃郁自然的杏仁香氣融入Q彈滑嫩的涼糕中。
-        入口細緻柔嫩，散發醇厚杏仁香，甜度適中、清爽不膩，
-        冷藏後享用更能感受到冰涼滑順的口感。
-      </p>
-      <ul class="product-details">
-        <li><strong>口感：</strong>Q彈滑嫩、細緻順口</li>
-        <li><strong>風味：</strong>純杏仁香氣、醇厚不膩</li>
-        <li><strong>特色：</strong>以純杏仁製作，無其他口味混合</li>
-        <li><strong>建議食用：</strong>冷藏後享用風味更佳</li>
-        <li><strong>保存方式：</strong>需冷藏保存，開封後請儘快食用</li>
-      </ul>
-      <p class="product-notice">
-        ※手工製作，每批產品的顏色、大小及外觀可能略有差異，屬正常現象。
-      </p>
-    </div>
-  </article>
+      menuToggle.setAttribute(
+        "aria-expanded",
+        isOpen ? "true" : "false"
+      );
 
-</div>    
-  <section class="merch" id="merch">
-  <div class="merch-inner">
+      menuToggle.textContent = isOpen ? "✕" : "☰";
+    });
+  </script>
 
-    <p class="section-kicker">OFFICIAL MERCHANDISE</p>
-    <h2>老爹・涼糕 周邊商品</h2>
-    <p class="section-note">老爹・涼糕品牌限定周邊商品</p>
-
-    <div class="merch-grid">
-
-      <article class="merch-card">
-        <div class="merch-placeholder">商品照片準備中</div>
-        <h3>品牌服飾</h3>
-      </article>
-
-      <article class="merch-card">
-        <div class="merch-placeholder">商品照片準備中</div>
-        <h3>品牌鑰匙圈</h3>
-      </article>
-
-      <article class="merch-card">
-        <div class="merch-placeholder">商品照片準備中</div>
-        <h3>品牌帽子</h3>
-      </article>
-
-    </div>
-  </div>
-</section>
-    <section class="about" id="about">
-  <div class="about-inner">
-    <p class="section-kicker">ABOUT US</p>
-    <h2>關於老爹</h2>
-    <h3>從一盒涼糕開始，夫妻一起創業的故事</h3>
-
-    <p>「如果你問我們，為什麼會開始賣涼糕？」</p>
-
-    <p>其實一開始，我們也沒想過會做到餐車。</p>
-
-    <p>只是有一天，我們突然決定——<br>
-    不然，為自己拼一次看看。</p>
-
-    <p>夫妻一起創業，聽起來好像很浪漫。</p>
-
-    <p>但真正開始之後才發現，每天面對的不是只有客人和訂單，還有成本、設備、送貨、交通、失敗……</p>
-
-    <p>甚至有時候忙了一整天，回頭一算，才發現：「咦？今天到底有沒有賺錢？」</p>
-
-    <p>但我們還是一步一步做。</p>
-
-    <p>從研究大家想要的口感、甜度與冷藏後的口感，到一次一次試口味，跟廠商調整餡料，再把一盒盒涼糕裝上車，開著車跑遍不同城市，親手送到客人手上。</p>
-
-    <p>菜市場擺攤，有時候凌晨還在準備；餐車隔天要出發，也是一早就得開始忙。</p>
-
-    <p>有人問我們：「這麼累，為什麼還要做？」</p>
-
-    <p><strong>因為我們很清楚——<br>
-    如果現在不努力，未來就不會有我們想要的生活。</strong></p>
-
-    <p>我們不是一開始就有很厲害的設備，也不是一開始就有很多客人。</p>
-
-    <p>我們只有一台車、一些器具，還有兩個想把事情做好的傻夫妻。</p>
-
-    <p>所以這台涼糕餐車，對我們來說不只是一台餐車。</p>
-
-    <p>它載著我們的產品，也載著我們夫妻一起創業的夢。</p>
-
-    <p>從一盒涼糕開始，慢慢做到更多人認識我們。</p>
-
-    <p>我們不知道最後會走到哪裡，但至少現在——</p>
-
-    <p><strong>我們正在一起努力，<br>
-    把「想做的事」慢慢變成「做得到的事」。</strong></p>
-  </div>
-<section class="contact" id="contact">
-  <div class="contact-inner">
-    <p class="section-kicker">CONTACT US</p>
-    <h2>聯絡我們</h2>
-
-    <h3>老爹・涼糕 官方 LINE</h3>
-    <p>訂購涼糕、活動資訊及相關問題，歡迎加入官方 LINE 與我們聯絡。</p>
-
-   <p><strong>LINE ID：@502iugah</strong></p>
-
-<a href="https://line.me/R/ti/p/@502iugah" target="_blank">
-  <img src="IMG_1729.jpeg" alt="老爹・涼糕官方 LINE QR Code" style="display:block;width:220px;max-width:70%;height:auto;margin:20px auto;border-radius:12px;">
-</a>
-
-<p style="text-align:center;">
-  <a href="https://line.me/R/ti/p/@502iugah" target="_blank">加入官方 LINE</a>
-</p>
-    
-</div>
-</section>
-</main>
-
-<button
-  id="menuToggle"
-  class="menu-toggle"
-  aria-expanded="false"
-  aria-label="開啟選單">
-</button>
-
-<nav id="mobileMenu" class="mobile-menu">
- <a href="./">首頁</a>
-  <a href="rules.html">購買涼糕規則</a>
-  <a href="products.html">涼糕專區</a>
-  <a href="radish-cake.html">純米蘿蔔糕專區</a>
-  <a href="merch.html">周邊商品</a>
-<a href="about.html">關於老爹</a>
-  <a href="schedule.html">出攤時間</a>
-  <a href="contact.html">聯絡我們</a>
-</nav>
-  <script src="script.js"></script>
 </body>
 </html>
