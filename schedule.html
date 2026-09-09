@@ -5,26 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>出攤時間｜老爹・涼糕</title>
   <style>
-    * {
-      box-sizing: border-box;
-    }
-
+    * { box-sizing: border-box; }
     body {
       margin: 0;
       background: #f7f1e8;
       color: #3b281c;
       font-family: -apple-system, BlinkMacSystemFont, "Noto Sans TC", sans-serif;
     }
-
-    .schedule {
-      padding: 60px 20px 80px;
-    }
-
-    .schedule-inner {
-      max-width: 850px;
-      margin: 0 auto;
-    }
-
+    .schedule { padding: 60px 20px 80px; }
+    .schedule-inner { max-width: 850px; margin: 0 auto; }
     .kicker {
       text-align: center;
       color: #a8784f;
@@ -32,19 +21,16 @@
       font-size: 14px;
       margin-bottom: 10px;
     }
-
     h1 {
       text-align: center;
       font-size: 38px;
       margin: 0 0 12px;
     }
-
     .subtitle {
       text-align: center;
       color: #806c5e;
       margin-bottom: 45px;
     }
-
     .schedule-card {
       background: #fffaf3;
       border-radius: 24px;
@@ -52,23 +38,19 @@
       margin-bottom: 24px;
       box-shadow: 0 10px 30px rgba(80,55,35,.08);
     }
-
     .schedule-card h2 {
       margin: 0 0 20px;
       font-size: 26px;
     }
-
     .date {
       font-size: 21px;
       font-weight: 700;
       margin-bottom: 18px;
     }
-
     .info {
       line-height: 2;
       font-size: 17px;
     }
-
     .status {
       display: inline-block;
       margin-top: 15px;
@@ -77,83 +59,75 @@
       background: #eee1cf;
       font-weight: 700;
     }
-
     .waiting {
       text-align: center;
       padding: 25px 10px;
       color: #806c5e;
       line-height: 1.9;
     }
-
     .back {
       text-align: center;
       margin-top: 35px;
     }
-
     .back a {
       color: #6b4528;
       text-decoration: none;
       font-weight: 700;
     }
+    @media (max-width: 600px) {
+      .schedule { padding: 40px 14px 60px; }
+      h1 { font-size: 32px; }
+      .schedule-card { padding: 24px 20px; border-radius: 22px; }
+      .schedule-card h2 { font-size: 24px; }
+      .date { font-size: 19px; }
+      .info { font-size: 16px; }
+    }
   </style>
 </head>
-
 <body>
+  <section class="schedule">
+    <div class="schedule-inner">
+      <div class="kicker">SCHEDULE</div>
+      <h1>出攤時間</h1>
+      <div class="subtitle">老爹・涼糕最新出攤行程</div>
 
-<section class="schedule">
-  <div class="schedule-inner">
+      <div class="schedule-card">
+        <h2>🚚 出攤行程</h2>
+        <div class="date">📅 9/12（六）</div>
+        <div class="info">
+          📍 萬華雙和市場（萬華雙和街78號大轉角）<br>
+          🕗 早上八點到售完為止<br>
+          🍰 口味依現場販售為準
+        </div>
+        <div class="status">正常出攤</div>
+      </div>
 
-    <div class="kicker">SCHEDULE</div>
-    <h1>出攤時間</h1>
-    <div class="subtitle">老爹・涼糕最新出攤行程</div>
+      <div class="schedule-card">
+        <h2>🚚 涼糕餐車行程</h2>
+        <div class="date">9/14（一）｜桃園全區（除了復興鄉）</div>
+        <div class="info">
+          📍 服務地區：桃園全區（除了復興鄉）<br>
+          🕐 時間：預計中午開始－售完為止<br>
+          🍰 <strong>當日涼糕口味9/13公布</strong>
+        </div>
+        <div class="status">正常出車</div>
+      </div>
 
-<div class="schedule-card">
-  <h2>🚚 出攤行程</h2>
+      <div class="schedule-card">
+        <h2>🚚 涼糕餐車行程</h2>
+        <div class="date">9/16（三）｜雙北</div>
+        <div class="info">
+          📍 服務地區：雙北<br>
+          🕐 時間：預計中午開始－售完為止<br>
+          🍰 <strong>當日涼糕口味9/15公布</strong>
+        </div>
+        <div class="status">正常出車</div>
+      </div>
 
-  <div class="date">📅 9/12（六）</div>
-
-  <div class="info">
-    📍 萬華雙和市場（萬華雙和街78號大轉角）<br>
-    🕗 早上八點到售完為止<br>
-    🍰 口味依現場販售為準
-  </div>
-
-  <div class="status">正常出攤</div>
-</div>
-
-  
-</div>
-<div class="schedule-card">
-  <h2>🚚 涼糕餐車行程</h2>
-
-  <div class="date">9/14（一）｜桃園全區（除了復興鄉）</div>
-
-  <div class="info">
-    📍 服務地區：桃園全區（除了復興鄉）<br>
-    🕐 時間：預計中午開始－售完為止<br>
-    🍰 <strong>當日涼糕口味9/13公布</strong><br>
-    <div class="status">正常出車</div>
-  </div>
-</div>
-
-<div class="schedule-card">
-  <h2>🚚 涼糕餐車行程</h2>
-
-  <div class="date">9/16（三）｜雙北</div>
-
-  <div class="info">
-    📍 服務地區：雙北<br>
-    🕐 時間：預計中午開始－售完為止<br>
-    🍰 <strong>當日涼糕口味9/15公布</strong><br>
-    <div class="status">正常出車</div>
-  </div>
-</div>
-
-<div class="back">
-  <a href="./">← 返回官網首頁</a>
-</div>
-
-</section>
-
+      <div class="back">
+        <a href="./">← 返回官網首頁</a>
+      </div>
+    </div>
+  </section>
 </body>
 </html>
