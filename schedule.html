@@ -3,131 +3,230 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f7f1e8">
   <title>出攤時間｜老爹・涼糕</title>
   <style>
     * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
     body {
       margin: 0;
-      background: #f7f1e8;
+      background: linear-gradient(180deg, #f7f1e8 0%, #f3eadf 100%);
       color: #3b281c;
-      font-family: -apple-system, BlinkMacSystemFont, "Noto Sans TC", sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Noto Sans TC", "PingFang TC", sans-serif;
     }
-    .schedule { padding: 60px 20px 80px; }
-    .schedule-inner { max-width: 850px; margin: 0 auto; }
+    .schedule { padding: 34px 16px 70px; min-height: 100vh; }
+    .schedule-inner { max-width: 760px; margin: 0 auto; }
+    .brand {
+      width: fit-content;
+      margin: 0 auto 18px;
+      padding: 8px 18px;
+      border: 1px solid rgba(107,69,40,.18);
+      border-radius: 999px;
+      background: rgba(255,250,243,.75);
+      color: #6b4528;
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: 2px;
+    }
     .kicker {
       text-align: center;
       color: #a8784f;
       letter-spacing: 5px;
-      font-size: 14px;
-      margin-bottom: 10px;
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 7px;
     }
     h1 {
       text-align: center;
-      font-size: 38px;
-      margin: 0 0 12px;
+      font-size: clamp(32px, 8vw, 46px);
+      line-height: 1.15;
+      margin: 0;
+      letter-spacing: 2px;
     }
     .subtitle {
       text-align: center;
       color: #806c5e;
-      margin-bottom: 45px;
+      margin: 12px 0 32px;
+      font-size: 16px;
     }
-    .schedule-card {
-      background: #fffaf3;
-      border-radius: 24px;
-      padding: 28px 24px;
-      margin-bottom: 24px;
-      box-shadow: 0 10px 30px rgba(80,55,35,.08);
-    }
-    .schedule-card h2 {
+    .notice {
+      display: flex;
+      align-items: center;
+      gap: 10px;
       margin: 0 0 20px;
-      font-size: 26px;
+      padding: 14px 16px;
+      border-radius: 16px;
+      background: #fffaf3;
+      color: #6b4528;
+      font-size: 14px;
+      line-height: 1.6;
+      box-shadow: 0 6px 20px rgba(80,55,35,.06);
     }
-    .date {
-      font-size: 21px;
-      font-weight: 700;
+    .notice strong { font-size: 15px; }
+    .schedule-card {
+      position: relative;
+      overflow: hidden;
+      background: rgba(255,250,243,.96);
+      border: 1px solid rgba(107,69,40,.08);
+      border-radius: 26px;
+      padding: 25px 22px 24px;
+      margin-bottom: 20px;
+      box-shadow: 0 12px 34px rgba(80,55,35,.08);
+    }
+    .schedule-card::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 5px;
+      height: 100%;
+      background: #c79b70;
+    }
+    .card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
       margin-bottom: 18px;
     }
+    .schedule-card h2 {
+      margin: 0;
+      font-size: 23px;
+      line-height: 1.3;
+    }
+    .tag {
+      flex: 0 0 auto;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: #eee1cf;
+      color: #6b4528;
+      font-size: 12px;
+      font-weight: 800;
+    }
+    .date {
+      margin-bottom: 15px;
+      font-size: 21px;
+      line-height: 1.5;
+      font-weight: 800;
+    }
     .info {
+      font-size: 16px;
       line-height: 2;
-      font-size: 17px;
+    }
+    .info a {
+      color: inherit;
+      text-decoration: none;
+      border-bottom: 1px dashed #b28a67;
     }
     .status {
-      display: inline-block;
-      margin-top: 15px;
-      padding: 8px 16px;
-      border-radius: 30px;
-      background: #eee1cf;
-      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      margin-top: 17px;
+      padding: 9px 16px;
+      border-radius: 999px;
+      background: #e9dcc9;
+      color: #3b281c;
+      font-size: 14px;
+      font-weight: 800;
     }
-    .waiting {
-      text-align: center;
-      padding: 25px 10px;
-      color: #806c5e;
-      line-height: 1.9;
+    .status::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #5b8b4a;
     }
     .back {
       text-align: center;
-      margin-top: 35px;
+      margin-top: 28px;
     }
     .back a {
+      display: inline-block;
+      padding: 12px 20px;
+      border-radius: 999px;
+      background: #fffaf3;
       color: #6b4528;
       text-decoration: none;
-      font-weight: 700;
+      font-weight: 800;
+      box-shadow: 0 6px 18px rgba(80,55,35,.06);
+    }
+    .footer-note {
+      text-align: center;
+      color: #9a8575;
+      font-size: 12px;
+      margin-top: 22px;
     }
     @media (max-width: 600px) {
-      .schedule { padding: 40px 14px 60px; }
-      h1 { font-size: 32px; }
-      .schedule-card { padding: 24px 20px; border-radius: 22px; }
-      .schedule-card h2 { font-size: 24px; }
+      .schedule { padding: 25px 13px 55px; }
+      .schedule-card { padding: 23px 19px 22px; border-radius: 23px; }
+      .card-top { align-items: flex-start; }
+      .schedule-card h2 { font-size: 22px; }
       .date { font-size: 19px; }
       .info { font-size: 16px; }
     }
   </style>
 </head>
 <body>
-  <section class="schedule">
+  <main class="schedule">
     <div class="schedule-inner">
+      <div class="brand">🍰 老爹・涼糕</div>
       <div class="kicker">SCHEDULE</div>
       <h1>出攤時間</h1>
       <div class="subtitle">老爹・涼糕最新出攤行程</div>
 
-      <div class="schedule-card">
-        <h2>🚚 出攤行程</h2>
+      <div class="notice">
+        <span>📢</span>
+        <div><strong>最新行程</strong><br>實際販售時間依當日現場狀況為準，售完即止。</div>
+      </div>
+
+      <article class="schedule-card">
+        <div class="card-top">
+          <h2>🚚 出攤行程</h2>
+          <span class="tag">正常出攤</span>
+        </div>
         <div class="date">📅 9/12（六）</div>
         <div class="info">
-          📍 萬華雙和市場（萬華雙和街78號大轉角）<br>
+          📍 <a href="https://www.google.com/maps/search/?api=1&query=台北市萬華區萬華雙和街78號" target="_blank" rel="noopener">萬華雙和市場（萬華雙和街78號大轉角）</a><br>
           🕗 早上八點到售完為止<br>
           🍰 口味依現場販售為準
         </div>
         <div class="status">正常出攤</div>
-      </div>
+      </article>
 
-      <div class="schedule-card">
-        <h2>🚚 涼糕餐車行程</h2>
+      <article class="schedule-card">
+        <div class="card-top">
+          <h2>🚚 涼糕餐車行程</h2>
+          <span class="tag">桃園</span>
+        </div>
         <div class="date">9/14（一）｜桃園全區（除了復興鄉）</div>
         <div class="info">
           📍 服務地區：桃園全區（除了復興鄉）<br>
           🕐 時間：預計中午開始－售完為止<br>
-          🍰 <strong>當日涼糕口味9/13公布</strong>
+          🍰 <strong>當日涼糕口味 9/13 公布</strong>
         </div>
         <div class="status">正常出車</div>
-      </div>
+      </article>
 
-      <div class="schedule-card">
-        <h2>🚚 涼糕餐車行程</h2>
+      <article class="schedule-card">
+        <div class="card-top">
+          <h2>🚚 涼糕餐車行程</h2>
+          <span class="tag">雙北</span>
+        </div>
         <div class="date">9/16（三）｜雙北</div>
         <div class="info">
           📍 服務地區：雙北<br>
           🕐 時間：預計中午開始－售完為止<br>
-          🍰 <strong>當日涼糕口味9/15公布</strong>
+          🍰 <strong>當日涼糕口味 9/15 公布</strong>
         </div>
         <div class="status">正常出車</div>
-      </div>
+      </article>
 
       <div class="back">
         <a href="./">← 返回官網首頁</a>
       </div>
+      <div class="footer-note">老爹・涼糕｜手工製作・新鮮現做</div>
     </div>
-  </section>
+  </main>
 </body>
 </html>
