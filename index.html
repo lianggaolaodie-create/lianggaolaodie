@@ -15,466 +15,129 @@
         content="老爹涼糕,老爹涼糕餐車,手工涼糕,芋頭涼糕,水果涼糕,杏仁涼糕,仙草涼糕,黑糖芋頭,雞蛋布丁涼糕">
 
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Noto Sans TC",
-                   "Microsoft JhengHei", sans-serif;
-      background: #fffaf4;
-      color: #3f3029;
-      line-height: 1.7;
-    }
-
-    img {
-      display: block;
-      width: 100%;
-    }
-
-    a {
-      text-decoration: none;
-      color: inherit;
-    }
-
-    .hero {
-      width: 100%;
-      background: #fff;
-    }
-
-    .hero img {
-      width: 100%;
-      height: auto;
-    }
-
-    .nav {
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      background: rgba(255,255,255,.96);
-      border-bottom: 1px solid #eee3d8;
-      box-shadow: 0 4px 18px rgba(0,0,0,.05);
-    }
-
-    .nav-inner {
-      max-width: 1180px;
-      margin: auto;
-      min-height: 70px;
-      padding: 0 22px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .brand {
-      font-size: 22px;
-      font-weight: 900;
-      color: #653b2b;
-    }
-
-    .menu-toggle {
-      border: 0;
-      background: #6b3f2d;
-      color: white;
-      width: 46px;
-      height: 42px;
-      border-radius: 12px;
-      font-size: 24px;
-      cursor: pointer;
-    }
-
-    .mobile-menu {
-      display: none;
-      background: white;
-      border-top: 1px solid #eee;
-      padding: 10px 22px 20px;
-    }
-
-    .mobile-menu.open {
-      display: block;
-    }
-
-    .mobile-menu a {
-      display: block;
-      padding: 13px 5px;
-      border-bottom: 1px solid #eee;
-      font-weight: 700;
-    }
-
-    .section {
-      padding: 65px 20px;
-    }
-
-    .container {
-      max-width: 1180px;
-      margin: auto;
-    }
-
-    .section-kicker {
-      text-align: center;
-      color: #a76d4f;
-      font-weight: 800;
-      letter-spacing: 3px;
-      font-size: 13px;
-      margin-bottom: 5px;
-    }
-
-    h1,
-    h2 {
-      color: #553326;
-    }
-
-    .section-title {
-      text-align: center;
-      font-size: clamp(28px, 5vw, 42px);
-      margin-bottom: 8px;
-    }
-
-    .section-note {
-      text-align: center;
-      color: #806d63;
-      margin-bottom: 38px;
-    }
-
-    .intro {
-      text-align: center;
-      max-width: 780px;
-      margin: auto;
-      font-size: 17px;
-    }
-
-    .product-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 22px;
-    }
-
-    .product-card {
-      background: white;
-      border-radius: 22px;
-      padding: 25px;
-      box-shadow: 0 10px 30px rgba(70,45,30,.08);
-      border: 1px solid #f1e7de;
-    }
-
-    .product-card h3 {
-      font-size: 22px;
-      margin-bottom: 10px;
-      color: #603c2d;
-    }
-
-    .product-card p {
-      color: #6f625b;
-    }
-
-    .tag {
-      display: inline-block;
-      margin-top: 15px;
-      padding: 6px 12px;
-      background: #fff0df;
-      color: #8a563c;
-      border-radius: 999px;
-      font-size: 13px;
-      font-weight: 800;
-    }
-
-    .about {
-      background: #f5eadf;
-    }
-
-    .about-box {
-      max-width: 850px;
-      margin: auto;
-      text-align: center;
-      background: rgba(255,255,255,.7);
-      padding: 40px 28px;
-      border-radius: 24px;
-    }
-
-    .about-box h2 {
-      margin-bottom: 15px;
-      font-size: 32px;
-    }
-
-    footer {
-      text-align: center;
-      padding: 35px 20px;
-      background: #513326;
-      color: #fff;
-    }
-
-    footer strong {
-      font-size: 20px;
-    }
-
-    @media (max-width: 900px) {
-      .product-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-    }
-
-    @media (max-width: 600px) {
-      .section {
-        padding: 45px 16px;
-      }
-
-      .product-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .product-card {
-        padding: 22px;
-      }
-
-      .nav-inner {
-        min-height: 62px;
-        padding: 0 16px;
-      }
-
-      .brand {
-        font-size: 19px;
-      }
-    }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC","Microsoft JhengHei",sans-serif; background:#fffaf4; color:#3f3029; line-height:1.7; }
+    img { display:block; width:100%; }
+    a { text-decoration:none; color:inherit; }
+    .hero { width:100%; background:#fff; }
+    .hero img { width:100%; height:auto; }
+    .nav { position:sticky; top:0; z-index:100; background:rgba(255,255,255,.96); border-bottom:1px solid #eee3d8; box-shadow:0 4px 18px rgba(0,0,0,.05); }
+    .nav-inner { max-width:1180px; margin:auto; min-height:70px; padding:0 22px; display:flex; align-items:center; justify-content:space-between; }
+    .brand { font-size:22px; font-weight:900; color:#653b2b; }
+    .menu-toggle { border:0; background:#6b3f2d; color:white; width:46px; height:42px; border-radius:12px; font-size:24px; cursor:pointer; }
+    .mobile-menu { display:none; background:white; border-top:1px solid #eee; padding:10px 22px 20px; }
+    .mobile-menu.open { display:block; }
+    .mobile-menu a { display:block; padding:13px 5px; border-bottom:1px solid #eee; font-weight:700; }
+    .mobile-menu a.new-link { background:#fff4e6; border-radius:12px; margin:4px 0; padding:13px 10px; color:#713e28; }
+    .new-badge { display:inline-block; margin-left:8px; padding:2px 8px; border-radius:999px; background:#e53935; color:#fff; font-size:11px; font-weight:900; vertical-align:middle; }
+    .section { padding:65px 20px; }
+    .container { max-width:1180px; margin:auto; }
+    .section-kicker { text-align:center; color:#a76d4f; font-weight:800; letter-spacing:3px; font-size:13px; margin-bottom:5px; }
+    h1,h2 { color:#553326; }
+    .section-title { text-align:center; font-size:clamp(28px,5vw,42px); margin-bottom:8px; }
+    .section-note { text-align:center; color:#806d63; margin-bottom:38px; }
+    .intro { text-align:center; max-width:780px; margin:auto; font-size:17px; }
+    .product-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:22px; }
+    .product-card { background:white; border-radius:22px; padding:25px; box-shadow:0 10px 30px rgba(70,45,30,.08); border:1px solid #f1e7de; }
+    .product-card h3 { font-size:22px; margin-bottom:10px; color:#603c2d; }
+    .product-card p { color:#6f625b; }
+    .tag { display:inline-block; margin-top:15px; padding:6px 12px; background:#fff0df; color:#8a563c; border-radius:999px; font-size:13px; font-weight:800; }
+    .about { background:#f5eadf; }
+    .about-box { max-width:850px; margin:auto; text-align:center; background:rgba(255,255,255,.7); padding:40px 28px; border-radius:24px; }
+    .about-box h2 { margin-bottom:15px; font-size:32px; }
+    footer { text-align:center; padding:35px 20px; background:#513326; color:#fff; }
+    footer strong { font-size:20px; }
+    @media (max-width:900px) { .product-grid { grid-template-columns:repeat(2,1fr); } }
+    @media (max-width:600px) { .section{padding:45px 16px;} .product-grid{grid-template-columns:1fr;} .product-card{padding:22px;} .nav-inner{min-height:62px;padding:0 16px;} .brand{font-size:19px;} }
   </style>
 </head>
-
 <body>
-
-  <!-- 手機選單 -->
   <nav class="nav">
     <div class="nav-inner">
       <a class="brand" href="./">老爹・涼糕</a>
-
-      <button
-        id="menuToggle"
-        class="menu-toggle"
-        aria-expanded="false"
-        aria-label="開啟選單">
-        ☰
-      </button>
+      <button id="menuToggle" class="menu-toggle" aria-expanded="false" aria-label="開啟選單">☰</button>
     </div>
-
     <div id="mobileMenu" class="mobile-menu">
       <a href="./">首頁</a>
       <a href="rules.html">購買涼糕規則</a>
       <a href="products.html">涼糕專區</a>
       <a href="radish-cake.html">純米蘿蔔糕專區</a>
       <a href="merch.html">周邊商品</a>
+      <a href="convenience.html" class="new-link">超商寄放取件方式 <span class="new-badge">NEW</span></a>
       <a href="about.html">關於老爹</a>
       <a href="schedule.html">出攤時間</a>
       <a href="contact.html">聯絡我們</a>
     </div>
   </nav>
 
-  <!-- 首頁主視覺 -->
   <header class="hero">
-    <img
-      src="IMG_3238.png"
-      alt="老爹涼糕 手作涼糕餐車 官方網站">
+    <img src="IMG_3238.png" alt="老爹涼糕 手作涼糕餐車 官方網站">
   </header>
-<!-- 最新活動消息 -->
-<section style="padding:40px 20px; background:#fffaf4;">
-  <div style="max-width:900px; margin:0 auto; text-align:center;">
 
-    <p style="color:#a66a4f; font-weight:bold; letter-spacing:4px;">
-      LATEST NEWS
-    </p>
+  <section style="padding:40px 20px; background:#fffaf4;">
+    <div style="max-width:900px; margin:0 auto; text-align:center;">
+      <p style="color:#a66a4f; font-weight:bold; letter-spacing:4px;">LATEST NEWS</p>
+      <h2 style="font-size:32px; margin:8px 0 20px;">最新活動消息</h2>
+      <h3 style="font-size:22px; margin-bottom:18px;">🌕 老爹涼糕・中秋活動</h3>
+      <img src="IMG_3859.jpeg" alt="老爹涼糕中秋活動" style="width:100%; max-width:700px; height:auto; border-radius:18px; display:block; margin:0 auto;">
+      <p style="margin-top:20px; font-size:18px; line-height:1.8;">🎁 9/7 開跑・送完為止<br>每區名額有限，依餐車公告區域為主。</p>
+    </div>
+  </section>
 
-    <h2 style="font-size:32px; margin:8px 0 20px;">
-      最新活動消息
-    </h2>
-
-    <h3 style="font-size:22px; margin-bottom:18px;">
-      🌕 老爹涼糕・中秋活動
-    </h3>
-
-    <img
-      src="IMG_3859.jpeg"
-      alt="老爹涼糕中秋活動"
-      style="width:100%; max-width:700px; height:auto; border-radius:18px; display:block; margin:0 auto;"
-    >
-
-    <p style="margin-top:20px; font-size:18px; line-height:1.8;">
-      🎁 9/7 開跑・送完為止<br>
-      每區名額有限，依餐車公告區域為主。
-    </p>
-
+  <div style="max-width:900px; margin:40px auto; padding:0 20px;">
+    <h2 style="text-align:center; margin-bottom:20px;">🎬 老爹涼糕餐車影片</h2>
+    <video controls playsinline style="width:100%; border-radius:18px;">
+      <source src="72411424af0146e8ae2fbfeb07b0450e.MOV" type="video/quicktime">
+      您的瀏覽器不支援影片播放。
+    </video>
   </div>
-</section>
-  <!-- 品牌介紹 -->
- <div style="max-width:900px; margin:40px auto; padding:0 20px;">
-  <h2 style="text-align:center; margin-bottom:20px;">🎬 老爹涼糕餐車影片</h2>
 
-  <video controls playsinline style="width:100%; border-radius:18px;">
-    <source src="72411424af0146e8ae2fbfeb07b0450e.MOV" type="video/quicktime">
-    您的瀏覽器不支援影片播放。
-  </video>
-</div>
   <section class="section">
     <div class="container">
       <p class="section-kicker">LAODIE LIANG GAO</p>
       <h1 class="section-title">老爹・涼糕</h1>
-
-      <p class="intro">
-        堅持手工製作，把熟悉的傳統涼糕做出更多不同風味。
-        Q彈、清爽、不膩口，冷藏後享用更加冰涼滑順。
-        跟著老爹涼糕餐車，一起尋找今天的美味。
-      </p>
+      <p class="intro">堅持手工製作，把熟悉的傳統涼糕做出更多不同風味。Q彈、清爽、不膩口，冷藏後享用更加冰涼滑順。跟著老爹涼糕餐車，一起尋找今天的美味。</p>
     </div>
   </section>
 
-  <!-- 產品介紹 -->
   <section class="section" id="products">
     <div class="container">
-
       <p class="section-kicker">OUR PRODUCTS</p>
       <h2 class="section-title">產品介紹</h2>
       <p class="section-note">手工製作・每日新鮮・口味依當日供應為準</p>
-
       <div class="product-grid">
-
-        <article class="product-card">
-          <h3>芋頭涼糕</h3>
-          <p>
-            選用香濃芋頭製作，口感柔軟滑嫩、清爽Q彈，
-            每一口都能品嚐自然芋香。
-          </p>
-          <span class="tag">人氣經典</span>
-        </article>
-
-        <article class="product-card">
-          <h3>水果綜合涼糕</h3>
-          <p>
-            一盒集結多種水果風味，色彩繽紛、清爽好吃。
-            每日製作口味可能不同，天天都有不同驚喜。
-          </p>
-          <span class="tag">每日口味不同</span>
-        </article>
-
-        <article class="product-card">
-          <h3>杏仁涼糕</h3>
-          <p>
-            使用純杏仁製作，杏仁香氣濃郁自然，
-            口感細緻柔嫩，甜度適中、不膩口。
-          </p>
-          <span class="tag">純杏仁製作</span>
-        </article>
-
-        <article class="product-card">
-          <h3>杏仁芋頭涼糕</h3>
-          <p>
-            杏仁香氣搭配綿密芋頭風味，
-            兩種經典香氣融合，層次豐富又順口。
-          </p>
-          <span class="tag">雙重風味</span>
-        </article>
-
-        <article class="product-card">
-          <h3>黑糖芋頭涼糕</h3>
-          <p>
-            黑糖的醇厚香氣搭配芋頭，
-            入口Q彈滑嫩，甜香中帶有濃郁芋頭風味。
-          </p>
-          <span class="tag">濃郁黑糖</span>
-        </article>
-
-        <article class="product-card">
-          <h3>黑糖地瓜涼糕</h3>
-          <p>
-            黑糖外皮搭配香甜地瓜風味，
-            口感柔嫩Q彈，是傳統與創意結合的特色口味。
-          </p>
-          <span class="tag">特色口味</span>
-        </article>
-
-        <article class="product-card">
-          <h3>仙草涼糕</h3>
-          <p>
-            清新的仙草香氣，口感滑嫩清爽，
-            冰涼享用更適合炎熱天氣。
-          </p>
-          <span class="tag">清爽推薦</span>
-        </article>
-
-        <article class="product-card">
-          <h3>巧克力涼糕</h3>
-          <p>
-            香濃巧克力融入Q彈涼糕，
-            帶有滑順可可香氣，大人小朋友都適合。
-          </p>
-          <span class="tag">香濃可可</span>
-        </article>
-
-        <article class="product-card">
-          <h3>雞蛋布丁涼糕</h3>
-          <p>
-            布丁般柔和蛋香搭配涼糕Q彈口感，
-            香甜滑順，風味溫和。
-          </p>
-          <span class="tag">蛋香滑順</span>
-        </article>
-<article class="product-card">
- <img src="IMG_3340.jpeg" alt="泰式奶茶涼糕" loading="lazy" decoding="async">
-  <h3>新口味｜泰式奶茶涼糕</h3>
-
-  <p>
-    選用香氣濃郁的泰式奶茶製作，將泰奶特有的茶香與滑順奶香
-    融入Q彈涼糕中。入口冰涼柔嫩，先感受到濃郁茶香，
-    接著帶出香醇奶香，甜而不膩，冷藏後享用更加清爽順口。
-  </p>
-
-  <p><strong>口感：</strong>Q彈滑嫩、冰涼順口</p>
-  <p><strong>風味：</strong>濃郁泰式奶茶香、茶香與奶香交織</p>
-  <p><strong>特色：</strong>將經典泰式奶茶風味融入手工涼糕</p>
-  <p><strong>建議食用：</strong>冷藏後享用風味更佳</p>
-  <p><strong>保存方式：</strong>需冷藏保存，開封後請儘快食用</p>
-
-  <span class="tag">NEW 新口味</span>
-</article>
+        <article class="product-card"><h3>芋頭涼糕</h3><p>選用香濃芋頭製作，口感柔軟滑嫩、清爽Q彈，每一口都能品嚐自然芋香。</p><span class="tag">人氣經典</span></article>
+        <article class="product-card"><h3>水果綜合涼糕</h3><p>一盒集結多種水果風味，色彩繽紛、清爽好吃。每日製作口味可能不同，天天都有不同驚喜。</p><span class="tag">每日口味不同</span></article>
+        <article class="product-card"><h3>杏仁涼糕</h3><p>使用純杏仁製作，杏仁香氣濃郁自然，口感細緻柔嫩，甜度適中、不膩口。</p><span class="tag">純杏仁製作</span></article>
+        <article class="product-card"><h3>杏仁芋頭涼糕</h3><p>杏仁香氣搭配綿密芋頭風味，兩種經典香氣融合，層次豐富又順口。</p><span class="tag">雙重風味</span></article>
+        <article class="product-card"><h3>黑糖芋頭涼糕</h3><p>黑糖的醇厚香氣搭配芋頭，入口Q彈滑嫩，甜香中帶有濃郁芋頭風味。</p><span class="tag">濃郁黑糖</span></article>
+        <article class="product-card"><h3>黑糖地瓜涼糕</h3><p>黑糖外皮搭配香甜地瓜風味，口感柔嫩Q彈，是傳統與創意結合的特色口味。</p><span class="tag">特色口味</span></article>
+        <article class="product-card"><h3>仙草涼糕</h3><p>清新的仙草香氣，口感滑嫩清爽，冰涼享用更適合炎熱天氣。</p><span class="tag">清爽推薦</span></article>
+        <article class="product-card"><h3>巧克力涼糕</h3><p>香濃巧克力融入Q彈涼糕，帶有滑順可可香氣，大人小朋友都適合。</p><span class="tag">香濃可可</span></article>
+        <article class="product-card"><h3>雞蛋布丁涼糕</h3><p>布丁般柔和蛋香搭配涼糕Q彈口感，香甜滑順、口感細緻。</p><span class="tag">人氣口味</span></article>
       </div>
     </div>
   </section>
 
-  <!-- 關於 -->
   <section class="section about">
     <div class="container">
       <div class="about-box">
-        <p class="section-kicker">ABOUT LAODIE</p>
-        <h2>手工製作・新鮮出攤</h2>
-        <p>
-          老爹涼糕以手工製作為核心，
-          不定期推出不同口味與限定商品。
-          實際販售品項、出攤地點及時間，
-          請以老爹最新公告為準。
-        </p>
+        <h2>老爹・涼糕</h2>
+        <p>用心製作每一份涼糕，讓大家吃到新鮮、Q彈又有記憶點的好味道。</p>
       </div>
     </div>
   </section>
 
-  <footer>
-    <strong>老爹・涼糕</strong>
-    <p>手作涼糕・涼糕餐車</p>
-    <p>© 2026 老爹涼糕 All Rights Reserved.</p>
-  </footer>
+  <footer><strong>老爹・涼糕</strong><br>手工製作・新鮮美味</footer>
 
   <script>
     const menuToggle = document.getElementById("menuToggle");
     const mobileMenu = document.getElementById("mobileMenu");
-
-    menuToggle.addEventListener("click", function () {
+    menuToggle.addEventListener("click", () => {
       const isOpen = mobileMenu.classList.toggle("open");
-
-      menuToggle.setAttribute(
-        "aria-expanded",
-        isOpen ? "true" : "false"
-      );
-
+      menuToggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
       menuToggle.textContent = isOpen ? "✕" : "☰";
     });
   </script>
-
 </body>
-  
 </html>
