@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-<url>
-<loc>https://lianggaolaodie-create.github.io/lianggaolaodie/</loc>
-</url>
+  <url><loc>https://laodielianggao.tw/</loc></url>
+  <url><loc>https://laodielianggao.tw/rules.html</loc></url>
+  <url><loc>https://laodielianggao.tw/products.html</loc></url>
+  <url><loc>https://laodielianggao.tw/radish-cake.html</loc></url>
+  <url><loc>https://laodielianggao.tw/merch.html</loc></url>
+  <url><loc>https://laodielianggao.tw/convenience.html</loc></url>
+  <url><loc>https://laodielianggao.tw/about.html</loc></url>
+  <url><loc>https://laodielianggao.tw/schedule.html</loc></url>
+  <url><loc>https://laodielianggao.tw/contact.html</loc></url>
 </urlset>
