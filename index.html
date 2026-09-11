@@ -6,14 +6,9 @@
 
   <title>老爹涼糕｜手工涼糕・涼糕餐車｜官方網站</title>
 
-  <meta name="description"
-        content="老爹涼糕官方網站，手工製作新鮮涼糕，提供芋頭涼糕、雞蛋布丁涼糕、黑糖芋頭、仙草、杏仁、巧克力、水果綜合等多種口味。">
-
+  <meta name="description" content="老爹涼糕官方網站，手工製作新鮮涼糕，提供芋頭涼糕、雞蛋布丁涼糕、黑糖芋頭、仙草、杏仁、巧克力、水果綜合等多種口味。">
   <meta name="robots" content="index, follow">
-
-  <meta name="keywords"
-        content="老爹涼糕,老爹涼糕餐車,手工涼糕,芋頭涼糕,水果涼糕,杏仁涼糕,仙草涼糕,黑糖芋頭,雞蛋布丁涼糕">
-
+  <meta name="keywords" content="老爹涼糕,老爹涼糕餐車,手工涼糕,芋頭涼糕,水果涼糕,杏仁涼糕,仙草涼糕,黑糖芋頭,雞蛋布丁涼糕">
   <link rel="canonical" href="https://laodielianggao.tw/">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="老爹・涼糕">
@@ -60,6 +55,11 @@
     .section-title { text-align:center; font-size:clamp(28px,5vw,42px); margin-bottom:8px; }
     .section-note { text-align:center; color:#806d63; margin-bottom:38px; }
     .intro { text-align:center; max-width:780px; margin:auto; font-size:17px; }
+    .cta-section { padding:10px 20px 55px; background:#fffaf4; }
+    .cta-grid { max-width:900px; margin:auto; display:grid; grid-template-columns:repeat(4,1fr); gap:14px; }
+    .cta-btn { display:flex; align-items:center; justify-content:center; min-height:58px; padding:12px 16px; border-radius:16px; background:#6b3f2d; color:#fff; font-weight:900; font-size:16px; box-shadow:0 8px 18px rgba(70,45,30,.12); transition:transform .15s ease, opacity .15s ease; }
+    .cta-btn:active { transform:scale(.97); opacity:.9; }
+    .cta-btn.light { background:#fff; color:#6b3f2d; border:1px solid #ead9ca; }
     .product-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:22px; }
     .product-card { background:white; border-radius:22px; padding:25px; box-shadow:0 10px 30px rgba(70,45,30,.08); border:1px solid #f1e7de; }
     .product-card h3 { font-size:22px; margin-bottom:10px; color:#603c2d; }
@@ -70,8 +70,8 @@
     .about-box h2 { margin-bottom:15px; font-size:32px; }
     footer { text-align:center; padding:35px 20px; background:#513326; color:#fff; }
     footer strong { font-size:20px; }
-    @media (max-width:900px) { .product-grid { grid-template-columns:repeat(2,1fr); } }
-    @media (max-width:600px) { .section{padding:45px 16px;} .product-grid{grid-template-columns:1fr;} .product-card{padding:22px;} .nav-inner{min-height:62px;padding:0 16px;} .brand{font-size:19px;} }
+    @media (max-width:900px) { .product-grid { grid-template-columns:repeat(2,1fr); } .cta-grid { grid-template-columns:repeat(2,1fr); } }
+    @media (max-width:600px) { .section{padding:45px 16px;} .cta-section{padding:8px 16px 42px;} .product-grid{grid-template-columns:1fr;} .cta-grid{grid-template-columns:1fr 1fr; gap:10px;} .cta-btn{min-height:54px; font-size:15px; padding:10px 8px;} .product-card{padding:22px;} .nav-inner{min-height:62px;padding:0 16px;} .brand{font-size:19px;} }
   </style>
 </head>
 <body>
@@ -120,6 +120,15 @@
       <p class="section-kicker">LAODIE LIANG GAO</p>
       <h1 class="section-title">老爹・涼糕</h1>
       <p class="intro">堅持手工製作，把熟悉的傳統涼糕做出更多不同風味。Q彈、清爽、不膩口，冷藏後享用更加冰涼滑順。跟著老爹涼糕餐車，一起尋找今天的美味。</p>
+    </div>
+  </section>
+
+  <section class="cta-section" aria-label="快速功能">
+    <div class="cta-grid">
+      <a class="cta-btn" href="products.html">🍡 查看全部口味</a>
+      <a class="cta-btn" href="schedule.html">🚚 查看出攤時間</a>
+      <a class="cta-btn light" href="contact.html">🛒 立即訂購</a>
+      <a class="cta-btn light" href="about.html">❤️ 認識老爹</a>
     </div>
   </section>
 
