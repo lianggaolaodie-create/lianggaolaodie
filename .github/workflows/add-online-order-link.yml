@@ -1,0 +1,30 @@
+name: Add online ordering link
+
+on: push
+
+permissions:
+  contents: write
+
+jobs:
+  update-index:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Update homepage order links
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('index.html')
+          s = p.read_text(encoding='utf-8')
+          s = s.replace('<a class="hot order" href="rules.html"', '<a class="hot order" href="order.html"')
+          s = s.replace('<a class="hot nav4" href="rules.html"', '<a class="hot nav4" href="order.html"')
+          s = s.replace('<a href="rules.html">購買涼糕規則</a>', '<a href="order.html">🛒 線上訂購</a><a href="rules.html">購買涼糕規則</a>')
+          p.write_text(s, encoding='utf-8')
+          PY
+      - name: Commit homepage change
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git diff --cached --quiet || git commit -m "新增官網線上訂購入口"
+          git push
