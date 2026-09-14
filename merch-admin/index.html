@@ -21,9 +21,8 @@ iframe{position:absolute;top:0;right:0;width:100%;height:100%;border:0;display:b
 <button class="active" data-page="dashboard">📊 總覽</button>
 <button data-page="products">🛍️ 商品管理</button>
 <button data-page="categories">🏷️ 商品分類</button>
-<button data-page="orders">📋 訂單管理</button>
 </nav>
-<iframe id="adminFrame" src="../merch-admin.html?v=20260914-2" title="周邊商品管理後台"></iframe>
+<iframe id="adminFrame" src="../merch-admin.html?v=20260914-3" title="周邊商品管理後台"></iframe>
 <script>
 const frame=document.getElementById('adminFrame');
 function applyMobileFix(){
@@ -36,6 +35,16 @@ function applyMobileFix(){
   style.id='mobileFixStyle';
   style.textContent='@media(max-width:800px){aside{display:none!important}.main{padding:18px!important;width:100%!important;max-width:none!important}.top{position:sticky!important;top:0!important}.layout{display:block!important;min-height:100vh!important}}';
   doc.head.appendChild(style);
+  const hidden=doc.getElementById('merchRemovedSections');
+  if(hidden)hidden.remove();
+  const removeStyle=doc.createElement('style');
+  removeStyle.id='merchRemovedSections';
+  removeStyle.textContent='.nav[data-page="orders"],.nav[data-page="customers"],#orders,#customers,#customerModal{display:none!important}';
+  doc.head.appendChild(removeStyle);
+  if(doc.getElementById('orders')?.classList.contains('active')||doc.getElementById('customers')?.classList.contains('active')){
+    const dashboard=doc.querySelector('.nav[data-page="dashboard"]');
+    if(dashboard)dashboard.click();
+  }
  }catch(e){console.error(e)}
 }
 frame.addEventListener('load',()=>setTimeout(applyMobileFix,100));
