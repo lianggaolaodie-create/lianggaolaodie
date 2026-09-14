@@ -1,1 +1,21 @@
-<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>老爹・涼糕｜後台</title><style>body{margin:0;background:#faf7f2;color:#2d241e;font-family:-apple-system,BlinkMacSystemFont,"PingFang TC",sans-serif}.loading{max-width:700px;margin:80px auto;padding:30px;text-align:center;background:#fff;border-radius:18px;border:1px solid #e7ddd2}</style></head><body><div id="loading" class="loading">老爹・涼糕後台載入中…</div><script>(async()=>{try{const u='https://raw.githubusercontent.com/lianggaolaodie-create/lianggaolaodie/476e15b906a1b640ce5daa43d36547a84ec3579a/admin.html';const r=await fetch(u,{cache:'no-store'});if(!r.ok)throw new Error('後台程式載入失敗（HTTP '+r.status+'）');let h=await r.text();h=h.replace("select('role,enabled')","select('role,enabled,food_truck_schedule_enabled,can_manage_food_truck_schedule')");h=h.replace("window.role=p.role;","window.role=p.role;window.scheduleAllowed=(p.role==='super_admin'||p.food_truck_schedule_enabled===true||p.can_manage_food_truck_schedule===true);");h=h.replace("$('scheduleCard').classList.toggle('hidden',!['super_admin','order_admin'].includes(p.role))","$('scheduleCard').classList.toggle('hidden',!window.scheduleAllowed)");h=h.replace("!['super_admin','order_admin'].includes(window.role)","!window.scheduleAllowed");h=h.replace("沒有餐車行程管理權限","沒有出攤行程管理權限");h=h.replace('<h2>🚚 涼糕餐車行程</h2>','<h2>🚚 出攤行程管理</h2>');h=h.replace('<div class="section-note">每一趟餐車行程可獨立設定日期、地區、時間與當天販售口味。只有具備餐車行程管理權限的管理員可以修改。</div>','<div class="section-note">分開建立「涼糕餐車」或「擺攤」行程。涼糕餐車官網顯示各口味價格／盒；擺攤官網不顯示價格。</div><div class="field"><label>行程類型</label><select id="scheduleType"><option value="food_truck">🚚 涼糕餐車</option><option value="stall">🏪 擺攤</option></select></div>');h=h.replace("const payload={schedule_date:$('scheduleDate').value||today(),title:$('scheduleTitle').value.trim()||'涼糕餐車',region:","const payload={schedule_type:$('scheduleType').value||'food_truck',schedule_date:$('scheduleDate').value||today(),title:$('scheduleType').value==='stall'?'擺攤':'涼糕餐車',region:");h=h.replace("select('*').order('schedule_date'","select('id,schedule_date,schedule_type,title,region,start_time,end_time,note,enabled').order('schedule_date'");h=h.replace("'<strong>'+esc(s.title||'涼糕餐車')+'</strong>","'<strong>'+(s.schedule_type==='stall'?'🏪 擺攤':'🚚 涼糕餐車')+'</strong>");h=h.replace("<button onclick=\"addSchedule()\">新增餐車行程</button>","<button onclick=\"addSchedule()\">新增出攤行程</button>");h=h.replace("window.editSchedule=async id=>{alert('目前先支援新增與刪除；編輯功能下一版接著補上。餐車行程與口味資料已建立。')};","window.editSchedule=async id=>{if(!window.scheduleAllowed)return alert('沒有出攤行程管理權限');alert('目前可用新增與刪除管理出攤行程；當日販售口味可由資料設定。');};");document.open();document.write(h);document.close()}catch(e){const x=document.getElementById('loading');if(x)x.innerHTML='<strong>後台載入失敗</strong><br><br>'+String(e.message||e)}})()</script></body></html>
+<!doctype html>
+<html lang="zh-Hant">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>老爹・涼糕｜後台</title><style>html,body{margin:0;width:100%;height:100%;background:#faf7f2}#frame{display:block;width:100%;height:100%;border:0}</style></head>
+<body><div id="loading" style="max-width:700px;margin:80px auto;padding:30px;text-align:center;background:#fff;border-radius:18px;border:1px solid #e7ddd2;font-family:-apple-system,BlinkMacSystemFont,'PingFang TC',sans-serif">老爹・涼糕後台載入中…</div><script>
+(async()=>{
+  try{
+    const url='https://raw.githubusercontent.com/lianggaolaodie-create/lianggaolaodie/476e15b906a1b640ce5daa43d36547a84ec3579a/admin.html';
+    const r=await fetch(url,{cache:'no-store'});
+    if(!r.ok)throw new Error('後台程式載入失敗（HTTP '+r.status+'）');
+    const h=await r.text();
+    const f=document.createElement('iframe');
+    f.id='frame';
+    f.title='老爹・涼糕後台';
+    f.srcdoc=h;
+    document.body.innerHTML='';
+    document.body.appendChild(f);
+  }catch(e){
+    document.body.innerHTML='<div style="max-width:700px;margin:80px auto;padding:30px;text-align:center;background:#fff;border-radius:18px;border:1px solid #e7ddd2;font-family:-apple-system,BlinkMacSystemFont,\'PingFang TC\',sans-serif"><strong>後台載入失敗</strong><br><br>'+String(e.message||e).replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]))+'</div>';
+  }
+})();
+</script></body></html>
