@@ -7,15 +7,23 @@
     const url='https://raw.githubusercontent.com/lianggaolaodie-create/lianggaolaodie/476e15b906a1b640ce5daa43d36547a84ec3579a/admin.html';
     const r=await fetch(url,{cache:'no-store'});
     if(!r.ok)throw new Error('後台程式載入失敗（HTTP '+r.status+'）');
-    const h=await r.text();
-    const f=document.createElement('iframe');
-    f.id='frame';
-    f.title='老爹・涼糕後台';
-    f.srcdoc=h;
-    document.body.innerHTML='';
-    document.body.appendChild(f);
-  }catch(e){
-    document.body.innerHTML='<div style="max-width:700px;margin:80px auto;padding:30px;text-align:center;background:#fff;border-radius:18px;border:1px solid #e7ddd2;font-family:-apple-system,BlinkMacSystemFont,\'PingFang TC\',sans-serif"><strong>後台載入失敗</strong><br><br>'+String(e.message||e).replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]))+'</div>';
-  }
+    let h=await r.text();
+    const injected=`<script>
+(function(){
+  const oldCard=document.getElementById('scheduleCard');
+  if(!oldCard)return;
+  oldCard.innerHTML='<h2>🚚 出攤行程管理</h2><div class="section-note">分成「涼糕餐車」與「擺攤」兩種行程。涼糕餐車官網顯示每個口味價格／盒；擺攤官網不顯示價格。</div><div class="field"><label>行程類型</label><select id="scheduleType"><option value="food_truck">🚚 涼糕餐車</option><option value="stall">🏪 擺攤</option></select></div><div class="grid two"><div class="field"><label>出攤日期</label><input id="scheduleDate" type="date"></div><div class="field"><label>服務地區</label><input id="scheduleRegion" placeholder="例如：桃園全區（不包含復興鄉）"></div><div class="field"><label>出攤時間</label><div class="actions"><input id="scheduleStart" type="time"><span>～</span><input id="scheduleEnd" type="time"></div></div></div><div class="field"><label>當日販售口味</label><div id="scheduleFlavorBox" class="checkgrid">讀取中…</div></div><div class="actions"><label class="switch"><input id="scheduleEnabled" type="checkbox" checked> 開放此行程</label><button onclick="addSchedule()">新增出攤行程</button><button class="secondary" onclick="loadSchedules()">重新整理</button></div><div id="scheduleBox">讀取中…</div>';
+  document.getElementById('scheduleDate').value=(typeof today==='function'?today():new Date().toLocaleDateString('en-CA',{timeZone:'Asia/Taipei'}));
+  window.addSchedule=async function(){if(!['super_admin','order_admin'].includes(window.role))return alert('沒有出攤行程管理權限');const type=document.getElementById('scheduleType').value;const payload={schedule_type:type,schedule_date:document.getElementById('scheduleDate').value, title:type==='stall'?'擺攤':'涼糕餐車', region:document.getElementById('scheduleRegion').value.trim(), start_time:document.getElementById('scheduleStart').value||null,end_time:document.getElementById('scheduleEnd').value||null,note:null,enabled:document.getElementById('scheduleEnabled').checked};if(!payload.region)return alert('請輸入服務地區');const{data,error}=await sb.from('food_truck_schedules').insert(payload).select('id').single();if(error)return alert('新增出攤行程失敗：'+error.message);const ids=[...document.querySelectorAll('.schedule-check:checked')].map(x=>Number(x.value));if(ids.length){const{error:e}=await sb.from('food_truck_schedule_flavors').insert(ids.map(flavor_id=>({schedule_id:data.id,flavor_id})));if(e)return alert('當日販售口味儲存失敗：'+e.message)}alert('出攤行程已新增');loadSchedules();};
+  window.loadSchedules=async function(){const box=document.getElementById('scheduleBox');const{data,error}=await sb.from('food_truck_schedules').select('id,schedule_date,schedule_type,region,start_time,end_time,enabled').order('schedule_date',{ascending:false}).order('id',{ascending:false}).limit(100);if(error){box.innerHTML='<div class="msg error">'+esc(error.message)+'</div>';return}if(!data?.length){box.innerHTML='<div class="small">目前尚未建立出攤行程。</div>';return}const ids=data.map(x=>x.id);const{data:links}=await sb.from('food_truck_schedule_flavors').select('schedule_id,flavor_id').in('schedule_id',ids);const fids=[...new Set((links||[]).map(x=>x.flavor_id))];const{data:fl}=fids.length?await sb.from('flavors').select('id,name,price').in('id',fids):{data:[]};const fm={};(fl||[]).forEach(x=>fm[x.id]=x);const by={};(links||[]).forEach(x=>(by[x.schedule_id]??=[]).push(fm[x.flavor_id]));box.innerHTML=data.map(s=>{const isTruck=s.schedule_type!=='stall';const fs=(by[s.id]||[]).filter(Boolean);const price=isTruck?'<div class="small" style="margin-top:6px">💰 '+(fs.length?fs.map(f=>esc(f.name)+' $'+Number(f.price||0).toLocaleString('zh-TW')+'／盒').join('、'):'依後台設定')+'</div>':'';return '<div class="item"><div class="row"><div><strong>'+(isTruck?'🚚 涼糕餐車':'🏪 擺攤')+'</strong><div class="small">'+esc(s.schedule_date)+' · '+esc(s.region)+' · '+esc(s.start_time||'')+(s.end_time?'～'+esc(s.end_time):'')+'</div></div><span class="pill">'+(s.enabled?'開放':'關閉')+'</span></div><div><strong>🍡 當日販售口味：</strong>'+ (fs.length?fs.map(f=>esc(f.name)).join('、'):'尚未設定')+'</div>'+price+'<div class="actions" style="margin-top:8px"><button class="danger" onclick="deleteSchedule('+s.id+')">刪除</button></div></div>'}).join('')};
+  window.deleteSchedule=async function(id){if(!confirm('確定要刪除這個出攤行程？'))return;const{error}=await sb.from('food_truck_schedules').delete().eq('id',id);if(error)return alert('刪除失敗：'+error.message);loadSchedules()};
+  const type=document.getElementById('scheduleType');type.addEventListener('change',function(){document.getElementById('scheduleTitle')?.remove();});
+  if(typeof loadScheduleFlavors==='function')loadScheduleFlavors();
+  setTimeout(()=>loadSchedules(),0);
+})();
+<\/script>`;
+    h=h.replace('</body>',injected+'</body>');
+    const f=document.createElement('iframe');f.id='frame';f.title='老爹・涼糕後台';f.srcdoc=h;document.body.innerHTML='';document.body.appendChild(f);
+  }catch(e){document.body.innerHTML='<div style="max-width:700px;margin:80px auto;padding:30px;text-align:center;background:#fff;border-radius:18px;border:1px solid #e7ddd2;font-family:-apple-system,BlinkMacSystemFont,\'PingFang TC\',sans-serif"><strong>後台載入失敗</strong><br><br>'+String(e.message||e).replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]))+'</div>';}
 })();
 </script></body></html>
