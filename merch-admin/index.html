@@ -2,29 +2,24 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>老爹・涼糕｜周邊商品管理後台</title>
-<style>
-html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#f6eee3}
-iframe{display:block;width:100%;height:100%;border:0}
-</style>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>周邊商品管理後台</title>
+<style>html,body{margin:0;width:100%;height:100%;overflow:hidden}iframe{display:block;width:100%;height:100%;border:0}</style>
 </head>
 <body>
-<iframe id="admin" src="../merch-admin.html" title="周邊商品管理後台"></iframe>
+<iframe id="adminFrame" src="../merch-admin.html?v=20260914" title="周邊商品管理後台"></iframe>
 <script>
-const frame=document.getElementById('admin');
+const frame=document.getElementById('adminFrame');
 frame.addEventListener('load',()=>{
   try{
     const doc=frame.contentDocument;
     const style=doc.createElement('style');
     style.textContent=`
       @media(max-width:800px){
-        aside{width:155px!important;padding:12px 10px!important;}
-        .nav{font-size:14px!important;text-align:left!important;padding:13px 12px!important;}
-        .nav span{display:inline!important;font-size:14px!important;}
+        aside{width:180px!important;padding:16px 10px!important;}
+        .nav{font-size:15px!important;text-align:left!important;padding:14px 12px!important;}
+        .nav span{display:inline!important;}
         .main{padding:18px!important;}
-        .top{padding:0 15px!important;}
-        .brand{font-size:17px!important;}
         .title{align-items:flex-start!important;gap:10px!important;}
         .title h1{font-size:22px!important;}
       }
