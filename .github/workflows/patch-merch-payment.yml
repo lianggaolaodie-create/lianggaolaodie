@@ -1,0 +1,32 @@
+name: Connect merch payment page
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch merch checkout
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('merch.html')
+          s=p.read_text(encoding='utf-8')
+          old="alert(`下單成功！\\n訂單編號：${o.data.order_number}`);closeOrder()"
+          new="location.href='merch-payment.html?id='+o.data.id+'&order='+encodeURIComponent(o.data.order_number)+'&amount='+amount"
+          if old not in s:
+              print('target not found')
+              raise SystemExit(0)
+          p.write_text(s.replace(old,new,1),encoding='utf-8')
+          PY
+      - name: Commit patch
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add merch.html
+          git diff --cached --quiet && exit 0
+          git commit -m '串接周邊商品付款資料頁'
+          git push
