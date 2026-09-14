@@ -2,31 +2,53 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>周邊商品管理後台</title>
-<style>html,body{margin:0;width:100%;height:100%;overflow:hidden}iframe{display:block;width:100%;height:100%;border:0}</style>
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#f6eee3}
+iframe{position:absolute;top:0;right:0;width:100%;height:100%;border:0;display:block}
+.mobileNav{display:none}
+@media(max-width:800px){
+  .mobileNav{display:flex;position:fixed;z-index:9999;left:0;top:70px;bottom:0;width:138px;background:#fffaf3;border-right:1px solid #e2d5c5;padding:14px 9px;box-sizing:border-box;flex-direction:column;gap:7px}
+  .mobileNav button{width:100%;border:0;background:transparent;color:#5a4638;text-align:left;padding:14px 10px;border-radius:12px;font-size:15px;font-weight:700;line-height:1.2}
+  .mobileNav button.active{background:#ead7c0;color:#432616}
+  iframe{left:138px;width:calc(100% - 138px);}
+}
+</style>
 </head>
 <body>
-<iframe id="adminFrame" src="../merch-admin.html?v=20260914" title="周邊商品管理後台"></iframe>
+<nav class="mobileNav" id="mobileNav">
+<button class="active" data-page="dashboard">📊 總覽</button>
+<button data-page="products">🛍️ 商品管理</button>
+<button data-page="categories">🏷️ 商品分類</button>
+<button data-page="orders">📋 訂單管理</button>
+</nav>
+<iframe id="adminFrame" src="../merch-admin.html?v=20260914-2" title="周邊商品管理後台"></iframe>
 <script>
 const frame=document.getElementById('adminFrame');
-frame.addEventListener('load',()=>{
-  try{
-    const doc=frame.contentDocument;
-    const style=doc.createElement('style');
-    style.textContent=`
-      @media(max-width:800px){
-        aside{width:180px!important;padding:16px 10px!important;}
-        .nav{font-size:15px!important;text-align:left!important;padding:14px 12px!important;}
-        .nav span{display:inline!important;}
-        .main{padding:18px!important;}
-        .title{align-items:flex-start!important;gap:10px!important;}
-        .title h1{font-size:22px!important;}
-      }
-    `;
-    doc.head.appendChild(style);
-  }catch(e){console.error(e)}
-});
+function applyMobileFix(){
+ try{
+  const doc=frame.contentDocument;
+  if(!doc)return;
+  const old=doc.getElementById('mobileFixStyle');
+  if(old)old.remove();
+  const style=doc.createElement('style');
+  style.id='mobileFixStyle';
+  style.textContent='@media(max-width:800px){aside{display:none!important}.main{padding:18px!important;width:100%!important;max-width:none!important}.top{position:sticky!important;top:0!important}.layout{display:block!important;min-height:100vh!important}}';
+  doc.head.appendChild(style);
+ }catch(e){console.error(e)}
+}
+frame.addEventListener('load',()=>setTimeout(applyMobileFix,100));
+window.addEventListener('load',()=>setTimeout(applyMobileFix,300));
+document.querySelectorAll('#mobileNav button').forEach(btn=>btn.addEventListener('click',()=>{
+ document.querySelectorAll('#mobileNav button').forEach(b=>b.classList.remove('active'));
+ btn.classList.add('active');
+ try{
+  const target=frame.contentDocument.querySelector('.nav[data-page="'+btn.dataset.page+'"]');
+  if(target)target.click();
+  applyMobileFix();
+ }catch(e){console.error(e)}
+}));
 </script>
 </body>
 </html>
