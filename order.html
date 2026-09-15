@@ -18,53 +18,14 @@
     <p>新鮮製作的涼糕，請依當日開放地區與口味下單。</p>
     <div class="steps"><span class="step">① 選日期</span><span class="step">② 選涼糕</span><span class="step">③ 填資料</span><span class="step">④ 匯款付款</span><span class="step">⑤ 管理員確認後成立</span></div>
   </div>
-
   <div id="loading" class="section"><div class="notice">正在讀取當日可訂購內容…</div></div>
   <main id="app" class="hidden">
-    <section class="section">
-      <h2>📅 配送日期</h2>
-      <div class="field"><label for="date">選擇日期</label><input id="date" type="date"></div>
-      <div id="regionNotice" class="notice"></div>
-      <div class="field"><label for="region">配送地區</label><select id="region"></select></div>
-    </section>
-
-    <section class="section">
-      <h2>🍡 選擇涼糕口味</h2>
-      <div id="flavors" class="flavors"></div>
-    </section>
-
-    <section class="section">
-      <h2>🏪 冷藏寄放方式</h2>
-      <div id="pickups" class="pickups"></div>
-      <div class="field"><label for="store">取貨門市</label><input id="store" placeholder="請填寫超商門市名稱"></div>
-      <div class="notice">全家／7-ELEVEN 冷藏寄放，請於收到取貨通知後依店家規定取貨。</div>
-    </section>
-
-    <section class="section">
-      <h2>👤 訂購人資料</h2>
-      <div class="field"><label for="name">姓名</label><input id="name" autocomplete="name" placeholder="請填寫姓名"></div>
-      <div class="field"><label for="phone">電話</label><input id="phone" inputmode="tel" autocomplete="tel" placeholder="請填寫手機／電話"></div>
-      <div class="field"><label for="note">備註</label><textarea id="note" placeholder="有其他需求可以寫在這裡"></textarea></div>
-    </section>
-
-    <section class="summary">
-      <div class="row"><span>涼糕金額</span><strong id="productTotal">$0</strong></div>
-      <div class="row"><span>寄放費</span><strong id="pickupFee">$0</strong></div>
-      <div class="row total"><span>應付總額</span><strong id="total">$0</strong></div>
-      <button id="createBtn" class="btn">建立訂單</button>
-    </section>
-
-    <section id="payment" class="section hidden">
-      <h2>💳 匯款付款</h2>
-      <div class="result"><div>訂單編號</div><div id="orderNo" class="order-no"></div><div>應付總額：<strong id="orderAmount"></strong></div></div>
-      <div id="bankInfo" class="notice" style="margin-top:12px"></div>
-      <div class="line-box">📲 匯款資料／付款問題請洽官方 LINE<br><span class="line-id">LINE ID：@502iugah</span></div>
-      <div class="field"><label for="last5">匯款末五碼（5 位數字）</label><input id="last5" inputmode="numeric" maxlength="5" pattern="[0-9]{5}" placeholder="例如 12345"></div>
-      <div class="field proof-box"><label for="proof">付款截圖（可選）</label><input id="proof" type="file" accept="image/*"></div>
-      <div class="notice">請先完成匯款，再填寫匯款末五碼或上傳付款截圖。訂單送出後不代表已成立；管理員確認付款後，訂單才正式成立。</div>
-      <button id="proofBtn" class="btn">送出付款證明</button>
-      <div id="paymentMsg" style="margin-top:10px"></div>
-    </section>
+    <section class="section"><h2>📅 配送日期</h2><div class="field"><label for="date">選擇日期</label><input id="date" type="date"></div><div id="regionNotice" class="notice"></div><div class="field"><label for="region">配送地區</label><select id="region"></select></div></section>
+    <section class="section"><h2>🍡 選擇涼糕口味</h2><div id="flavors" class="flavors"></div></section>
+    <section class="section"><h2>🏪 冷藏寄放方式</h2><div id="pickups" class="pickups"></div><div class="field"><label for="store">取貨門市</label><input id="store" placeholder="請填寫超商門市名稱"></div><div class="notice">全家／7-ELEVEN 冷藏寄放，請於收到取貨通知後依店家規定取貨。</div></section>
+    <section class="section"><h2>👤 訂購人資料</h2><div class="field"><label for="name">姓名</label><input id="name" autocomplete="name" placeholder="請填寫姓名"></div><div class="field"><label for="phone">電話</label><input id="phone" inputmode="tel" autocomplete="tel" placeholder="請填寫手機／電話"></div><div class="field"><label for="note">備註</label><textarea id="note" placeholder="有其他需求可以寫在這裡"></textarea></div></section>
+    <section class="summary"><div class="row"><span>涼糕金額</span><strong id="productTotal">$0</strong></div><div class="row"><span>寄放費</span><strong id="pickupFee">$0</strong></div><div class="row total"><span>應付總額</span><strong id="total">$0</strong></div><button id="createBtn" class="btn">建立訂單</button></section>
+    <section id="payment" class="section hidden"><h2>💳 匯款付款</h2><div class="result"><div>訂單編號</div><div id="orderNo" class="order-no"></div><div>應付總額：<strong id="orderAmount"></strong></div></div><div id="bankInfo" class="notice" style="margin-top:12px"></div><div class="line-box">📲 匯款資料／付款問題請洽官方 LINE<br><span class="line-id">LINE ID：@502iugah</span></div><div class="field"><label for="last5">匯款末五碼（5 位數字）</label><input id="last5" inputmode="numeric" maxlength="5" pattern="[0-9]{5}" placeholder="例如 12345"></div><div class="field proof-box"><label for="proof">付款截圖（可選）</label><input id="proof" type="file" accept="image/*"></div><div class="notice">請先完成匯款，再填寫匯款末五碼或上傳付款截圖。訂單送出後不代表已成立；管理員確認付款後，訂單才正式成立。</div><button id="proofBtn" class="btn">送出付款證明</button><div id="paymentMsg" style="margin-top:10px"></div></section>
   </main>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -78,67 +39,13 @@ const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&
 const money=n=>'$'+Number(n||0).toLocaleString('zh-TW');
 function setMsg(el,text,type='notice'){el.className=type;el.textContent=text}
 function localDate(){const d=new Date();return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10)}
-async function load(){
-  try{
-    const [{data:r,error:re},{data:f,error:fe},{data:p,error:pe},{data:pay,error:paye}]=await Promise.all([
-      sb.from('daily_delivery_regions').select('delivery_date,region_name,enabled').eq('enabled',true).order('delivery_date'),
-      sb.from('daily_flavors').select('delivery_date,flavor_id,enabled,flavors!inner(id,name,description,price,image_url,enabled)').eq('enabled',true).eq('flavors.enabled',true).order('delivery_date'),
-      sb.from('pickup_settings').select('*').eq('id',1).maybeSingle(),
-      sb.from('payment_settings').select('*').eq('id',1).maybeSingle()
-    ]);
-    if(re)throw re;if(fe)throw fe;if(pe)throw pe;
-    regions=r||[];flavors=(f||[]).map(x=>({...x,...x.flavors}));pickup=p;
-    window.paymentSettings=pay;
-    if(!regions.length)throw new Error('目前沒有開放的配送日期');
-    const dates=[...new Set(regions.map(x=>x.delivery_date))];
-    $('date').min=dates[0];$('date').max=dates[dates.length-1];$('date').value=dates.includes(localDate())?localDate():dates[0];
-    $('date').addEventListener('change',renderDate);renderDate();
-    $('createBtn').onclick=createOrder;$('proofBtn').onclick=submitProof;
-    $('last5').addEventListener('input',e=>e.target.value=e.target.value.replace(/\D/g,'').slice(0,5));
-    $('loading').classList.add('hidden');$('app').classList.remove('hidden');
-  }catch(e){$('loading').innerHTML='<div class="notice error">讀取訂購資料失敗：'+esc(e.message||e)+'</div>'}
-}
-function renderDate(){
- const date=$('date').value,rs=regions.filter(x=>x.delivery_date===date),fs=flavors.filter(x=>x.delivery_date===date);
- $('region').innerHTML=rs.length?rs.map(x=>`<option value="${esc(x.region_name)}">${esc(x.region_name)}</option>`).join(''):'<option value="">目前未開放</option>';
- $('regionNotice').textContent=rs.length?'當日配送地區：'+rs.map(x=>x.region_name).join('、'):'這一天目前沒有開放配送。';
- $('flavors').innerHTML=fs.length?fs.map(f=>`<div class="flavor"><div><strong>${esc(f.name)}</strong>${f.description?`<small>${esc(f.description)}</small>`:''}<small>${money(f.price)}／盒</small></div><input class="qty" data-id="${f.id}" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="2" value="0" aria-label="${esc(f.name)}份數"></div>`).join(''):'<div class="notice">此日期目前沒有開放口味。</div>';
- document.querySelectorAll('.qty').forEach(i=>i.addEventListener('input',()=>{i.value=i.value.replace(/\D/g,'').slice(0,2);calc()}));
- renderPickups();calc();
-}
-function renderPickups(){
- const p=pickup||{};let h='';
- if(p.familymart_enabled)h+=`<label class="pickup"><input type="radio" name="pickup" value="familymart" data-fee="${p.familymart_fee}"><span><strong>全家 冷藏寄放</strong><small>寄放費 ${money(p.familymart_fee)}</small></span></label>`;
- if(p.seven_eleven_enabled)h+=`<label class="pickup"><input type="radio" name="pickup" value="seven_eleven" data-fee="${p.seven_eleven_fee}"><span><strong>7-ELEVEN 冷藏寄放</strong><small>寄放費 ${money(p.seven_eleven_fee)}</small></span></label>`;
- $('pickups').innerHTML=h||'<div class="notice error">目前沒有開放超商冷藏寄放。</div>';
- document.querySelectorAll('input[name=pickup]').forEach(i=>i.addEventListener('change',calc));
-}
+async function load(){try{const [{data:r,error:re},{data:f,error:fe},{data:p,error:pe},{data:pay,error:paye}]=await Promise.all([sb.from('daily_delivery_regions').select('delivery_date,region_name,enabled').eq('enabled',true).order('delivery_date'),sb.from('daily_flavors').select('delivery_date,flavor_id,enabled,flavors!inner(id,name,description,price,image_url,enabled)').eq('enabled',true).eq('flavors.enabled',true).order('delivery_date'),sb.from('pickup_settings').select('*').eq('id',1).maybeSingle(),sb.from('payment_settings').select('*').eq('id',1).maybeSingle()]);if(re)throw re;if(fe)throw fe;if(pe)throw pe;regions=r||[];flavors=(f||[]).map(x=>({...x,...x.flavors}));pickup=p;window.paymentSettings=pay;if(!regions.length)throw new Error('目前沒有開放的配送日期');const dates=[...new Set(regions.map(x=>x.delivery_date))];$('date').min=dates[0];$('date').max=dates[dates.length-1];$('date').value=dates.includes(localDate())?localDate():dates[0];$('date').addEventListener('change',renderDate);renderDate();$('createBtn').onclick=createOrder;$('proofBtn').onclick=submitProof;$('last5').addEventListener('input',e=>e.target.value=e.target.value.replace(/\D/g,'').slice(0,5));$('loading').classList.add('hidden');$('app').classList.remove('hidden')}catch(e){$('loading').innerHTML='<div class="notice error">讀取訂購資料失敗：'+esc(e.message||e)+'</div>'}}
+function renderDate(){const date=$('date').value,rs=regions.filter(x=>x.delivery_date===date),fs=flavors.filter(x=>x.delivery_date===date);$('region').innerHTML=rs.length?rs.map(x=>`<option value="${esc(x.region_name)}">${esc(x.region_name)}</option>`).join(''):'<option value="">目前未開放</option>';$('regionNotice').textContent=rs.length?'當日配送地區：'+rs.map(x=>x.region_name).join('、'):'這一天目前沒有開放配送。';$('flavors').innerHTML=fs.length?fs.map(f=>`<div class="flavor"><div><strong>${esc(f.name)}</strong>${f.description?`<small>${esc(f.description)}</small>`:''}<small>${money(f.price)}／盒</small></div><input class="qty" data-id="${f.id}" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="2" value="0" aria-label="${esc(f.name)}份數"></div>`).join(''):'<div class="notice">此日期目前沒有開放口味。</div>';document.querySelectorAll('.qty').forEach(i=>i.addEventListener('input',()=>{i.value=i.value.replace(/\D/g,'').slice(0,2);calc()}));renderPickups();calc()}
+function renderPickups(){const p=pickup||{};let h='';if(p.familymart_enabled)h+=`<label class="pickup"><input type="radio" name="pickup" value="familymart" data-fee="${p.familymart_fee}"><span><strong>全家 冷藏寄放</strong><small>寄放費 ${money(p.familymart_fee)}</small></span></label>`;if(p.seven_eleven_enabled)h+=`<label class="pickup"><input type="radio" name="pickup" value="seven_eleven" data-fee="${p.seven_eleven_fee}"><span><strong>7-ELEVEN 冷藏寄放</strong><small>寄放費 ${money(p.seven_eleven_fee)}</small></span></label>`;$('pickups').innerHTML=h||'<div class="notice error">目前沒有開放超商冷藏寄放。</div>';document.querySelectorAll('input[name=pickup]').forEach(i=>i.addEventListener('change',calc))}
 function calc(){let pt=0;document.querySelectorAll('.qty').forEach(i=>{const f=flavors.find(x=>String(x.id)===i.dataset.id);pt+=(f?f.price:0)*Number(i.value||0)});const p=document.querySelector('input[name=pickup]:checked'),fee=p?Number(p.dataset.fee):0;$('productTotal').textContent=money(pt);$('pickupFee').textContent=money(fee);$('total').textContent=money(pt+fee);return{pt,fee,total:pt+fee}}
 function items(){return[...document.querySelectorAll('.qty')].map(i=>({flavor_id:Number(i.dataset.id),quantity:Number(i.value||0)})).filter(x=>x.quantity>0)}
-async function createOrder(){
- const it=items(),date=$('date').value,region=$('region').value,p=document.querySelector('input[name=pickup]:checked');
- if(!it.length)return alert('請至少選擇一項涼糕');if(!p)return alert('請選擇冷藏寄放方式');if(!$('store').value.trim())return alert('請填寫取貨門市');if(!$('name').value.trim())return alert('請填寫姓名');if(!$('phone').value.trim())return alert('請填寫電話');
- $('createBtn').disabled=true;$('createBtn').textContent='建立中…';
- try{
-  const{data,error}=await sb.rpc('create_customer_order',{p_delivery_date:date,p_delivery_region:region,p_pickup_type:p.value,p_pickup_store:$('store').value.trim(),p_customer_name:$('name').value.trim(),p_customer_phone:$('phone').value.trim(),p_customer_note:$('note').value.trim(),p_items:it});
-  if(error)throw error;selectedOrder=data;$('orderNo').textContent=data.order_number;$('orderAmount').textContent=money(data.total_amount);
-  const ps=window.paymentSettings;
-  if(ps&&ps.enabled&&ps.bank_name&&ps.account_number){$('bankInfo').innerHTML=`🏦 請匯款至：<strong>${esc(ps.bank_name)}</strong> ${esc(ps.branch_name||'')}<br>帳號：<strong>${esc(ps.account_number)}</strong><br>戶名：<strong>${esc(ps.account_name||'')}</strong>`}
-  else{$('bankInfo').innerHTML='🏦 <strong>匯款資料</strong><br>目前銀行帳戶資料尚未公開設定，請加入官方 LINE 取得最新匯款資料。'}
-  $('payment').classList.remove('hidden');$('payment').scrollIntoView({behavior:'smooth'});$('createBtn').textContent='訂單已建立';
- }catch(e){alert('建立訂單失敗：'+(e.message||e));$('createBtn').disabled=false;$('createBtn').textContent='建立訂單'}
-}
-async function submitProof(){
- if(!selectedOrder)return;const last5=$('last5').value.trim(),file=$('proof').files[0];
- if(!/^\d{5}$/.test(last5)&&!file)return alert('請填寫匯款末五碼，或上傳付款證明');
- $('proofBtn').disabled=true;$('proofBtn').textContent='送出中…';
- try{
-  let path=null;
-  if(file){if(file.size>8*1024*1024)throw new Error('付款截圖請勿超過 8MB');const ext=(file.name.split('.').pop()||'jpg').toLowerCase().replace(/[^a-z0-9]/g,'')||'jpg';path=`${selectedOrder.order_id}/${Date.now()}.${ext}`;const{error:up}=await sb.storage.from('transfer-proofs').upload(path,file,{upsert:false,contentType:file.type||'image/jpeg'});if(up)throw up}
-  const{error}=await sb.rpc('submit_customer_payment',{p_order_id:selectedOrder.order_id,p_transfer_last5:last5||null,p_transfer_proof_path:path});if(error)throw error;
-  setMsg($('paymentMsg'),'付款證明已送出，管理員會先核對付款；確認後訂單才正式成立。','ok');$('proofBtn').textContent='已送出';
- }catch(e){setMsg($('paymentMsg'),'送出失敗：'+(e.message||e),'error');$('proofBtn').disabled=false;$('proofBtn').textContent='送出付款證明'}
-}
+async function createOrder(){const it=items(),date=$('date').value,region=$('region').value,p=document.querySelector('input[name=pickup]:checked');if(!it.length)return alert('請至少選擇一項涼糕');if(!p)return alert('請選擇冷藏寄放方式');if(!$('store').value.trim())return alert('請填寫取貨門市');if(!$('name').value.trim())return alert('請填寫姓名');if(!$('phone').value.trim())return alert('請填寫電話');$('createBtn').disabled=true;$('createBtn').textContent='建立中…';try{const{data,error}=await sb.rpc('create_customer_order',{p_delivery_date:date,p_delivery_region:region,p_pickup_type:p.value,p_pickup_store:$('store').value.trim(),p_customer_name:$('name').value.trim(),p_customer_phone:$('phone').value.trim(),p_customer_note:$('note').value.trim(),p_items:it});if(error)throw error;selectedOrder=data;$('orderNo').textContent=data.order_number;$('orderAmount').textContent=money(data.total_amount);const ps=window.paymentSettings;if(ps&&ps.enabled&&ps.bank_name&&ps.account_number){$('bankInfo').innerHTML=`🏦 請匯款至：<strong>${esc(ps.bank_name)}</strong> ${esc(ps.branch_name||'')}<br>帳號：<strong>${esc(ps.account_number)}</strong><br>戶名：<strong>${esc(ps.account_name||'')}</strong>`}else{$('bankInfo').innerHTML='🏦 <strong>匯款資料</strong><br>目前銀行帳戶資料尚未公開設定，請加入官方 LINE 取得最新匯款資料。'}$('payment').classList.remove('hidden');$('payment').scrollIntoView({behavior:'smooth'});$('createBtn').textContent='訂單已建立'}catch(e){alert('建立訂單失敗：'+(e.message||e));$('createBtn').disabled=false;$('createBtn').textContent='建立訂單'}}
+async function submitProof(){if(!selectedOrder)return;const last5=$('last5').value.trim(),file=$('proof').files[0];if(!/^\d{5}$/.test(last5)&&!file)return alert('請填寫匯款末五碼，或上傳付款證明');$('proofBtn').disabled=true;$('proofBtn').textContent='送出中…';try{let path=null;if(file){if(file.size>8*1024*1024)throw new Error('付款截圖請勿超過 8MB');const ext=(file.name.split('.').pop()||'jpg').toLowerCase().replace(/[^a-z0-9]/g,'')||'jpg';path=`${selectedOrder.order_id}/${Date.now()}.${ext}`;const{error:up}=await sb.storage.from('transfer-proofs').upload(path,file,{upsert:false,contentType:file.type||'image/jpeg'});if(up)throw up}const{error}=await sb.rpc('submit_customer_payment',{p_order_id:selectedOrder.order_id,p_transfer_last5:last5||null,p_transfer_proof_path:path});if(error)throw error;let notifyOk=false;try{const nr=await fetch(SUPABASE_URL+'/functions/v1/line-payment-order-notify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({order_id:selectedOrder.order_id})});notifyOk=nr.ok}catch(_){notifyOk=false}if(notifyOk){setMsg($('paymentMsg'),'付款證明已送出，管理員 LINE 已收到通知；確認付款後訂單才正式成立。','ok')}else{setMsg($('paymentMsg'),'付款證明已送出，但 LINE 通知目前未成功；管理員仍可直接在後台查看此筆訂單。','notice')}$('proofBtn').textContent='已送出'}catch(e){setMsg($('paymentMsg'),'送出失敗：'+(e.message||e),'error');$('proofBtn').disabled=false;$('proofBtn').textContent='送出付款證明'}}
 load();
 </script>
 </body>
