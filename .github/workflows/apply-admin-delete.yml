@@ -10,22 +10,25 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Patch admin.html
+      - name: Restore and patch admin.html
         run: |
+          git checkout 61f15628c4bf31615cbba3c84c4f61d3834ced11 -- admin.html
           python3 - <<'PY'
           from pathlib import Path
           p=Path('admin.html')
           s=p.read_text(encoding='utf-8')
-          marker='<!-- ADMIN_DELETE_UI_V2 -->'
-          if marker not in s:
-            patch=r'''<!-- ADMIN_DELETE_UI_V2 --><script>(function(){async function addDeleteButtons(){const ob=document.getElementById('ordersBox');if(ob){const{data}=await sb.from('orders').select('id,order_number');const map=new Map((data||[]).map(x=>[String(x.order_number||''),x.id]));ob.querySelectorAll('.order').forEach(card=>{if(card.querySelector('[data-delete-order]'))return;const n=card.querySelector('div:first-child div');const id=map.get(String(n?.textContent||''));if(!id)return;const a=document.createElement('div');a.className='actions';const b=document.createElement('button');b.className='danger';b.textContent='刪除訂單';b.setAttribute('data-delete-order','1');b.onclick=()=>window.deleteOrder(id);a.appendChild(b);card.appendChild(a)})}const pb=document.getElementById('privateBox');if(pb){pb.querySelectorAll('.item').forEach(card=>{if(card.querySelector('[data-delete-private]'))return;const id=card.querySelector('div:first-child div')?.textContent?.trim();if(!id)return;const a=document.createElement('div');a.className='actions';const b=document.createElement('button');b.className='danger';b.textContent='刪除個資';b.setAttribute('data-delete-private','1');b.onclick=()=>window.deletePrivate(id);a.appendChild(b);card.appendChild(a)})}}window.deleteOrder=async id=>{if(!confirm('確定要永久刪除這筆訂單？訂單、商品明細與對應個資都會刪除，無法復原。'))return;const{error}=await sb.rpc('admin_delete_order',{p_order_id:id});if(error)return alert('刪除訂單失敗：'+error.message);alert('訂單已刪除');loadOrders()};window.deletePrivate=async id=>{if(!confirm('確定要刪除這筆個資？訂單資料會保留，只刪除姓名、電話、門市與備註。'))return;const{error}=await sb.rpc('admin_delete_order_private',{p_order_id:id});if(error)return alert('刪除個資失敗：'+error.message);alert('個資已刪除');loadPrivate()};const start=()=>{addDeleteButtons();const o=document.getElementById('ordersBox'),p=document.getElementById('privateBox');if(o)new MutationObserver(addDeleteButtons).observe(o,{childList:true,subtree:true});if(p)new MutationObserver(addDeleteButtons).observe(p,{childList:true,subtree:true})};start()})();</script>'''
-            pos=s.rfind('</script>')
-            if pos<0: raise SystemExit('script end marker not found')
-            s=s[:pos]+patch+s[pos:]
+          old="async function loadOrders(){$('ordersBox').textContent=''}"
+          new="""async function loadOrders(){const{data,error}=await sb.from('orders').select('id,order_number,delivery_date,delivery_region,pickup_type,total_amount,status,payment_status,transfer_last5,created_at').order('created_at',{ascending:false}).limit(50);if(error)return msg('ordersBox',error.message,'msg error');if(!data?.length)return $('ordersBox').textContent='目前沒有訂單。';const rows=await Promise.all(data.map(async o=>{const{data:items}=await sb.from('order_items').select('flavor_name,unit_price,quantity,subtotal').eq('order_id',o.id).order('id');return {o,items:items||[]}}));$('ordersBox').innerHTML=rows.map(({o,items})=>'<div class=\"order\"><div><strong>訂單編號</strong><div>'+esc(o.order_number)+'</div></div><div><strong>配送日期</strong><div>'+esc(o.delivery_date)+'</div></div><div><strong>配送區域</strong><div>'+esc(o.delivery_region)+'</div></div><div><strong>取貨方式</strong><div>'+esc(o.pickup_type)+'</div></div><div><strong>總額</strong><div>'+money(o.total_amount)+'</div></div><div><strong>付款狀態</strong><div>'+esc(o.payment_status)+'</div></div><div><strong>匯款後五碼</strong><div>'+esc(o.transfer_last5||'未提供')+'</div></div><div><strong>訂單進度</strong><div><select onchange=\"changeStatus(\\''+o.id+'\\',this.value)\"><option value=\"pending\" '+(o.status==='pending'?'selected':'')+'>待處理</option><option value=\"confirmed\" '+(o.status==='confirmed'?'selected':'')+'>已確認</option><option value=\"preparing\" '+(o.status==='preparing'?'selected':'')+'>製作中</option><option value=\"shipped\" '+(o.status==='shipped'?'selected':'')+'>已出貨</option><option value=\"completed\" '+(o.status==='completed'?'selected':'')+'>已完成</option><option value=\"cancelled\" '+(o.status==='cancelled'?'selected':'')+'>已取消</option></select></div></div><div><strong>訂購商品</strong><div>'+esc(items.map(i=>(i.flavor_name||'商品')+' × '+i.quantity+' '+money(i.subtotal)).join('、')||'—')+'</div></div><div class=\"actions\"><button class=\"danger\" onclick=\"deleteOrder(\\''+o.id+'\\')\">刪除訂單</button></div></div>').join('')}"""
+          if old not in s: raise SystemExit('loadOrders marker not found')
+          s=s.replace(old,new,1)
+          old2="async function loadPrivate(){$('privateBox').textContent=''}"
+          new2="""async function loadPrivate(){const{data,error}=await sb.rpc('personal_data_admin_orders');if(error)return msg('privateBox',error.message,'msg error');if(!data?.length)return $('privateBox').textContent='目前沒有訂單個資。';$('privateBox').innerHTML=data.map(p=>'<div class=\"item\"><div><strong>訂單編號</strong><div>'+esc(p.order_number||p.order_id)+'</div></div><div><strong>姓名</strong><div>'+esc(p.customer_name)+'</div></div><div><strong>電話</strong><div>'+esc(p.customer_phone)+'</div></div><div><strong>取貨門市</strong><div>'+esc(p.pickup_store)+'</div></div><div><strong>備註</strong><div>'+esc(p.customer_note||'')+'</div></div><div class=\"actions\"><button class=\"danger\" onclick=\"deletePrivate(\\''+p.order_id+'\\')\">刪除個資</button></div></div>').join('')}"""
+          if old2 not in s: raise SystemExit('loadPrivate marker not found')
+          s=s.replace(old2,new2,1)
           p.write_text(s,encoding='utf-8')
           PY
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add admin.html
-          git commit -m 'Fix visible per-item delete buttons' || exit 0
+          git commit -m 'Add per-item order and private data delete buttons' || exit 0
           git push
