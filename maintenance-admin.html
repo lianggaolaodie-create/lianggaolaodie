@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>官網維護控制｜老爹・涼糕</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f7f1e9;color:#2d241e;font-family:-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif}.wrap{max-width:720px;margin:auto;padding:24px 16px 60px}.card{background:#fff;border:1px solid #e7ddd2;border-radius:22px;padding:22px;margin:14px 0;box-shadow:0 8px 28px #0000000b}h1{margin:0 0 8px;font-size:30px}h2{margin:0 0 12px;font-size:21px}.small{font-size:13px;color:#75685f}.hidden{display:none!important}.status{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:18px;border-radius:18px;background:#f5eee6}.badge{display:inline-flex;align-items:center;gap:7px;font-weight:900}.dot{width:13px;height:13px;border-radius:50%;background:#2d7b4f}.off .dot{background:#a32e29}.switch{position:relative;width:72px;height:40px;flex:none}.switch input{opacity:0;width:0;height:0}.slider{position:absolute;inset:0;background:#d8d2cc;border-radius:99px;cursor:pointer;transition:.2s}.slider:before{content:"";position:absolute;width:32px;height:32px;left:4px;top:4px;background:#fff;border-radius:50%;box-shadow:0 2px 7px #0002;transition:.2s}.switch input:checked+.slider{background:#a32e29}.switch input:checked+.slider:before{transform:translateX(32px)}label{display:block;font-weight:800;margin-bottom:7px}.field{margin-top:14px}textarea{width:100%;min-height:120px;border:1px solid #d9cdc1;border-radius:13px;padding:13px;font:inherit;resize:vertical}.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:16px}button{border:0;border-radius:12px;padding:12px 17px;background:#9b5c38;color:#fff;font-weight:900;cursor:pointer}button.secondary{background:#eee;color:#333}.msg{padding:12px 14px;border-radius:12px;margin-top:12px;background:#f6eee7}.error{background:#fff0ef;color:#a32e29}.ok{background:#edf8f1;color:#286d46}.login-note{margin-top:10px}.danger-note{padding:14px;border-radius:14px;background:#fff5f3;border:1px solid #f0d4cf;color:#8e2e29;line-height:1.65}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card"><h1>🔧 官網維護控制</h1><div id="who" class="small">尚未登入</div></div>
+  <div id="login" class="card">
+    <h2>管理員登入</h2>
+    <div class="field"><label>Email</label><input id="email" type="email" autocomplete="username" style="width:100%;padding:12px;border:1px solid #d9cdc1;border-radius:12px;font:inherit"></div>
+    <div class="field"><label>密碼</label><input id="password" type="password" autocomplete="current-password" style="width:100%;padding:12px;border:1px solid #d9cdc1;border-radius:12px;font:inherit"></div>
+    <div class="actions"><button id="loginBtn" type="button">登入維護後台</button></div>
+    <div id="loginMsg"></div>
+  </div>
+  <div id="panel" class="hidden">
+    <div class="card">
+      <h2>🌐 官網公開狀態</h2>
+      <div id="statusBox" class="status off">
+        <div><div id="statusBadge" class="badge"><span class="dot"></span><span>維護模式關閉</span></div><div id="statusHint" class="small" style="margin-top:6px">訪客可以正常瀏覽官網</div></div>
+        <label class="switch"><input id="enabled" type="checkbox"><span class="slider"></span></label>
+      </div>
+      <div class="field"><label for="message">維護時顯示給訪客的訊息</label><textarea id="message">官網目前正在維護中，請稍後再回來。</textarea></div>
+      <div class="danger-note">開啟後，官網公開頁面會顯示維護畫面；管理後台不受影響。商品、訂單、餐車行程與既有資料不會被刪除。</div>
+      <div class="actions"><button id="saveBtn" type="button">儲存設定</button><button id="refreshBtn" type="button" class="secondary">重新整理</button><button id="logoutBtn" type="button" class="secondary">登出</button></div>
+      <div id="saveMsg"></div>
+    </div>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL='https://yemzdwxtyosuaczsqwea.supabase.co';
+const SUPABASE_KEY='sb_publishable_7b4hgNL68yiYbec7fXToYQ_UxPE4sEB';
+const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+function show(id,text,cls='msg'){$(id).innerHTML='<div class="'+cls+'">'+esc(text)+'</div>'}
+function render(row){const on=!!row?.enabled;$('enabled').checked=on;$('message').value=row?.message||'官網目前正在維護中，請稍後再回來。';$('statusBox').classList.toggle('off',!on);$('statusBadge').innerHTML='<span class="dot"></span><span>'+(on?'維護模式開啟':'維護模式關閉')+'</span>';$('statusHint').textContent=on?'訪客將看到維護畫面':'訪客可以正常瀏覽官網'}
+async function enter(user){const{data:p,error}=await sb.from('admin_profiles').select('role,enabled').eq('user_id',user.id).maybeSingle();if(error||!p||!p.enabled||p.role!=='super_admin'){show('loginMsg','此帳號沒有官網維護控制權限。','msg error');await sb.auth.signOut();return}$('login').classList.add('hidden');$('panel').classList.remove('hidden');$('who').textContent=user.email||'';await load()}
+async function load(){const{data,error}=await sb.from('site_maintenance').select('id,enabled,message,updated_at').eq('id',1).maybeSingle();if(error)return show('saveMsg','讀取設定失敗：'+error.message,'msg error');render(data)}
+$('loginBtn').onclick=async()=>{const email=$('email').value.trim(),password=$('password').value;if(!email||!password)return show('loginMsg','請輸入 Email 和密碼','msg error');const b=$('loginBtn');b.disabled=true;b.textContent='登入中…';try{const{data,error}=await sb.auth.signInWithPassword({email,password});if(error)return show('loginMsg','登入失敗：'+error.message,'msg error');await enter(data.user)}finally{b.disabled=false;b.textContent='登入維護後台'}};
+$('saveBtn').onclick=async()=>{const b=$('saveBtn');b.disabled=true;b.textContent='儲存中…';try{const{error}=await sb.from('site_maintenance').update({enabled:$('enabled').checked,message:$('message').value.trim()||'官網目前正在維護中，請稍後再回來。',updated_at:new Date().toISOString()}).eq('id',1);if(error)return show('saveMsg','儲存失敗：'+error.message,'msg error');show('saveMsg','維護設定已儲存。','msg ok');await load()}finally{b.disabled=false;b.textContent='儲存設定'}};
+$('refreshBtn').onclick=load;$('logoutBtn').onclick=async()=>{await sb.auth.signOut();location.reload()};
+(async()=>{const{data}=await sb.auth.getUser();if(data.user)await enter(data.user)})();
+</script>
+</body></html>
