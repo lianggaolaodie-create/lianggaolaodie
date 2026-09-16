@@ -1,0 +1,56 @@
+name: Apply Maintenance Gate
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    if: "!contains(github.event.head_commit.message, '[maintenance-gate]')"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Add maintenance gate to public pages
+        shell: python
+        run: |
+          from pathlib import Path
+
+          pages = [
+              'index.html', 'about.html', 'activity.html', 'contact.html',
+              'convenience.html', 'food-truck-schedule.html', 'merch.html',
+              'merch-payment.html', 'order.html', 'products.html',
+              'radish-cake.html', 'rules.html', 'schedule.html'
+          ]
+          tag = '<script src="maintenance-gate.js"></script>'
+          for name in pages:
+              p = Path(name)
+              if not p.exists():
+                  continue
+              text = p.read_text(encoding='utf-8')
+              if tag in text:
+                  continue
+              marker = '</head>'
+              if marker not in text.lower():
+                  continue
+              idx = text.lower().find(marker)
+              text = text[:idx] + tag + text[idx:]
+              p.write_text(text, encoding='utf-8')
+
+      - name: Commit gate changes
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html about.html activity.html contact.html convenience.html food-truck-schedule.html merch.html merch-payment.html order.html products.html radish-cake.html rules.html schedule.html
+          if git diff --cached --quiet; then
+            echo 'No public pages needed changes.'
+            exit 0
+          fi
+          git commit -m 'chore: apply maintenance gate [maintenance-gate]'
+          git push
