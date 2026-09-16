@@ -12,6 +12,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Restore and patch admin.html
         run: |
+          git fetch --no-tags origin 61f15628c4bf31615cbba3c84c4f61d3834ced11
           git checkout 61f15628c4bf31615cbba3c84c4f61d3834ced11 -- admin.html
           python3 - <<'PY'
           from pathlib import Path
