@@ -23,6 +23,8 @@ jobs:
           s2,n=re.subn(pat,orders+private,s,flags=re.S)
           if n!=1: raise SystemExit(f'admin load function block not found: {n}')
           s=s2
+          s=s.replace("$('privateCard').classList.toggle('hidden',p.role!=='personal_data_admin')","$('privateCard').classList.toggle('hidden',p.role!=='personal_data_admin'&&p.role!=='super_admin')")
+          s=s.replace("window.role==='personal_data_admin'?loadPrivate():Promise.resolve()","(window.role==='personal_data_admin'||window.role==='super_admin')?loadPrivate():Promise.resolve()")
           if 'window.deleteOrder=' not in s:
             add="""window.deleteOrder=async id=>{if(!confirm('確定要永久刪除這筆訂單？訂單、商品明細與對應個資都會刪除，無法復原。'))return;const{error}=await sb.rpc('admin_delete_order',{p_order_id:id});if(error)return alert('刪除訂單失敗：'+error.message);alert('訂單已刪除');loadOrders()};window.deletePrivate=async id=>{if(!confirm('確定要刪除這筆個資？訂單資料會保留，只刪除姓名、電話、門市與備註。'))return;const{error}=await sb.rpc('admin_delete_order_private',{p_order_id:id});if(error)return alert('刪除個資失敗：'+error.message);alert('個資已刪除');loadPrivate()};"""
             if '})();</script>' not in s: raise SystemExit('script end marker not found')
@@ -32,5 +34,5 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add admin.html
-          git commit -m 'Add per-item delete controls for orders and personal data' || exit 0
+          git commit -m 'Show personal data to super admins' || exit 0
           git push
