@@ -1,4 +1,4 @@
-name: Fix admin order display
+name: Fix admin display
 on:
   push:
     paths:
@@ -10,32 +10,36 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Patch admin.html
+      - name: Fix admin display safely
+        shell: bash
         run: |
           python3 - <<'PY'
           from pathlib import Path
-          import re
-          p=Path('admin.html')
-          s=p.read_text(encoding='utf-8')
-          orders="""async function loadOrders(){const box=$('ordersBox');box.textContent='讀取中…';const{data,error}=await sb.from('orders').select('id,order_number,delivery_date,delivery_region,pickup_type,total_amount,status,payment_status,transfer_last5,created_at').order('created_at',{ascending:false}).limit(50);if(error)return msg('ordersBox',error.message,'msg error');if(!data?.length)return box.innerHTML='<div class=\"small\">目前沒有訂單資料。</div>';const pickup={familymart:'全家',seven_eleven:'7-ELEVEN'};const pay={unpaid:'未付款',proof_submitted:'已提交匯款證明',confirmed:'已確認',rejected:'已退回'};box.innerHTML=data.map(o=>'<div class=\"order\"><div><strong>訂單編號</strong><div>'+esc(o.order_number||o.id)+'</div></div><div><strong>配送日期</strong><div>'+esc(o.delivery_date||'')+'</div></div><div><strong>配送區域</strong><div>'+esc(o.delivery_region||'')+'</div></div><div><strong>取貨方式</strong><div>'+esc(pickup[o.pickup_type]||o.pickup_type||'')+'</div></div><div><strong>總額</strong><div>'+money(o.total_amount)+'</div></div><div><strong>付款狀態</strong><div>'+esc(pay[o.payment_status]||o.payment_status||'')+'</div></div><div><strong>匯款末五碼</strong><div>'+esc(o.transfer_last5||'未提供')+'</div></div><div><strong>訂單進度</strong><div><select onchange=\"changeStatus(\\''+esc(o.id)+'\\',this.value)\"><option value=\"\">選擇進度</option><option value=\"pending\" '+(o.status==='pending'?'selected':'')+'>待處理</option><option value=\"confirmed\" '+(o.status==='confirmed'?'selected':'')+'>已確認</option><option value=\"preparing\" '+(o.status==='preparing'?'selected':'')+'>製作中</option><option value=\"shipped\" '+(o.status==='shipped'?'selected':'')+'>已出貨</option><option value=\"completed\" '+(o.status==='completed'?'selected':'')+'>已完成</option><option value=\"cancelled\" '+(o.status==='cancelled'?'selected':'')+'>已取消</option></select></div></div><div class=\"actions\"><button class=\"danger\" onclick=\"deleteOrder(\\''+esc(o.id)+'\\')\">刪除訂單</button></div></div>').join('')}"""
-          private="""async function loadPrivate(){const box=$('privateBox');box.textContent='讀取中…';const{data,error}=await sb.from('order_private').select('order_id,customer_name,customer_phone,pickup_store,customer_note,created_at').order('created_at',{ascending:false}).limit(50);if(error)return msg('privateBox',error.message,'msg error');if(!data?.length)return box.innerHTML='<div class=\"small\">目前沒有個資資料。</div>';box.innerHTML=data.map(p=>'<div class=\"item\"><div><strong>訂單編號</strong><div>'+esc(p.order_id||'')+'</div></div><div><strong>姓名</strong><div>'+esc(p.customer_name||'')+'</div></div><div><strong>電話</strong><div>'+esc(p.customer_phone||'')+'</div></div><div><strong>取貨門市</strong><div>'+esc(p.pickup_store||'')+'</div></div><div><strong>備註</strong><div>'+esc(p.customer_note||'')+'</div></div><div class=\"actions\"><button class=\"danger\" onclick=\"deletePrivate(\\''+esc(p.order_id)+'\\')\">刪除個資</button></div></div>').join('')}"""
-          pat=r'async function loadOrders\(\)\{.*?\}async function loadPrivate\(\)\{.*?\}(?=async function loadAll)'
-          s2,n=re.subn(pat,orders+private,s,flags=re.S)
-          if n!=1: raise SystemExit(f'admin load function block not found: {n}')
-          s=s2
-          s=s.replace("$('privateCard').classList.toggle('hidden',p.role!=='personal_data_admin')","$('privateCard').classList.toggle('hidden',p.role!=='personal_data_admin'&&p.role!=='super_admin')")
-          s=s.replace("window.role==='personal_data_admin'?loadPrivate():Promise.resolve()","(window.role==='personal_data_admin'||window.role==='super_admin')?loadPrivate():Promise.resolve()")
-          admin_emails="const adminEmails={'a2d35d0b-19ea-4939-8c4d-d972e81451e0':'y6100boy@gmail.com','72a3f874-e664-4d42-8c67-4876909ccbd3':'Ckbabe12441@gmail.com'};"
-          s=s.replace("if(!data?.length)return $('adminBox').textContent='目前沒有管理員資料。';$('adminBox').innerHTML=data.map(a=>'<div class=\"adminline\"><div><strong>'+esc(a.user_id)+'", "if(!data?.length)return $('adminBox').textContent='目前沒有管理員資料。';"+admin_emails+"$('adminBox').innerHTML=data.map(a=>'<div class=\"adminline\"><div><strong>'+esc(adminEmails[a.user_id]||a.user_id)+'")
-          s=s.replace("<div class=\"small\">管理員帳號 UID</div>","<div class=\"small\">管理員帳號 Email</div>")
-          if 'window.deleteOrder=' not in s:
-            add="""window.deleteOrder=async id=>{if(!confirm('確定要永久刪除這筆訂單？訂單、商品明細與對應個資都會刪除，無法復原。'))return;const{error}=await sb.rpc('admin_delete_order',{p_order_id:id});if(error)return alert('刪除訂單失敗：'+error.message);alert('訂單已刪除');loadOrders()};window.deletePrivate=async id=>{if(!confirm('確定要刪除這筆個資？訂單資料會保留，只刪除姓名、電話、門市與備註。'))return;const{error}=await sb.rpc('admin_delete_order_private',{p_order_id:id});if(error)return alert('刪除個資失敗：'+error.message);alert('個資已刪除');loadPrivate()};"""
-            if '})();</script>' not in s: raise SystemExit('script end marker not found')
-            s=s.replace('})();</script>',add+'})();</script>',1)
-          p.write_text(s,encoding='utf-8')
+          p = Path('admin.html')
+          s = p.read_text(encoding='utf-8')
+
+          # Super Admin 也可以看到個資管理區塊；資料本身不刪除。
+          s = s.replace(
+              "$('privateCard').classList.toggle('hidden',p.role!=='personal_data_admin')",
+              "$('privateCard').classList.toggle('hidden',p.role!=='personal_data_admin'&&p.role!=='super_admin')"
+          )
+          s = s.replace(
+              "window.role==='personal_data_admin'?loadPrivate():Promise.resolve()",
+              "(window.role==='personal_data_admin'||window.role==='super_admin')?loadPrivate():Promise.resolve()"
+          )
+
+          # 管理員權限區顯示 Email，不顯示 UID。
+          old = "if(!data?.length)return $('adminBox').textContent='目前沒有管理員資料。';$('adminBox').innerHTML=data.map(a=>'<div class=\\\"adminline\\\"><div><strong>'+esc(a.user_id)+'"
+          new = "if(!data?.length)return $('adminBox').textContent='目前沒有管理員資料。';const adminEmails={'a2d35d0b-19ea-4939-8c4d-d972e81451e0':'y6100boy@gmail.com','72a3f874-e664-4d42-8c67-4876909ccbd3':'Ckbabe12441@gmail.com'};$('adminBox').innerHTML=data.map(a=>'<div class=\\\"adminline\\\"><div><strong>'+esc(adminEmails[a.user_id]||a.user_id)+'"
+          if old in s:
+              s = s.replace(old, new, 1)
+              s = s.replace('<div class=\\\"small\\\">管理員帳號 UID</div>', '<div class=\\\"small\\\">管理員帳號 Email</div>', 1)
+
+          p.write_text(s, encoding='utf-8')
           PY
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add admin.html
-          git commit -m 'Show admin account emails' || exit 0
+          git diff --cached --quiet && exit 0
+          git commit -m 'Fix admin display permissions and emails'
           git push
