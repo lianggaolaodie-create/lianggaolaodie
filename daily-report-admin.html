@@ -2,6 +2,7 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache">
 <title>老爹・涼糕｜日報表</title>
 <style>
 body{margin:0;background:#faf7f2;color:#2d241e;font-family:-apple-system,BlinkMacSystemFont,"PingFang TC",sans-serif}.wrap{max-width:980px;margin:auto;padding:18px 14px 60px}.card{background:#fff;border:1px solid #e7ddd2;border-radius:18px;padding:18px;margin:14px 0;box-shadow:0 5px 20px #0000000a}h1{margin:0 0 8px}h2{font-size:20px;margin:0 0 12px}.grid{display:grid;gap:10px}.two{grid-template-columns:1fr 1fr}.three{grid-template-columns:repeat(3,1fr)}.field{margin:10px 0}.field label{display:block;font-weight:700;margin-bottom:6px}.field input,.field textarea{width:100%;padding:11px;border:1px solid #d9cdc1;border-radius:10px;box-sizing:border-box;font:inherit;background:#fff}.field textarea{min-height:80px;resize:vertical}button{border:0;border-radius:11px;padding:10px 14px;background:#9b5c38;color:#fff;font-weight:800;cursor:pointer}button:disabled{opacity:.6}.secondary{background:#eee;color:#333}.actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.msg{padding:12px;border-radius:10px;background:#f6eee7;margin-top:10px}.error{background:#fff0ef;color:#a32e29}.ok{background:#edf8f1;color:#286d46}.hidden{display:none}.small{font-size:13px;color:#75685f}.statgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.stat{border:1px solid #eadfd4;border-radius:13px;padding:14px}.stat b{display:block;font-size:25px;margin-top:5px}.flavor-row{display:grid;grid-template-columns:1fr 180px;gap:8px;align-items:center;padding:9px 0;border-bottom:1px solid #eee}.flavor-sold{padding:10px;border:1px solid #e6ded7;border-radius:10px;background:#fafafa;font-size:18px;font-weight:700}.section-note{background:#fbf5ee;padding:10px;border-radius:10px;margin-bottom:12px}.row{display:flex;justify-content:space-between;gap:10px;padding:12px 0;border-bottom:1px solid #eee}.pill{background:#edf8f1;padding:4px 8px;border-radius:999px;white-space:nowrap}@media(max-width:700px){.two,.three,.statgrid{grid-template-columns:1fr 1fr}.flavor-row{grid-template-columns:1fr 100px}}@media(max-width:480px){.two,.three,.statgrid{grid-template-columns:1fr}.flavor-row{grid-template-columns:1fr 85px;font-size:13px}}
@@ -22,6 +23,29 @@ body{margin:0;background:#faf7f2;color:#2d241e;font-family:-apple-system,BlinkMa
 <div class="card"><h2>📚 歷史日報</h2><div id="historyBox">讀取中…</div></div>
 </div></div>
 <script>
+/* 登入按鈕獨立備援：即使主程式載入異常，也能直接測試登入並顯示錯誤 */
+document.addEventListener('DOMContentLoaded',function(){
+ const b=document.getElementById('loginBtn'),email=document.getElementById('email'),pw=document.getElementById('password'),out=document.getElementById('loginMsg');
+ if(!b)return;
+ b.addEventListener('click',async function(e){
+  e.preventDefault();e.stopImmediatePropagation();
+  const em=(email.value||'').trim(),pass=pw.value||'';
+  if(!em||!pass){out.innerHTML='<div class="msg error">請輸入 Email 和密碼</div>';return}
+  b.disabled=true;b.textContent='登入中…';out.innerHTML='<div class="msg">正在連線登入服務…</div>';
+  try{
+   const BASE='https://yemzdwxtyosuaczsqwea.supabase.co',KEY='sb_publishable_7b4hgNL68yiYbec7fXToYQ_UxPE4sEB';
+   const r=await fetch(BASE+'/auth/v1/token?grant_type=password',{method:'POST',headers:{'apikey':KEY,'Content-Type':'application/json'},body:JSON.stringify({email:em,password:pass})});
+   let d={};try{d=await r.json()}catch(_){ }
+   if(!r.ok)throw new Error(d.error_description||d.msg||d.message||'登入失敗（HTTP '+r.status+'）');
+   if(!d.access_token)throw new Error('登入成功但沒有取得登入憑證。');
+   sessionStorage.setItem('daily_report_access_token',d.access_token);
+   out.innerHTML='<div class="msg ok">登入成功，正在開啟日報表…</div>';
+   location.reload();
+  }catch(err){out.innerHTML='<div class="msg error">登入失敗：'+String(err.message||err)+'</div>';b.disabled=false;b.textContent='登入日報表'}
+ },true);
+});
+</script>
+<script>
 (function(){
 'use strict';
 const BASE='https://yemzdwxtyosuaczsqwea.supabase.co';
@@ -30,11 +54,9 @@ const $=id=>document.getElementById(id),esc=s=>String(s??'').replace(/[&<>"']/g,
 const today=()=>new Date().toLocaleDateString('en-CA',{timeZone:'Asia/Taipei'});$('reportDate').value=today();let currentUser=null,token=sessionStorage.getItem('daily_report_access_token')||'';
 function loginMsg(t,c='msg error'){$('loginMsg').innerHTML='<div class="'+c+'">'+esc(t)+'</div>'}function showMsg(t,c='msg'){$('msg').innerHTML='<div class="'+c+'">'+esc(t)+'</div>'}function money(n){return '$'+Number(n||0).toLocaleString('zh-TW')}function val(id){return $(id).value??''}function num(id){return Math.max(0,Number(val(id)||0))}
 async function req(path,opt={}){const h=Object.assign({'apikey':KEY,'Content-Type':'application/json'},opt.headers||{});if(token)h.Authorization='Bearer '+token;const r=await fetch(BASE+path,Object.assign({},opt,{headers:h}));let data=null;try{data=await r.json()}catch(e){}if(!r.ok){const msg=data?.msg||data?.message||data?.error_description||data?.error||('HTTP '+r.status);throw new Error(msg)}return data}
-async function signIn(email,password){const r=await req('/auth/v1/token?grant_type=password',{method:'POST',body:JSON.stringify({email,password})});token=r.access_token;sessionStorage.setItem('daily_report_access_token',token);return r.user}
 async function signOut(){try{if(token)await req('/auth/v1/logout',{method:'POST'})}catch(e){}token='';sessionStorage.removeItem('daily_report_access_token');location.reload()}
 async function checkAdmin(user){const rows=await req('/rest/v1/admin_profiles?select=role,enabled&user_id=eq.'+encodeURIComponent(user.id)+'&limit=1');const p=rows?.[0];if(!p||!p.enabled)throw new Error('此帳號不是啟用中的管理員。')}
 async function enter(user){try{await checkAdmin(user);currentUser=user;$('login').classList.add('hidden');$('panel').classList.remove('hidden');$('who').textContent=user.email||'';await loadAll()}catch(e){loginMsg(e.message||String(e));token='';sessionStorage.removeItem('daily_report_access_token')}}
-$('loginBtn').onclick=async()=>{const email=val('email').trim(),password=val('password');if(!email||!password){loginMsg('請輸入 Email 和密碼');return}const b=$('loginBtn');b.disabled=true;b.textContent='登入中…';loginMsg('正在登入…','msg');try{const u=await signIn(email,password);if(!u?.id)throw new Error('登入成功但沒有取得使用者資料。');await enter(u)}catch(e){loginMsg('登入失敗：'+(e.message||String(e)))}finally{b.disabled=false;b.textContent='登入日報表'}};
 $('logoutBtn').onclick=signOut;$('refreshBtn').onclick=loadAll;$('reportDate').onchange=loadAll;$('loadBtn').onclick=loadCurrent;$('saveBtn').onclick=saveReport;
 async function loadAll(){await Promise.all([loadStats(),loadFlavors(),loadCurrent(),loadHistory()])}
 async function loadStats(){try{const d=val('reportDate')||today();const orders=await req('/rest/v1/orders?select=id,total_amount,status,pickup_type&delivery_date=eq.'+encodeURIComponent(d));const active=(orders||[]).filter(o=>o.status!=='cancelled');const ids=active.map(o=>o.id);let boxes=0;if(ids.length){const items=await req('/rest/v1/order_items?select=order_id,quantity&order_id=in.('+ids.map(encodeURIComponent).join(',')+')');boxes=(items||[]).reduce((s,x)=>s+Number(x.quantity||0),0)}$('statOrders').textContent=active.length;$('statBoxes').textContent=boxes;$('statRevenue').textContent=money(active.reduce((s,o)=>s+Number(o.total_amount||0),0));$('statDelivery').textContent=active.length;$('statsMsg').textContent=d+' 已完成系統自動統計。'}catch(e){$('statsMsg').textContent='統計讀取失敗：'+(e.message||String(e))}}
