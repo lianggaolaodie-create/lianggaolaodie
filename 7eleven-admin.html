@@ -2,10 +2,36 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta http-equiv="refresh" content="0;url=admin-7eleven-auto.html">
-<title>老爹・涼糕｜7-ELEVEN 後台</title>
-<script>location.replace('admin-7eleven-auto.html');</script>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>老爹・涼糕｜7-ELEVEN 後台登入</title>
+<style>
+body{margin:0;background:#f7f4ef;color:#2b241f;font-family:-apple-system,BlinkMacSystemFont,"PingFang TC",sans-serif}.wrap{max-width:520px;margin:auto;padding:28px 16px}.card{background:#fff;border:1px solid #e5dbd0;border-radius:20px;padding:22px;box-shadow:0 8px 30px #0000000a}h1{margin:0 0 6px;font-size:25px}.small{color:#756b63;font-size:14px}.field{margin-top:16px}.field label{display:block;font-weight:800;margin-bottom:7px}.field input{width:100%;box-sizing:border-box;padding:13px;border:1px solid #d8cec5;border-radius:11px;font:inherit}.btn{width:100%;border:0;border-radius:11px;padding:13px;margin-top:16px;background:#8f5738;color:#fff;font-weight:800;font-size:16px}.link{display:block;text-align:center;margin-top:14px;color:#8f5738;font-weight:700;text-decoration:none}.msg{margin-top:14px;padding:12px;border-radius:10px;white-space:pre-wrap}.error{background:#fff0ef;color:#9d302b}.ok{background:#edf8f1;color:#286d46}.hide{display:none}.accounts{margin-top:18px;padding:12px;background:#faf6f1;border-radius:11px;font-size:13px;line-height:1.7}
+</style>
 </head>
-<body>正在進入 7-ELEVEN 後台…</body>
+<body>
+<div class="wrap">
+<div class="card">
+<h1>🔐 7-ELEVEN 後台</h1>
+<div class="small">老爹・涼糕｜獨立出貨管理，不修改其他後台</div>
+<div class="field"><label>Email</label><input id="email" type="email" autocomplete="username" placeholder="輸入管理員 Email"></div>
+<div class="field"><label>密碼</label><input id="password" type="password" autocomplete="current-password" placeholder="輸入管理員密碼"></div>
+<button class="btn" id="loginBtn">登入 7-ELEVEN 後台</button>
+<a class="link" href="reset-password.html">忘記密碼／重設密碼</a>
+<div id="msg"></div>
+<div class="accounts">請使用你原本老爹涼糕後台的管理員帳號登入。<br>登入成功後會自動進入 7-ELEVEN 自動出貨中心。</div>
+</div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const sb=window.supabase.createClient('https://yemzdwxtyosuaczsqwea.supabase.co','sb_publishable_7b4hgNL68yiYbec7fXToYQ_UxPE4sEB');
+const email=document.getElementById('email'),password=document.getElementById('password'),btn=document.getElementById('loginBtn'),msg=document.getElementById('msg');
+function show(text,kind='error'){msg.className='msg '+kind;msg.textContent=text;}
+function friendly(e){const s=(e&&e.message)||String(e||'登入失敗');if(/Invalid login credentials/i.test(s))return 'Email 或密碼不正確。請確認使用的是老爹涼糕管理員帳號。';if(/Email not confirmed/i.test(s))return '這個 Email 尚未完成驗證，請先完成 Email 驗證。';if(/rate limit/i.test(s))return '登入嘗試太頻繁，請稍後再試。';return '登入失敗：'+s;}
+async function login(){const e=email.value.trim(),p=password.value;if(!e||!p){show('請輸入 Email 和密碼。');return}btn.disabled=true;btn.textContent='登入中…';msg.className='';msg.textContent='';try{const r=await sb.auth.signInWithPassword({email:e,password:p});if(r.error)throw r.error;const u=r.data.user;const q=await sb.from('admin_profiles').select('role,enabled').eq('user_id',u.id).maybeSingle();if(q.error)throw q.error;if(!q.data||!q.data.enabled){await sb.auth.signOut();throw new Error('此帳號沒有啟用中的管理員權限。');}show('登入成功，正在進入後台…','ok');setTimeout(()=>location.replace('admin-7eleven-auto.html'),250);}
+catch(e){show(friendly(e));}
+finally{btn.disabled=false;btn.textContent='登入 7-ELEVEN 後台';}}
+btn.addEventListener('click',login);password.addEventListener('keydown',e=>{if(e.key==='Enter')login();});
+(async()=>{const r=await sb.auth.getUser();if(r.data&&r.data.user){const q=await sb.from('admin_profiles').select('role,enabled').eq('user_id',r.data.user.id).maybeSingle();if(q.data&&q.data.enabled)location.replace('admin-7eleven-auto.html');}})();
+</script>
+</body>
 </html>
