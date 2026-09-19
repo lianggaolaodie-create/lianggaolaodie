@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>老爹・涼糕｜批量條碼列印</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f4efe9;color:#251e19;font-family:-apple-system,BlinkMacSystemFont,"PingFang TC",sans-serif}.top{background:#171310;color:#fff;padding:18px}.wrap{max-width:720px;margin:auto;padding:16px}.card{background:#fff;border-radius:20px;padding:18px;margin-bottom:14px}.field{margin:14px 0}.field label{display:block;font-weight:800;margin-bottom:7px}.field input,.field select{width:100%;padding:14px;border:1px solid #d9cec5;border-radius:12px;font-size:17px;background:#fff}.btn{border:0;border-radius:13px;background:#8e5738;color:#fff;padding:14px 18px;font-weight:900;font-size:16px;width:100%;margin-top:8px}.btn.secondary{background:#ebe4dd;color:#332b25}.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}.notice{background:#fff4d8;border-radius:14px;padding:12px;line-height:1.5}.err{color:#b3261e;font-weight:700}.muted{color:#786e67}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.label{border:1px solid #ddd2c9;border-radius:10px;padding:10px;text-align:center;background:#fff}.label .name{font-weight:900;margin-bottom:6px}.label svg{max-width:100%;height:auto}.label .code{font-family:Arial,sans-serif;font-size:12px;margin-top:4px}.count{font-size:22px;font-weight:900}.hidden{display:none}@media print{body{background:#fff}.top,.controls,.notice,.no-print{display:none!important}.wrap{max-width:none;padding:0}.card{padding:0;margin:0;box-shadow:none}.grid{grid-template-columns:repeat(3,1fr);gap:3mm}.label{break-inside:avoid;border:1px solid #aaa;padding:4mm}.label svg{max-width:100%}.label .name{font-size:12pt}.label .code{font-size:9pt}}
+</style>
+</head>
+<body>
+<header class="top"><h1 style="margin:0;font-size:22px">📷 老爹・涼糕｜批量條碼列印</h1><div id="user" style="opacity:.8;margin-top:4px"></div></header>
+<main class="wrap">
+<div id="login" class="card"><h2>登入</h2><div class="field"><label>Email</label><input id="email" type="email"></div><div class="field"><label>密碼</label><input id="password" type="password"></div><button class="btn" onclick="login()">登入</button><div id="msg"></div></div>
+<div id="app" class="hidden">
+<div class="card controls"><div class="notice">同一個商品要貼幾張，就在「列印數量」輸入幾張。每張都是<strong>相同、可掃描的 CODE128 條碼</strong>，適合一次列印後剪下貼到多盒商品。</div>
+<div class="field"><label>🍡 選擇商品</label><select id="product"></select></div>
+<div class="field"><label>🔢 列印數量</label><input id="count" type="number" min="1" max="300" value="10" inputmode="numeric"></div>
+<div class="actions"><button class="btn" onclick="generate()">⚡ 一次產生條碼</button><button class="btn" onclick="window.print()">🖨️ 列印／另存 PDF</button></div>
+<div id="info" class="notice" style="margin-top:12px"></div><div id="error"></div></div>
+<div class="card"><div style="display:flex;justify-content:space-between;align-items:center"><h2 style="margin:0">條碼預覽</h2><span id="countText" class="count">0 張</span></div><div id="labels" class="grid" style="margin-top:12px"></div></div>
+</div></main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
+<script>
+const db=supabase.createClient('https://yemzdwxtyosuaczsqwea.supabase.co','sb_publishable_7b4hgNL68yiYbec7fXToYQ_UxPE4sEB');
+const $=id=>document.getElementById(id);let products=[];
+async function allowed(uid){const{data:p,error}=await db.from('admin_profiles').select('role,enabled,can_manage_food_truck').eq('user_id',uid).maybeSingle();return !error&&p?.enabled&&(p.role==='super_admin'||p.can_manage_food_truck)}
+function esc(v){return String(v??'').replace(/[&<>\"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[c]))}
+async function login(){ $('msg').textContent='登入中…';const{data,error}=await db.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});if(error){$('msg').innerHTML='<div class="err">登入失敗，請確認帳號密碼</div>';return}if(!await allowed(data.user.id)){await db.auth.signOut();$('msg').innerHTML='<div class="err">此帳號沒有餐車管理權限</div>';return}show(data.user.email)}
+function show(email){$('login').classList.add('hidden');$('app').classList.remove('hidden');$('user').textContent=email||'';load()}
+async function load(){const{data,error}=await db.from('food_truck_products').select('id,product_name,flavor,price,barcode,stock,active').eq('active',true).order('product_name');if(error){$('error').innerHTML='<div class="err">無法讀取商品：'+esc(error.message)+'</div>';return}products=data||[];if(!products.length){$('error').innerHTML='<div class="err">目前沒有商品，請先建立商品</div>';return}$('product').innerHTML=products.map(p=>'<option value="'+p.id+'">'+esc(p.product_name)+'｜'+esc(p.flavor||'未設定')+'｜'+esc(p.barcode||'尚未設定')+'</option>').join('');generate()}
+function generate(){const p=products.find(x=>x.id===Number($('product').value));if(!p)return;const n=Math.min(300,Math.max(1,Number($('count').value)||1));$('count').value=n;if(!p.barcode){$('error').innerHTML='<div class="err">這個商品還沒有條碼，請先在獨立掃碼後台產生條碼。</div>';return}if(typeof JsBarcode!=='function'){$('error').innerHTML='<div class="err">條碼元件尚未載入，請重新整理頁面。</div>';return}$('error').innerHTML='';$('info').innerHTML='<b>'+esc(p.product_name)+'</b>　'+esc(p.flavor||'')+'<br>🔢 條碼：<strong>'+esc(p.barcode)+'</strong>　💰 $'+Number(p.price||0).toLocaleString()+'<br>📦 本次產生：'+n+' 張';$('countText').textContent=n+' 張';$('labels').innerHTML='';for(let i=0;i<n;i++){const el=document.createElement('div');el.className='label';el.innerHTML='<div class="name">'+esc(p.product_name)+'</div><svg id="bc_'+i+'"></svg><div class="code">'+esc(p.barcode)+'</div>';$('labels').appendChild(el);JsBarcode('#bc_'+i,p.barcode,{format:'CODE128',displayValue:false,height:55,width:1.7,margin:2})}}
+$('product').addEventListener('change',generate);$('count').addEventListener('input',generate);
+(async()=>{const{data}=await db.auth.getUser();if(data.user&&await allowed(data.user.id))show(data.user.email)})();
+</script></body></html>
