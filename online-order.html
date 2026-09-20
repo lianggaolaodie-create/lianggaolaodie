@@ -17,7 +17,7 @@
 <div class="card"><h2>② 選擇配送地區</h2><div class="field"><label>地區 <span class="req">*</span></label><select id="region" required><option value="">請選擇今日開放地區</option></select></div></div>
 <div class="card"><h2>③ 超商冷藏寄放</h2><div id="pickupChoices" class="choice"></div><div class="field"><label>門市名稱 <span class="req">*</span></label><input id="storeName" required placeholder="例如：台北○○店"></div><div class="field"><label>門市地址（可填）</label><input id="storeAddress" placeholder="方便核對門市"></div></div>
 <div class="card"><h2>④ 收件人資料</h2><div class="field"><label>姓名 <span class="req">*</span></label><input id="customerName" required maxlength="80"></div><div class="field"><label>手機 <span class="req">*</span></label><input id="customerPhone" required maxlength="30" inputmode="tel"></div></div>
-<div class="card"><h2>⑤ 匯款資訊</h2><div id="bankInfo" class="bank">讀取中…</div><div class="field"><label>匯款後五碼 <span class="req">*</span></label><input id="last5" required maxlength="5" minlength="5" pattern="[0-9]{5}" inputmode="numeric" placeholder="請填 5 位數字"><div class="muted">未填寫匯款後五碼，訂單無法送出。</div></div><div class="field"><label>備註</label><textarea id="notes" rows="3" maxlength="500" placeholder="其他需要告知我們的事項"></textarea></div></div>
+<div class="card"><h2>⑤ 匯款資訊</h2><div id="bankInfo" class="bank">匯款資料／付款問題請洽詢官方 LINE：@502iugah</div><div class="field"><label>匯款後五碼 <span class="req">*</span></label><input id="last5" required maxlength="5" minlength="5" pattern="[0-9]{5}" inputmode="numeric" placeholder="請填 5 位數字"><div class="muted">未填寫匯款後五碼，訂單無法送出。</div></div><div class="field"><label>備註</label><textarea id="notes" rows="3" maxlength="500" placeholder="其他需要告知我們的事項"></textarea></div></div>
 <div class="card"><h2>⑥ 訂單金額</h2><div class="summary"><div class="sumrow"><span>涼糕總數</span><b id="totalQty">0 盒</b></div><div class="sumrow"><span>涼糕小計</span><b>NT$ <span id="productTotal">0</span></b></div><div class="sumrow"><span>超商寄放費</span><b>NT$ <span id="storageFee">0</span></b></div><div class="sumrow total"><span>應付總額</span><span>NT$ <span id="grandTotal">0</span></span></div></div><button class="btn" id="submitBtn" type="submit" style="margin-top:14px">送出訂單</button><div id="msg"></div></div>
 </form>
 <div id="result" class="card result"><h2>訂單已建立</h2><p>請記下你的訂單編號，並依訂單總額完成匯款。</p><div id="resultOrder" class="order-number"></div><div id="resultDetail" class="muted" style="margin-top:10px"></div><button class="btn" type="button" onclick="location.reload()" style="margin-top:14px">重新訂購</button></div>
@@ -36,11 +36,10 @@ async function init(){
  const setting=await sb.from('daily_order_settings').select('ordering_enabled').eq('order_date',d).maybeSingle();
  if(setting.error) return setClosed('今日訂購設定讀取失敗，請稍後再試。');
  if(!setting.data?.ordering_enabled) return setClosed('今日線上訂購目前未開放。');
- const [rs,fs,ps,bank]=await Promise.all([
+ const [rs,fs,ps]=await Promise.all([
   sb.from('daily_order_regions').select('region_name').eq('order_date',d).eq('enabled',true).order('id'),
   sb.from('daily_order_flavors').select('id,flavor_id,product_name,flavor_name,price').eq('order_date',d).eq('enabled',true).order('id'),
-  sb.from('pickup_settings').select('familymart_enabled,familymart_fee,seven_eleven_enabled,seven_eleven_fee').limit(1).maybeSingle(),
-  sb.from('payment_settings').select('enabled,bank_name,branch_name,account_number,account_name').eq('enabled',true).order('id').limit(1).maybeSingle()
+  sb.from('pickup_settings').select('familymart_enabled,familymart_fee,seven_eleven_enabled,seven_eleven_fee').limit(1).maybeSingle()
  ]);
  if(rs.error||fs.error) return setClosed('今日開放地區或口味讀取失敗，請稍後再試。');
  $('region').innerHTML='<option value="">請選擇今日開放地區</option>'+(rs.data||[]).map(r=>'<option>'+esc(r.region_name)+'</option>').join('');
@@ -52,7 +51,6 @@ async function init(){
  if(ps.data.seven_eleven_enabled) choices.push('<label><input type="radio" name="pickup" value="7-ELEVEN" data-fee="'+fees.seven+'" required> 7-ELEVEN 冷藏寄放<br><b>NT$ '+fees.seven+'</b></label>');
  $('pickupChoices').innerHTML=choices.join('')||'<div class="muted">目前沒有開放的超商寄放方式。</div>';
  document.querySelectorAll('input[name=pickup]').forEach(x=>x.addEventListener('change',updateTotals));
- if(bank?.data){$('bankInfo').innerHTML='<b>付款方式：銀行匯款</b><br>銀行：'+esc(bank.data.bank_name)+'<br>分行：'+esc(bank.data.branch_name)+'<br>帳號：'+esc(bank.data.account_number)+'<br>戶名：'+esc(bank.data.account_name)+'<br><span class="muted">匯款後請填寫本頁的匯款後五碼。</span>';}else $('bankInfo').textContent='請依官方 LINE 提供的匯款資訊完成轉帳。';
 }
 function setClosed(t){$('closed').style.display='block';$('closed').textContent=t;$('orderForm').style.display='none'}
 function renderFlavors(){$('flavors').innerHTML=flavors.map((f,i)=>'<div class="flavor"><div><b>'+esc(f.product_name||'涼糕')+'／'+esc(f.flavor_name)+'</b><span class="price">NT$ '+Number(f.price||0).toLocaleString()+'</span></div><div></div><div class="qty"><button type="button" onclick="changeQty('+i+',-1)">−</button><span id="q'+i+'">0</span><button type="button" onclick="changeQty('+i+',1)">＋</button></div></div>').join('');$('flavorEmpty').style.display=flavors.length?'none':'block';}
