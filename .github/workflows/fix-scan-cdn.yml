@@ -1,0 +1,29 @@
+name: Fix scan CDN
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: write
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Replace ZXing CDN
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('scan/index.html')
+          s=p.read_text(encoding='utf-8')
+          s=s.replace('https://unpkg.com/@zxing/browser@0.1.5/umd/index.min.js','https://cdn.jsdelivr.net/npm/@zxing/browser@0.1.5/umd/index.min.js')
+          p.write_text(s,encoding='utf-8')
+          PY
+      - name: Commit fix and remove workflow
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add scan/index.html
+          git rm .github/workflows/fix-scan-cdn.yml
+          git diff --cached --quiet && exit 0 || true
+          git commit -m 'fix: use jsDelivr for scanner library'
+          git push
