@@ -38,7 +38,7 @@ async function init(){
  if(!setting.data?.ordering_enabled) return setClosed('今日線上訂購目前未開放。');
  const [rs,fs,ps,bank]=await Promise.all([
   sb.from('daily_order_regions').select('region_name').eq('order_date',d).eq('enabled',true).order('id'),
-  sb.from('daily_order_flavors').select('id,flavor_name,price').eq('order_date',d).eq('enabled',true).order('id'),
+  sb.from('daily_order_flavors').select('id,flavor_id,product_name,flavor_name,price').eq('order_date',d).eq('enabled',true).order('id'),
   sb.from('pickup_settings').select('familymart_enabled,familymart_fee,seven_eleven_enabled,seven_eleven_fee').limit(1).maybeSingle(),
   sb.from('payment_settings').select('enabled,bank_name,branch_name,account_number,account_name').eq('enabled',true).order('id').limit(1).maybeSingle()
  ]);
@@ -55,9 +55,9 @@ async function init(){
  if(bank?.data){$('bankInfo').innerHTML='<b>付款方式：銀行匯款</b><br>銀行：'+esc(bank.data.bank_name)+'<br>分行：'+esc(bank.data.branch_name)+'<br>帳號：'+esc(bank.data.account_number)+'<br>戶名：'+esc(bank.data.account_name)+'<br><span class="muted">匯款後請填寫本頁的匯款後五碼。</span>';}else $('bankInfo').textContent='請依官方 LINE 提供的匯款資訊完成轉帳。';
 }
 function setClosed(t){$('closed').style.display='block';$('closed').textContent=t;$('orderForm').style.display='none'}
-function renderFlavors(){$('flavors').innerHTML=flavors.map((f,i)=>'<div class="flavor"><div><b>'+esc(f.flavor_name)+'</b><span class="price">NT$ '+Number(f.price||0).toLocaleString()+'</span></div><div></div><div class="qty"><button type="button" onclick="changeQty('+i+',-1)">−</button><span id="q'+i+'">0</span><button type="button" onclick="changeQty('+i+',1)">＋</button></div></div>').join('');$('flavorEmpty').style.display=flavors.length?'none':'block';}
+function renderFlavors(){$('flavors').innerHTML=flavors.map((f,i)=>'<div class="flavor"><div><b>'+esc(f.product_name||'涼糕')+'／'+esc(f.flavor_name)+'</b><span class="price">NT$ '+Number(f.price||0).toLocaleString()+'</span></div><div></div><div class="qty"><button type="button" onclick="changeQty('+i+',-1)">−</button><span id="q'+i+'">0</span><button type="button" onclick="changeQty('+i+',1)">＋</button></div></div>').join('');$('flavorEmpty').style.display=flavors.length?'none':'block';}
 function changeQty(i,n){const e=$('q'+i);let q=Math.max(0,Math.min(99,Number(e.textContent||0)+n));e.textContent=q;updateTotals()}
-function selectedItems(){return flavors.map((f,i)=>({flavor_name:f.flavor_name,unit_price:Number(f.price||0),quantity:Number($('q'+i)?.textContent||0)})).filter(x=>x.quantity>0).map(x=>({...x,line_total:x.unit_price*x.quantity}))}
+function selectedItems(){return flavors.map((f,i)=>({product_name:f.product_name||'涼糕',flavor_id:Number(f.flavor_id),flavor_name:f.flavor_name,unit_price:Number(f.price||0),quantity:Number($('q'+i)?.textContent||0)})).filter(x=>x.quantity>0).map(x=>({...x,line_total:x.unit_price*x.quantity}))}
 function updateTotals(){const items=selectedItems();const qty=items.reduce((s,x)=>s+x.quantity,0),product=items.reduce((s,x)=>s+x.line_total,0),radio=document.querySelector('input[name=pickup]:checked'),fee=radio?Number(radio.dataset.fee||0):0;$('totalQty').textContent=qty+' 盒';$('productTotal').textContent=product.toLocaleString();$('storageFee').textContent=fee.toLocaleString();$('grandTotal').textContent=(product+fee).toLocaleString()}
 $('orderForm').addEventListener('submit',async e=>{e.preventDefault();$('submitBtn').disabled=true;$('msg').innerHTML='';try{
  const items=selectedItems();if(!items.length)throw new Error('請至少選擇 1 盒涼糕。');
