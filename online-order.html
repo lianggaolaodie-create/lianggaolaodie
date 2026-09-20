@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>老爹．涼糕｜線上訂購</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f7f1ea;color:#33251d;font-family:-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC",sans-serif}.wrap{max-width:760px;margin:auto;padding:18px 14px 48px}.top,.card{background:#fff;border:1px solid #e6dbd1;border-radius:20px;padding:18px;margin-bottom:14px;box-shadow:0 4px 18px #5b3d2510}.brand{font-size:25px;font-weight:900}.muted{color:#786d65;font-size:13px;line-height:1.6}h1,h2{margin:0 0 10px}h2{font-size:20px}.closed{padding:14px;border-radius:14px;background:#fff0ef;color:#a33c35;font-weight:800}.field{margin:12px 0}.field label{display:block;font-weight:800;margin-bottom:6px}.field input,.field select,.field textarea{width:100%;padding:12px;border:1px solid #d9cec6;border-radius:12px;background:#fff;font:inherit}.flavor{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;border:1px solid #e8ded6;border-radius:15px;padding:13px;margin:9px 0}.flavor b{display:block}.price{font-size:14px;color:#8d5939;font-weight:800}.qty{display:flex;align-items:center;gap:8px}.qty button{width:36px;height:36px;border:0;border-radius:10px;background:#eee5de;color:#4a392f;font-size:21px;font-weight:900}.qty span{min-width:28px;text-align:center;font-weight:900}.choice{display:grid;grid-template-columns:1fr 1fr;gap:10px}.choice label{border:1px solid #ded2c8;border-radius:13px;padding:12px;cursor:pointer}.choice label:has(input:checked){border-color:#8d5939;background:#fff7f0}.choice input{margin-right:7px}.summary{background:#fffaf4;border:1px solid #eadbcd;border-radius:15px;padding:14px}.sumrow{display:flex;justify-content:space-between;padding:5px 0}.total{font-size:24px;font-weight:900;color:#8d5939;border-top:1px solid #e6d7c9;margin-top:8px;padding-top:10px}.btn{width:100%;border:0;border-radius:14px;padding:14px;background:#8d5939;color:#fff;font-size:17px;font-weight:900;cursor:pointer}.btn:disabled{opacity:.5}.notice{margin-top:10px;padding:12px;border-radius:12px}.ok{background:#edf8f1;color:#286c47}.err{background:#fff0ef;color:#a43b35}.result{display:none}.result.show{display:block}.order-number{font-size:28px;font-weight:900;color:#8d5939;letter-spacing:1px}.req{color:#a33c35}.bank{background:#f5eee8;border-radius:14px;padding:13px;line-height:1.8}@media(max-width:560px){.flavor{grid-template-columns:1fr auto}.flavor .qty{grid-column:1/-1;justify-content:flex-end}.choice{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="top"><div class="brand">🍡 老爹．涼糕｜線上訂購</div><div class="muted">今日開放地區與口味會依後台設定顯示。每個口味的數量由客人自行選擇。</div></div>
+<div id="closed" class="card closed" style="display:none"></div>
+<form id="orderForm">
+<div class="card"><h2>① 選擇今日口味</h2><div id="flavors"></div><div id="flavorEmpty" class="muted" style="display:none">今日尚未開放口味。</div></div>
+<div class="card"><h2>② 選擇配送地區</h2><div class="field"><label>地區 <span class="req">*</span></label><select id="region" required><option value="">請選擇今日開放地區</option></select></div></div>
+<div class="card"><h2>③ 超商冷藏寄放</h2><div id="pickupChoices" class="choice"></div><div class="field"><label>門市名稱 <span class="req">*</span></label><input id="storeName" required placeholder="例如：台北○○店"></div><div class="field"><label>門市地址（可填）</label><input id="storeAddress" placeholder="方便核對門市"></div></div>
+<div class="card"><h2>④ 收件人資料</h2><div class="field"><label>姓名 <span class="req">*</span></label><input id="customerName" required maxlength="80"></div><div class="field"><label>手機 <span class="req">*</span></label><input id="customerPhone" required maxlength="30" inputmode="tel"></div></div>
+<div class="card"><h2>⑤ 匯款資訊</h2><div id="bankInfo" class="bank">讀取中…</div><div class="field"><label>匯款後五碼 <span class="req">*</span></label><input id="last5" required maxlength="5" minlength="5" pattern="[0-9]{5}" inputmode="numeric" placeholder="請填 5 位數字"><div class="muted">未填寫匯款後五碼，訂單無法送出。</div></div><div class="field"><label>備註</label><textarea id="notes" rows="3" maxlength="500" placeholder="其他需要告知我們的事項"></textarea></div></div>
+<div class="card"><h2>⑥ 訂單金額</h2><div class="summary"><div class="sumrow"><span>涼糕總數</span><b id="totalQty">0 盒</b></div><div class="sumrow"><span>涼糕小計</span><b>NT$ <span id="productTotal">0</span></b></div><div class="sumrow"><span>超商寄放費</span><b>NT$ <span id="storageFee">0</span></b></div><div class="sumrow total"><span>應付總額</span><span>NT$ <span id="grandTotal">0</span></span></div></div><button class="btn" id="submitBtn" type="submit" style="margin-top:14px">送出訂單</button><div id="msg"></div></div>
+</form>
+<div id="result" class="card result"><h2>訂單已建立</h2><p>請記下你的訂單編號，並依訂單總額完成匯款。</p><div id="resultOrder" class="order-number"></div><div id="resultDetail" class="muted" style="margin-top:10px"></div><button class="btn" type="button" onclick="location.reload()" style="margin-top:14px">重新訂購</button></div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL='https://yemzdwxtyosuaczsqwea.supabase.co';
+const SUPABASE_KEY='sb_publishable_7b4hgNL68yiYbec7fXToYQ_UxPE4sEB';
+const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const $=id=>document.getElementById(id);let flavors=[],fees={};
+const today=()=>new Date().toLocaleDateString('en-CA',{timeZone:'Asia/Taipei'});
+const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+function setMsg(text,error=false){$('msg').innerHTML='<div class="notice '+(error?'err':'ok')+'">'+esc(text)+'</div>'}
+async function init(){
+ const d=today();
+ const setting=await sb.from('daily_order_settings').select('ordering_enabled').eq('order_date',d).maybeSingle();
+ if(setting.error) return setClosed('今日訂購設定讀取失敗，請稍後再試。');
+ if(!setting.data?.ordering_enabled) return setClosed('今日線上訂購目前未開放。');
+ const [rs,fs,ps,bank]=await Promise.all([
+  sb.from('daily_order_regions').select('region_name').eq('order_date',d).eq('enabled',true).order('id'),
+  sb.from('daily_order_flavors').select('id,flavor_name,price').eq('order_date',d).eq('enabled',true).order('id'),
+  sb.from('pickup_settings').select('familymart_enabled,familymart_fee,seven_eleven_enabled,seven_eleven_fee').limit(1).maybeSingle(),
+  sb.from('payment_settings').select('enabled,bank_name,branch_name,account_number,account_name').eq('enabled',true).order('id').limit(1).maybeSingle()
+ ]);
+ if(rs.error||fs.error) return setClosed('今日開放地區或口味讀取失敗，請稍後再試。');
+ $('region').innerHTML='<option value="">請選擇今日開放地區</option>'+(rs.data||[]).map(r=>'<option>'+esc(r.region_name)+'</option>').join('');
+ flavors=fs.data||[];renderFlavors();
+ if(ps.error||!ps.data) return setClosed('目前無法讀取超商寄放設定。');
+ fees={familymart:Number(ps.data.familymart_fee||0),seven:Number(ps.data.seven_eleven_fee||0)};
+ const choices=[];
+ if(ps.data.familymart_enabled) choices.push('<label><input type="radio" name="pickup" value="全家" data-fee="'+fees.familymart+'" required> 全家冷藏寄放<br><b>NT$ '+fees.familymart+'</b></label>');
+ if(ps.data.seven_eleven_enabled) choices.push('<label><input type="radio" name="pickup" value="7-ELEVEN" data-fee="'+fees.seven+'" required> 7-ELEVEN 冷藏寄放<br><b>NT$ '+fees.seven+'</b></label>');
+ $('pickupChoices').innerHTML=choices.join('')||'<div class="muted">目前沒有開放的超商寄放方式。</div>';
+ document.querySelectorAll('input[name=pickup]').forEach(x=>x.addEventListener('change',updateTotals));
+ if(bank?.data){$('bankInfo').innerHTML='<b>付款方式：銀行匯款</b><br>銀行：'+esc(bank.data.bank_name)+'<br>分行：'+esc(bank.data.branch_name)+'<br>帳號：'+esc(bank.data.account_number)+'<br>戶名：'+esc(bank.data.account_name)+'<br><span class="muted">匯款後請填寫本頁的匯款後五碼。</span>';}else $('bankInfo').textContent='請依官方 LINE 提供的匯款資訊完成轉帳。';
+}
+function setClosed(t){$('closed').style.display='block';$('closed').textContent=t;$('orderForm').style.display='none'}
+function renderFlavors(){$('flavors').innerHTML=flavors.map((f,i)=>'<div class="flavor"><div><b>'+esc(f.flavor_name)+'</b><span class="price">NT$ '+Number(f.price||0).toLocaleString()+'</span></div><div></div><div class="qty"><button type="button" onclick="changeQty('+i+',-1)">−</button><span id="q'+i+'">0</span><button type="button" onclick="changeQty('+i+',1)">＋</button></div></div>').join('');$('flavorEmpty').style.display=flavors.length?'none':'block';}
+function changeQty(i,n){const e=$('q'+i);let q=Math.max(0,Math.min(99,Number(e.textContent||0)+n));e.textContent=q;updateTotals()}
+function selectedItems(){return flavors.map((f,i)=>({flavor_name:f.flavor_name,unit_price:Number(f.price||0),quantity:Number($('q'+i)?.textContent||0)})).filter(x=>x.quantity>0).map(x=>({...x,line_total:x.unit_price*x.quantity}))}
+function updateTotals(){const items=selectedItems();const qty=items.reduce((s,x)=>s+x.quantity,0),product=items.reduce((s,x)=>s+x.line_total,0),radio=document.querySelector('input[name=pickup]:checked'),fee=radio?Number(radio.dataset.fee||0):0;$('totalQty').textContent=qty+' 盒';$('productTotal').textContent=product.toLocaleString();$('storageFee').textContent=fee.toLocaleString();$('grandTotal').textContent=(product+fee).toLocaleString()}
+$('orderForm').addEventListener('submit',async e=>{e.preventDefault();$('submitBtn').disabled=true;$('msg').innerHTML='';try{
+ const items=selectedItems();if(!items.length)throw new Error('請至少選擇 1 盒涼糕。');
+ const region=$('region').value,radio=document.querySelector('input[name=pickup]:checked');if(!region)throw new Error('請選擇配送地區。');if(!radio)throw new Error('請選擇超商冷藏寄放方式。');
+ const last5=$('last5').value.trim();if(!/^\d{5}$/.test(last5))throw new Error('匯款後五碼必須是 5 位數字。');
+ const productTotal=items.reduce((s,x)=>s+x.line_total,0),fee=Number(radio.dataset.fee||0),total=productTotal+fee;
+ const customer=await sb.from('order_customers').insert({name:$('customerName').value.trim(),phone:$('customerPhone').value.trim()}).select('id').single();if(customer.error)throw customer.error;
+ const order=await sb.from('cooling_pickup_orders').insert({order_date:today(),customer_id:customer.data.id,region_name:region,convenience_store:radio.value,store_name:$('storeName').value.trim(),store_address:$('storeAddress').value.trim()||null,merchandise_total:productTotal,storage_fee:fee,total_amount:total,payment_last5:last5,status:'待確認匯款',notes:$('notes').value.trim()||null}).select('id,order_number,total_amount').single();if(order.error)throw order.error;
+ const rows=items.map(x=>({...x,order_id:order.data.id}));const ir=await sb.from('cooling_pickup_order_items').insert(rows);if(ir.error)throw ir.error;
+ $('resultOrder').textContent=order.data.order_number;$('resultDetail').innerHTML='應付總額：<b>NT$ '+Number(order.data.total_amount).toLocaleString()+'</b><br>請保留訂單編號，後續查詢或提供匯款資料時使用。';$('result').classList.add('show');$('orderForm').style.display='none';window.scrollTo({top:0,behavior:'smooth'});
+ }catch(err){setMsg('訂單送出失敗：'+(err.message||'請稍後再試'),true);$('submitBtn').disabled=false}}
+);
+init();updateTotals();
+</script>
+</body>
+</html>
