@@ -1,0 +1,79 @@
+name: Fix merch clothing option UI
+
+on:
+  push:
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: ${{ !contains(github.event.head_commit.message, '[merch-option-fix]') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Force clothing option UI
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('merch-admin.html')
+          s = p.read_text(encoding='utf-8')
+          marker = '<!-- MERCH_OPTION_FORCE_FIX_V2 -->'
+          if marker not in s:
+              inject = r'''<!-- MERCH_OPTION_FORCE_FIX_V2 -->
+          <style>
+          #clothingSpec{display:none}
+          #genericSpec{display:block}
+          #clothingSpec .choiceGrid{display:grid!important}
+          #clothingSpec .choice{display:block!important}
+          #clothingSpec .choice span{display:flex!important;min-height:54px!important}
+          </style>
+          <script>
+          (function(){
+            function q(id){return document.getElementById(id)}
+            function isClothing(){
+              var c=q('pCategory');
+              if(!c) return false;
+              var o=c.options && c.selectedIndex>=0 ? c.options[c.selectedIndex] : null;
+              return /衣服|外套/.test((o&&o.textContent||'').trim());
+            }
+            function renderMerchOptions(){
+              var a=q('clothingSpec'), b=q('genericSpec');
+              if(!a||!b) return;
+              var yes=isClothing();
+              a.classList.toggle('hidden',!yes);
+              b.classList.toggle('hidden',yes);
+              a.style.display=yes?'block':'none';
+              b.style.display=yes?'none':'block';
+            }
+            function bind(){
+              var c=q('pCategory');
+              if(!c) return;
+              c.addEventListener('change',function(){setTimeout(renderMerchOptions,0);});
+              new MutationObserver(function(){renderMerchOptions();}).observe(c,{childList:true,subtree:true,attributes:true});
+              renderMerchOptions();
+            }
+            if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',bind); else bind();
+            setInterval(renderMerchOptions,500);
+          })();
+          </script>
+          '''
+              s = s.replace('</body>', inject + '\n</body>')
+              p.write_text(s, encoding='utf-8')
+          PY
+
+      - name: Commit patch
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add merch-admin.html
+          if git diff --cached --quiet; then
+            echo "No changes needed"
+          else
+            git commit -m "fix merch clothing option UI [merch-option-fix]"
+            git push
+          fi
