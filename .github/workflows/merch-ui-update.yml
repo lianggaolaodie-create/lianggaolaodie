@@ -16,58 +16,57 @@ jobs:
         run: |
           python - <<'PY'
           from pathlib import Path
-          import re
           p=Path('merch-admin.html')
           s=p.read_text(encoding='utf-8')
           marker='</body>'
           js=r'''<script>(function(){const K='laodie_merch_custom_colors_v1';const fixed=['黑色','白色','米白','灰色','藍色','紅色','綠色','咖啡色'];function q(id){return document.getElementById(id)}function custom(){try{return JSON.parse(localStorage.getItem(K)||'[]')}catch(e){return[]}}function save(a){localStorage.setItem(K,JSON.stringify([...new Set(a)]))}function render(){const box=q('colorChoices');if(!box)return;const old=q('pSize')?.value||'';const saved=custom();const found=(old.match(/顏色：([^｜]+)/)||[])[1];const from=found?found.split('、').map(x=>x.trim()).filter(Boolean):[];const all=[...new Set([...saved,...from].filter(x=>x&&!fixed.includes(x)))];box.querySelectorAll('.custom-color').forEach(x=>x.remove());all.forEach(c=>{const l=document.createElement('label');l.className='choice colorChoice custom-color';const i=document.createElement('input');i.type='checkbox';i.value=c;i.className='colorChoiceInput';const sp=document.createElement('span');sp.textContent=c;l.append(i,sp);box.append(l);i.onchange=sync});const selected=found?found.split('、').map(x=>x.trim()):[];box.querySelectorAll('.colorChoiceInput').forEach(i=>i.checked=selected.includes(i.value))}function sync(){const cat=q('pCategory');if(!cat||!cat.selectedOptions[0]||!/衣服|外套/.test(cat.selectedOptions[0].textContent))return;const ss=[...document.querySelectorAll('.sizeChoice:checked')].map(x=>x.value);const cs=[...document.querySelectorAll('.colorChoiceInput:checked')].map(x=>x.value);const parts=[];if(ss.length)parts.push('尺寸：'+ss.join('、'));if(cs.length)parts.push('顏色：'+cs.join('、'));q('pSize').value=parts.join('｜')}function init(){const add=q('addCustomColor'),input=q('customColorName');if(!add||!input)return;add.onclick=()=>{const c=input.value.trim();if(!c)return;save([...custom(),c]);input.value='';render();const i=[...document.querySelectorAll('.colorChoiceInput')].find(x=>x.value===c);if(i){i.checked=true;sync()}};document.querySelectorAll('.sizeChoice,.colorChoiceInput').forEach(x=>x.onchange=sync);const cat=q('pCategory');if(cat)cat.onchange=()=>setTimeout(render,20);const np=q('newProduct');if(np)np.addEventListener('click',()=>setTimeout(render,40));const old=window.editProduct;if(old&&!old.__cc){const w=function(i){old(i);setTimeout(render,40)};w.__cc=true;window.editProduct=w}render()}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init()})();</script>'''
-          if 'addCustomColor' not in s:
-              needle='<div id="colorChoices" class="choiceGrid colors">'
-              start=s.find(needle)
-              if start>=0:
-                  end=s.find('</div></div><div id="genericSpec">',start)
-                  if end>=0:
-                      s=s[:end+6]+'''<div class="field" style="margin-top:10px"><label>新增顏色</label><div style="display:flex;gap:8px"><input id="customColorName" placeholder="例如：深藍、奶茶、粉紅"><button type="button" class="btn" id="addCustomColor">＋新增顏色</button></div><div class="small">新增後會保留在這台裝置。</div></div>'''+s[end+6:]
           if 'laodie_merch_custom_colors_v1' not in s:
               s=s.replace(marker,js+'\n'+marker)
           p.write_text(s,encoding='utf-8')
           PY
-      - name: Patch merch purchase size options
+      - name: Patch merch purchase options
         run: |
           python - <<'PY'
           from pathlib import Path
+          import re
           p=Path('merch.html')
           s=p.read_text(encoding='utf-8')
-          marker='</body>'
-          patch=r'''<script>
-          // Ensure clothing/outerwear purchase options always show every supported size, including 5XL.
-          (function(){
-            const sizes=['S','M','L','XL','2XL','3XL','4XL','5XL'];
-            const original=window.parseOptions;
-            function robustOptions(value){
-              const text=Array.isArray(value)?value.join('｜'):String(value||'');
-              const foundSizes=[];
-              sizes.forEach(function(sz){
-                const re=new RegExp('(^|[、,，/\\s|：:])'+sz.replace('XL','XL')+'(?=($|[、,，/\\s|｜]))');
-                if(re.test(text)) foundSizes.push(sz);
+          new=r'''function parseOptions(value){
+            const raw=Array.isArray(value)?value.map(x=>String(x??'').trim()).filter(Boolean):String(value??'').split(/[、,，\/]+/).map(x=>x.trim()).filter(Boolean);
+            const sizes=[];const colors=[];const generic=[];
+            const sizeSet=new Set(['S','M','L','XL','2XL','3XL','4XL','5XL']);
+            let colorMode=false;
+            raw.forEach(item=>{
+              const colorPos=item.search(/顏色[：:]/);
+              if(colorPos>=0){
+                const before=item.slice(0,colorPos).trim();
+                const after=item.slice(colorPos).replace(/^顏色[：:]/,'').trim();
+                before.split(/[尺寸[：:]、|｜,，\/\s]+/).map(x=>x.trim()).filter(Boolean).forEach(x=>{if(sizeSet.has(x))sizes.push(x)});
+                after.split(/[、|｜,，\/]+/).map(x=>x.trim()).filter(Boolean).forEach(x=>colors.push(x));
+                colorMode=true;
+                return;
+              }
+              const cleaned=item.replace(/^尺寸[：:]/,'').trim();
+              cleaned.split(/[、|｜,，\/\s]+/).map(x=>x.trim()).filter(Boolean).forEach(x=>{
+                if(sizeSet.has(x)) sizes.push(x);
+                else if(colorMode && x) colors.push(x);
+                else if(x && !/^尺寸$/.test(x)) generic.push(x);
               });
-              const colorMatch=text.match(/顏色[：:]([^\n]*)/);
-              const colors=colorMatch?colorMatch[1].split(/[、,，/|｜]+/).map(function(x){return x.trim()}).filter(Boolean):[];
-              if(foundSizes.length || colors.length){ return {sizes:foundSizes,colors:[...new Set(colors)],generic:[]}; }
-              return original?original(value):{sizes:[],colors:[],generic:[]};
-            }
-            window.parseOptions=robustOptions;
-          })();
-          </script>
+            });
+            return {sizes:[...new Set(sizes)],colors:[...new Set(colors)],generic:[...new Set(generic)]};
+          }
           '''
-          if 'Ensure clothing/outerwear purchase options always show every supported size' not in s:
-              s=s.replace(marker,patch+marker)
-          p.write_text(s,encoding='utf-8')
+          pattern=r'function parseOptions\(value\)\{.*?\n\}\nfunction openOrder'
+          replacement=new+'function openOrder'
+          s2,n=re.subn(pattern,replacement,s,flags=re.S)
+          if n!=1:
+              raise SystemExit(f'parseOptions replacement count={n}')
+          p.write_text(s2,encoding='utf-8')
           PY
       - name: Commit
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add merch-admin.html merch.html
-          git diff --cached --quiet || git commit -m '修正週邊商品購買尺寸含5XL'
+          git diff --cached --quiet || git commit -m '修正週邊商品尺寸解析含5XL'
           git push
