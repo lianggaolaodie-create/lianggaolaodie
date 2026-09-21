@@ -54,4 +54,24 @@ $('deliveryMethod').addEventListener('change',()=>{$('deliveryInfo').placeholder
 $('orderForm').addEventListener('submit',async e=>{e.preventDefault();if(!selected)return;const qty=Math.max(1,Number($('qty').value||1));const total=Number(selected.price||0)*qty;const orderNumber='M'+new Date().toISOString().replace(/[-:TZ.]/g,'').slice(0,14)+Math.floor(100+Math.random()*900);let detail=selected.name;const sc=document.getElementById('sizeChoice');const cc=document.getElementById('colorChoice');const gc=document.getElementById('genericChoice');if(sc&&sc.value)detail+='｜尺寸：'+sc.value;if(cc&&cc.value)detail+='｜顏色：'+cc.value;if(gc&&gc.value)detail+='｜規格：'+gc.value;const dm=$('deliveryMethod').value;const info=$('deliveryInfo').value.trim();const payload={order_number:orderNumber,customer_name:$('customerName').value.trim(),customer_phone:$('customerPhone').value.trim(),customer_note:$('note').value.trim()||null,product_total:total,total_amount:total,status:'pending',payment_status:'unpaid',shipment_status:'unprepared',delivery_method:dm,delivery_address:dm==='宅配'?info:null,delivery_store:dm==='超商取貨'?info:null};$('orderMsg').textContent='訂單送出中……';const o=await sb.from('merch_orders').insert(payload).select('id').single();if(o.error){$('orderMsg').textContent='訂單送出失敗：'+o.error.message;return}const item=await sb.from('merch_order_items').insert({order_id:o.data.id,product_id:selected.id,product_name:detail,unit_price:Number(selected.price||0),quantity:qty,subtotal:total});if(item.error){$('orderMsg').textContent='訂單已建立，但商品明細寫入失敗，請聯絡我們。';return}$('orderMsg').textContent='訂單已送出！訂單編號：'+orderNumber+'。付款與後續確認請依官方通知方式處理。';e.target.reset();$('qty').value=1});
 init();
 </script>
+<script>
+// Ensure clothing/outerwear purchase options always show every supported size, including 5XL.
+(function(){
+  const sizes=['S','M','L','XL','2XL','3XL','4XL','5XL'];
+  const original=window.parseOptions;
+  function robustOptions(value){
+    const text=Array.isArray(value)?value.join('｜'):String(value||'');
+    const foundSizes=[];
+    sizes.forEach(function(sz){
+      const re=new RegExp('(^|[、,，/\\s|：:])'+sz.replace('XL','XL')+'(?=($|[、,，/\\s|｜]))');
+      if(re.test(text)) foundSizes.push(sz);
+    });
+    const colorMatch=text.match(/顏色[：:]([^\n]*)/);
+    const colors=colorMatch?colorMatch[1].split(/[、,，/|｜]+/).map(function(x){return x.trim()}).filter(Boolean):[];
+    if(foundSizes.length || colors.length){ return {sizes:foundSizes,colors:[...new Set(colors)],generic:[]}; }
+    return original?original(value):{sizes:[],colors:[],generic:[]};
+  }
+  window.parseOptions=robustOptions;
+})();
+</script>
 </body></html>
