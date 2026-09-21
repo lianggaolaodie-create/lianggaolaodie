@@ -1,0 +1,31 @@
+name: Fix merch admin login
+on:
+  push:
+    branches: [ main ]
+permissions:
+  contents: write
+jobs:
+  fix:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fix missing script closing tag
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('merch-admin.html')
+          s=p.read_text(encoding='utf-8')
+          if '</script></body></html>' not in s:
+              s=s.replace('\n</body></html>', '\n</script>\n</body></html>')
+          p.write_text(s, encoding='utf-8')
+          PY
+      - name: Commit fix and remove workflow
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add merch-admin.html .github/workflows/fix-merch-login.yml
+          git commit -m '修復週邊商品後台登入功能' || exit 0
+          git rm .github/workflows/fix-merch-login.yml
+          git commit -m '移除暫時修復流程'
+          git push
