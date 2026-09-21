@@ -64,4 +64,42 @@ $('saveProduct').onclick=async()=>{if(window.editingProduct===null&&!$('pCode').
 db.auth.getSession().then(async({data})=>{if(data.session){const er=await access(data.session.user);if(!er)open(data.session.user);else await db.auth.signOut()}});db.auth.onAuthStateChange((_e,s)=>{if(!s){} });
 </script>
 <script>(function(){const K='laodie_merch_custom_colors_v1';const fixed=['黑色','白色','米白','灰色','藍色','紅色','綠色','咖啡色'];function q(id){return document.getElementById(id)}function custom(){try{return JSON.parse(localStorage.getItem(K)||'[]')}catch(e){return[]}}function save(a){localStorage.setItem(K,JSON.stringify([...new Set(a)]))}function render(){const box=q('colorChoices');if(!box)return;const old=q('pSize')?.value||'';const saved=custom();const found=(old.match(/顏色：([^｜]+)/)||[])[1];const from=found?found.split('、').map(x=>x.trim()).filter(Boolean):[];const all=[...new Set([...saved,...from].filter(x=>x&&!fixed.includes(x)))];box.querySelectorAll('.custom-color').forEach(x=>x.remove());all.forEach(c=>{const l=document.createElement('label');l.className='choice colorChoice custom-color';const i=document.createElement('input');i.type='checkbox';i.value=c;i.className='colorChoiceInput';const sp=document.createElement('span');sp.textContent=c;l.append(i,sp);box.append(l);i.onchange=sync});const selected=found?found.split('、').map(x=>x.trim()):[];box.querySelectorAll('.colorChoiceInput').forEach(i=>i.checked=selected.includes(i.value))}function sync(){const cat=q('pCategory');if(!cat||!cat.selectedOptions[0]||!/衣服|外套/.test(cat.selectedOptions[0].textContent))return;const ss=[...document.querySelectorAll('.sizeChoice:checked')].map(x=>x.value);const cs=[...document.querySelectorAll('.colorChoiceInput:checked')].map(x=>x.value);const parts=[];if(ss.length)parts.push('尺寸：'+ss.join('、'));if(cs.length)parts.push('顏色：'+cs.join('、'));q('pSize').value=parts.join('｜')}function init(){const add=q('addCustomColor'),input=q('customColorName');if(!add||!input)return;add.onclick=()=>{const c=input.value.trim();if(!c)return;save([...custom(),c]);input.value='';render();const i=[...document.querySelectorAll('.colorChoiceInput')].find(x=>x.value===c);if(i){i.checked=true;sync()}};document.querySelectorAll('.sizeChoice,.colorChoiceInput').forEach(x=>x.onchange=sync);const cat=q('pCategory');if(cat)cat.onchange=()=>setTimeout(render,20);const np=q('newProduct');if(np)np.addEventListener('click',()=>setTimeout(render,40));const old=window.editProduct;if(old&&!old.__cc){const w=function(i){old(i);setTimeout(render,40)};w.__cc=true;window.editProduct=w}render()}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init()})();</script>
+<!-- MERCH_OPTION_FORCE_FIX_V2 -->
+<style>
+#clothingSpec{display:none}
+#genericSpec{display:block}
+#clothingSpec .choiceGrid{display:grid!important}
+#clothingSpec .choice{display:block!important}
+#clothingSpec .choice span{display:flex!important;min-height:54px!important}
+</style>
+<script>
+(function(){
+  function q(id){return document.getElementById(id)}
+  function isClothing(){
+    var c=q('pCategory');
+    if(!c) return false;
+    var o=c.options && c.selectedIndex>=0 ? c.options[c.selectedIndex] : null;
+    return /衣服|外套/.test((o&&o.textContent||'').trim());
+  }
+  function renderMerchOptions(){
+    var a=q('clothingSpec'), b=q('genericSpec');
+    if(!a||!b) return;
+    var yes=isClothing();
+    a.classList.toggle('hidden',!yes);
+    b.classList.toggle('hidden',yes);
+    a.style.display=yes?'block':'none';
+    b.style.display=yes?'none':'block';
+  }
+  function bind(){
+    var c=q('pCategory');
+    if(!c) return;
+    c.addEventListener('change',function(){setTimeout(renderMerchOptions,0);});
+    new MutationObserver(function(){renderMerchOptions();}).observe(c,{childList:true,subtree:true,attributes:true});
+    renderMerchOptions();
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',bind); else bind();
+  setInterval(renderMerchOptions,500);
+})();
+</script>
+
 </body></html>
