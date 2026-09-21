@@ -1,0 +1,76 @@
+name: Fix merch options final
+
+on:
+  push:
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: ${{ !contains(github.event.head_commit.message, '[merch-final-fix]') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Fix merch admin and purchase options
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          # 商品編號維持手動輸入，不自動產生。
+          p = Path('merch-admin.html')
+          s = p.read_text(encoding='utf-8')
+          s = s.replace('<input id="pCode" readonly placeholder="系統自動產生">', '<input id="pCode" placeholder="請自行輸入商品編號，例如：LD-TS-2609-001">')
+          p.write_text(s, encoding='utf-8')
+
+          # 官網：尺寸與顏色分開解析，支援「尺寸：S,M,L,XL,2XL,3XL,4XL,5XL｜顏色：白色、米白、灰色」等格式。
+          p = Path('merch.html')
+          s = p.read_text(encoding='utf-8')
+          start = s.find('function parseOptions(value){')
+          end = s.find('\nfunction openOrder', start)
+          if start < 0 or end < 0:
+              raise SystemExit('parseOptions block not found')
+          new = '''function parseOptions(value){
+            const text=Array.isArray(value)?value.map(x=>String(x??'')).join('｜'):String(value??'');
+            const sizes=[];const colors=[];const generic=[];
+            const sizeSet=new Set(['S','M','L','XL','2XL','3XL','4XL','5XL']);
+            const colorSet=new Set(['黑色','白色','米白','灰色','藍色','紅色','綠色','咖啡色']);
+            const sections=text.split(/\\s*[｜|]\\s*/).map(x=>x.trim()).filter(Boolean);
+            sections.forEach(section=>{
+              const m=section.match(/^尺寸\\s*[：:]\\s*(.*)$/);
+              if(m){
+                m[1].split(/[、,，\\/\\s]+/).map(x=>x.trim()).filter(Boolean).forEach(x=>{if(sizeSet.has(x))sizes.push(x)});
+                return;
+              }
+              const c=section.match(/^顏色\\s*[：:]\\s*(.*)$/);
+              if(c){
+                c[1].split(/[、,，\\/]+/).map(x=>x.trim()).filter(Boolean).forEach(x=>colors.push(x));
+                return;
+              }
+              section.split(/[、,，\\/]+/).map(x=>x.trim()).filter(Boolean).forEach(x=>{
+                if(sizeSet.has(x)) sizes.push(x);
+                else if(colorSet.has(x)) colors.push(x);
+                else generic.push(x);
+              });
+            });
+            return {sizes:[...new Set(sizes)],colors:[...new Set(colors)],generic:[...new Set(generic)]};
+          }'''
+          s=s[:start]+new+s[end:]
+          p.write_text(s, encoding='utf-8')
+          PY
+
+      - name: Commit patch
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add merch-admin.html merch.html
+          if git diff --cached --quiet; then
+            echo "No changes needed"
+          else
+            git commit -m "fix merch options and manual product code [merch-final-fix]"
+            git push
+          fi
