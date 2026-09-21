@@ -32,10 +32,42 @@ jobs:
               s=s.replace(marker,js+'\n'+marker)
           p.write_text(s,encoding='utf-8')
           PY
+      - name: Patch merch purchase size options
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('merch.html')
+          s=p.read_text(encoding='utf-8')
+          marker='</body>'
+          patch=r'''<script>
+          // Ensure clothing/outerwear purchase options always show every supported size, including 5XL.
+          (function(){
+            const sizes=['S','M','L','XL','2XL','3XL','4XL','5XL'];
+            const original=window.parseOptions;
+            function robustOptions(value){
+              const text=Array.isArray(value)?value.join('｜'):String(value||'');
+              const foundSizes=[];
+              sizes.forEach(function(sz){
+                const re=new RegExp('(^|[、,，/\\s|：:])'+sz.replace('XL','XL')+'(?=($|[、,，/\\s|｜]))');
+                if(re.test(text)) foundSizes.push(sz);
+              });
+              const colorMatch=text.match(/顏色[：:]([^\n]*)/);
+              const colors=colorMatch?colorMatch[1].split(/[、,，/|｜]+/).map(function(x){return x.trim()}).filter(Boolean):[];
+              if(foundSizes.length || colors.length){ return {sizes:foundSizes,colors:[...new Set(colors)],generic:[]}; }
+              return original?original(value):{sizes:[],colors:[],generic:[]};
+            }
+            window.parseOptions=robustOptions;
+          })();
+          </script>
+          '''
+          if 'Ensure clothing/outerwear purchase options always show every supported size' not in s:
+              s=s.replace(marker,patch+marker)
+          p.write_text(s,encoding='utf-8')
+          PY
       - name: Commit
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add merch-admin.html
-          git diff --cached --quiet || git commit -m '新增週邊商品自訂顏色選擇'
+          git add merch-admin.html merch.html
+          git diff --cached --quiet || git commit -m '修正週邊商品購買尺寸含5XL'
           git push
