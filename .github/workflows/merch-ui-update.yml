@@ -1,0 +1,37 @@
+name: Update merch product options
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/merch-ui-update.yml'
+permissions:
+  contents: write
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Update merch admin UI
+        shell: python
+        run: |
+          from pathlib import Path
+          import re
+          p=Path('merch-admin.html')
+          s=p.read_text(encoding='utf-8')
+          old=re.compile(r'<div class="field"><label>商品尺寸／規格</label><input id="pSize"[^>]*></div>')
+          new='''<div class="field" id="specBox"><label>商品尺寸／規格</label><input id="pSize" type="hidden"><div id="clothingSpec" class="clothingSpec hidden"><div class="specTitle">尺寸（可複選）</div><div id="sizeChoices" class="choiceGrid">'''+''.join(f'<label class="choice"><input type="checkbox" value="{x}" class="sizeChoice"><span>{x}</span></label>' for x in ['S','M','L','XL','2XL','3XL','4XL','5XL'])+'''</div><div class="specTitle">顏色（可複選）</div><div id="colorChoices" class="choiceGrid colors">'''+''.join(f'<label class="choice colorChoice"><input type="checkbox" value="{x}" class="colorChoiceInput"><span>{x}</span></label>' for x in ['黑色','白色','米白','灰色','藍色','紅色','綠色','咖啡色'])+'''</div></div><div id="genericSpec"><input id="pGenericSize" placeholder="例如：單一尺寸／黑、白"></div></div>'''
+          if not old.search(s):
+              raise SystemExit('spec block not found')
+          s=old.sub(new,s,count=1)
+          css='''\n.specTitle{font-weight:900;margin:12px 0 8px}.choiceGrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}.choice{margin:0!important;cursor:pointer}.choice input{position:absolute;opacity:0;pointer-events:none}.choice span{display:flex;align-items:center;justify-content:center;min-height:48px;padding:10px 8px;border:2px solid #d8cec5;border-radius:13px;background:#fff;font-weight:900;font-size:16px}.choice input:checked+span{border-color:#8b573d;background:#f1e4dc;box-shadow:0 0 0 2px #8b573d22}.colors .choice span{min-height:54px;font-size:16px}@media(max-width:700px){.choiceGrid{grid-template-columns:repeat(2,minmax(0,1fr))}}\n'''
+          s=s.replace('</style>',css+'</style>',1)
+          js=r'''\n// Product option UI: clothing/outerwear sizes S-5XL and large color buttons.\n(function(){\n  const sizeValues=['S','M','L','XL','2XL','3XL','4XL','5XL'];\n  const colorValues=['黑色','白色','米白','灰色','藍色','紅色','綠色','咖啡色'];\n  const codeMap={'衣服':'TS','外套':'JK','帽子':'CP','毛巾':'TW','鑰匙圈':'KC','禮盒':'BX','其他週邊':'OT'};\n  function catName(){const o=$('pCategory').selectedOptions[0];return o?o.textContent.trim():''}\n  function isClothing(){return /衣服|外套/.test(catName())}\n  function syncHidden(){\n    if(isClothing()){\n      const ss=[...document.querySelectorAll('.sizeChoice:checked')].map(x=>x.value);\n      const cs=[...document.querySelectorAll('.colorChoiceInput:checked')].map(x=>x.value);\n      const parts=[]; if(ss.length) parts.push('尺寸：'+ss.join('、')); if(cs.length) parts.push('顏色：'+cs.join('、')); $('pSize').value=parts.join('｜');\n    }else{$('pSize').value=$('pGenericSize').value.trim()}\n  }\n  function loadFromHidden(){\n    const v=$('pSize').value||'';\n    document.querySelectorAll('.sizeChoice,.colorChoiceInput').forEach(x=>x.checked=false);\n    if(isClothing()){\n      sizeValues.forEach(x=>{if(new RegExp('(?:尺寸：|、)'+x+'(?:、|｜|$)').test(v)) document.querySelector('.sizeChoice[value="'+x+'"]')?.click()});\n      colorValues.forEach(x=>{if(v.includes(x)) document.querySelector('.colorChoiceInput[value="'+x+'"]')?.click()});\n    }else $('pGenericSize').value=v;\n  }\n  function render(){const c=isClothing();$('clothingSpec').classList.toggle('hidden',!c);$('genericSpec').classList.toggle('hidden',c);if(c)loadFromHidden();}\n  function nextCode(){\n    const name=catName(); const code=Object.entries(codeMap).find(([k])=>name.includes(k))?.[1]||'OT';\n    const d=new Date(); const ym=String(d.getFullYear()).slice(-2)+String(d.getMonth()+1).padStart(2,'0'); const prefix='LD-'+code+'-'+ym+'-';\n    let max=0; for(const p of products||[]){const m=String(p.product_code||'').match(new RegExp('^'+prefix+'(\\d{3})$'));if(m)max=Math.max(max,Number(m[1]))} return prefix+String(max+1).padStart(3,'0');\n  }\n  $('pCategory').addEventListener('change',()=>{render();if(editingProduct==null)$('pCode').value=nextCode()});\n  document.querySelectorAll('.sizeChoice,.colorChoiceInput').forEach(x=>x.addEventListener('change',syncHidden));\n  $('pGenericSize').addEventListener('input',syncHidden);\n  const oldEdit=window.editProduct;\n  if(oldEdit) window.editProduct=function(i){oldEdit(i);setTimeout(()=>{if(i==null)$('pCode').value=nextCode();render();loadFromHidden()},0)};\n  $('newProduct').addEventListener('click',()=>setTimeout(()=>{if(editingProduct==null)$('pCode').value=nextCode();render()},80));\n  render();\n})();\n'''
+          s=s.replace('</script>',js+'</script>',1)
+          p.write_text(s,encoding='utf-8')
+      - name: Commit update
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add merch-admin.html
+          git diff --cached --quiet || git commit -m '週邊商品新增尺寸與顏色選擇'
+          git push
