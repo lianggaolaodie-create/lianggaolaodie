@@ -1,39 +1,47 @@
-name: Apply merch product code automation
+name: Fix merch product code
 on:
   push:
     branches: [ main ]
 permissions:
   contents: write
 jobs:
-  patch:
+  fix:
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Patch merch-admin.html
+      - name: Fix merch-admin.html
         shell: bash
         run: |
           python3 - <<'PY'
           from pathlib import Path
+          import re
           p=Path('merch-admin.html')
           s=p.read_text(encoding='utf-8')
-          old='<div class="field"><label>商品編號</label><input id="pCode"></div>'
-          new='<div class="field"><label>商品編號</label><input id="pCode" readonly placeholder="系統自動產生"></div>'
-          if old not in s:
-              raise SystemExit('product code input pattern not found')
-          s=s.replace(old,new,1)
-          marker='</script></body></html>'
+          # Remove the previously injected script block. It was appended after the original script and is replaced below with a clean in-script implementation.
+          s=re.sub(r'\\n<script>\\n\(\(\)=>\{.*?\\n</script>', '', s, count=1, flags=re.S)
+          s=s.replace('<div class="field"><label>商品編號</label><input id="pCode"></div>', '<div class="field"><label>商品編號</label><input id="pCode" readonly placeholder="選擇分類後系統自動產生"></div>', 1)
+          marker='db.auth.getSession().then(async({data})=>{if(data.session){const er=await access(data.session.user);if(!er)open(data.session.user);else await db.auth.signOut()}});'
           if marker not in s:
-              raise SystemExit('script marker not found')
-          patch=r'''\n<script>\n(()=>{\nconst codeMap={'衣服':'TS','外套':'JK','帽子':'CP','毛巾':'TW','鑰匙圈':'KC','禮盒':'BX'};\nconst merchCode=()=>{const c=categories.find(x=>Number(x.id)===Number($('pCategory').value));if(!c)return 'OT';for(const k in codeMap)if((c.name||'').includes(k))return codeMap[k];return 'OT'};\nconst codePrefix=cat=>`LD-${cat}-${String(new Date().getFullYear()).slice(-2)}${String(new Date().getMonth()+1).padStart(2,'0')}-`;\nconst generateCode=async()=>{const cat=merchCode(),prefix=codePrefix(cat);let latest=[];try{const r=await db.from('merch_products').select('product_code').like('product_code',prefix+'%');if(!r.error)latest=r.data||[]}catch(e){}const nums=latest.map(x=>Number(String(x.product_code||'').slice(prefix.length))).filter(Number.isFinite);let n=nums.length?Math.max(...nums)+1:1;while(latest.some(x=>x.product_code===prefix+String(n).padStart(3,'0')))n++;return prefix+String(n).padStart(3,'0')};\nconst openNew=async()=>{editingProduct=null;$('productTitle').textContent='新增商品';$('pName').value='';$('pCategory').value='';$('pPrice').value='';$('pSize').value='';$('pDesc').value='';$('pImage').value='';$('pFile').value='';$('pPreview').style.display='none';$('pEnabled').checked=true;$('pNew').checked=false;$('pHot').checked=false;$('productEditMsg').innerHTML='';$('pCode').value='';$('pCode').placeholder='選擇分類後自動產生';$('productModal').classList.add('show')};\nconst openEdit=async i=>{editingProduct=i;const p=products[i];$('productTitle').textContent='編輯商品';$('pName').value=p.name||'';$('pCode').value=p.product_code||'';$('pCategory').value=p.category_id||'';$('pPrice').value=p.price??'';$('pSize').value=Array.isArray(p.size_options)?p.size_options.join('、'):(p.size_options||'');$('pDesc').value=p.description||'';$('pImage').value=p.image_url||'';$('pFile').value='';$('pPreview').src=p.image_url||'';$('pPreview').style.display=p.image_url?'block':'none';$('pEnabled').checked=p.enabled!==false;$('pNew').checked=!!p.is_new;$('pHot').checked=!!p.is_hot;$('productEditMsg').innerHTML='';$('pCode').placeholder='商品編號由系統保留';$('productModal').classList.add('show')};\nwindow.editProduct=openEdit;\n$('newProduct').onclick=openNew;\n$('pCategory').addEventListener('change',async()=>{if(editingProduct!==null)return;$('pCode').value=await generateCode();$('pCode').placeholder='系統自動產生'});\nconst oldSave=$('saveProduct').onclick;\n$('saveProduct').onclick=async()=>{if(editingProduct===null&&!$('pCode').value){$('pCode').value=await generateCode()}if(oldSave)await oldSave()};\n})();\n</script>'''
-          s=s.replace(marker,patch+'</body></html>',1)
+              raise SystemExit('login marker not found')
+          code=r'''const codeMap={'衣服':'TS','外套':'JK','帽子':'CP','毛巾':'TW','鑰匙圈':'KC','禮盒':'BX','其他週邊':'OT'};
+          function merchCategoryCode(){const c=categories.find(x=>Number(x.id)===Number($('pCategory').value));if(!c)return'OT';for(const k of Object.keys(codeMap)){if((c.name||'').includes(k))return codeMap[k]}return'OT'}
+          async function generateProductCode(){const prefix=`LD-${merchCategoryCode()}-${String(new Date().getFullYear()).slice(-2)}${String(new Date().getMonth()+1).padStart(2,'0')}-`;const r=await db.from('merch_products').select('product_code').like('product_code',prefix+'%');if(r.error)throw r.error;const used=new Set((r.data||[]).map(x=>String(x.product_code||'')));let n=1;while(used.has(prefix+String(n).padStart(3,'0')))n++;return prefix+String(n).padStart(3,'0')}
+          const originalEditProduct=window.editProduct;
+          window.editProduct=i=>{originalEditProduct(i);$('pCode').readOnly=true;$('pCode').placeholder='商品編號由系統保留'};
+          $('newProduct').onclick=()=>{originalEditProduct(null);$('pCode').readOnly=true;$('pCode').value='';$('pCode').placeholder='選擇分類後系統自動產生'};
+          $('pCategory').addEventListener('change',async()=>{if(window.editingProduct!==undefined && window.editingProduct!==null)return;try{$('pCode').value=await generateProductCode()}catch(e){note('productEditMsg','商品編號產生失敗：'+e.message,true)}});
+          const originalSaveProduct=$('saveProduct').onclick;
+          $('saveProduct').onclick=async()=>{if(window.editingProduct===null&&!$('pCode').value){try{$('pCode').value=await generateProductCode()}catch(e){note('productEditMsg','商品編號產生失敗：'+e.message,true);return}}if(originalSaveProduct)await originalSaveProduct()};
+          '''
+          s=s.replace(marker,code+marker,1)
           p.write_text(s,encoding='utf-8')
           PY
-      - name: Commit patch
+      - name: Commit fix and remove temporary workflow
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add merch-admin.html
-          git diff --cached --quiet && exit 0
-          git commit -m '自動產生週邊商品編號'
+          git rm .github/workflows/patch-merch-code.yml
+          git commit -m '修復週邊商品後台登入與商品編號自動產生'
           git push
