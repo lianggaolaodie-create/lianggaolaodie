@@ -30,13 +30,24 @@ function parseOptions(value){
   const text=Array.isArray(value)?value.map(x=>String(x??'')).join('｜'):String(value??'');
   const sizes=[];const colors=[];const generic=[];
   const sizeSet=new Set(['S','M','L','XL','2XL','3XL','4XL','5XL']);
+  const colorSet=new Set(['黑色','白色','米白','灰色','藍色','紅色','綠色','咖啡色']);
   const sections=text.split(/\s*[｜|]\s*/).map(x=>x.trim()).filter(Boolean);
   sections.forEach(section=>{
     const m=section.match(/^尺寸\s*[：:]\s*(.*)$/);
-    if(m){m[1].split(/[、,，\/\s]+/).map(x=>x.trim()).filter(Boolean).forEach(x=>{if(sizeSet.has(x))sizes.push(x)});return;}
+    if(m){
+      m[1].split(/[、,，\/\s]+/).map(x=>x.trim()).filter(Boolean).forEach(x=>{if(sizeSet.has(x))sizes.push(x)});
+      return;
+    }
     const c=section.match(/^顏色\s*[：:]\s*(.*)$/);
-    if(c){c[1].split(/[、,，\/]+/).map(x=>x.trim()).filter(Boolean).forEach(x=>colors.push(x));return;}
-    section.split(/[、,，\/]+/).map(x=>x.trim()).filter(Boolean).forEach(x=>{if(sizeSet.has(x))sizes.push(x);else generic.push(x)});
+    if(c){
+      c[1].split(/[、,，\/]+/).map(x=>x.trim()).filter(Boolean).forEach(x=>colors.push(x));
+      return;
+    }
+    section.split(/[、,，\/]+/).map(x=>x.trim()).filter(Boolean).forEach(x=>{
+      if(sizeSet.has(x)) sizes.push(x);
+      else if(colorSet.has(x)) colors.push(x);
+      else generic.push(x);
+    });
   });
   return {sizes:[...new Set(sizes)],colors:[...new Set(colors)],generic:[...new Set(generic)]};
 }
