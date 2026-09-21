@@ -1,87 +1,33 @@
-name: Update merch product options
+name: Fix merch admin UI
 on:
   push:
-    branches: [main]
+    branches:
+      - main
     paths:
       - '.github/workflows/merch-ui-update.yml'
+  workflow_dispatch:
 permissions:
   contents: write
 jobs:
-  update:
+  fix:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
-      - name: Fix and update merch admin UI
+      - uses: actions/checkout@v4
+      - name: Repair script tags and keep merch options
         shell: python
         run: |
           from pathlib import Path
-          import re
-          p=Path('merch-admin.html')
-          s=p.read_text(encoding='utf-8')
-          # Remove the previously misplaced option script from the external Supabase script tag.
-          marker='<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">'
+          p = Path('merch-admin.html')
+          s = p.read_text(encoding='utf-8')
+          marker = '<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">'
+          replacement = '<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>\n<script>'
           if marker in s:
-              a=s.index(marker)
-              b=s.index('</script>',a)+len('</script>')
-              between=s[a:b]
-              if 'Product option UI:' in between:
-                  s=s[:a]+marker+'</script>'+s[b:]
-          # Ensure the option UI HTML/CSS exists exactly once.
-          if 'id="clothingSpec"' not in s:
-              old=re.compile(r'<div class="field"><label>商品尺寸／規格</label><input id="pSize"[^>]*></div>')
-              new='''<div class="field" id="specBox"><label>商品尺寸／規格</label><input id="pSize" type="hidden"><div id="clothingSpec" class="clothingSpec hidden"><div class="specTitle">尺寸（可複選）</div><div id="sizeChoices" class="choiceGrid">'''+''.join(f'<label class="choice"><input type="checkbox" value="{x}" class="sizeChoice"><span>{x}</span></label>' for x in ['S','M','L','XL','2XL','3XL','4XL','5XL'])+'''</div><div class="specTitle">顏色（可複選）</div><div id="colorChoices" class="choiceGrid colors">'''+''.join(f'<label class="choice colorChoice"><input type="checkbox" value="{x}" class="colorChoiceInput"><span>{x}</span></label>' for x in ['黑色','白色','米白','灰色','藍色','紅色','綠色','咖啡色'])+'''</div></div><div id="genericSpec"><input id="pGenericSize" placeholder="例如：單一尺寸／黑、白"></div></div>'''
-              if not old.search(s): raise SystemExit('spec block not found')
-              s=old.sub(new,s,count=1)
-              css='''.specTitle{font-weight:900;margin:12px 0 8px}.choiceGrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}.choice{margin:0!important;cursor:pointer}.choice input{position:absolute;opacity:0;pointer-events:none}.choice span{display:flex;align-items:center;justify-content:center;min-height:48px;padding:10px 8px;border:2px solid #d8cec5;border-radius:13px;background:#fff;font-weight:900;font-size:16px}.choice input:checked+span{border-color:#8b573d;background:#f1e4dc;box-shadow:0 0 0 2px #8b573d22}.colors .choice span{min-height:54px;font-size:16px}@media(max-width:700px){.choiceGrid{grid-template-columns:repeat(2,minmax(0,1fr))}}'''
-              s=s.replace('</style>',css+'</style>',1)
-          # Install the option logic into the actual inline application script, not the external library tag.
-          js=r'''// Product option UI: clothing/outerwear sizes S-5XL and large color buttons.
-(function(){
-  const sizeValues=['S','M','L','XL','2XL','3XL','4XL','5XL'];
-  const colorValues=['黑色','白色','米白','灰色','藍色','紅色','綠色','咖啡色'];
-  const codeMap={'衣服':'TS','外套':'JK','帽子':'CP','毛巾':'TW','鑰匙圈':'KC','禮盒':'BX','其他週邊':'OT'};
-  function catName(){const o=$('pCategory').selectedOptions[0];return o?o.textContent.trim():''}
-  function isClothing(){return /衣服|外套/.test(catName())}
-  function syncHidden(){
-    if(isClothing()){
-      const ss=[...document.querySelectorAll('.sizeChoice:checked')].map(x=>x.value);
-      const cs=[...document.querySelectorAll('.colorChoiceInput:checked')].map(x=>x.value);
-      const parts=[]; if(ss.length) parts.push('尺寸：'+ss.join('、')); if(cs.length) parts.push('顏色：'+cs.join('、')); $('pSize').value=parts.join('｜');
-    }else $('pSize').value=$('pGenericSize').value.trim();
-  }
-  function loadFromHidden(){
-    const v=$('pSize').value||'';
-    document.querySelectorAll('.sizeChoice,.colorChoiceInput').forEach(x=>x.checked=false);
-    if(isClothing()){
-      sizeValues.forEach(x=>{if(v.includes(x)) document.querySelector('.sizeChoice[value="'+x+'"]')?.click()});
-      colorValues.forEach(x=>{if(v.includes(x)) document.querySelector('.colorChoiceInput[value="'+x+'"]')?.click()});
-    } else $('pGenericSize').value=v;
-  }
-  function render(){const c=isClothing();$('clothingSpec').classList.toggle('hidden',!c);$('genericSpec').classList.toggle('hidden',c);if(c)loadFromHidden()}
-  function nextCode(){
-    const name=catName(); const code=Object.entries(codeMap).find(([k])=>name.includes(k))?.[1]||'OT';
-    const d=new Date(); const ym=String(d.getFullYear()).slice(-2)+String(d.getMonth()+1).padStart(2,'0'); const prefix='LD-'+code+'-'+ym+'-';
-    let max=0; for(const p of products||[]){const m=String(p.product_code||'').match(new RegExp('^'+prefix+'(\\d{3})$'));if(m)max=Math.max(max,Number(m[1]))} return prefix+String(max+1).padStart(3,'0');
-  }
-  $('pCategory').addEventListener('change',()=>{render();if(editingProduct==null)$('pCode').value=nextCode()});
-  document.querySelectorAll('.sizeChoice,.colorChoiceInput').forEach(x=>x.addEventListener('change',syncHidden));
-  $('pGenericSize').addEventListener('input',syncHidden);
-  const oldEdit=window.editProduct;
-  if(oldEdit) window.editProduct=function(i){oldEdit(i);setTimeout(()=>{if(i==null)$('pCode').value=nextCode();render();loadFromHidden()},0)};
-  $('newProduct').addEventListener('click',()=>setTimeout(()=>{if(editingProduct==null)$('pCode').value=nextCode();render()},80));
-  render();
-})();
-'''
-          # Remove any existing copy of this logic from an inline script, then add one copy at the end of the inline app script.
-          s=s.replace(js,'')
-          pos=s.rfind('</script>')
-          if pos<0: raise SystemExit('inline script closing tag not found')
-          s=s[:pos]+js+'</script>'+s[pos+len('</script>'):]
-          p.write_text(s,encoding='utf-8')
-      - name: Commit update
+              s = s.replace(marker, replacement, 1)
+          p.write_text(s, encoding='utf-8')
+      - name: Commit repaired page
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add merch-admin.html
-          git diff --cached --quiet || git commit -m '修正週邊商品尺寸顏色功能'
+          git diff --cached --quiet || git commit -m '修復週邊商品後台腳本與登入功能'
           git push
