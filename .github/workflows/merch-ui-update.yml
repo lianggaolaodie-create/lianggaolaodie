@@ -17,17 +17,79 @@ jobs:
         shell: python
         run: |
           from pathlib import Path
+          import re
           p = Path('merch-admin.html')
           s = p.read_text(encoding='utf-8')
           marker = '<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">'
           replacement = '<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>\n<script>'
           if marker in s:
               s = s.replace(marker, replacement, 1)
+
+          # Replace the fixed color palette with a palette that also allows admins to add colors.
+          color_re = r'<div id="colorChoices" class="choiceGrid colors">.*?</div></div><div id="genericSpec">'
+          color_html = '''<div id="colorChoices" class="choiceGrid colors">
+          <label class="choice colorChoice"><input type="checkbox" value="黑色" class="colorChoiceInput"><span>黑色</span></label><label class="choice colorChoice"><input type="checkbox" value="白色" class="colorChoiceInput"><span>白色</span></label><label class="choice colorChoice"><input type="checkbox" value="米白" class="colorChoiceInput"><span>米白</span></label><label class="choice colorChoice"><input type="checkbox" value="灰色" class="colorChoiceInput"><span>灰色</span></label><label class="choice colorChoice"><input type="checkbox" value="藍色" class="colorChoiceInput"><span>藍色</span></label><label class="choice colorChoice"><input type="checkbox" value="紅色" class="colorChoiceInput"><span>紅色</span></label><label class="choice colorChoice"><input type="checkbox" value="綠色" class="colorChoiceInput"><span>綠色</span></label><label class="choice colorChoice"><input type="checkbox" value="咖啡色" class="colorChoiceInput"><span>咖啡色</span></label></div>
+          <div class="field" style="margin-top:10px"><label>新增顏色</label><div style="display:flex;gap:8px;align-items:stretch"><input id="customColorName" placeholder="例如：深藍、奶茶、粉紅"><button type="button" class="btn" id="addCustomColor">＋新增顏色</button></div><div class="small">新增後會保留在這台裝置，下次也可以直接選。</div></div></div><div id="genericSpec">'''
+          s2, n = re.subn(color_re, color_html, s, count=1, flags=re.S)
+          if n:
+              s = s2
+
+          # Add behavior for custom colors without disturbing the existing product/order/personal logic.
+          custom_js = r'''<script>
+(function(){
+  const KEY='laodie_merch_custom_colors_v1';
+  const fixed=['黑色','白色','米白','灰色','藍色','紅色','綠色','咖啡色'];
+  const getCustom=()=>{try{return JSON.parse(localStorage.getItem(KEY)||'[]').filter(x=>typeof x==='string'&&x.trim())}catch(e){return[]}};
+  const saveCustom=a=>localStorage.setItem(KEY,JSON.stringify([...new Set(a.map(x=>x.trim()).filter(Boolean))]));
+  function sync(){
+    const cat=document.getElementById('pCategory');
+    const selected=cat&&cat.selectedOptions[0]?cat.selectedOptions[0].textContent.trim():'';
+    if(!/衣服|外套/.test(selected))return;
+    const ss=[...document.querySelectorAll('.sizeChoice:checked')].map(x=>x.value);
+    const cs=[...document.querySelectorAll('.colorChoiceInput:checked')].map(x=>x.value);
+    const parts=[];if(ss.length)parts.push('尺寸：'+ss.join('、'));if(cs.length)parts.push('顏色：'+cs.join('、'));
+    document.getElementById('pSize').value=parts.join('｜');
+  }
+  function render(){
+    const box=document.getElementById('colorChoices');if(!box)return;
+    const current=(document.getElementById('pSize')?.value||'');
+    const saved=getCustom();
+    const fromSaved=current.match(/顏色：([^｜]+)/)?.[1]?.split('、').map(x=>x.trim()).filter(Boolean)||[];
+    const all=[...new Set([...saved,...fromSaved].filter(x=>x&&!fixed.includes(x)))];
+    box.querySelectorAll('.custom-color').forEach(x=>x.remove());
+    for(const c of all){
+      const label=document.createElement('label');label.className='choice colorChoice custom-color';
+      const input=document.createElement('input');input.type='checkbox';input.value=c;input.className='colorChoiceInput';
+      const span=document.createElement('span');span.textContent=c;label.append(input,span);box.appendChild(label);
+      input.addEventListener('change',sync);
+    }
+    box.querySelectorAll('.colorChoiceInput').forEach(x=>x.checked=false);
+    const selected=current.match(/顏色：([^｜]+)/)?.[1]?.split('、').map(x=>x.trim()).filter(Boolean)||[];
+    box.querySelectorAll('.colorChoiceInput').forEach(x=>{if(selected.includes(x.value))x.checked=true});
+  }
+  function init(){
+    const add=document.getElementById('addCustomColor'),input=document.getElementById('customColorName');
+    if(!add||!input)return;
+    add.onclick=()=>{const c=input.value.trim();if(!c)return;saveCustom([...getCustom(),c]);input.value='';render();const el=[...document.querySelectorAll('.colorChoiceInput')].find(x=>x.value===c);if(el){el.checked=true;sync()}};
+    document.querySelectorAll('.sizeChoice,.colorChoiceInput').forEach(x=>x.addEventListener('change',sync));
+    const oldEdit=window.editProduct;
+    if(oldEdit&&!oldEdit.__customColorWrapped){
+      const wrapped=function(i){oldEdit(i);setTimeout(render,30)};wrapped.__customColorWrapped=true;window.editProduct=wrapped;
+    }
+    const np=document.getElementById('newProduct');if(np)np.addEventListener('click',()=>setTimeout(render,50));
+    const cat=document.getElementById('pCategory');if(cat)cat.addEventListener('change',()=>setTimeout(render,30));
+    render();
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+})();
+</script>'''
+          if 'laodie_merch_custom_colors_v1' not in s:
+              s=s.replace('</body>',custom_js+'\n</body>')
           p.write_text(s, encoding='utf-8')
       - name: Commit repaired page
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add merch-admin.html
-          git diff --cached --quiet || git commit -m '修復週邊商品後台腳本與登入功能'
+          git diff --cached --quiet || git commit -m '新增週邊商品自訂顏色選擇'
           git push
