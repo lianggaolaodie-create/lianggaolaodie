@@ -59,4 +59,5 @@ $('pCategory').addEventListener('change',async()=>{if(window.editingProduct!==un
 const originalSaveProduct=$('saveProduct').onclick;
 $('saveProduct').onclick=async()=>{if(window.editingProduct===null&&!$('pCode').value){try{$('pCode').value=await generateProductCode()}catch(e){note('productEditMsg','商品編號產生失敗：'+e.message,true);return}}if(originalSaveProduct)await originalSaveProduct()};
 db.auth.getSession().then(async({data})=>{if(data.session){const er=await access(data.session.user);if(!er)open(data.session.user);else await db.auth.signOut()}});db.auth.onAuthStateChange((_e,s)=>{if(!s){} });
+</script>
 </body></html>
