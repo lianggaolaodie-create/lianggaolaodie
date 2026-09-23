@@ -14,7 +14,7 @@
 <body>
 <header class="top"><img class="logo" src="IMG_3238.png" alt="老爹涼糕 Logo"><nav class="nav"><a href="index.html">首頁</a><a href="rules.html">購買涼糕規則</a><a href="products.html">涼糕專區</a><a href="radish-cake.html">純米蘿蔔糕專區</a><a href="merch.html">周邊商品</a><a href="convenience.html">超商寄放取件方式</a><a href="about.html">關於老爹</a><a href="schedule.html">出攤時間</a><a href="contact.html">聯絡我們</a></nav></header>
 <section class="hero"><div class="eyebrow">SCHEDULE</div><h1>涼糕餐車出攤時間</h1><p>老爹・涼糕最新出攤行程</p><div class="line"></div></section>
-<main class="wrap"><div class="notice">📢 <strong>最新行程</strong><br>以下資料會直接讀取餐車／擺攤後台，新增或修改後官網會同步更新。<br>實際販售時間依當日現場狀況為準，售完即止。</div><div id="status" class="notice">⏳ 正在讀取最新出攤行程…</div><section id="scheduleList"></section></main>
+<main class="wrap"><section id="scheduleList"></section></main>
 <div class="back"><a href="index.html">← 返回老爹・涼糕首頁</a></div><footer>老爹・涼糕｜手工製作・新鮮現做</footer>
 <nav class="bottom"><a href="index.html"><span>⌂</span>首頁</a><a href="products.html"><span>🍡</span>產品介紹</a><a href="schedule.html"><span>📍</span>出攤資訊</a><a href="rules.html"><span>🛒</span>訂購方式</a><a href="contact.html"><span>💬</span>聯絡我們</a></nav>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -23,7 +23,6 @@
 const SUPABASE_URL='https://yemzdwxtyosuaczsqwea.supabase.co',SUPABASE_KEY='sb_publishable_7b4hgNL68yiYbec7fXToYQ_UxPE4sEB';
 const $=id=>document.getElementById(id),esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 const today=new Date().toLocaleDateString('en-CA',{timeZone:'Asia/Taipei'});
-function setStatus(t,ok){$('status').innerHTML=esc(t);if(ok){$('status').style.background='#edf8f1';$('status').style.borderColor='#cde8d7';$('status').style.color='#286d46'}}
 function maps(region){return region?'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(region):''}
 function formatTime(s){return s?s.slice(0,5):''}
 function render(rows,links,flavors){
@@ -48,8 +47,8 @@ try{
  if(r.error)throw r.error;
  const rows=r.data||[];let links=[],flavors=[];
  if(rows.length){const ids=rows.map(x=>x.id);const q=await sb.from('food_truck_schedule_flavors').select('schedule_id,flavor_id,price_per_box').in('schedule_id',ids);if(q.error)throw q.error;links=q.data||[];const f=await sb.from('flavors').select('id,name,price').eq('enabled',true).order('id');if(f.error)throw f.error;flavors=f.data||[]}
- render(rows,links,flavors);setStatus('✅ 官網已連接餐車／擺攤後台，資料會依後台設定顯示。',true)
-}catch(e){setStatus('⚠️ 暫時無法讀取最新行程，請稍後再試。');$('scheduleList').innerHTML='<div class="notice">目前無法連線到最新出攤資料，請稍後重新整理。</div>'}
+ render(rows,links,flavors)
+}catch(e){$('scheduleList').innerHTML='<div class="notice">目前無法連線到最新出攤資料，請稍後重新整理。</div>'}
 })();
 </script>
 </body>
