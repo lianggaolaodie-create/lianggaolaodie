@@ -76,6 +76,8 @@
  #sitePanel .switch{font-size:24px!important}
  #sitePanel .btn{width:auto!important;min-width:220px!important;font-size:20px!important}
 }
+</style><style id="marquee-full-editor">
+#sitePanel .marquee-full-text{min-height:260px!important}
 </style></head>
 <body>
 <div id="login" style="max-width:480px;margin:70px auto;padding:18px">
@@ -122,7 +124,7 @@
 const db=supabase.createClient('https://yemzdwxtyosuaczsqwea.supabase.co','sb_publishable_7b4hgNL68yiYbec7fXToYQ_UxPE4sEB',{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
 const $=id=>document.getElementById(id);
 const siteDefs=[
-{id:'marquee',title:'📢 跑馬燈管理',desc:'修改網站上方跑馬燈。',fields:[['text','跑馬燈文字','input'],['link','連結','input'],['enabled','顯示','check']]},
+{id:'marquee',title:'📢 跑馬燈管理',desc:'修改網站上方跑馬燈。完整內容會全部顯示，可直接編輯。',fields:[['text','跑馬燈完整文字','textarea'],['link','連結','input'],['enabled','顯示','check']]},
 {id:'activity',title:'🎉 最新活動管理',desc:'管理最新活動。',fields:[['title','活動標題','input'],['content','活動內容','textarea'],['image_url','圖片網址','input'],['enabled','顯示','check']]},
 {id:'rules',title:'📝 購買涼糕規則管理',desc:'管理購買規則與注意事項。',fields:[['content','規則內容','textarea'],['enabled','顯示','check']]},
 {id:'radish',title:'🥕 純米蘿蔔糕管理',desc:'管理蘿蔔糕專區。',fields:[['title','商品／專區名稱','input'],['content','介紹內容','textarea'],['price','價格','number'],['image_url','圖片網址','input'],['enabled','顯示','check']]},
