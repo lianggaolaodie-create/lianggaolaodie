@@ -47,6 +47,35 @@
   #siteTabs{grid-template-columns:1fr!important;gap:14px!important}
   #siteTabs a{min-height:72px!important;font-size:21px!important;padding:18px!important}
 }
+</style><style id="site-management-form-style">
+#siteMgmt{max-width:1000px!important;margin:0 auto!important;padding:18px!important}
+#siteMgmtTitle{font-size:34px!important;line-height:1.3!important;margin:0 0 14px!important}
+#sitePanel{background:#fff!important;border:1px solid #e4d9cf!important;border-radius:30px!important;padding:34px!important;box-shadow:0 8px 28px rgba(61,42,32,.08)!important}
+#sitePanel>.muted{font-size:20px!important;line-height:1.6!important;margin:0 0 34px!important}
+#sitePanel .grid{display:flex!important;flex-direction:column!important;gap:34px!important;width:100%!important}
+#sitePanel .field{width:100%!important;margin:0!important}
+#sitePanel .field label{display:block!important;font-size:26px!important;line-height:1.35!important;font-weight:900!important;margin:0 0 12px!important;color:#33251e!important}
+#sitePanel .field input:not([type=checkbox]),#sitePanel .field textarea{display:block!important;width:100%!important;box-sizing:border-box!important;background:#fff!important;border:2px solid #ddd3ca!important;border-radius:18px!important;padding:18px 20px!important;font-size:21px!important;line-height:1.6!important;color:#33251e!important;outline:none!important}
+#sitePanel .field input:not([type=checkbox]){min-height:72px!important}
+#sitePanel .field textarea{min-height:260px!important;resize:vertical!important}
+#sitePanel .field input:not([type=checkbox]):focus,#sitePanel .field textarea:focus{border-color:#b9aaa0!important;box-shadow:0 0 0 3px rgba(185,170,160,.16)!important}
+#sitePanel .switch{display:flex!important;align-items:center!important;gap:14px!important;font-size:24px!important;font-weight:900!important}
+#sitePanel .switch input{width:48px!important;height:48px!important;flex:none!important}
+#sitePanel .btn{margin-top:32px!important;min-height:64px!important;padding:14px 30px!important;border-radius:18px!important;font-size:21px!important;font-weight:900!important}
+#siteTabs{margin-bottom:18px!important}
+#sitePanel .card{border-radius:22px!important;padding:24px!important}
+@media(max-width:650px){
+ #siteMgmt{padding:10px!important}
+ #siteMgmtTitle{font-size:32px!important}
+ #sitePanel{padding:28px 22px!important;border-radius:26px!important}
+ #sitePanel>.muted{font-size:19px!important;margin-bottom:30px!important}
+ #sitePanel .grid{gap:38px!important}
+ #sitePanel .field label{font-size:25px!important;margin-bottom:12px!important}
+ #sitePanel .field input:not([type=checkbox]){min-height:76px!important;font-size:20px!important}
+ #sitePanel .field textarea{min-height:300px!important;font-size:20px!important}
+ #sitePanel .switch{font-size:24px!important}
+ #sitePanel .btn{width:auto!important;min-width:220px!important;font-size:20px!important}
+}
 </style></head>
 <body>
 <div id="login" style="max-width:480px;margin:70px auto;padding:18px">
