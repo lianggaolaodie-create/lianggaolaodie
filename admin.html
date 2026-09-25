@@ -34,7 +34,7 @@
 <script>
 const db=supabase.createClient('https://yemzdwxtyosuaczsqwea.supabase.co','sb_publishable_7b4hgNL68yiYbec7fXToYQ_UxPE4sEB',{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
 const $=id=>document.getElementById(id);
-async function access(u){const r=await db.from('admin_profiles').select('role,enabled').eq('user_id',u.id).maybeSingle();if(r.error)return r.error.message;if(!r.data)return'找不到管理員資料';if(!r.data.enabled)return'此帳號已停用';if(r.data.role!=='super_admin'&&r.data.role!=='admin')return'沒有後台管理權限';return null}
+async function access(u){const r=await db.from('admin_profiles').select('role,enabled').eq('user_id',u.id).maybeSingle();if(r.error)return r.error.message;if(!r.data)return'找不到管理員資料';if(!r.data.enabled)return'此帳號已停用';if(r.data.role!=='super_admin')return'沒有後台管理權限';return null}
 function show(u){$('login').style.display='none';$('app').style.display='flex';$('who').textContent=u.email}
 $('loginForm').onsubmit=async e=>{e.preventDefault();$('loginMsg').textContent='登入中…';const r=await db.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});if(r.error){$('loginMsg').textContent='登入失敗：'+r.error.message;return}const er=await access(r.data.user);if(er){await db.auth.signOut();$('loginMsg').textContent=er;return}show(r.data.user)};
 $('logout').onclick=()=>db.auth.signOut().then(()=>location.reload());
