@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>老爹．涼糕｜後台管理</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f6f3ef;color:#30251f;font-family:-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC",sans-serif}
+.layout{display:flex;min-height:100vh}.side{width:245px;background:#18283b;color:#fff;padding:18px 12px;position:sticky;top:0;height:100vh;overflow:auto}.brand{font-size:27px;font-weight:950;padding:8px 14px 22px}.group{color:#aeb9c5;font-size:12px;font-weight:900;padding:14px 14px 7px}.nav a{display:block;color:#fff;text-decoration:none;padding:12px 13px;border-radius:10px;font-weight:800;margin:3px 0}.nav a:hover,.nav a.active{background:#2f6fb5}.main{flex:1;min-width:0}.top{height:64px;background:#fff;border-bottom:1px solid #e4ddd6;display:flex;align-items:center;justify-content:space-between;padding:0 26px;position:sticky;top:0;z-index:5}.top b{font-size:20px}.wrap{max-width:1250px;margin:auto;padding:22px}.hero{background:linear-gradient(120deg,#4b2e20,#8f5a3b);color:#fff;border-radius:18px;padding:28px;margin-bottom:22px}.hero h1{margin:0 0 7px;font-size:30px}.hero p{margin:0;opacity:.9}.section{margin:22px 0}.section h2{font-size:20px;margin:0 0 12px}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.card{background:#fff;border:1px solid #e5ddd5;border-radius:16px;padding:16px;box-shadow:0 4px 16px rgba(50,35,25,.04)}.card h3{margin:0 0 7px;font-size:17px}.muted{color:#81766e;font-size:13px;line-height:1.55}.btn{display:inline-block;border:0;border-radius:10px;padding:10px 14px;background:#2d78c7;color:#fff;text-decoration:none;font-weight:900;cursor:pointer;margin-top:10px}.btn.gray{background:#756b65}.badge{display:inline-block;font-size:11px;padding:4px 8px;border-radius:99px;background:#edf7ef;color:#2e704b;font-weight:900}.new{background:#fff8e9}.maintenance{border:2px solid #8d6b3f}.logout{background:#eee7e1;color:#3c3028;border:0;border-radius:9px;padding:9px 12px;font-weight:900;cursor:pointer}
+@media(max-width:900px){.side{width:210px}.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:650px){.layout{display:block}.side{width:auto;height:auto;position:static}.nav{display:grid;grid-template-columns:1fr 1fr}.top{position:static}.grid{grid-template-columns:1fr}.wrap{padding:14px}}
+</style>
+</head>
+<body>
+<div id="login" style="max-width:480px;margin:70px auto;padding:18px">
+<div class="card"><div class="brand" style="color:#30251f;padding:0 0 10px">🍡 老爹．涼糕</div><p class="muted">後台管理系統</p>
+<form id="loginForm"><label>管理員 Email</label><input id="email" type="email" required style="width:100%;padding:12px;margin:6px 0 12px;border:1px solid #d8cec5;border-radius:10px"><label>密碼</label><input id="password" type="password" required style="width:100%;padding:12px;margin:6px 0 12px;border:1px solid #d8cec5;border-radius:10px"><button class="btn" style="width:100%">登入</button></form><div id="loginMsg" class="muted"></div></div></div>
+<div id="app" class="layout" style="display:none">
+<aside class="side"><div class="brand">老爹．涼糕<br><small style="font-size:10px;letter-spacing:4px">LAODAD</small></div>
+<div class="group">現有後台（維持原有）</div><nav class="nav">
+<a href="admin-schedule.html">🚚 涼糕餐車管理</a><a href="admin-schedule.html">🏪 擺攤管理</a><a href="admin-products.html">🍡 涼糕口味管理</a><a href="online-order.html">🛒 線上訂購</a><a href="merch-admin-v2.html">🎁 周邊商品管理</a><a href="admin-orders.html">📋 訂單管理</a>
+</nav><div class="group">新增管理功能</div><nav class="nav">
+<a class="active" href="admin.html">🏠 後台首頁</a><a href="admin-site.html">📢 跑馬燈／主頁內容</a><a href="admin-site.html#activity">🎉 最新活動</a><a href="admin-site.html#rules">📝 購買涼糕規則</a><a href="admin-site.html#radish">🥕 純米蘿蔔糕</a><a href="admin-site.html#about">ℹ️ 關於老爹</a><a href="admin-site.html#contact">📞 聯絡我們</a><a href="admin-site.html#social">📱 IG／Facebook</a><a href="admin-site.html#convenience">🏪 超商寄放</a><a href="admin-site.html#home">🏠 首頁管理</a><a href="admin-site.html#menu">☰ 選單管理</a><a href="admin-site.html#maintenance">🔧 維護模式</a>
+</nav><a href="index.html" style="color:#fff;display:block;margin:18px 13px;text-decoration:none">👁️ 查看官網</a></aside>
+<main class="main"><header class="top"><b>老爹．涼糕｜後台管理系統</b><div><span id="who" class="muted"></span> <button id="logout" class="logout">登出</button></div></header>
+<div class="wrap"><section class="hero"><h1>歡迎使用老爹．涼糕後台</h1><p>已經有後台的功能保留原樣；這裡新增沒有後台的網站選單管理。</p></section>
+<div class="section"><h2>現有後台</h2><div class="grid">
+<article class="card"><h3>🚚 涼糕餐車管理 <span class="badge">已有後台</span></h3><p class="muted">設定出攤日期、地區、時間、口味</p><a class="btn" href="admin-schedule.html">進入管理</a></article><article class="card"><h3>🏪 擺攤管理 <span class="badge">已有後台</span></h3><p class="muted">管理擺攤日期、地區與口味</p><a class="btn" href="admin-schedule.html">進入管理</a></article><article class="card"><h3>🍡 涼糕口味管理 <span class="badge">已有後台</span></h3><p class="muted">新增、修改、刪除口味與價格</p><a class="btn" href="admin-products.html">進入管理</a></article><article class="card"><h3>🛒 線上訂購管理 <span class="badge">已有後台</span></h3><p class="muted">沿用現有線上訂購功能</p><a class="btn" href="online-order.html">進入管理</a></article><article class="card"><h3>🎁 周邊商品管理 <span class="badge">已有後台</span></h3><p class="muted">沿用現有周邊商品後台</p><a class="btn" href="merch-admin-v2.html">進入管理</a></article><article class="card"><h3>📋 訂單管理 <span class="badge">已有後台</span></h3><p class="muted">沿用現有訂單後台</p><a class="btn" href="admin-orders.html">進入管理</a></article>
+</div></div>
+<div class="section"><h2>新增後台功能</h2><div class="grid">
+<article class="card new"><h3>📢 跑馬燈管理</h3><p class="muted">修改跑馬燈內容、排序、顯示／隱藏</p><a class="btn" href="admin-site.html#marquee">進入管理</a></article><article class="card new"><h3>🎉 最新活動管理</h3><p class="muted">新增、修改、刪除活動內容</p><a class="btn" href="admin-site.html#activity">進入管理</a></article><article class="card new"><h3>📝 購買涼糕規則</h3><p class="muted">管理購買規則與注意事項</p><a class="btn" href="admin-site.html#rules">進入管理</a></article><article class="card new"><h3>🥕 純米蘿蔔糕管理</h3><p class="muted">圖片、介紹、規格與價格</p><a class="btn" href="admin-site.html#radish">進入管理</a></article><article class="card new"><h3>ℹ️ 關於老爹管理</h3><p class="muted">品牌介紹、照片與文字</p><a class="btn" href="admin-site.html#about">進入管理</a></article><article class="card new"><h3>📞 聯絡我們管理</h3><p class="muted">電話、LINE、地址與聯絡資訊</p><a class="btn" href="admin-site.html#contact">進入管理</a></article><article class="card new"><h3>📱 IG／Facebook管理</h3><p class="muted">社群連結與顯示設定</p><a class="btn" href="admin-site.html#social">進入管理</a></article><article class="card new"><h3>🏪 超商寄放管理</h3><p class="muted">寄放費用與取件規則</p><a class="btn" href="admin-site.html#convenience">進入管理</a></article><article class="card new"><h3>🏠 首頁管理</h3><p class="muted">首頁圖片、文字、區塊與按鈕</p><a class="btn" href="admin-site.html#home">進入管理</a></article><article class="card new"><h3>☰ 選單管理</h3><p class="muted">選單名稱、順序、顯示／隱藏</p><a class="btn" href="admin-site.html#menu">進入管理</a></article><article class="card new"><h3>🔗 選單連結管理</h3><p class="muted">站內／外部連結設定</p><a class="btn" href="admin-site.html#menu">進入管理</a></article><article class="card new"><h3>🔧 維護模式</h3><p class="muted">開啟／關閉維護與維護訊息</p><a class="btn" href="admin-site.html#maintenance">進入管理</a></article>
+</div></div>
+</div></main></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const db=supabase.createClient('https://yemzdwxtyosuaczsqwea.supabase.co','sb_publishable_7b4hgNL68yiYbec7fXToYQ_UxPE4sEB',{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
+const $=id=>document.getElementById(id);
+async function access(u){const r=await db.from('admin_profiles').select('role,enabled').eq('user_id',u.id).maybeSingle();if(r.error)return r.error.message;if(!r.data)return'找不到管理員資料';if(!r.data.enabled)return'此帳號已停用';if(r.data.role!=='super_admin'&&r.data.role!=='admin')return'沒有後台管理權限';return null}
+function show(u){$('login').style.display='none';$('app').style.display='flex';$('who').textContent=u.email}
+$('loginForm').onsubmit=async e=>{e.preventDefault();$('loginMsg').textContent='登入中…';const r=await db.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});if(r.error){$('loginMsg').textContent='登入失敗：'+r.error.message;return}const er=await access(r.data.user);if(er){await db.auth.signOut();$('loginMsg').textContent=er;return}show(r.data.user)};
+$('logout').onclick=()=>db.auth.signOut().then(()=>location.reload());
+db.auth.getSession().then(async r=>{if(r.data.session){const er=await access(r.data.session.user);if(!er)show(r.data.session.user)}});
+</script>
+</body></html>
