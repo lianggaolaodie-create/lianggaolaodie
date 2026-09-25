@@ -26,7 +26,21 @@
   #siteTabs{flex-wrap:wrap!important}
 }
 </style>
-</head>
+<style id="site-form-size-fix">
+#sitePanel .grid{grid-template-columns:1fr!important;gap:18px!important}
+#sitePanel .field{width:100%!important}
+#sitePanel .field label{display:block!important;font-size:20px!important;font-weight:900!important;margin-bottom:8px!important}
+#sitePanel .field input:not([type="checkbox"]),#sitePanel .field textarea{width:100%!important;min-height:56px!important;padding:14px 16px!important;font-size:18px!important;border:1px solid #d8cec5!important;border-radius:14px!important;background:#fff!important}
+#sitePanel .field textarea{min-height:180px!important;resize:vertical!important;line-height:1.7!important}
+#sitePanel .field input[type="number"]{min-height:56px!important}
+#sitePanel .switch{font-size:20px!important}
+@media(max-width:650px){
+#sitePanel .card{padding:20px!important}
+#sitePanel .field label{font-size:21px!important}
+#sitePanel .field input:not([type="checkbox"]),#sitePanel .field textarea{font-size:18px!important}
+#sitePanel .field textarea{min-height:220px!important}
+}
+</style></head>
 <body>
 <div id="login" style="max-width:480px;margin:70px auto;padding:18px">
 <div class="card"><div class="brand" style="color:#30251f;padding:0 0 10px">🍡 老爹．涼糕</div><p class="muted">後台管理系統</p>
