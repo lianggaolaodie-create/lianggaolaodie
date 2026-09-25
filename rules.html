@@ -308,5 +308,5 @@
   © 老爹・涼糕｜官方企業網站
 </footer>
 
-</body>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script>const db=supabase.createClient('https://yemzdwxtyosuaczsqwea.supabase.co','sb_publishable_7b4hgNL68yiYbec7fXToYQ_UxPE4sEB');async function ac(id){const r=await db.from('site_admin_content').select('data').eq('section_id',id).maybeSingle();return r.data?.data||null}function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}function br(s){return esc(s).replace(/\n/g,'<br>')};ac('rules').then(d=>{if(!d?.enabled||!d.content)return;const main=document.querySelector('.rules');if(main){main.innerHTML='<section class="rule-card"><span class="rule-number">📝</span><span class="rule-title">官方購買規則</span><div style="margin-top:18px;line-height:1.9">'+br(d.content)+'</div></section><div class="thanks">❤️ 感謝大家支持老爹・涼糕 ❤️</div>'}});</script></body>
 </html>
