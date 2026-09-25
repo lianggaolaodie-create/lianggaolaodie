@@ -140,5 +140,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC","
 <a href="rules.html"><b>🛒</b>訂購方式</a>
 <a href="contact.html"><b>♙</b>聯絡我們</a>
 </nav>
-</body>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script>const db=supabase.createClient('https://yemzdwxtyosuaczsqwea.supabase.co','sb_publishable_7b4hgNL68yiYbec7fXToYQ_UxPE4sEB');async function ac(id){const r=await db.from('site_admin_content').select('data').eq('section_id',id).maybeSingle();return r.data?.data||null}function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}function br(s){return esc(s).replace(/\n/g,'<br>')};ac('convenience').then(d=>{if(!d?.enabled)return;const fees=document.querySelector('.tag');if(fees)fees.textContent='全家 NT
+</html>+Number(d.family_fee||30).toLocaleString()+'　｜　7-ELEVEN NT
+</html>+Number(d.seven_fee||45).toLocaleString();const fs=document.querySelector('.family .fee');if(fs)fs.textContent='寄放費 NT
+</html>+Number(d.family_fee||30).toLocaleString();const ss=document.querySelector('.seven .fee');if(ss)ss.textContent='寄放費 NT
+</html>+Number(d.seven_fee||45).toLocaleString();if(d.content){const n=document.querySelector('.notice');if(n){const ul=n.querySelector('ul');if(ul)ul.innerHTML='<li style="white-space:pre-line">'+br(d.content)+'</li>'}}});</script></body>
 </html>
