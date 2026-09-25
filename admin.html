@@ -48,6 +48,25 @@
 <article class="card new"><h3>📢 跑馬燈管理</h3><p class="muted">修改跑馬燈內容、排序、顯示／隱藏</p><a class="btn" href="admin.html#marquee">進入管理</a></article><article class="card new"><h3>🎉 最新活動管理</h3><p class="muted">新增、修改、刪除活動內容</p><a class="btn" href="#activity" class="site-link">進入管理</a></article><article class="card new"><h3>📝 購買涼糕規則</h3><p class="muted">管理購買規則與注意事項</p><a class="btn" href="#rules" class="site-link">進入管理</a></article><article class="card new"><h3>🥕 純米蘿蔔糕管理</h3><p class="muted">圖片、介紹、規格與價格</p><a class="btn" href="#radish" class="site-link">進入管理</a></article><article class="card new"><h3>ℹ️ 關於老爹管理</h3><p class="muted">品牌介紹、照片與文字</p><a class="btn" href="#about" class="site-link">進入管理</a></article><article class="card new"><h3>📞 聯絡我們管理</h3><p class="muted">電話、LINE、地址與聯絡資訊</p><a class="btn" href="#contact" class="site-link">進入管理</a></article><article class="card new"><h3>📱 IG／Facebook管理</h3><p class="muted">社群連結與顯示設定</p><a class="btn" href="#social" class="site-link">進入管理</a></article><article class="card new"><h3>🏪 超商寄放管理</h3><p class="muted">寄放費用與取件規則</p><a class="btn" href="#convenience" class="site-link">進入管理</a></article><article class="card new"><h3>🏠 首頁管理</h3><p class="muted">首頁圖片、文字、區塊與按鈕</p><a class="btn" href="#home" class="site-link">進入管理</a></article><article class="card new"><h3>☰ 選單管理</h3><p class="muted">選單名稱、順序、顯示／隱藏</p><a class="btn" href="#menu" class="site-link">進入管理</a></article><article class="card new"><h3>🔗 選單連結管理</h3><p class="muted">站內／外部連結設定</p><a class="btn" href="#menu" class="site-link">進入管理</a></article><article class="card new"><h3>🔧 維護模式</h3><p class="muted">開啟／關閉維護與維護訊息</p><a class="btn" href="#maintenance" class="site-link">進入管理</a></article>
 </div></div>
 </div><div id="siteMgmt" style="display:none;padding:22px;max-width:1250px;margin:auto"><div class="card"><h2 id="siteMgmtTitle" style="margin:0 0 8px">網站內容管理</h2><div id="siteTabs" style="display:flex;gap:8px;overflow:auto;margin:12px 0;flex-wrap:wrap"></div><div id="sitePanel"></div></div></div></main></div>
+<script>
+(function(){
+  function mobileFix(){
+    if(window.innerWidth<=900){
+      document.documentElement.style.width='100%';
+      document.body.style.width='100%';
+      document.body.style.overflowX='hidden';
+      var layout=document.querySelector('.layout');
+      var side=document.querySelector('.side');
+      var main=document.querySelector('.main');
+      if(layout){layout.style.display='block';layout.style.width='100%';layout.style.minWidth='0'}
+      if(side){side.style.width='100%';side.style.height='auto';side.style.position='relative';side.style.overflow='visible'}
+      if(main){main.style.width='100%';main.style.minWidth='0'}
+    }
+  }
+  mobileFix();
+  window.addEventListener('resize',mobileFix);
+})();
+</script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 const db=supabase.createClient('https://yemzdwxtyosuaczsqwea.supabase.co','sb_publishable_7b4hgNL68yiYbec7fXToYQ_UxPE4sEB',{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
