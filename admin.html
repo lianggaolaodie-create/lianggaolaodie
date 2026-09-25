@@ -40,6 +40,13 @@
 #sitePanel .field input:not([type="checkbox"]),#sitePanel .field textarea{font-size:18px!important}
 #sitePanel .field textarea{min-height:220px!important}
 }
+</style><style id="site-tabs-size-fix">
+#siteTabs{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:16px!important;width:100%!important}
+#siteTabs a{display:flex!important;align-items:center!important;justify-content:center!important;min-height:76px!important;padding:18px 20px!important;font-size:20px!important;line-height:1.35!important;text-align:center!important;border-radius:18px!important}
+@media(max-width:650px){
+  #siteTabs{grid-template-columns:1fr!important;gap:14px!important}
+  #siteTabs a{min-height:72px!important;font-size:21px!important;padding:18px!important}
+}
 </style></head>
 <body>
 <div id="login" style="max-width:480px;margin:70px auto;padding:18px">
