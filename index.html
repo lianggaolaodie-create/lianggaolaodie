@@ -49,51 +49,25 @@ a{color:inherit;text-decoration:none}
 </style>
 </head>
 <body>
-<main class="wrap">
-<header class="header">
-<a class="brand" href="index.html" aria-label="老爹涼糕首頁">
-<img class="logo" src="IMG_3238.png" alt="老爹涼糕">
-<div class="brand-text"><div class="brand-name">老爹．涼糕</div><div class="brand-sub">DAD’S RICE CAKE</div></div>
-<span class="seal">官方網站</span>
-</a>
-<a class="menu" href="products.html" aria-label="選單">☰<small>選單</small></a>
-</header>
-
-<section class="hero">
-<div class="hero-copy">
-<h1>傳承古早味<br>創造幸福滋味</h1>
-<div class="goldline">嚴選食材・手工製作・低糖低負擔</div>
-<p>堅持純粹手工製作，傳承古早味的美好與真誠。<br>每一口都是我們對品質的堅持與關心。</p>
-<a class="cta" href="products.html">🛒 立即選購美味</a>
-</div>
-</section>
-
-<section class="values">
-<div class="value"><div class="ico">🍃</div><b>嚴選食材</b><span>天然新鮮・安心美味</span></div>
-<div class="value"><div class="ico">♨</div><b>手工製作</b><span>每日手工・品質把關</span></div>
-<div class="value"><div class="ico">◇</div><b>低糖低負擔</b><span>健康配方・無負擔美味</span></div>
-<div class="value"><div class="ico">⚑</div><b>在地品牌</b><span>台灣製作・用心堅持</span></div>
-<div class="value"><div class="ico">♡</div><b>幸福滋味</b><span>傳遞幸福・分享美好</span></div>
-</section>
-
-<section class="section">
-<div class="title"><h2>產品中心</h2><small>PRODUCTS</small></div>
-<div class="products">
-<a class="card" href="products.html"><img src="product-brown-sugar-taro.jpg" alt="黑糖地瓜涼糕"><div class="ct"><h3>黑糖地瓜涼糕</h3><p>BROWN SUGAR SWEET POTATO</p><span class="more">查看詳情</span></div></a>
-<a class="card" href="products.html"><img src="product-taro.png" alt="黑糖芋頭涼糕"><div class="ct"><h3>黑糖芋頭涼糕</h3><p>BROWN SUGAR TARO</p><span class="more">查看詳情</span></div></a>
-<a class="card" href="products.html"><img src="product-grass-jelly.jpg" alt="仙草涼糕"><div class="ct"><h3>仙草涼糕</h3><p>GRASS JELLY</p><span class="more">查看詳情</span></div></a>
-<a class="card" href="products.html"><img src="product-almond.jpg" alt="巧克力涼糕"><div class="ct"><h3>巧克力涼糕</h3><p>CHOCOLATE</p><span class="more">查看詳情</span></div></a>
-<a class="card" href="products.html"><img src="product-fruit.jpg" alt="水果綜合涼糕"><div class="ct"><h3>水果綜合涼糕</h3><p>FRUIT COMBINATION</p><span class="more">查看詳情</span></div></a>
-<a class="card" href="products.html"><img src="product-pudding.jpg" alt="夾心系列"><div class="ct"><h3>夾心系列</h3><p>SANDWICH SERIES</p><span class="more">查看詳情</span></div></a>
-</div>
-</section>
-
-<section class="stats">
-<div class="stat"><div class="num">100%</div><b>每日手工製作</b><span>堅持新鮮・當日製作</span></div>
-<div class="stat"><div class="num">98%</div><b>顧客滿意度</b><span>用心把關・品質第一</span></div>
-<div class="stat"><div class="num">100萬+</div><b>累積銷售數量</b><span>感謝顧客支持與愛護</span></div>
-</section>
-<footer class="footer"><div>市集・活動・企業合作　　企業團購・客服服務</div><div>DAD’S RICE CAKE</div></footer>
-</main>
+<main id="homeRoot" class="wrap" aria-label="老爹．涼糕官方首頁"></main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(async function(){
+  const root=document.getElementById('homeRoot');
+  const db=supabase.createClient('https://yemzdwxtyosuaczsqwea.supabase.co','sb_publishable_7b4hgNL68yiYbec7fXToYQ_UxPE4sEB');
+  try{
+    const r=await db.from('site_admin_content').select('data').eq('section_id','home').maybeSingle();
+    const url=r.data&&r.data.data&&r.data.data.image_url;
+    if(url){
+      root.innerHTML='<img id="uploadedHome" src="'+url+'" alt="老爹．涼糕首頁">';
+      const img=document.getElementById('uploadedHome');
+      img.style.cssText='display:block;width:100%;height:auto;margin:0;padding:0;';
+      document.body.style.background='#f8f0e3';
+      return;
+    }
+  }catch(e){}
+  root.innerHTML='<header class="header"><a class="brand" href="index.html"><img class="logo" src="IMG_3238.png" alt="老爹涼糕"><div class="brand-text"><div class="brand-name">老爹．涼糕</div><div class="brand-sub">DAD’S RICE CAKE</div></div><span class="seal">官方網站</span></a><a class="menu" href="products.html">☰<small>選單</small></a></header><section class="hero"><div class="hero-copy"><h1>傳承古早味<br>創造幸福滋味</h1><div class="goldline">嚴選食材・手工製作・低糖低負擔</div><p>堅持純粹手工製作，傳承古早味的美好與真誠。</p><a class="cta" href="products.html">🛒 立即選購美味</a></div></section>';
+})();
+</script>
 </body>
 </html>
