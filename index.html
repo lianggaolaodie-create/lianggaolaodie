@@ -82,58 +82,15 @@ a{color:inherit;text-decoration:none}
 
 </style>
 <script>
-(async function(){
-  const root=document.getElementById('homeRoot');
-  // 先顯示後台目前已知的首頁圖，避免 Supabase 查詢瞬間失敗時又掉回舊黑色首頁
-  const fallbackHomeImage='https://yemzdwxtyosuaczsqwea.supabase.co/storage/v1/object/public/site-images/home/homepage-1790434111140.png';
-  function renderHomeImage(url){
-    if(!url)return;
-    const cacheBusted=url+(url.includes('?')?'&':'?')+'v='+Date.now();
-    root.innerHTML='<img id="uploadedHome" src="'+cacheBusted+'" alt="老爹．涼糕首頁">'
-      +'<a class="hot-nav nav-home" href="index.html" aria-label="首頁"></a>'
-      +'<a class="hot-nav nav-about" href="about.html" aria-label="關於我們"></a>'
-      +'<a class="hot-nav nav-products" href="products.html" aria-label="涼糕介紹"></a>'
-      +'<a class="hot-nav nav-flavor" href="products.html" aria-label="當日口味"></a>'
-      +'<a class="hot-nav nav-order1" href="online-order.html" aria-label="購買方式"></a>'
-      +'<a class="hot-nav nav-order2" href="online-order.html" aria-label="購買方式"></a>'
-      +'<a class="hot-nav nav-news" href="activity.html" aria-label="最新消息"></a>'
-      +'<a class="hot-nav nav-contact" href="contact.html" aria-label="聯絡我們"></a>'
-      +'<a class="home-hot hot-menu" href="#" aria-label="選單"></a>'
-      +'<a class="home-hot hot-ig" href="https://www.instagram.com/b_dad_67687/" target="_blank" rel="noopener" aria-label="Instagram"></a>'
-      +'<a class="home-hot hot-fb" href="https://www.facebook.com/laodielianggao" target="_blank" rel="noopener" aria-label="Facebook"></a>'
-      +'<a class="home-hot hot-tt" href="https://www.tiktok.com/@aaa9999kai" target="_blank" rel="noopener" aria-label="TikTok"></a>'
-      +'<a class="home-hot hot-search" href="products.html" aria-label="搜尋"></a>'
-      +'<a class="home-hot hot-marquee" href="activity.html" aria-label="跑馬燈"></a>'
-      +'<a class="home-hot hot-hero-order" href="online-order.html" aria-label="線上訂購"></a>'
-      +'<a class="home-hot hot-hero-schedule" href="schedule.html" aria-label="餐車時程"></a>'
-      +'<a class="home-hot hot-hero-flavor" href="products.html" aria-label="當日口味"></a>'
-      +'<a class="home-hot hot-hero-news" href="activity.html" aria-label="最新消息"></a>'
-      +'<a class="home-hot hot-flavor1" href="products.html" aria-label="伯爵芋頭"></a>'
-      +'<a class="home-hot hot-flavor2" href="products.html" aria-label="抹茶巧克力"></a>'
-      +'<a class="home-hot hot-flavor3" href="products.html" aria-label="水果涼糕"></a>'
-      +'<a class="home-hot hot-flavor4" href="products.html" aria-label="杏仁涼糕"></a>'
-      +'<a class="home-hot hot-about" href="about.html" aria-label="關於老爹"></a>'
-      +'<a class="home-hot hot-bottom1" href="schedule.html" aria-label="今日出攤資訊"></a>'
-      +'<a class="home-hot hot-bottom2" href="online-order.html" aria-label="線上訂購"></a>'
-      +'<a class="home-hot hot-bottom3" href="https://www.facebook.com/laodielianggao" target="_blank" rel="noopener" aria-label="追蹤我們"></a>'
-      +'<div id="mobileMenu" class="mobile-menu" aria-hidden="true"><div class="mobile-menu-box"><button type="button" class="mobile-menu-close" aria-label="關閉">×</button><div id="menuItems"></div></div></div>'
-      +'<a id="marqueeLive" class="marquee-live" href="activity.html" aria-label="跑馬燈"><span id="marqueeText"></span></a>';
-      document.body.style.background='#f8f0e3';
-      return;
-  }
-  // 先直接顯示目前後台首頁圖，避免首頁因資料庫讀取失敗而空白
-  renderHomeImage(fallbackHomeImage);
-  return;
-  root.innerHTML='<header class="header"><a class="brand" href="index.html"><img class="logo" src="IMG_3238.png" alt="老爹涼糕"><div class="brand-text"><div class="brand-name">老爹．涼糕</div><div class="brand-sub">DAD’S RICE CAKE</div></div><span class="seal">官方網站</span></a><a class="menu" href="products.html">☰<small>選單</small></a></header><section class="hero"><div class="hero-copy"><h1>傳承古早味<br>創造幸福滋味</h1><div class="goldline">嚴選食材・手工製作・低糖低負擔</div><p>堅持純粹手工製作，傳承古早味的美好與真誠。</p><a class="cta" href="products.html">🛒 立即選購美味</a></div></section>';
+(function(){
+const root=document.getElementById('homeRoot');
+const img='https://yemzdwxtyosuaczsqwea.supabase.co/storage/v1/object/public/site-images/home/homepage-1790434111140.png';
+root.innerHTML='<img id="uploadedHome" src="'+img+'?v='+Date.now()+'" alt="老爹．涼糕首頁">'
++'<a class="hot-nav nav-home" href="index.html"></a><a class="hot-nav nav-about" href="about.html"></a><a class="hot-nav nav-products" href="products.html"></a><a class="hot-nav nav-flavor" href="products.html"></a><a class="hot-nav nav-order1" href="online-order.html"></a><a class="hot-nav nav-order2" href="online-order.html"></a><a class="hot-nav nav-news" href="activity.html"></a><a class="hot-nav nav-contact" href="contact.html"></a><a class="home-hot hot-menu" href="#"></a><a class="home-hot hot-marquee" href="activity.html"></a><a class="home-hot hot-hero-order" href="online-order.html"></a><a class="home-hot hot-hero-schedule" href="schedule.html"></a><a class="home-hot hot-hero-flavor" href="products.html"></a><a class="home-hot hot-hero-news" href="activity.html"></a><a class="home-hot hot-flavor1" href="products.html"></a><a class="home-hot hot-flavor2" href="products.html"></a><a class="home-hot hot-flavor3" href="products.html"></a><a class="home-hot hot-flavor4" href="products.html"></a><a class="home-hot hot-about" href="about.html"></a><a class="home-hot hot-bottom1" href="schedule.html"></a><a class="home-hot hot-bottom2" href="online-order.html"></a><a class="home-hot hot-bottom3" href="https://www.facebook.com/laodielianggao" target="_blank"></a><div id="mobileMenu" class="mobile-menu" aria-hidden="true"><div class="mobile-menu-box"><button type="button" class="mobile-menu-close">×</button><div id="menuItems"></div></div></div><a id="marqueeLive" class="marquee-live" href="activity.html"><span id="marqueeText">老爹．涼糕 最新消息</span></a>';
+const panel=document.getElementById('mobileMenu'),items=[['首頁','index.html'],['最新活動','activity.html'],['購買涼糕規則','rules.html'],['涼糕專區','products.html'],['純米蘿蔔糕專區','radish-cake.html'],['周邊商品','merch.html'],['線上訂購','online-order.html'],['Facebook 粉絲專頁','https://www.facebook.com/laodielianggao'],['Instagram','https://www.instagram.com/b_dad_67687/'],['超商寄放取件方式','convenience.html'],['關於老爹','about.html'],['出攤時間','schedule.html'],['聯絡我們','contact.html']];
+if(panel)document.getElementById('menuItems').innerHTML=items.map(x=>'<a href="'+x[1]+'">'+x[0]+'</a>').join('');
+document.addEventListener('click',function(e){const m=e.target.closest('.hot-menu'),p=document.getElementById('mobileMenu');if(m&&p){e.preventDefault();p.classList.add('open');p.setAttribute('aria-hidden','false')}if(p&&(e.target.closest('.mobile-menu-close')||e.target===p)){p.classList.remove('open');p.setAttribute('aria-hidden','true')}});
 })();
-function openMobileMenu(){const panel=document.getElementById('mobileMenu');if(panel){panel.classList.add('open');panel.setAttribute('aria-hidden','false')}}function closeMobileMenu(){const panel=document.getElementById('mobileMenu');if(panel){panel.classList.remove('open');panel.setAttribute('aria-hidden','true')}}async function loadHomepageControls(){try{const [mr]=await Promise.all([db.from('site_admin_content').select('data').eq('section_id','marquee').maybeSingle()]);const md=mr.data?.data||{};const mt=document.getElementById('marqueeText'),ml=document.getElementById('marqueeLive');if(mt&&md.enabled!==false){mt.textContent=md.text||'老爹．涼糕 最新消息';if(md.link)ml.href=md.link}else if(ml){ml.style.display='none'}const panel=document.getElementById('menuItems');const items=[{name:'首頁',url:'index.html'},{name:'最新活動',url:'activity.html'},{name:'購買涼糕規則',url:'rules.html'},{name:'涼糕專區',url:'products.html'},{name:'純米蘿蔔糕專區',url:'radish-cake.html'},{name:'周邊商品',url:'merch.html'},{name:'線上訂購',url:'online-order.html'},{name:'Facebook 粉絲專頁',url:'https://www.facebook.com/laodielianggao'},{name:'Instagram',url:'https://www.instagram.com/b_dad_67687/'},{name:'超商寄放取件方式',url:'convenience.html'},{name:'關於老爹',url:'about.html'},{name:'出攤時間',url:'schedule.html'},{name:'聯絡我們',url:'contact.html'}];if(panel)panel.innerHTML=items.map(x=>'<a href="'+String(x.url).replace(/"/g,'&quot;')+'">'+String(x.name).replace(/</g,'&lt;')+'</a>').join('')}catch(e){}}document.addEventListener('click',function(e){
-  const about=e.target.closest('.hot-about'); if(about){e.preventDefault();e.stopImmediatePropagation();window.location.href='about.html';return}\n  const menu=e.target.closest('.hot-menu');
-  const panel=document.getElementById('mobileMenu');
-  if(menu&&panel){e.preventDefault();openMobileMenu();return}
-  if(panel&&(e.target.closest('.mobile-menu-close')||e.target===panel)){e.preventDefault();closeMobileMenu();}
-});
-document.addEventListener('DOMContentLoaded',loadHomepageControls);
-loadHomepageControls();
 </script>
 </body>
 </html>
