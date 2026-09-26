@@ -68,7 +68,7 @@ html,body{margin:0;padding:0;background:#f8f0e3}
 <a class="hot nav-news" href="activity.html" aria-label="最新活動"></a>
 <a class="hot nav-contact" href="contact.html" aria-label="聯絡我們"></a>
 
-<a class="hot marquee-live" href="activity.html"><span>老爹．涼糕 最新消息</span></a>
+<a id="marqueeLive" class="hot marquee-live" href="activity.html" aria-label="最新消息"><span id="marqueeLiveText"></span></a>
 
 <a class="hot hero-order" href="online-order.html" aria-label="線上訂購"></a>
 <a class="hot hero-schedule" href="schedule.html" aria-label="出攤時間"></a>
@@ -114,5 +114,32 @@ html,body{margin:0;padding:0;background:#f8f0e3}
   </div>
 </div>
 </main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function(){
+  const client=supabase.createClient('https://yemzdwxtyosuaczsqwea.supabase.co','sb_publishable_7b4hgNL68yiYbec7fXToYQ_UxPE4sEB');
+  const link=document.getElementById('marqueeLive');
+  const text=document.getElementById('marqueeLiveText');
+  if(!link||!text)return;
+  async function loadMarquee(){
+    try{
+      const r=await client.from('site_admin_content').select('data').eq('section_id','marquee').maybeSingle();
+      if(r.error)throw r.error;
+      const d=r.data&&r.data.data?r.data.data:{};
+      if(d.enabled===false||!d.text){link.style.display='none';return;}
+      text.textContent=d.text;
+      link.href=d.link||'activity.html';
+      link.style.display='flex';
+    }catch(e){
+      text.textContent='老爹．涼糕｜最新消息請看官網';
+      link.href='activity.html';
+      link.style.display='flex';
+      console.warn('跑馬燈同步失敗',e);
+    }
+  }
+  loadMarquee();
+})();
+</script>
 </body>
 </html>
