@@ -81,9 +81,7 @@ a{color:inherit;text-decoration:none}
 @keyframes marqueeRun{from{transform:translateX(0)}to{transform:translateX(-100%)}}
 
 </style>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const db=supabase.createClient('https://yemzdwxtyosuaczsqwea.supabase.co','sb_publishable_7b4hgNL68yiYbec7fXToYQ_UxPE4sEB',{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}});
 (async function(){
   const root=document.getElementById('homeRoot');
   // 先顯示後台目前已知的首頁圖，避免 Supabase 查詢瞬間失敗時又掉回舊黑色首頁
