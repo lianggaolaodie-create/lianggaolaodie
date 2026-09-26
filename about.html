@@ -2,18 +2,18 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="index,follow">
 <title>關於老爹．涼糕｜認識老爹</title>
 <style>
-html,body{margin:0;padding:0;background:#f8f0e3;color:#4b2d20;font-family:Arial,"Microsoft JhengHei","Noto Sans TC",sans-serif}
+html,body{margin:0;padding:0;background:#f8f0e3;color:#4b2d20;font-family:-apple-system,BlinkMacSystemFont,"PingFang TC","Microsoft JhengHei","Noto Sans TC",sans-serif}
 *{box-sizing:border-box}
 header{background:#fffaf2;border-bottom:1px solid #ead9c7;padding:14px 18px}
-.header-inner{max-width:1100px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:16px}
-.brand{font-size:24px;font-weight:900;color:#5a301d;text-decoration:none}
-nav{display:flex;flex-wrap:wrap;gap:12px}
-nav a{color:#5a301d;text-decoration:none;font-weight:800;font-size:14px;padding:7px 4px}
-main{max-width:900px;margin:0 auto;padding:35px 16px 90px}
+.header-inner{max-width:1100px;margin:auto;display:flex;align-items:center;gap:18px}
+.brand{font-size:24px;font-weight:900;color:#5a301d;text-decoration:none;white-space:nowrap}
+nav{display:flex;flex-wrap:wrap;gap:7px 12px;flex:1}
+nav a{color:#5a301d;text-decoration:none;font-weight:800;font-size:14px;padding:8px 4px;white-space:nowrap}
+main{max-width:900px;margin:0 auto;padding:35px 16px 70px}
 .hero{text-align:center;padding:25px 0 30px}
 .hero h1{margin:0 0 8px;font-size:38px}
 .hero p{margin:0;color:#846b5a}
@@ -25,20 +25,38 @@ p{font-size:17px;line-height:2;margin:0 0 18px}
 .back{text-align:center;margin-top:25px}
 .back a{display:inline-block;padding:11px 24px;border-radius:99px;background:#fff;color:#5a301d;text-decoration:none;font-weight:800;border:1px solid #dfcdbb}
 footer{text-align:center;padding:25px 15px;background:#3e281d;color:#fff;font-size:13px}
-.bottom{position:fixed;left:10px;right:10px;bottom:10px;margin:auto;max-width:600px;background:#fff;border:1px solid #e1d2c4;border-radius:18px;padding:8px;display:grid;grid-template-columns:repeat(5,1fr);box-shadow:0 5px 20px rgba(0,0,0,.12)}
-.bottom a{text-align:center;text-decoration:none;color:#5a301d;font-size:11px;font-weight:800}.bottom b{display:block;font-size:19px}
-@media(max-width:650px){.header-inner{display:block;text-align:center}.brand{display:block;margin-bottom:8px}nav{justify-content:center;gap:6px 12px}nav a{font-size:12px}.hero h1{font-size:32px}.card{padding:24px 18px}p{font-size:16px}}
+@media(max-width:700px){
+  header{padding:10px 12px}
+  .header-inner{display:block;text-align:center}
+  .brand{display:block;font-size:23px;margin:0 0 8px}
+  nav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px 6px;width:100%}
+  nav a{font-size:12px;padding:9px 2px;overflow:hidden;text-overflow:ellipsis}
+  main{padding:28px 12px 55px}
+  .hero{padding:20px 0 25px}
+  .hero h1{font-size:32px}
+  .card{padding:24px 18px;border-radius:20px}
+  h2{font-size:24px}
+  p{font-size:16px;line-height:1.9}
+  .quote{font-size:18px;padding:18px}
+}
 </style>
 </head>
 <body>
 <header>
 <div class="header-inner">
 <a class="brand" href="index.html">老爹．涼糕</a>
-<nav>
+<nav aria-label="主要選單">
 <a href="index.html">首頁</a>
 <a href="activity.html">最新活動</a>
+<a href="rules.html">購買涼糕規則</a>
 <a href="products.html">涼糕專區</a>
+<a href="radish-cake.html">純米蘿蔔糕專區</a>
+<a href="merch.html">周邊商品</a>
 <a href="online-order.html">線上訂購</a>
+<a href="https://www.facebook.com/laodielianggao" target="_blank" rel="noopener">Facebook</a>
+<a href="https://www.instagram.com/b_dad_67687/" target="_blank" rel="noopener">Instagram</a>
+<a href="convenience.html">超商寄放取件方式</a>
+<a href="about.html" aria-current="page">關於老爹</a>
 <a href="schedule.html">出攤時間</a>
 <a href="contact.html">聯絡我們</a>
 </nav>
@@ -61,12 +79,5 @@ footer{text-align:center;padding:25px 15px;background:#3e281d;color:#fff;font-si
 <div class="back"><a href="index.html">← 回到首頁</a></div>
 </main>
 <footer>© 老爹．涼糕｜官方網站</footer>
-<div class="bottom">
-<a href="index.html"><b>⌂</b>首頁</a>
-<a href="products.html"><b>🍡</b>產品</a>
-<a href="schedule.html"><b>📍</b>出攤</a>
-<a href="rules.html"><b>🛒</b>購買</a>
-<a href="contact.html"><b>☎</b>聯絡</a>
-</div>
 </body>
 </html>
