@@ -10,7 +10,7 @@ html,body{margin:0;padding:0;background:#f8f0e3}
 .page{position:relative;width:100%;max-width:709px;margin:auto;line-height:0;overflow:hidden}
 .page img{display:block;width:100%;height:auto}
 .hot{position:absolute;display:block;background:transparent;z-index:10;-webkit-tap-highlight-color:transparent}
-.menu{top:.15%;right:0;width:12%;height:3%;z-index:90}
+.menu{top:.15%;right:0;width:12%;height:3%;z-index:9999999!important;pointer-events:auto!important}
 .nav-home{top:.15%;left:25.5%;width:6%;height:3%}
 .nav-about{top:.15%;left:31.5%;width:9%;height:3%}
 .nav-products{top:.15%;left:40.5%;width:9.5%;height:3%}
@@ -31,9 +31,9 @@ html,body{margin:0;padding:0;background:#f8f0e3}
 .bottom1{top:84.5%;left:2%;width:31%;height:7%;z-index:300;pointer-events:auto}
 .bottom2{top:91.5%;left:35%;width:31%;height:8%}
 .bottom3{top:91.5%;left:68%;width:30%;height:8%}
-.mobile-menu{position:absolute;inset:0;z-index:2000000;display:none;background:rgba(0,0,0,.45);line-height:1.2}
-.mobile-menu.open{display:block}
-.mobile-menu-box{position:absolute;top:6.5%;right:2%;width:54%;max-height:88%;overflow:auto;background:#fffaf1;border-radius:14px;box-shadow:0 8px 30px rgba(0,0,0,.25);padding:42px 18px 18px}
+.mobile-menu{position:absolute;inset:0;z-index:2000000;pointer-events:none;display:none;background:rgba(0,0,0,.45);line-height:1.2}
+.mobile-menu.open{display:block;pointer-events:auto}
+.mobile-menu-box{position:absolute;z-index:2000001;pointer-events:auto;top:6.5%;right:2%;width:54%;max-height:88%;overflow:auto;background:#fffaf1;border-radius:14px;box-shadow:0 8px 30px rgba(0,0,0,.25);padding:42px 18px 18px}
 .mobile-menu-box a{display:block;padding:14px 10px;border-bottom:1px solid #eadcca;color:#4d2413;font-size:17px;font-weight:800;text-decoration:none}
 .mobile-menu-close{position:absolute;right:10px;top:6px;border:0;background:none;font-size:32px;color:#4d2413;line-height:1}
 .marquee-live{position:absolute;top:9.45%;left:9%;right:7%;height:3.7%;z-index:70;display:flex;align-items:center;overflow:hidden;background:transparent;color:#fff;text-decoration:none;line-height:1;pointer-events:auto}
@@ -45,7 +45,7 @@ html,body{margin:0;padding:0;background:#f8f0e3}
 <main class="page">
 <img src="https://yemzdwxtyosuaczsqwea.supabase.co/storage/v1/object/public/site-images/home/homepage-1790434111140.png" alt="老爹．涼糕官方首頁">
 
-<a class="hot menu" href="#" aria-label="選單"></a>
+<a class="hot menu" href="#menu" aria-label="選單" onclick="document.getElementById('mobileMenu').classList.add('open');document.getElementById('mobileMenu').setAttribute('aria-hidden','false');return false;"></a>
 
 <a class="hot nav-home" href="index.html" aria-label="首頁"></a>
 <a class="hot nav-about" href="about.html" aria-label="關於老爹"></a>
