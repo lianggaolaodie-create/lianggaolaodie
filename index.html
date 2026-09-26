@@ -59,7 +59,10 @@ a{color:inherit;text-decoration:none}
 .hot-fb{top:7.0%;right:20.8%;width:7%;height:4%}
 .hot-tt{top:7.0%;right:12.5%;width:7%;height:4%}
 .hot-search{top:7.0%;right:7.8%;width:6%;height:4%}
-.hot-marquee{top:9%;left:0;width:100%;height:5%}
+.hot-marquee{top:14.1%;left:0;width:100%;height:3.1%}
+.marquee-live{position:absolute;top:14.15%;left:8.5%;right:8.5%;height:2.8%;z-index:35;display:flex;align-items:center;overflow:hidden;background:#b00018;color:#fff;text-decoration:none;line-height:1}
+.marquee-live span{display:inline-block;white-space:nowrap;font-size:clamp(11px,2.05vw,15px);font-weight:700;letter-spacing:.3px;padding-left:100%;animation:marqueeRun 13s linear infinite}
+@keyframes marqueeRun{from{transform:translateX(0)}to{transform:translateX(-100%)}}
 .hot-hero-order{top:44%;left:26%;width:23%;height:7%}
 .hot-hero-schedule{top:44%;left:2%;width:23%;height:7%}
 .hot-hero-flavor{top:44%;left:50%;width:23%;height:7%}
@@ -88,7 +91,7 @@ a{color:inherit;text-decoration:none}
       +'<a class="home-hot hot-fb" href="https://www.facebook.com/laodielianggao" target="_blank" rel="noopener" aria-label="Facebook"></a>'
       +'<a class="home-hot hot-tt" href="https://www.tiktok.com/@aaa9999kai" target="_blank" rel="noopener" aria-label="TikTok"></a>'
       +'<a class="home-hot hot-search" href="products.html" aria-label="搜尋"></a>'
-      +'<a class="home-hot hot-marquee" href="activity.html" aria-label="跑馬燈"></a>'
+      +'<a class="home-hot hot-marquee" href="activity.html" aria-label="跑馬燈"></a>'+'<a class="marquee-live" href="activity.html" aria-label="跑馬燈訊息"><span>雙十連假出攤資訊陸續更新中，建議提前 3～5 天預訂，謝謝大家的支持！</span></a>'
       +'<a class="home-hot hot-hero-order" href="online-order.html" aria-label="線上訂購"></a>'
       +'<a class="home-hot hot-hero-schedule" href="schedule.html" aria-label="餐車時程"></a>'
       +'<a class="home-hot hot-hero-flavor" href="products.html" aria-label="當日口味"></a>'
