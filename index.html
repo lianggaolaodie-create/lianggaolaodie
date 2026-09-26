@@ -51,30 +51,28 @@ a{color:inherit;text-decoration:none}
 <body>
 <main id="homeRoot" class="wrap home-image" aria-label="老爹．涼糕官方首頁"></main>
 <style>
-.home-image{position:relative;width:min(100%,709px);margin:0 auto;line-height:0;overflow:hidden}
-.home-image #uploadedHome{display:block;width:100%;height:auto}
+.home-image{position:relative;width:min(100%,709px);height:calc(min(100vw,709px) * 1309 / 709);margin:0 auto;line-height:0;overflow:hidden;background:#f8f0e3}
+.home-image #uploadedHome{display:block;position:absolute;left:0;top:-7.33%;width:100%;height:auto;max-width:none}
 .home-hot{position:absolute;display:block;z-index:20;background:transparent;-webkit-tap-highlight-color:transparent}
-.hot-menu{top:7.55%;right:1.8%;width:6.5%;height:3.2%;z-index:60}
-.hot-ig{top:7.45%;right:28.0%;width:6.5%;height:3.2%;z-index:60}
-.hot-fb{top:7.45%;right:20.0%;width:6.5%;height:3.2%;z-index:60}
-.hot-tt{top:7.45%;right:12.0%;width:6.5%;height:3.2%;z-index:60}
-.hot-search{top:7.45%;right:5.8%;width:6.5%;height:3.2%;z-index:60}
-.hot-marquee{top:14.35%;left:0;width:100%;height:3.0%;z-index:50}
-.marquee-live{position:absolute;top:14.15%;left:8.5%;right:8.5%;height:2.8%;z-index:35;display:flex;align-items:center;overflow:hidden;background:#b00018;color:#fff;text-decoration:none;line-height:1}
-.marquee-live span{display:inline-block;white-space:nowrap;font-size:clamp(11px,2.05vw,15px);font-weight:700;letter-spacing:.3px;padding-left:100%;animation:marqueeRun 13s linear infinite}
-@keyframes marqueeRun{from{transform:translateX(0)}to{transform:translateX(-100%)}}
-.hot-hero-order{top:44.65%;left:27.0%;width:24.0%;height:5.2%;z-index:60}
-.hot-hero-schedule{top:44.65%;left:2.0%;width:24.0%;height:5.2%;z-index:60}
-.hot-hero-flavor{top:44.65%;left:52.0%;width:24.0%;height:5.2%;z-index:60}
-.hot-hero-news{top:44.65%;left:76.0%;width:22.0%;height:5.2%;z-index:60}
-.hot-flavor1{top:57.1%;left:2.0%;width:24.5%;height:13.7%;z-index:60}
-.hot-flavor2{top:57.1%;left:26.5%;width:24.5%;height:13.7%;z-index:60}
-.hot-flavor3{top:57.1%;left:51.0%;width:24.5%;height:13.7%;z-index:60}
-.hot-flavor4{top:57.1%;left:75.5%;width:23%;height:13.7%;z-index:60}
-.hot-about{top:85.0%;left:5.0%;width:21%;height:3.2%;z-index:60}
-.hot-bottom1{top:90.3%;left:2.0%;width:31%;height:5.0%;z-index:60}
-.hot-bottom2{top:90.3%;left:35%;width:31%;height:5.0%;z-index:60}
-.hot-bottom3{top:90.3%;left:68%;width:30%;height:5.0%;z-index:60}.mobile-menu{position:absolute;inset:0;z-index:100;display:none;background:rgba(0,0,0,.45)}.mobile-menu.open{display:block}.mobile-menu-box{position:absolute;top:6.5%;right:2%;width:54%;background:#fffaf1;border-radius:14px;box-shadow:0 8px 30px rgba(0,0,0,.25);padding:42px 18px 18px;line-height:1.2}.mobile-menu-box a{display:block;padding:14px 10px;border-bottom:1px solid #eadcca;color:#4d2413;font-size:17px;font-weight:800}.mobile-menu-close{position:absolute;right:10px;top:6px;border:0;background:none;font-size:32px;color:#4d2413}
+.hot-menu{top:2.0%;right:1.8%;width:7%;height:4.2%;z-index:60}
+.hot-ig{top:1.8%;right:28.0%;width:7%;height:4.2%;z-index:60}
+.hot-fb{top:1.8%;right:20.0%;width:7%;height:4.2%;z-index:60}
+.hot-tt{top:1.8%;right:12.0%;width:7%;height:4.2%;z-index:60}
+.hot-search{top:1.8%;right:4.8%;width:7%;height:4.2%;z-index:60}
+.hot-marquee{top:9.45%;left:0;width:100%;height:3.7%;z-index:50}
+
+.hot-hero-order{top:44.8%;left:26.0%;width:24.0%;height:5.8%;z-index:60}
+.hot-hero-schedule{top:44.8%;left:2.0%;width:24.0%;height:5.8%;z-index:60}
+.hot-hero-flavor{top:44.8%;left:51.0%;width:24.0%;height:5.8%;z-index:60}
+.hot-hero-news{top:44.8%;left:76.0%;width:22.0%;height:5.8%;z-index:60}
+.hot-flavor1{top:59.3%;left:2.0%;width:24.0%;height:16.2%;z-index:60}
+.hot-flavor2{top:59.3%;left:26.0%;width:24.0%;height:16.2%;z-index:60}
+.hot-flavor3{top:59.3%;left:50.5%;width:24.0%;height:16.2%;z-index:60}
+.hot-flavor4{top:59.3%;left:75.5%;width:23.0%;height:16.2%;z-index:60}
+.hot-about{top:91.2%;left:4.0%;width:23%;height:4.8%;z-index:60}
+.hot-bottom1{top:96.0%;left:2%;width:31%;height:4%;z-index:60}
+.hot-bottom2{top:96.0%;left:35%;width:31%;height:4%;z-index:60}
+.hot-bottom3{top:96.0%;left:68%;width:30%;height:4%;z-index:60}.mobile-menu{position:absolute;inset:0;z-index:100;display:none;background:rgba(0,0,0,.45)}.mobile-menu.open{display:block}.mobile-menu-box{position:absolute;top:6.5%;right:2%;width:54%;background:#fffaf1;border-radius:14px;box-shadow:0 8px 30px rgba(0,0,0,.25);padding:42px 18px 18px;line-height:1.2}.mobile-menu-box a{display:block;padding:14px 10px;border-bottom:1px solid #eadcca;color:#4d2413;font-size:17px;font-weight:800}.mobile-menu-close{position:absolute;right:10px;top:6px;border:0;background:none;font-size:32px;color:#4d2413}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
