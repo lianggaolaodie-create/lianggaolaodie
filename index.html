@@ -68,7 +68,7 @@ html,body{margin:0;padding:0;background:#f8f0e3}
 <a class="hot flavor3" href="products.html"></a>
 <a class="hot flavor4" href="products.html"></a>
 
-<a class="hot about" href="about.html" aria-label="認識我們"></a>
+<a class="hot about" href="about.html" aria-label="認識我們" onclick="event.stopPropagation();window.location.href='about.html';return false;" ontouchend="window.location.href='about.html';"></a>
 <a class="hot bottom1" href="schedule.html" aria-label="出攤時間"></a>
 <a class="hot bottom2" href="online-order.html" aria-label="線上訂購"></a>
 <a class="hot bottom3" href="https://www.facebook.com/laodielianggao" target="_blank" rel="noopener" aria-label="Facebook"></a>
@@ -103,6 +103,23 @@ html,body{margin:0;padding:0;background:#f8f0e3}
   close.addEventListener('click',closeMenu);
   panel.addEventListener('click',function(e){if(e.target===panel)closeMenu()});
 })();
+<script>
+(function(){
+  function routeAbout(e){
+    var t=e.touches&&e.touches[0]?e.touches[0]:e;
+    var r=document.querySelector('.page').getBoundingClientRect();
+    var x=(t.clientX-r.left)/r.width*100;
+    var y=(t.clientY-r.top)/r.height*100;
+    if(x>=2&&x<=32&&y>=87&&y<=93.5){
+      e.preventDefault();
+      e.stopPropagation();
+      window.location.href='about.html';
+    }
+  }
+  document.addEventListener('touchend',routeAbout,{capture:true,passive:false});
+  document.addEventListener('click',routeAbout,{capture:true});
+})();
+</script>
 </script>
 </body>
 </html>
