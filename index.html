@@ -3,76 +3,94 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>老爹．涼糕｜官方網站</title>
-<meta name="description" content="老爹．涼糕官方網站｜手工涼糕、餐車出攤資訊、販售口味與線上訂購。">
+<title>老爹．涼糕｜行動餐車｜官方網站</title>
+<meta name="description" content="老爹．涼糕｜古早味手工涼糕、餐車出攤、當日口味與線上訂購。">
 <link rel="canonical" href="https://laodielianggao.tw/">
 <style>
+:root{--cream:#f8f0e3;--brown:#4d2413;--red:#a90016;--gold:#d5a24b}
 *{box-sizing:border-box}
-html,body{margin:0;padding:0;background:#f4ecdf}
-body{overflow-x:hidden}
-.home{position:relative;width:min(100%,706px);margin:0 auto;line-height:0}
-.home>img{display:block;width:100%;height:auto}
-.hot{position:absolute;display:block;z-index:10;background:transparent;border:0;text-decoration:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
-.logo{left:2%;top:.5%;width:54%;height:7%}
-.ig{left:67%;top:.7%;width:6%;height:4%}
-.fb{left:75%;top:.7%;width:6%;height:4%}
-.tt{left:82%;top:.7%;width:6%;height:4%}
-.search{left:88%;top:.7%;width:6%;height:4%}
-.menu{left:94%;top:.7%;width:6%;height:4%}
-.nav-home{left:25%;top:7%;width:10%;height:3%}
-.nav-about{left:35%;top:7%;width:13%;height:3%}
-.nav-products{left:48%;top:7%;width:13%;height:3%}
-.nav-today{left:61%;top:7%;width:11%;height:3%}
-.nav-buy{left:72%;top:7%;width:13%;height:3%}
-.nav-news{left:84%;top:7%;width:9%;height:3%}
-.hero-schedule{left:2%;top:35%;width:23%;height:6%}
-.hero-order{left:26%;top:35%;width:23%;height:6%}
-.hero-flavor{left:50%;top:35%;width:23%;height:6%}
-.hero-news{left:74%;top:35%;width:24%;height:6%}
-.flavor1{left:2%;top:50%;width:23%;height:13%}
-.flavor2{left:26%;top:50%;width:23%;height:13%}
-.flavor3{left:50%;top:50%;width:23%;height:13%}
-.flavor4{left:74%;top:50%;width:24%;height:13%}
-.about-btn{left:5%;top:76%;width:23%;height:5%}
-.bottom-schedule{left:2%;top:84%;width:31%;height:11%}
-.bottom-order{left:35%;top:84%;width:31%;height:11%}
-.bottom-social{left:68%;top:84%;width:30%;height:11%}
-@media(max-width:480px){
-.home{width:100%}
-}
+html,body{margin:0;padding:0;background:var(--cream);color:#351b11;font-family:"Noto Serif TC","PingFang TC","Microsoft JhengHei",serif}
+a{color:inherit;text-decoration:none}
+.wrap{width:min(100%,706px);margin:auto;background:var(--cream);overflow:hidden}
+.header{background:#fffaf1;padding:9px 12px 7px;display:flex;align-items:center;gap:8px;border-bottom:1px solid #e7d9c5}
+.brand{display:flex;align-items:center;min-width:0;flex:1}
+.logo{width:76px;height:76px;border-radius:50%;object-fit:cover;border:1px solid #c9b28f;flex:none}
+.brand-text{margin-left:8px;line-height:1}
+.brand-name{font-size:30px;font-weight:900;letter-spacing:2px;white-space:nowrap}
+.brand-sub{font-family:Georgia,serif;font-size:14px;letter-spacing:3px;margin-top:8px}
+.seal{display:inline-block;background:#a60017;color:#fff;border-radius:5px;padding:5px 3px;font-size:10px;writing-mode:vertical-rl;margin-left:6px;line-height:1.1}
+.menu{width:42px;text-align:center;font-size:31px;line-height:1;color:#171717}
+.menu small{display:block;font-size:10px;margin-top:3px}
+.hero{position:relative;min-height:420px;background:#21130c url("homepage.jpg") center/cover no-repeat;display:flex;align-items:center}
+.hero:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.72) 0%,rgba(0,0,0,.35) 48%,rgba(0,0,0,.05) 100%)}
+.hero-copy{position:relative;z-index:1;color:#fff;width:53%;padding:28px 20px}
+.hero h1{font-size:35px;line-height:1.35;margin:0 0 12px;font-weight:900}
+.hero .goldline{color:#efc57a;font-size:14px;font-weight:700;letter-spacing:1px;margin-bottom:12px}
+.hero p{font-size:13px;line-height:1.9;margin:0 0 18px}
+.cta{display:inline-block;background:#d9a64e;color:#fff;border-radius:22px;padding:11px 20px;font-size:15px;font-weight:800}
+.values{display:grid;grid-template-columns:repeat(5,1fr);background:#fffaf2;border-bottom:1px solid #e5d7c5}
+.value{text-align:center;padding:17px 4px 15px;border-right:1px solid #e2d7c8}
+.value:last-child{border:0}.ico{font-size:27px;line-height:1.1}.value b{display:block;font-size:14px;margin-top:7px}.value span{display:block;font-size:9px;color:#745f50;margin-top:5px;line-height:1.4}
+.section{padding:28px 17px 23px}.title{text-align:center;margin-bottom:17px}
+.title h2{font-size:28px;margin:0;font-weight:900}.title small{font-family:Georgia,serif;letter-spacing:2px;font-size:13px;color:#80644d}
+.products{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.card{border-radius:12px;overflow:hidden;position:relative;min-height:190px;background:#ddd;box-shadow:0 2px 8px #6c442522}
+.card img{width:100%;height:190px;object-fit:cover;display:block}
+.card:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 25%,rgba(0,0,0,.48))}
+.card .ct{position:absolute;z-index:2;left:11px;right:8px;bottom:10px;color:#fff}
+.card h3{margin:0 0 5px;font-size:15px}.card p{margin:0;font-size:8px;letter-spacing:.3px}.more{display:inline-block;background:#fff;color:#4b2414;border-radius:3px;padding:5px 8px;margin-top:7px;font-size:9px;font-weight:800}
+.stats{background:#1f1a15;color:#f3d38d;display:grid;grid-template-columns:repeat(3,1fr);padding:28px 10px}
+.stat{text-align:center;border-right:1px solid #715c43}.stat:last-child{border:0}.stat .num{font-size:30px;font-weight:900;font-family:Georgia,serif}.stat b{display:block;color:#fff;font-size:13px;margin-top:4px}.stat span{display:block;color:#d6c5a8;font-size:9px;margin-top:6px}
+.footer{background:#1f1a15;color:#e6d4b4;padding:10px 18px 35px;text-align:center;border-top:1px solid #735b3e}.footer div{font-size:11px;line-height:2}
+@media(max-width:520px){.header{padding:8px 10px}.logo{width:65px;height:65px}.brand-name{font-size:25px}.brand-sub{font-size:11px;margin-top:6px}.hero{min-height:350px}.hero-copy{width:57%;padding:25px 18px}.hero h1{font-size:28px}.hero p{font-size:11px}.values{grid-template-columns:repeat(5,1fr)}.value{padding:14px 2px}.ico{font-size:22px}.value b{font-size:11px}.value span{font-size:7px}.section{padding:25px 15px}.title h2{font-size:25px}.products{gap:10px}.card,.card img{min-height:165px;height:165px}.card .ct{left:8px;bottom:8px}.card h3{font-size:13px}.card p{font-size:7px}.stats{padding:24px 6px}.stat .num{font-size:24px}.stat b{font-size:11px}.stat span{font-size:8px}}
 </style>
 </head>
 <body>
-<main class="home" aria-label="老爹．涼糕官方首頁">
-<img src="official-design.png" alt="老爹．涼糕官方網站首頁">
-<a class="hot logo" href="index.html" aria-label="首頁"></a>
-<a class="hot ig" href="https://www.instagram.com/b_dad_67687/" target="_blank" rel="noopener" aria-label="Instagram"></a>
-<a class="hot fb" href="https://www.facebook.com/laodielianggao" target="_blank" rel="noopener" aria-label="Facebook"></a>
-<a class="hot tt" href="https://www.tiktok.com/@aaa9999kai" target="_blank" rel="noopener" aria-label="TikTok"></a>
-<a class="hot search" href="products.html" aria-label="搜尋"></a>
-<a class="hot menu" href="products.html" aria-label="網站選單"></a>
+<main class="wrap">
+<header class="header">
+<a class="brand" href="index.html" aria-label="老爹涼糕首頁">
+<img class="logo" src="IMG_3238.png" alt="老爹涼糕">
+<div class="brand-text"><div class="brand-name">老爹．涼糕</div><div class="brand-sub">DAD’S RICE CAKE</div></div>
+<span class="seal">官方網站</span>
+</a>
+<a class="menu" href="products.html" aria-label="選單">☰<small>選單</small></a>
+</header>
 
-<a class="hot nav-home" href="index.html" aria-label="首頁"></a>
-<a class="hot nav-about" href="about.html" aria-label="關於我們"></a>
-<a class="hot nav-products" href="products.html" aria-label="涼糕介紹"></a>
-<a class="hot nav-today" href="schedule.html" aria-label="當日口味"></a>
-<a class="hot nav-buy" href="online-order.html" aria-label="購買方式"></a>
-<a class="hot nav-news" href="activity.html" aria-label="最新消息"></a>
+<section class="hero">
+<div class="hero-copy">
+<h1>傳承古早味<br>創造幸福滋味</h1>
+<div class="goldline">嚴選食材・手工製作・低糖低負擔</div>
+<p>堅持純粹手工製作，傳承古早味的美好與真誠。<br>每一口都是我們對品質的堅持與關心。</p>
+<a class="cta" href="products.html">🛒 立即選購美味</a>
+</div>
+</section>
 
-<a class="hot hero-schedule" href="schedule.html" aria-label="餐車時程"></a>
-<a class="hot hero-order" href="online-order.html" aria-label="線上訂購"></a>
-<a class="hot hero-flavor" href="products.html" aria-label="當日口味"></a>
-<a class="hot hero-news" href="activity.html" aria-label="最新消息"></a>
+<section class="values">
+<div class="value"><div class="ico">🍃</div><b>嚴選食材</b><span>天然新鮮・安心美味</span></div>
+<div class="value"><div class="ico">♨</div><b>手工製作</b><span>每日手工・品質把關</span></div>
+<div class="value"><div class="ico">◇</div><b>低糖低負擔</b><span>健康配方・無負擔美味</span></div>
+<div class="value"><div class="ico">⚑</div><b>在地品牌</b><span>台灣製作・用心堅持</span></div>
+<div class="value"><div class="ico">♡</div><b>幸福滋味</b><span>傳遞幸福・分享美好</span></div>
+</section>
 
-<a class="hot flavor1" href="products.html" aria-label="伯爵芋頭"></a>
-<a class="hot flavor2" href="products.html" aria-label="抹茶巧克力"></a>
-<a class="hot flavor3" href="products.html" aria-label="水果涼糕"></a>
-<a class="hot flavor4" href="products.html" aria-label="杏仁涼糕"></a>
+<section class="section">
+<div class="title"><h2>產品中心</h2><small>PRODUCTS</small></div>
+<div class="products">
+<a class="card" href="products.html"><img src="product-brown-sugar-taro.jpg" alt="黑糖地瓜涼糕"><div class="ct"><h3>黑糖地瓜涼糕</h3><p>BROWN SUGAR SWEET POTATO</p><span class="more">查看詳情</span></div></a>
+<a class="card" href="products.html"><img src="product-taro.png" alt="黑糖芋頭涼糕"><div class="ct"><h3>黑糖芋頭涼糕</h3><p>BROWN SUGAR TARO</p><span class="more">查看詳情</span></div></a>
+<a class="card" href="products.html"><img src="product-grass-jelly.jpg" alt="仙草涼糕"><div class="ct"><h3>仙草涼糕</h3><p>GRASS JELLY</p><span class="more">查看詳情</span></div></a>
+<a class="card" href="products.html"><img src="product-almond.jpg" alt="巧克力涼糕"><div class="ct"><h3>巧克力涼糕</h3><p>CHOCOLATE</p><span class="more">查看詳情</span></div></a>
+<a class="card" href="products.html"><img src="product-fruit.jpg" alt="水果綜合涼糕"><div class="ct"><h3>水果綜合涼糕</h3><p>FRUIT COMBINATION</p><span class="more">查看詳情</span></div></a>
+<a class="card" href="products.html"><img src="product-pudding.jpg" alt="夾心系列"><div class="ct"><h3>夾心系列</h3><p>SANDWICH SERIES</p><span class="more">查看詳情</span></div></a>
+</div>
+</section>
 
-<a class="hot about-btn" href="about.html" aria-label="認識我們"></a>
-<a class="hot bottom-schedule" href="schedule.html" aria-label="今日出攤資訊"></a>
-<a class="hot bottom-order" href="online-order.html" aria-label="線上訂購"></a>
-<a class="hot bottom-social" href="https://www.facebook.com/laodielianggao" target="_blank" rel="noopener" aria-label="追蹤我們"></a>
+<section class="stats">
+<div class="stat"><div class="num">100%</div><b>每日手工製作</b><span>堅持新鮮・當日製作</span></div>
+<div class="stat"><div class="num">98%</div><b>顧客滿意度</b><span>用心把關・品質第一</span></div>
+<div class="stat"><div class="num">100萬+</div><b>累積銷售數量</b><span>感謝顧客支持與愛護</span></div>
+</section>
+<footer class="footer"><div>市集・活動・企業合作　　企業團購・客服服務</div><div>DAD’S RICE CAKE</div></footer>
 </main>
 </body>
 </html>
