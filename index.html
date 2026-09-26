@@ -49,7 +49,30 @@ a{color:inherit;text-decoration:none}
 </style>
 </head>
 <body>
-<main id="homeRoot" class="wrap" aria-label="老爹．涼糕官方首頁"></main>
+<main id="homeRoot" class="wrap home-image" aria-label="老爹．涼糕官方首頁"></main>
+<style>
+.home-image{position:relative;width:min(100%,709px);margin:0 auto;line-height:0;overflow:hidden}
+.home-image #uploadedHome{display:block;width:100%;height:auto}
+.home-hot{position:absolute;display:block;z-index:20;background:transparent;-webkit-tap-highlight-color:transparent}
+.hot-menu{top:6.2%;right:1%;width:10%;height:6%}
+.hot-ig{top:6%;right:27%;width:7%;height:5%}
+.hot-fb{top:6%;right:19%;width:7%;height:5%}
+.hot-tt{top:6%;right:11%;width:7%;height:5%}
+.hot-search{top:6%;right:3%;width:7%;height:5%}
+.hot-marquee{top:14.2%;left:0;width:100%;height:4%}
+.hot-hero-order{top:34%;left:2%;width:25%;height:7%}
+.hot-hero-schedule{top:39%;left:2%;width:25%;height:7%}
+.hot-hero-flavor{top:44%;left:2%;width:25%;height:7%}
+.hot-hero-news{top:49%;left:2%;width:25%;height:7%}
+.hot-flavor1{top:56%;left:2%;width:23%;height:10%}
+.hot-flavor2{top:56%;left:27%;width:23%;height:10%}
+.hot-flavor3{top:56%;left:52%;width:23%;height:10%}
+.hot-flavor4{top:56%;left:77%;width:21%;height:10%}
+.hot-about{top:73%;left:3%;width:25%;height:7%}
+.hot-bottom1{top:83%;left:2%;width:30%;height:13%}
+.hot-bottom2{top:83%;left:35%;width:30%;height:13%}
+.hot-bottom3{top:83%;left:68%;width:30%;height:13%}
+</style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 (async function(){
@@ -59,9 +82,25 @@ a{color:inherit;text-decoration:none}
     const r=await db.from('site_admin_content').select('data').eq('section_id','home').maybeSingle();
     const url=r.data&&r.data.data&&r.data.data.image_url;
     if(url){
-      root.innerHTML='<img id="uploadedHome" src="'+url+'" alt="老爹．涼糕首頁">';
-      const img=document.getElementById('uploadedHome');
-      img.style.cssText='display:block;width:100%;height:auto;margin:0;padding:0;';
+      root.innerHTML='<img id="uploadedHome" src="'+url+'" alt="老爹．涼糕首頁">'
+      +'<a class="home-hot hot-menu" href="products.html" aria-label="選單"></a>'
+      +'<a class="home-hot hot-ig" href="https://www.instagram.com/b_dad_67687/" target="_blank" rel="noopener" aria-label="Instagram"></a>'
+      +'<a class="home-hot hot-fb" href="https://www.facebook.com/laodielianggao" target="_blank" rel="noopener" aria-label="Facebook"></a>'
+      +'<a class="home-hot hot-tt" href="https://www.tiktok.com/@aaa9999kai" target="_blank" rel="noopener" aria-label="TikTok"></a>'
+      +'<a class="home-hot hot-search" href="products.html" aria-label="搜尋"></a>'
+      +'<a class="home-hot hot-marquee" href="activity.html" aria-label="跑馬燈"></a>'
+      +'<a class="home-hot hot-hero-order" href="online-order.html" aria-label="線上訂購"></a>'
+      +'<a class="home-hot hot-hero-schedule" href="schedule.html" aria-label="餐車時程"></a>'
+      +'<a class="home-hot hot-hero-flavor" href="products.html" aria-label="當日口味"></a>'
+      +'<a class="home-hot hot-hero-news" href="activity.html" aria-label="最新消息"></a>'
+      +'<a class="home-hot hot-flavor1" href="products.html" aria-label="伯爵芋頭"></a>'
+      +'<a class="home-hot hot-flavor2" href="products.html" aria-label="抹茶巧克力"></a>'
+      +'<a class="home-hot hot-flavor3" href="products.html" aria-label="水果涼糕"></a>'
+      +'<a class="home-hot hot-flavor4" href="products.html" aria-label="杏仁涼糕"></a>'
+      +'<a class="home-hot hot-about" href="about.html" aria-label="關於老爹"></a>'
+      +'<a class="home-hot hot-bottom1" href="schedule.html" aria-label="今日出攤資訊"></a>'
+      +'<a class="home-hot hot-bottom2" href="online-order.html" aria-label="線上訂購"></a>'
+      +'<a class="home-hot hot-bottom3" href="https://www.facebook.com/laodielianggao" target="_blank" rel="noopener" aria-label="追蹤我們"></a>';
       document.body.style.background='#f8f0e3';
       return;
     }
