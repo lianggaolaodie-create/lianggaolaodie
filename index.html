@@ -45,7 +45,8 @@ html,body{margin:0;padding:0;background:#f8f0e3}
 <main class="page">
 <img src="https://yemzdwxtyosuaczsqwea.supabase.co/storage/v1/object/public/site-images/home/homepage-1790434111140.png" alt="老爹．涼糕官方首頁">
 
-<a class="hot menu" href="#menu" aria-label="選單" onclick="document.getElementById('mobileMenu').classList.add('open');document.getElementById('mobileMenu').setAttribute('aria-hidden','false');return false;"></a>
+<input id="menuToggle" class="menu-toggle" type="checkbox">
+<label class="hot menu menu-open" for="menuToggle" aria-label="選單"></label>
 
 <a class="hot nav-home" href="index.html" aria-label="首頁"></a>
 <a class="hot nav-about" href="about.html" aria-label="關於老爹"></a>
@@ -103,6 +104,3 @@ html,body{margin:0;padding:0;background:#f8f0e3}
   close.addEventListener('click',closeMenu);
   panel.addEventListener('click',function(e){if(e.target===panel)closeMenu()});
 })();
-<script>(function(){const menu=document.querySelector('.menu'),panel=document.getElementById('mobileMenu'),close=document.querySelector('.mobile-menu-close');if(!menu||!panel||!close)return;menu.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();panel.classList.add('open');panel.setAttribute('aria-hidden','false');},{passive:false});close.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();panel.classList.remove('open');panel.setAttribute('aria-hidden','true');},{passive:false});panel.addEventListener('click',function(e){if(e.target===panel){panel.classList.remove('open');panel.setAttribute('aria-hidden','true');}});})();</script>
-</body>
-</html>
