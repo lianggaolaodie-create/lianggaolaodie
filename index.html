@@ -54,27 +54,27 @@ a{color:inherit;text-decoration:none}
 .home-image{position:relative;width:min(100%,709px);margin:0 auto;line-height:0;overflow:hidden}
 .home-image #uploadedHome{display:block;width:100%;height:auto}
 .home-hot{position:absolute;display:block;z-index:20;background:transparent;-webkit-tap-highlight-color:transparent}
-.hot-menu{top:7.1%;right:1.5%;width:7%;height:4%;z-index:40}
-.hot-ig{top:7.0%;right:28.5%;width:7%;height:4%}
-.hot-fb{top:7.0%;right:20.8%;width:7%;height:4%}
-.hot-tt{top:7.0%;right:12.5%;width:7%;height:4%}
-.hot-search{top:7.0%;right:7.8%;width:6%;height:4%}
-.hot-marquee{top:14.1%;left:0;width:100%;height:3.1%}
+.hot-menu{top:7.55%;right:1.8%;width:6.5%;height:3.2%;z-index:60}
+.hot-ig{top:7.45%;right:28.0%;width:6.5%;height:3.2%;z-index:60}
+.hot-fb{top:7.45%;right:20.0%;width:6.5%;height:3.2%;z-index:60}
+.hot-tt{top:7.45%;right:12.0%;width:6.5%;height:3.2%;z-index:60}
+.hot-search{top:7.45%;right:5.8%;width:6.5%;height:3.2%;z-index:60}
+.hot-marquee{top:14.35%;left:0;width:100%;height:3.0%;z-index:50}
 .marquee-live{position:absolute;top:14.15%;left:8.5%;right:8.5%;height:2.8%;z-index:35;display:flex;align-items:center;overflow:hidden;background:#b00018;color:#fff;text-decoration:none;line-height:1}
 .marquee-live span{display:inline-block;white-space:nowrap;font-size:clamp(11px,2.05vw,15px);font-weight:700;letter-spacing:.3px;padding-left:100%;animation:marqueeRun 13s linear infinite}
 @keyframes marqueeRun{from{transform:translateX(0)}to{transform:translateX(-100%)}}
-.hot-hero-order{top:44%;left:26%;width:23%;height:7%}
-.hot-hero-schedule{top:44%;left:2%;width:23%;height:7%}
-.hot-hero-flavor{top:44%;left:50%;width:23%;height:7%}
-.hot-hero-news{top:44%;left:74%;width:24%;height:7%}
-.hot-flavor1{top:56%;left:2%;width:23%;height:10%}
-.hot-flavor2{top:56%;left:27%;width:23%;height:10%}
-.hot-flavor3{top:56%;left:52%;width:23%;height:10%}
-.hot-flavor4{top:56%;left:77%;width:21%;height:10%}
-.hot-about{top:73%;left:3%;width:25%;height:7%}
-.hot-bottom1{top:83%;left:2%;width:30%;height:13%}
-.hot-bottom2{top:83%;left:35%;width:30%;height:13%}
-.hot-bottom3{top:83%;left:68%;width:30%;height:13%}
+.hot-hero-order{top:44.65%;left:27.0%;width:24.0%;height:5.2%;z-index:60}
+.hot-hero-schedule{top:44.65%;left:2.0%;width:24.0%;height:5.2%;z-index:60}
+.hot-hero-flavor{top:44.65%;left:52.0%;width:24.0%;height:5.2%;z-index:60}
+.hot-hero-news{top:44.65%;left:76.0%;width:22.0%;height:5.2%;z-index:60}
+.hot-flavor1{top:57.1%;left:2.0%;width:24.5%;height:13.7%;z-index:60}
+.hot-flavor2{top:57.1%;left:26.5%;width:24.5%;height:13.7%;z-index:60}
+.hot-flavor3{top:57.1%;left:51.0%;width:24.5%;height:13.7%;z-index:60}
+.hot-flavor4{top:57.1%;left:75.5%;width:23%;height:13.7%;z-index:60}
+.hot-about{top:85.0%;left:5.0%;width:21%;height:3.2%;z-index:60}
+.hot-bottom1{top:90.3%;left:2.0%;width:31%;height:5.0%;z-index:60}
+.hot-bottom2{top:90.3%;left:35%;width:31%;height:5.0%;z-index:60}
+.hot-bottom3{top:90.3%;left:68%;width:30%;height:5.0%;z-index:60}.mobile-menu{position:absolute;inset:0;z-index:100;display:none;background:rgba(0,0,0,.45)}.mobile-menu.open{display:block}.mobile-menu-box{position:absolute;top:6.5%;right:2%;width:54%;background:#fffaf1;border-radius:14px;box-shadow:0 8px 30px rgba(0,0,0,.25);padding:42px 18px 18px;line-height:1.2}.mobile-menu-box a{display:block;padding:14px 10px;border-bottom:1px solid #eadcca;color:#4d2413;font-size:17px;font-weight:800}.mobile-menu-close{position:absolute;right:10px;top:6px;border:0;background:none;font-size:32px;color:#4d2413}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
@@ -86,7 +86,7 @@ a{color:inherit;text-decoration:none}
     const url=r.data&&r.data.data&&r.data.data.image_url;
     if(url){
       root.innerHTML='<img id="uploadedHome" src="'+url+'" alt="老爹．涼糕首頁">'
-      +'<a class="home-hot hot-menu" href="products.html" aria-label="選單"></a>'
+      +'<a class="home-hot hot-menu" href="#mobileMenu" aria-label="選單"></a>'
       +'<a class="home-hot hot-ig" href="https://www.instagram.com/b_dad_67687/" target="_blank" rel="noopener" aria-label="Instagram"></a>'
       +'<a class="home-hot hot-fb" href="https://www.facebook.com/laodielianggao" target="_blank" rel="noopener" aria-label="Facebook"></a>'
       +'<a class="home-hot hot-tt" href="https://www.tiktok.com/@aaa9999kai" target="_blank" rel="noopener" aria-label="TikTok"></a>'
@@ -103,13 +103,15 @@ a{color:inherit;text-decoration:none}
       +'<a class="home-hot hot-about" href="about.html" aria-label="關於老爹"></a>'
       +'<a class="home-hot hot-bottom1" href="schedule.html" aria-label="今日出攤資訊"></a>'
       +'<a class="home-hot hot-bottom2" href="online-order.html" aria-label="線上訂購"></a>'
-      +'<a class="home-hot hot-bottom3" href="https://www.facebook.com/laodielianggao" target="_blank" rel="noopener" aria-label="追蹤我們"></a>';
+      +'<a class="home-hot hot-bottom3" href="https://www.facebook.com/laodielianggao" target="_blank" rel="noopener" aria-label="追蹤我們"></a>'
+      +'<div id="mobileMenu" class="mobile-menu" aria-hidden="true"><div class="mobile-menu-box"><button type="button" class="mobile-menu-close" aria-label="關閉">×</button><a href="index.html">首頁</a><a href="about.html">關於我們</a><a href="products.html">涼糕介紹</a><a href="products.html">當日口味</a><a href="online-order.html">購買方式</a><a href="activity.html">最新消息</a><a href="https://www.facebook.com/laodielianggao" target="_blank" rel="noopener">聯絡我們</a></div></div>';
       document.body.style.background='#f8f0e3';
       return;
     }
   }catch(e){}
   root.innerHTML='<header class="header"><a class="brand" href="index.html"><img class="logo" src="IMG_3238.png" alt="老爹涼糕"><div class="brand-text"><div class="brand-name">老爹．涼糕</div><div class="brand-sub">DAD’S RICE CAKE</div></div><span class="seal">官方網站</span></a><a class="menu" href="products.html">☰<small>選單</small></a></header><section class="hero"><div class="hero-copy"><h1>傳承古早味<br>創造幸福滋味</h1><div class="goldline">嚴選食材・手工製作・低糖低負擔</div><p>堅持純粹手工製作，傳承古早味的美好與真誠。</p><a class="cta" href="products.html">🛒 立即選購美味</a></div></section>';
 })();
+document.addEventListener('click',function(e){const menu=e.target.closest('.hot-menu'),panel=document.getElementById('mobileMenu');if(menu&&panel){e.preventDefault();panel.classList.add('open');panel.setAttribute('aria-hidden','false')}if(panel&&(e.target.closest('.mobile-menu-close')||e.target===panel)){panel.classList.remove('open');panel.setAttribute('aria-hidden','true')}});
 </script>
 </body>
 </html>
