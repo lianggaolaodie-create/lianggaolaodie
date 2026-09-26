@@ -121,9 +121,8 @@ const db=supabase.createClient('https://yemzdwxtyosuaczsqwea.supabase.co','sb_pu
       +'<a id="marqueeLive" class="marquee-live" href="activity.html" aria-label="跑馬燈"><span id="marqueeText"></span></a>';
       document.body.style.background='#f8f0e3';
       return;
-    }
-  }catch(e){}
-  // 查詢失敗也維持目前後台首頁圖，不再顯示舊版黑色預設首頁
+  }
+  // 先直接顯示目前後台首頁圖，避免首頁因資料庫讀取失敗而空白
   renderHomeImage(fallbackHomeImage);
   return;
   root.innerHTML='<header class="header"><a class="brand" href="index.html"><img class="logo" src="IMG_3238.png" alt="老爹涼糕"><div class="brand-text"><div class="brand-name">老爹．涼糕</div><div class="brand-sub">DAD’S RICE CAKE</div></div><span class="seal">官方網站</span></a><a class="menu" href="products.html">☰<small>選單</small></a></header><section class="hero"><div class="hero-copy"><h1>傳承古早味<br>創造幸福滋味</h1><div class="goldline">嚴選食材・手工製作・低糖低負擔</div><p>堅持純粹手工製作，傳承古早味的美好與真誠。</p><a class="cta" href="products.html">🛒 立即選購美味</a></div></section>';
