@@ -7,24 +7,102 @@
 <style>
 html,body{margin:0;padding:0;background:#f8f0e3}
 *{box-sizing:border-box}
-.page{position:relative;width:100%;max-width:709px;margin:auto;line-height:0}
+.page{position:relative;width:100%;max-width:709px;margin:auto;line-height:0;overflow:hidden}
 .page img{display:block;width:100%;height:auto}
-.hot{position:absolute;display:block;background:transparent;z-index:10}
+.hot{position:absolute;display:block;background:transparent;z-index:10;-webkit-tap-highlight-color:transparent}
 .menu{top:.15%;right:0;width:12%;height:3%}
-.nav-home{top:.15%;left:25.5%;width:6%;height:3%}.nav-about{top:.15%;left:31.5%;width:9%;height:3%}.nav-products{top:.15%;left:40.5%;width:9.5%;height:3%}.nav-flavor{top:.15%;left:50%;width:8.5%;height:3%}.nav-order1{top:.15%;left:58.5%;width:9.5%;height:3%}.nav-order2{top:.15%;left:68%;width:9.5%;height:3%}.nav-news{top:.15%;left:77.5%;width:9.5%;height:3%}.nav-contact{top:.15%;left:87%;width:11.5%;height:3%}
-.hero-order{top:48.2%;left:26%;width:24%;height:6.8%}.hero-schedule{top:48.2%;left:2%;width:24%;height:6.8%}.hero-flavor{top:48.2%;left:51%;width:24%;height:6.8%}.hero-news{top:48.2%;left:76%;width:22%;height:6.8%}
-.flavor1{top:63%;left:2%;width:24%;height:14.5%}.flavor2{top:63%;left:26%;width:24%;height:14.5%}.flavor3{top:63%;left:50%;width:24%;height:14.5%}.flavor4{top:63%;left:75%;width:23%;height:14.5%}
-.about{top:88.5%;left:3%;width:24%;height:7.5%}.bottom1{top:96%;left:2%;width:31%;height:4%}.bottom2{top:91.5%;left:35%;width:31%;height:8%}.bottom3{top:91.5%;left:68%;width:30%;height:8%}
+.nav-home{top:.15%;left:25.5%;width:6%;height:3%}
+.nav-about{top:.15%;left:31.5%;width:9%;height:3%}
+.nav-products{top:.15%;left:40.5%;width:9.5%;height:3%}
+.nav-flavor{top:.15%;left:50%;width:8.5%;height:3%}
+.nav-order1{top:.15%;left:58.5%;width:9.5%;height:3%}
+.nav-order2{top:.15%;left:68%;width:9.5%;height:3%}
+.nav-news{top:.15%;left:77.5%;width:9.5%;height:3%}
+.nav-contact{top:.15%;left:87%;width:11.5%;height:3%}
+.hero-order{top:48.2%;left:26%;width:24%;height:6.8%}
+.hero-schedule{top:48.2%;left:2%;width:24%;height:6.8%}
+.hero-flavor{top:48.2%;left:51%;width:24%;height:6.8%}
+.hero-news{top:48.2%;left:76%;width:22%;height:6.8%}
+.flavor1{top:63%;left:2%;width:24%;height:14.5%}
+.flavor2{top:63%;left:26%;width:24%;height:14.5%}
+.flavor3{top:63%;left:50%;width:24%;height:14.5%}
+.flavor4{top:63%;left:75%;width:23%;height:14.5%}
+.about{top:88.5%;left:3%;width:24%;height:7.5%;z-index:30}
+.bottom1{top:96%;left:2%;width:31%;height:4%}
+.bottom2{top:91.5%;left:35%;width:31%;height:8%}
+.bottom3{top:91.5%;left:68%;width:30%;height:8%}
+.mobile-menu{position:absolute;inset:0;z-index:100;display:none;background:rgba(0,0,0,.45);line-height:1.2}
+.mobile-menu.open{display:block}
+.mobile-menu-box{position:absolute;top:6.5%;right:2%;width:54%;max-height:88%;overflow:auto;background:#fffaf1;border-radius:14px;box-shadow:0 8px 30px rgba(0,0,0,.25);padding:42px 18px 18px}
+.mobile-menu-box a{display:block;padding:14px 10px;border-bottom:1px solid #eadcca;color:#4d2413;font-size:17px;font-weight:800;text-decoration:none}
+.mobile-menu-close{position:absolute;right:10px;top:6px;border:0;background:none;font-size:32px;color:#4d2413;line-height:1}
+.marquee-live{position:absolute;top:9.45%;left:9%;right:7%;height:3.7%;z-index:70;display:flex;align-items:center;overflow:hidden;background:transparent;color:#fff;text-decoration:none;line-height:1;pointer-events:auto}
+.marquee-live span{display:inline-block;white-space:nowrap;font-size:clamp(11px,2.2vw,16px);font-weight:900;text-shadow:0 1px 2px rgba(0,0,0,.35);padding-left:100%;animation:marqueeRun 14s linear infinite}
+@keyframes marqueeRun{from{transform:translateX(0)}to{transform:translateX(-100%)}}
 </style>
 </head>
 <body>
 <main class="page">
 <img src="https://yemzdwxtyosuaczsqwea.supabase.co/storage/v1/object/public/site-images/home/homepage-1790434111140.png" alt="老爹．涼糕官方首頁">
+
 <a class="hot menu" href="#" aria-label="選單"></a>
-<a class="hot nav-home" href="index.html"></a><a class="hot nav-about" href="about.html"></a><a class="hot nav-products" href="products.html"></a><a class="hot nav-flavor" href="products.html"></a><a class="hot nav-order1" href="online-order.html"></a><a class="hot nav-order2" href="online-order.html"></a><a class="hot nav-news" href="activity.html"></a><a class="hot nav-contact" href="contact.html"></a>
-<a class="hot hero-order" href="online-order.html"></a><a class="hot hero-schedule" href="schedule.html"></a><a class="hot hero-flavor" href="products.html"></a><a class="hot hero-news" href="activity.html"></a>
-<a class="hot flavor1" href="products.html"></a><a class="hot flavor2" href="products.html"></a><a class="hot flavor3" href="products.html"></a><a class="hot flavor4" href="products.html"></a>
-<a class="hot about" href="about.html"></a><a class="hot bottom1" href="schedule.html"></a><a class="hot bottom2" href="online-order.html"></a><a class="hot bottom3" href="https://www.facebook.com/laodielianggao" target="_blank" rel="noopener"></a>
+
+<a class="hot nav-home" href="index.html" aria-label="首頁"></a>
+<a class="hot nav-about" href="about.html" aria-label="關於老爹"></a>
+<a class="hot nav-products" href="products.html" aria-label="涼糕專區"></a>
+<a class="hot nav-flavor" href="products.html" aria-label="口味"></a>
+<a class="hot nav-order1" href="online-order.html" aria-label="線上訂購"></a>
+<a class="hot nav-order2" href="online-order.html" aria-label="線上訂購"></a>
+<a class="hot nav-news" href="activity.html" aria-label="最新活動"></a>
+<a class="hot nav-contact" href="contact.html" aria-label="聯絡我們"></a>
+
+<a class="hot marquee-live" href="activity.html"><span>老爹．涼糕 最新消息</span></a>
+
+<a class="hot hero-order" href="online-order.html" aria-label="線上訂購"></a>
+<a class="hot hero-schedule" href="schedule.html" aria-label="出攤時間"></a>
+<a class="hot hero-flavor" href="products.html" aria-label="涼糕專區"></a>
+<a class="hot hero-news" href="activity.html" aria-label="最新活動"></a>
+
+<a class="hot flavor1" href="products.html"></a>
+<a class="hot flavor2" href="products.html"></a>
+<a class="hot flavor3" href="products.html"></a>
+<a class="hot flavor4" href="products.html"></a>
+
+<a class="hot about" href="about.html" aria-label="認識我們"></a>
+<a class="hot bottom1" href="schedule.html" aria-label="出攤時間"></a>
+<a class="hot bottom2" href="online-order.html" aria-label="線上訂購"></a>
+<a class="hot bottom3" href="https://www.facebook.com/laodielianggao" target="_blank" rel="noopener" aria-label="Facebook"></a>
+
+<div id="mobileMenu" class="mobile-menu" aria-hidden="true">
+  <div class="mobile-menu-box">
+    <button type="button" class="mobile-menu-close" aria-label="關閉選單">×</button>
+    <a href="index.html">首頁</a>
+    <a href="activity.html">最新活動</a>
+    <a href="rules.html">購買涼糕規則</a>
+    <a href="products.html">涼糕專區</a>
+    <a href="radish-cake.html">純米蘿蔔糕專區</a>
+    <a href="merch.html">周邊商品</a>
+    <a href="online-order.html">線上訂購</a>
+    <a href="https://www.facebook.com/laodielianggao" target="_blank" rel="noopener">Facebook 粉絲專頁</a>
+    <a href="https://www.instagram.com/b_dad_67687/" target="_blank" rel="noopener">Instagram</a>
+    <a href="convenience.html">超商寄放取件方式</a>
+    <a href="about.html">關於老爹</a>
+    <a href="schedule.html">出攤時間</a>
+    <a href="contact.html">聯絡我們</a>
+  </div>
+</div>
 </main>
+<script>
+(function(){
+  const menu=document.querySelector('.menu');
+  const panel=document.getElementById('mobileMenu');
+  const close=document.querySelector('.mobile-menu-close');
+  function openMenu(e){e.preventDefault();panel.classList.add('open');panel.setAttribute('aria-hidden','false')}
+  function closeMenu(){panel.classList.remove('open');panel.setAttribute('aria-hidden','true')}
+  menu.addEventListener('click',openMenu);
+  close.addEventListener('click',closeMenu);
+  panel.addEventListener('click',function(e){if(e.target===panel)closeMenu()});
+})();
+</script>
 </body>
 </html>
