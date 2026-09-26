@@ -80,9 +80,9 @@ a{color:inherit;text-decoration:none}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+const db=supabase.createClient('https://yemzdwxtyosuaczsqwea.supabase.co','sb_publishable_7b4hgNL68yiYbec7fXToYQ_UxPE4sEB',{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}});
 (async function(){
   const root=document.getElementById('homeRoot');
-  const db=supabase.createClient('https://yemzdwxtyosuaczsqwea.supabase.co','sb_publishable_7b4hgNL68yiYbec7fXToYQ_UxPE4sEB');
   try{
     const r=await db.from('site_admin_content').select('data').eq('section_id','home').maybeSingle();
     const url=r.data&&r.data.data&&r.data.data.image_url;
@@ -93,7 +93,7 @@ a{color:inherit;text-decoration:none}
       +'<a class="home-hot hot-fb" href="https://www.facebook.com/laodielianggao" target="_blank" rel="noopener" aria-label="Facebook"></a>'
       +'<a class="home-hot hot-tt" href="https://www.tiktok.com/@aaa9999kai" target="_blank" rel="noopener" aria-label="TikTok"></a>'
       +'<a class="home-hot hot-search" href="products.html" aria-label="搜尋"></a>'
-      +'<a class="home-hot hot-marquee" href="activity.html" aria-label="跑馬燈"></a>'+'<a class="marquee-live" href="activity.html" aria-label="跑馬燈訊息"><span>雙十連假出攤資訊陸續更新中，建議提前 3～5 天預訂，謝謝大家的支持！</span></a>'
+      +'<a class="home-hot hot-marquee" href="activity.html" aria-label="跑馬燈"></a>'
       +'<a class="home-hot hot-hero-order" href="online-order.html" aria-label="線上訂購"></a>'
       +'<a class="home-hot hot-hero-schedule" href="schedule.html" aria-label="餐車時程"></a>'
       +'<a class="home-hot hot-hero-flavor" href="products.html" aria-label="當日口味"></a>'
@@ -114,7 +114,14 @@ a{color:inherit;text-decoration:none}
   }catch(e){}
   root.innerHTML='<header class="header"><a class="brand" href="index.html"><img class="logo" src="IMG_3238.png" alt="老爹涼糕"><div class="brand-text"><div class="brand-name">老爹．涼糕</div><div class="brand-sub">DAD’S RICE CAKE</div></div><span class="seal">官方網站</span></a><a class="menu" href="products.html">☰<small>選單</small></a></header><section class="hero"><div class="hero-copy"><h1>傳承古早味<br>創造幸福滋味</h1><div class="goldline">嚴選食材・手工製作・低糖低負擔</div><p>堅持純粹手工製作，傳承古早味的美好與真誠。</p><a class="cta" href="products.html">🛒 立即選購美味</a></div></section>';
 })();
-function openMobileMenu(){const panel=document.getElementById('mobileMenu');if(panel){panel.classList.add('open');panel.setAttribute('aria-hidden','false')}}function closeMobileMenu(){const panel=document.getElementById('mobileMenu');if(panel){panel.classList.remove('open');panel.setAttribute('aria-hidden','true')}}async function loadHomepageControls(){try{const [mr,mm]=await Promise.all([db.from('site_admin_content').select('data').eq('section_id','marquee').maybeSingle(),db.from('site_admin_content').select('data').eq('section_id','menu').maybeSingle()]);const md=mr.data?.data||{};const mt=document.getElementById('marqueeText'),ml=document.getElementById('marqueeLive');if(mt&&md.enabled!==false){mt.textContent=md.text||'老爹．涼糕 最新消息';if(md.link)ml.href=md.link}else if(ml){ml.style.display='none'}const panel=document.getElementById('menuItems');const raw=mm.data?.data?.menu_json;let items=[];try{items=raw?JSON.parse(raw):[]}catch(e){}if(!Array.isArray(items)||!items.length)items=[{name:'首頁',url:'index.html'},{name:'關於我們',url:'about.html'},{name:'涼糕介紹',url:'products.html'},{name:'當日口味',url:'products.html'},{name:'購買方式',url:'online-order.html'},{name:'最新消息',url:'activity.html'},{name:'聯絡我們',url:'contact.html'}];items=items.filter(x=>x&&x.enabled!==false&&x.name&&x.url);if(panel)panel.innerHTML=items.map(x=>'<a href="'+String(x.url).replace(/"/g,'&quot;')+'">'+String(x.name).replace(/</g,'&lt;')+'</a>').join('')}catch(e){}}document.addEventListener('click',function(e){const menu=e.target.closest('.hot-menu'),panel=document.getElementById('mobileMenu');if(menu&&panel){e.preventDefault();openMobileMenu()}if(panel&&(e.target.closest('.mobile-menu-close')||e.target===panel)){closeMobileMenu()}});loadHomepageControls();
+function openMobileMenu(){const panel=document.getElementById('mobileMenu');if(panel){panel.classList.add('open');panel.setAttribute('aria-hidden','false')}}function closeMobileMenu(){const panel=document.getElementById('mobileMenu');if(panel){panel.classList.remove('open');panel.setAttribute('aria-hidden','true')}}async function loadHomepageControls(){try{const [mr,mm]=await Promise.all([db.from('site_admin_content').select('data').eq('section_id','marquee').maybeSingle(),db.from('site_admin_content').select('data').eq('section_id','menu').maybeSingle()]);const md=mr.data?.data||{};const mt=document.getElementById('marqueeText'),ml=document.getElementById('marqueeLive');if(mt&&md.enabled!==false){mt.textContent=md.text||'老爹．涼糕 最新消息';if(md.link)ml.href=md.link}else if(ml){ml.style.display='none'}const panel=document.getElementById('menuItems');const raw=mm.data?.data?.menu_json;let items=[];try{items=raw?JSON.parse(raw):[]}catch(e){}if(!Array.isArray(items)||!items.length)items=[{name:'首頁',url:'index.html'},{name:'關於我們',url:'about.html'},{name:'涼糕介紹',url:'products.html'},{name:'當日口味',url:'products.html'},{name:'購買方式',url:'online-order.html'},{name:'最新消息',url:'activity.html'},{name:'聯絡我們',url:'contact.html'}];items=items.filter(x=>x&&x.enabled!==false&&x.name&&x.url);if(panel)panel.innerHTML=items.map(x=>'<a href="'+String(x.url).replace(/"/g,'&quot;')+'">'+String(x.name).replace(/</g,'&lt;')+'</a>').join('')}catch(e){}}document.addEventListener('click',function(e){
+  const menu=e.target.closest('.hot-menu');
+  const panel=document.getElementById('mobileMenu');
+  if(menu&&panel){e.preventDefault();openMobileMenu();return}
+  if(panel&&(e.target.closest('.mobile-menu-close')||e.target===panel)){e.preventDefault();closeMobileMenu();}
+});
+document.addEventListener('DOMContentLoaded',loadHomepageControls);
+loadHomepageControls();
 </script>
 </body>
 </html>
