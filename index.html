@@ -43,8 +43,9 @@ html,body{margin:0;padding:0;background:#f8f0e3}
 .mobile-menu-box a{display:block;padding:14px 10px;border-bottom:1px solid #eadcca;color:#4d2413;font-size:17px;font-weight:800;text-decoration:none}
 .mobile-menu-close{position:absolute;right:10px;top:6px;border:0;background:none;font-size:32px;color:#4d2413;line-height:1}
 .marquee-live{position:absolute;top:8.75%;left:6%;right:6%;height:1.85%;z-index:100000;display:flex;align-items:center;overflow:hidden;background:rgba(255,250,241,.92);border-radius:8px;color:#6b2d16;text-decoration:none;line-height:1;pointer-events:auto;box-shadow:0 1px 5px rgba(0,0,0,.12)}
-.marquee-live span{display:inline-block;white-space:nowrap;font-size:clamp(10px,2.05vw,15px);font-weight:900;padding-left:100%;animation:marqueeRun 14s linear infinite}
-@keyframes marqueeRun{from{transform:translateX(0)}to{transform:translateX(-100%)}}
+.marquee-track{display:flex;align-items:center;width:max-content;min-width:100%;animation:marqueeRun 22s linear infinite;will-change:transform}
+.marquee-track span{display:block;flex:none;white-space:nowrap;font-size:clamp(10px,2.05vw,15px);font-weight:900;padding-right:48px}
+@keyframes marqueeRun{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 </style>
 </head>
 <body>
@@ -68,7 +69,7 @@ html,body{margin:0;padding:0;background:#f8f0e3}
 <a class="hot nav-news" href="activity.html" aria-label="最新活動"></a>
 <a class="hot nav-contact" href="contact.html" aria-label="聯絡我們"></a>
 
-<a id="marqueeLive" class="hot marquee-live" href="activity.html" aria-label="最新消息"><span id="marqueeLiveText"></span></a>
+<a id="marqueeLive" class="hot marquee-live" href="activity.html" aria-label="最新消息"><span class="marquee-track"><span id="marqueeLiveText"></span><span id="marqueeLiveCopy" aria-hidden="true"></span></span></a>
 
 <a class="hot hero-order" href="online-order.html" aria-label="線上訂購"></a>
 <a class="hot hero-schedule" href="schedule.html" aria-label="出攤時間"></a>
@@ -121,6 +122,7 @@ html,body{margin:0;padding:0;background:#f8f0e3}
   const client=supabase.createClient('https://yemzdwxtyosuaczsqwea.supabase.co','sb_publishable_7b4hgNL68yiYbec7fXToYQ_UxPE4sEB');
   const link=document.getElementById('marqueeLive');
   const text=document.getElementById('marqueeLiveText');
+  const copy=document.getElementById('marqueeLiveCopy');
   if(!link||!text)return;
   async function loadMarquee(){
     try{
@@ -129,10 +131,12 @@ html,body{margin:0;padding:0;background:#f8f0e3}
       const d=r.data&&r.data.data?r.data.data:{};
       if(d.enabled===false||!d.text){link.style.display='none';return;}
       text.textContent=d.text;
+      copy.textContent=d.text;
       link.href=d.link||'activity.html';
       link.style.display='flex';
     }catch(e){
       text.textContent='老爹．涼糕｜最新消息請看官網';
+      copy.textContent=text.textContent;
       link.href='activity.html';
       link.style.display='flex';
       console.warn('跑馬燈同步失敗',e);
