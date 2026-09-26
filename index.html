@@ -10,16 +10,21 @@ html,body{margin:0;padding:0;background:#f8f0e3}
 .page{position:relative;width:100%;max-width:709px;margin:auto;line-height:0;overflow:hidden}
 .page img{display:block;width:100%;height:auto}
 .hot{position:absolute;display:block;background:transparent;z-index:10;-webkit-tap-highlight-color:transparent}
-.menu{top:.15%;right:0;width:12%;height:3%;z-index:9999999!important;pointer-events:auto!important}
-.menu-toggle{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}.menu-toggle:checked~.mobile-menu{display:block!important;pointer-events:auto!important}
-.nav-home{top:.15%;left:25.5%;width:6%;height:3%}
-.nav-about{top:.15%;left:31.5%;width:9%;height:3%}
-.nav-products{top:.15%;left:40.5%;width:9.5%;height:3%}
-.nav-flavor{top:.15%;left:50%;width:8.5%;height:3%}
-.nav-order1{top:.15%;left:58.5%;width:9.5%;height:3%}
-.nav-order2{top:.15%;left:68%;width:9.5%;height:3%}
-.nav-news{top:.15%;left:77.5%;width:9.5%;height:3%}
-.nav-contact{top:.15%;left:87%;width:11.5%;height:3%}
+.menu{top:1.2%;right:0;width:10%;height:5%;z-index:99999999!important;pointer-events:auto!important}
+.menu-toggle{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}.search-toggle{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}.search-toggle:checked~.search-panel{display:flex!important}.menu-toggle:checked~.mobile-menu{display:block!important;pointer-events:auto!important}
+.nav-home{top:8.1%;left:23%;width:8%;height:4.2%}
+.nav-about{top:8.1%;left:31%;width:10%;height:4.2%}
+.nav-products{top:8.1%;left:41%;width:10%;height:4.2%}
+.nav-flavor{top:8.1%;left:51%;width:10%;height:4.2%}
+.nav-order1{top:8.1%;left:61%;width:11%;height:4.2%}
+.nav-order2{top:8.1%;left:72%;width:9%;height:4.2%}
+.nav-news{top:8.1%;left:81%;width:9%;height:4.2%}
+.nav-contact{top:8.1%;left:89%;width:11%;height:4.2%}
+.social-ig{top:1.4%;left:62%;width:7%;height:4.5%;z-index:9999999}
+.social-fb{top:1.4%;left:69%;width:7%;height:4.5%;z-index:9999999}
+.social-tt{top:1.4%;left:76%;width:7%;height:4.5%;z-index:9999999}
+.search-open{top:1.4%;left:83%;width:7%;height:4.5%;z-index:9999999}
+
 .hero-order{top:44%;left:26%;width:24%;height:12%;z-index:99999;pointer-events:auto}
 .hero-schedule{top:44%;left:2%;width:24%;height:12%;z-index:99999;pointer-events:auto}
 .hero-flavor{top:44%;left:51%;width:24%;height:12%;z-index:99999;pointer-events:auto}
@@ -48,6 +53,11 @@ html,body{margin:0;padding:0;background:#f8f0e3}
 
 <input id="menuToggle" class="menu-toggle" type="checkbox">
 <label class="hot menu menu-open" for="menuToggle" aria-label="選單"></label>
+<a class="hot social-ig" href="https://www.instagram.com/b_dad_67687/" target="_blank" rel="noopener" aria-label="Instagram"></a>
+<a class="hot social-fb" href="https://www.facebook.com/laodielianggao" target="_blank" rel="noopener" aria-label="Facebook"></a>
+<a class="hot social-tt" href="https://www.tiktok.com/" target="_blank" rel="noopener" aria-label="TikTok"></a>
+<input id="searchToggle" class="search-toggle" type="checkbox">
+<label class="hot search-open" for="searchToggle" aria-label="搜尋"></label>
 
 <a class="hot nav-home" href="index.html" aria-label="首頁"></a>
 <a class="hot nav-about" href="about.html" aria-label="關於老爹"></a>
@@ -75,6 +85,16 @@ html,body{margin:0;padding:0;background:#f8f0e3}
 <a class="hot bottom2" href="online-order.html" aria-label="線上訂購"></a>
 <a class="hot bottom3" href="https://www.facebook.com/laodielianggao" target="_blank" rel="noopener" aria-label="Facebook"></a>
 
+<div class="search-panel" style="display:none;position:fixed;inset:0;z-index:2147483005;background:rgba(0,0,0,.45);align-items:flex-start;justify-content:center;padding-top:90px;line-height:1.2">
+  <div style="width:min(90%,520px);background:#fffaf1;border-radius:16px;padding:20px;box-shadow:0 8px 30px rgba(0,0,0,.3)">
+    <label for="searchToggle" style="float:right;font-size:32px;color:#4d2413;line-height:1;cursor:pointer">×</label>
+    <form action="https://www.google.com/search" method="get" target="_blank" style="display:flex;gap:8px;margin-top:18px">
+      <input type="hidden" name="sitesearch" value="laodielianggao.tw">
+      <input type="text" name="q" placeholder="搜尋老爹．涼糕" style="flex:1;padding:13px;border:1px solid #d8c7ae;border-radius:10px;font-size:16px">
+      <button type="submit" style="padding:13px 18px;border:0;border-radius:10px;background:#8a3d1d;color:#fff;font-weight:800">搜尋</button>
+    </form>
+  </div>
+</div>
 <div id="mobileMenu" class="mobile-menu" aria-hidden="true">
   <div class="mobile-menu-box">
     <label for="menuToggle" class="mobile-menu-close" aria-label="關閉選單">×</label>
