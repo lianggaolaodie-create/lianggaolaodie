@@ -76,7 +76,7 @@ html,body{margin:0;padding:0;background:#f8f0e3}
 
 <div id="mobileMenu" class="mobile-menu" aria-hidden="true">
   <div class="mobile-menu-box">
-    <button type="button" class="mobile-menu-close" aria-label="關閉選單">×</button>
+    <label for="menuToggle" class="mobile-menu-close" aria-label="關閉選單">×</label>
     <a href="index.html">首頁</a>
     <a href="activity.html">最新活動</a>
     <a href="rules.html">購買涼糕規則</a>
@@ -93,14 +93,5 @@ html,body{margin:0;padding:0;background:#f8f0e3}
   </div>
 </div>
 </main>
-<script>
-(function(){
-  const menu=document.querySelector('.menu');
-  const panel=document.getElementById('mobileMenu');
-  const close=document.querySelector('.mobile-menu-close');
-  function openMenu(e){e.preventDefault();panel.classList.add('open');panel.setAttribute('aria-hidden','false')}
-  function closeMenu(){panel.classList.remove('open');panel.setAttribute('aria-hidden','true')}
-  menu.addEventListener('click',openMenu);
-  close.addEventListener('click',closeMenu);
-  panel.addEventListener('click',function(e){if(e.target===panel)closeMenu()});
-})();
+</body>
+</html>
