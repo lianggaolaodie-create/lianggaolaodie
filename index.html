@@ -1,4 +1,5 @@
 <!doctype html>
+<!-- LDG_VERSION:20260927-B -->
 <html lang="zh-Hant">
 <head>
 <meta charset="utf-8">
@@ -123,6 +124,8 @@ html,body{margin:0;padding:0;background:#f8f0e3}
 <script>
 (function(){
   const client=supabase.createClient('https://yemzdwxtyosuaczsqwea.supabase.co','sb_publishable_7b4hgNL68yiYbec7fXToYQ_UxPE4sEB');
+  const VERSION='LDG-20260927-B';
+  document.documentElement.setAttribute('data-site-version',VERSION);
   const link=document.getElementById('marqueeLive');
   const text=document.getElementById('marqueeLiveText');
   const copy=document.getElementById('marqueeLiveCopy');
