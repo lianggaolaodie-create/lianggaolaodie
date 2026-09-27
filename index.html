@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- LDG_VERSION:20260927-I -->
+<!-- LDG_VERSION:20260927-J -->
 <html lang="zh-Hant">
 <head>
 <meta charset="utf-8">
@@ -131,6 +131,91 @@ marquee-track span{display:block;flex:none;white-space:nowrap;font-size:clamp(8p
   </div>
   <div id="tiktokLiveStatus" class="live-status"><span class="live-dot"></span>正在確認直播狀態</div>
 </section>
+
+<script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.18/dist/hls.min.js"></script>
+<script>
+(function(){
+  const USER='kaip1018';
+  const API='https://yemzdwxtyosuaczsqwea.supabase.co/functions/v1/tiktok-live-proxy?user='+encodeURIComponent(USER);
+  const video=document.getElementById('tiktokLiveVideo');
+  const msg=document.getElementById('tiktokLiveMessage');
+  const status=document.getElementById('tiktokLiveStatus');
+  let hls=null;
+  let currentUrl='';
+
+  function setStatus(text,on){
+    if(status)status.innerHTML='<span class="live-dot'+(on?' on':'')+'"></span>'+text;
+  }
+  function showMessage(text){
+    if(msg){msg.textContent=text;msg.classList.remove('hidden');}
+  }
+  function hideMessage(){if(msg)msg.classList.add('hidden');}
+  function stopPlayer(){
+    if(hls){try{hls.destroy();}catch(e){}hls=null;}
+    if(video){
+      try{video.pause();}catch(e){}
+      video.removeAttribute('src');
+      try{video.load();}catch(e){}
+    }
+    currentUrl='';
+  }
+  async function startPlayer(streamUrl){
+    if(!video||!streamUrl||streamUrl===currentUrl)return;
+    currentUrl=streamUrl;
+    hideMessage();
+    if(hls){try{hls.destroy();}catch(e){}hls=null;}
+    if(video.canPlayType('application/vnd.apple.mpegurl')){
+      video.src=streamUrl;
+      try{await video.play();}catch(e){}
+      return;
+    }
+    if(window.Hls&&Hls.isSupported()){
+      hls=new Hls({enableWorker:true,lowLatencyMode:true});
+      hls.loadSource(streamUrl);
+      hls.attachMedia(video);
+      hls.on(Hls.Events.MANIFEST_PARSED,async function(){try{await video.play();}catch(e){}});
+      hls.on(Hls.Events.ERROR,function(_,data){
+        if(data&&data.fatal){
+          setStatus('直播連線中，正在重新連線',true);
+          setTimeout(checkLive,3000);
+        }
+      });
+    }else{
+      showMessage('此瀏覽器不支援直播播放');
+      setStatus('請使用 Safari、Chrome 或 Edge',false);
+    }
+  }
+  async function checkLive(){
+    try{
+      const res=await fetch(API+'&_cb='+Date.now(),{cache:'no-store'});
+      if(!res.ok)throw new Error('HTTP '+res.status);
+      const data=await res.json();
+      if(data&&data.is_live){
+        const streamUrl=data.hls_url||'';
+        if(streamUrl){
+          await startPlayer(streamUrl);
+          setStatus('直播中・官網直接觀看',true);
+        }else{
+          stopPlayer();
+          showMessage('已偵測到直播，正在取得直播畫面…');
+          setStatus('直播連線中',true);
+        }
+      }else{
+        stopPlayer();
+        showMessage('目前沒有直播，開播後這裡會自動顯示');
+        setStatus('目前未直播',false);
+      }
+    }catch(e){
+      stopPlayer();
+      showMessage('直播狀態暫時無法取得，稍後自動重試');
+      setStatus('等待直播連線',false);
+      console.warn('TikTok LIVE proxy error',e);
+    }
+  }
+  checkLive();
+  setInterval(checkLive,20000);
+})();
+</script>
 
 <script>
 (function(){
