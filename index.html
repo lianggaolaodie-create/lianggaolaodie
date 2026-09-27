@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- LDG_VERSION:20260927-L -->
+<!-- LDG_VERSION:20260927-M -->
 <html lang="zh-Hant">
 <head>
 <meta charset="utf-8">
@@ -133,6 +133,7 @@ marquee-track span{display:block;flex:none;white-space:nowrap;font-size:clamp(8p
 </section>
 
 <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.18/dist/hls.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flv.js@1.6.2/dist/flv.min.js"></script>
 <script>
 (function(){
   const USER='ghiggh6583945';
@@ -141,6 +142,7 @@ marquee-track span{display:block;flex:none;white-space:nowrap;font-size:clamp(8p
   const msg=document.getElementById('tiktokLiveMessage');
   const status=document.getElementById('tiktokLiveStatus');
   let hls=null;
+  let flvPlayer=null;
   let currentUrl='';
 
   function setStatus(text,on){
@@ -152,6 +154,7 @@ marquee-track span{display:block;flex:none;white-space:nowrap;font-size:clamp(8p
   function hideMessage(){if(msg)msg.classList.add('hidden');}
   function stopPlayer(){
     if(hls){try{hls.destroy();}catch(e){}hls=null;}
+    if(flvPlayer){try{flvPlayer.destroy();}catch(e){}flvPlayer=null;}
     if(video){
       try{video.pause();}catch(e){}
       video.removeAttribute('src');
@@ -164,6 +167,7 @@ marquee-track span{display:block;flex:none;white-space:nowrap;font-size:clamp(8p
     currentUrl=streamUrl;
     hideMessage();
     if(hls){try{hls.destroy();}catch(e){}hls=null;}
+    if(flvPlayer){try{flvPlayer.destroy();}catch(e){}flvPlayer=null;}
     if(video.canPlayType('application/vnd.apple.mpegurl')){
       video.src=streamUrl;
       try{await video.play();}catch(e){}
@@ -180,6 +184,15 @@ marquee-track span{display:block;flex:none;white-space:nowrap;font-size:clamp(8p
           setTimeout(checkLive,3000);
         }
       });
+    }else if(window.flvjs&&flvjs.isSupported()){
+      flvPlayer=flvjs.createPlayer({type:'flv',url:streamUrl,isLive:true});
+      flvPlayer.attachMediaElement(video);
+      flvPlayer.load();
+      try{await video.play();}catch(e){}
+      flvPlayer.on(flvjs.Events.ERROR,function(){
+        setStatus('直播連線中，正在重新連線',true);
+        setTimeout(checkLive,3000);
+      });
     }else{
       showMessage('此瀏覽器不支援直播播放');
       setStatus('請使用 Safari、Chrome 或 Edge',false);
@@ -191,7 +204,7 @@ marquee-track span{display:block;flex:none;white-space:nowrap;font-size:clamp(8p
       if(!res.ok)throw new Error('HTTP '+res.status);
       const data=await res.json();
       if(data&&data.is_live){
-        const streamUrl=data.hls_url||'';
+        const streamUrl=data.hls_url||data.flv_url||'';
         if(streamUrl){
           await startPlayer(streamUrl);
           setStatus('直播中・官網直接觀看',true);
