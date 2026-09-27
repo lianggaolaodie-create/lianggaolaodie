@@ -3,6 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>老爹．涼糕｜官方網站</title>
 <style>
 html,body{margin:0;padding:0;background:#f8f0e3}
@@ -126,9 +129,11 @@ html,body{margin:0;padding:0;background:#f8f0e3}
   if(!link||!text)return;
   async function loadMarquee(){
     try{
-      const r=await client.from('site_admin_content').select('data').eq('section_id','marquee').maybeSingle();
-      if(r.error)throw r.error;
-      const d=r.data&&r.data.data?r.data.data:{};
+      const url='https://yemzdwxtyosuaczsqwea.supabase.co/rest/v1/site_admin_content?section_id=eq.marquee&select=data&_cb='+Date.now();
+      const resp=await fetch(url,{method:'GET',cache:'no-store',headers:{'apikey':'sb_publishable_7b4hgNL68yiYbec7fXToYQ_UxPE4sEB','Authorization':'Bearer sb_publishable_7b4hgNL68yiYbec7fXToYQ_UxPE4sEB'}});
+      if(!resp.ok)throw new Error('marquee fetch '+resp.status);
+      const rows=await resp.json();
+      const d=rows&&rows[0]&&rows[0].data?rows[0].data:{};
       if(d.enabled===false||!d.text){link.style.display='none';return;}
       text.textContent=d.text;
       copy.textContent=d.text;
