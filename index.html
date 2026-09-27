@@ -73,7 +73,7 @@ html,body{margin:0;padding:0;background:#f8f0e3}
 <a class="hot nav-news" href="activity.html" aria-label="最新活動"></a>
 <a class="hot nav-contact" href="contact.html" aria-label="聯絡我們"></a>
 
-<a id="marqueeLive" class="hot marquee-live" href="activity.html" aria-label="最新消息"><span class="marquee-track"><span id="marqueeLiveText"></span><span id="marqueeLiveCopy" aria-hidden="true"></span></span></a>
+<a id="marqueeLive" class="hot marquee-live" href="activity.html" aria-label="最新消息"><span class="marquee-track"><span id="marqueeLiveText">🍡 老爹．涼糕｜新鮮製作・每日更新｜當日口味、出攤地點與時間請看官網｜歡迎提前預訂｜謝謝大家支持 ❤️</span><span id="marqueeLiveCopy" aria-hidden="true">🍡 老爹．涼糕｜新鮮製作・每日更新｜當日口味、出攤地點與時間請看官網｜歡迎提前預訂｜謝謝大家支持 ❤️</span></span></a>
 
 <a class="hot hero-order" href="online-order.html" aria-label="線上訂購"></a>
 <a class="hot hero-schedule" href="schedule.html" aria-label="出攤時間"></a>
@@ -120,7 +120,54 @@ html,body{margin:0;padding:0;background:#f8f0e3}
 </div>
 </main>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function(){
+  const VERSION='LDG-20260927-C';
+  const FALLBACK='🍡 老爹．涼糕｜新鮮製作・每日更新｜當日口味、出攤地點與時間請看官網｜歡迎提前預訂｜謝謝大家支持 ❤️';
+  const link=document.getElementById('marqueeLive');
+  const text=document.getElementById('marqueeLiveText');
+  const copy=document.getElementById('marqueeLiveCopy');
+  if(!link||!text||!copy)return;
+  document.documentElement.setAttribute('data-site-version',VERSION);
+
+  function showMarquee(value,href){
+    const v=value||FALLBACK;
+    text.textContent=v;
+    copy.textContent=v;
+    link.href=href||'activity.html';
+    link.style.display='flex';
+  }
+
+  async function loadMarquee(){
+    try{
+      const url='https://yemzdwxtyosuaczsqwea.supabase.co/rest/v1/site_admin_content?section_id=eq.marquee&select=data&_cb='+Date.now();
+      const resp=await fetch(url,{
+        method:'GET',
+        cache:'no-store',
+        headers:{
+          'apikey':'sb_publishable_7b4hgNL68yiYbec7fXToYQ_UxPE4sEB',
+          'Authorization':'Bearer sb_publishable_7b4hgNL68yiYbec7fXToYQ_UxPE4sEB'
+        }
+      });
+      if(!resp.ok)throw new Error('marquee fetch '+resp.status);
+      const rows=await resp.json();
+      const d=rows&&rows[0]&&rows[0].data?rows[0].data:{};
+      if(d.enabled===false){link.style.display='none';return;}
+      showMarquee(d.text||FALLBACK,d.link||'activity.html');
+    }catch(e){
+      showMarquee(FALLBACK,'activity.html');
+      console.warn('跑馬燈同步失敗，使用目前內容',e);
+    }
+  }
+
+  showMarquee(FALLBACK,'activity.html');
+  loadMarquee();
+  window.addEventListener('online',loadMarquee);
+  document.addEventListener('visibilitychange',function(){
+    if(document.visibilityState==='visible')loadMarquee();
+  });
+})();
+</script>
 <script>
 (function(){
   const client=supabase.createClient('https://yemzdwxtyosuaczsqwea.supabase.co','sb_publishable_7b4hgNL68yiYbec7fXToYQ_UxPE4sEB');
