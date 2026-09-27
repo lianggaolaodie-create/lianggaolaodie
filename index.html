@@ -50,7 +50,7 @@ html,body{margin:0;padding:0;background:#f8f0e3}
 .marquee-track{display:flex;align-items:center;width:max-content;animation:marqueeRun 22s linear infinite;will-change:transform}
 .marquee-track span{display:block;flex:none;white-space:nowrap;font-size:clamp(8px,1.65vw,12px);font-weight:900;padding-right:48px}
 @keyframes marqueeRun{from{transform:translate3d(0,0,0)}to{transform:translate3d(-50%,0,0)}}
-.live-section{padding:26px 12px 42px;background:#f8f0e3;text-align:center;line-height:1.2}.live-title{font-size:clamp(21px,5vw,30px);font-weight:900;color:#5b2815;margin-bottom:6px}.live-subtitle{font-size:14px;color:#76513d;font-weight:700;margin-bottom:16px}.live-player-wrap{width:min(100%,680px);margin:0 auto;background:#17120f;border-radius:16px;overflow:hidden;box-shadow:0 5px 18px rgba(0,0,0,.18);aspect-ratio:16/9;position:relative}.live-video{width:100%;height:100%;display:block;background:#17120f;object-fit:contain}.live-message{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:20px;text-align:center;color:#fff;background:rgba(23,18,15,.78);font-size:15px;font-weight:900}.live-message.hidden{display:none}.live-status{display:inline-flex;align-items:center;gap:6px;margin-top:14px;padding:8px 14px;border-radius:999px;background:#fffaf1;color:#6b2d16;font-size:13px;font-weight:900}.live-dot{width:9px;height:9px;border-radius:50%;background:#c62828}.live-dot.on{background:#16a34a;box-shadow:0 0 0 3px rgba(22,163,74,.15)}</style>
+.live-section{padding:26px 12px 42px;background:#f8f0e3;text-align:center;line-height:1.2}.live-title{font-size:clamp(21px,5vw,30px);font-weight:900;color:#5b2815;margin-bottom:6px}.live-subtitle{font-size:14px;color:#76513d;font-weight:700;margin-bottom:16px}.live-layout{width:min(100%,980px);margin:0 auto;display:grid;grid-template-columns:minmax(0,2fr) minmax(240px,1fr);gap:12px;align-items:stretch}.live-player-wrap{width:100%;margin:0;background:#17120f;border-radius:16px;overflow:hidden;box-shadow:0 5px 18px rgba(0,0,0,.18);aspect-ratio:16/9;position:relative}.live-video{width:100%;height:100%;display:block;background:#17120f;object-fit:contain}.live-message{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:20px;text-align:center;color:#fff;background:rgba(23,18,15,.78);font-size:15px;font-weight:900}.live-message.hidden{display:none}.live-chat{min-height:0;height:100%;background:#fff;border-radius:16px;box-shadow:0 5px 18px rgba(0,0,0,.12);overflow:hidden;text-align:left;border:1px solid rgba(91,40,21,.08)}.live-chat-head{height:48px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;background:#fffaf1;color:#5b2815;font-weight:900;font-size:14px}.live-chat-head span:last-child{font-size:11px;color:#16a34a}.live-chat-messages{height:calc(100% - 48px);min-height:210px;max-height:310px;overflow:auto;padding:10px 12px}.live-chat-empty{padding:22px 8px;text-align:center;color:#9a806f;font-size:13px}.live-chat-item{padding:7px 4px;border-bottom:1px solid #f1e7dc;font-size:13px;line-height:1.45}.live-chat-name{font-weight:900;color:#8b4a2f;margin-right:6px}.live-chat-text{color:#3f332d;word-break:break-word}.live-status{display:inline-flex;align-items:center;gap:6px;margin-top:14px;padding:8px 14px;border-radius:999px;background:#fffaf1;color:#6b2d16;font-size:13px;font-weight:900}.live-dot{width:9px;height:9px;border-radius:50%;background:#c62828}.live-dot.on{background:#16a34a;box-shadow:0 0 0 3px rgba(22,163,74,.15)}@media(max-width:760px){.live-layout{grid-template-columns:1fr}.live-chat{height:250px}.live-chat-messages{max-height:none;height:202px}}</style>
 </head>
 <body>
 <main class="page">
@@ -125,10 +125,16 @@ html,body{margin:0;padding:0;background:#f8f0e3}
 <section id="officialLive" class="live-section" aria-label="老爹．涼糕官網直播">
   <div class="live-title">🔴 老爹．涼糕 LIVE</div>
   <div class="live-subtitle">TikTok 開播後，直播畫面直接顯示在官網</div>
-  <div class="live-player-wrap">
-    <video id="tiktokLiveVideo" class="live-video" controls playsinline webkit-playsinline preload="none" poster="https://yemzdwxtyosuaczsqwea.supabase.co/storage/v1/object/public/site-images/home/homepage-1790434111140.png"></video>
-    <button id="liveSoundButton" type="button" style="position:absolute;left:50%;bottom:18px;transform:translateX(-50%);z-index:5;border:0;border-radius:999px;padding:10px 18px;background:rgba(0,0,0,.72);color:#fff;font-size:14px;font-weight:900;display:none">🔊 點一下開啟聲音</button>
-    <div id="tiktokLiveMessage" class="live-message">正在確認直播狀態…</div>
+  <div class="live-layout">
+    <div class="live-player-wrap">
+      <video id="tiktokLiveVideo" class="live-video" controls playsinline webkit-playsinline preload="none" poster="https://yemzdwxtyosuaczsqwea.supabase.co/storage/v1/object/public/site-images/home/homepage-1790434111140.png"></video>
+      <button id="liveSoundButton" type="button" style="position:absolute;left:50%;bottom:18px;transform:translateX(-50%);z-index:5;border:0;border-radius:999px;padding:10px 18px;background:rgba(0,0,0,.72);color:#fff;font-size:14px;font-weight:900;display:none">🔊 點一下開啟聲音</button>
+      <div id="tiktokLiveMessage" class="live-message">正在確認直播狀態…</div>
+    </div>
+    <aside class="live-chat" aria-label="TikTok LIVE 即時留言">
+      <div class="live-chat-head"><span>💬 直播留言</span><span id="liveChatState">連線中</span></div>
+      <div id="liveChatMessages" class="live-chat-messages"><div class="live-chat-empty">等待直播留言…</div></div>
+    </aside>
   </div>
   <div id="tiktokLiveStatus" class="live-status"><span class="live-dot"></span>正在確認直播狀態</div>
 </section>
@@ -140,6 +146,42 @@ html,body{margin:0;padding:0;background:#f8f0e3}
 (function(){
   const USER='ghiggh6583945';
   const API='https://yemzdwxtyosuaczsqwea.supabase.co/functions/v1/tiktok-live-proxy?user='+encodeURIComponent(USER);
+  const CHAT_WS='wss://yemzdwxtyosuaczsqwea.supabase.co/functions/v1/tiktok-live-proxy?chat_user='+encodeURIComponent(USER);
+  const chatMessages=document.getElementById('liveChatMessages');
+  const chatState=document.getElementById('liveChatState');
+  let chatSocket=null;
+  let chatReconnectTimer=null;
+  let chatConnected=false;
+  function addChat(nickname,comment){
+    if(!chatMessages)return;
+    const empty=chatMessages.querySelector('.live-chat-empty'); if(empty)empty.remove();
+    const item=document.createElement('div'); item.className='live-chat-item';
+    const name=document.createElement('span'); name.className='live-chat-name'; name.textContent=(nickname||'觀眾')+'：';
+    const text=document.createElement('span'); text.className='live-chat-text'; text.textContent=comment||'';
+    item.appendChild(name); item.appendChild(text); chatMessages.appendChild(item);
+    while(chatMessages.children.length>80)chatMessages.removeChild(chatMessages.firstChild);
+    chatMessages.scrollTop=chatMessages.scrollHeight;
+  }
+  function connectChat(){
+    if(chatSocket&&(chatSocket.readyState===WebSocket.OPEN||chatSocket.readyState===WebSocket.CONNECTING))return;
+    try{
+      chatSocket=new WebSocket(CHAT_WS);
+      if(chatState)chatState.textContent='連線中';
+      chatSocket.onopen=()=>{chatConnected=true;if(chatState)chatState.textContent='已連線';};
+      chatSocket.onmessage=(e)=>{
+        try{
+          const d=JSON.parse(e.data);
+          if(d.type==='chat')addChat(d.nickname,d.comment);
+          else if(d.type==='connected'&&chatState)chatState.textContent='已連線';
+          else if(d.type==='end'&&chatState)chatState.textContent='直播結束';
+        }catch(_){}
+      };
+      chatSocket.onerror=()=>{chatConnected=false;if(chatState)chatState.textContent='重連中';};
+      chatSocket.onclose=()=>{chatConnected=false;if(chatState)chatState.textContent='重連中';clearTimeout(chatReconnectTimer);chatReconnectTimer=setTimeout(connectChat,5000);};
+    }catch(_){clearTimeout(chatReconnectTimer);chatReconnectTimer=setTimeout(connectChat,5000);}
+  }
+  connectChat();
+
   const video=document.getElementById('tiktokLiveVideo');
   const msg=document.getElementById('tiktokLiveMessage');
   const status=document.getElementById('tiktokLiveStatus');
