@@ -135,6 +135,7 @@ html,body{margin:0;padding:0;background:#f8f0e3}
 
 <script src="https://cdn.jsdelivr.net/npm/hls.js@1.6.15/dist/hls.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/flv.js@1.6.2/dist/flv.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mpegts.js@1.8.0/dist/mpegts.min.js"></script>
 <script>
 (function(){
   const USER='ghiggh6583945';
@@ -200,10 +201,32 @@ html,body{margin:0;padding:0;background:#f8f0e3}
     if(flvPlayer){try{flvPlayer.destroy();}catch(e){}flvPlayer=null;}
     const isFlv=/\\.flv(?:\\?|$)|pull-flv/i.test(streamUrl);
     const isHls=/\\.m3u8(?:\\?|$)|pull-hls/i.test(streamUrl);
+    const playUrl=isFlv ? API.split('?')[0]+'?proxy='+encodeURIComponent(streamUrl) : streamUrl;
 
-    if(isFlv&&window.flvjs&&flvjs.isSupported()){
+    if(isFlv&&window.mpegts&&mpegts.getFeatureList().mseLivePlayback){
       video.muted=true;
-      flvPlayer=flvjs.createPlayer({type:'flv',url:streamUrl,isLive:true,config:{enableStashBuffer:false,stashInitialSize:128}});
+      const mtPlayer=mpegts.createPlayer({type:'flv',isLive:true,url:playUrl,cors:true},{enableWorker:true,enableWorkerForMSE:true,enableStashBuffer:true,stashInitialSize:256*1024,liveBufferLatencyChasing:true});
+      flvPlayer=mtPlayer;
+      mtPlayer.attachMediaElement(video);
+      mtPlayer.load();
+      video.onplaying=markPlaying;
+      try{await video.play();}catch(e){}
+      mtPlayer.on(mpegts.Events.ERROR,function(){
+        try{mtPlayer.destroy();}catch(e){}
+        flvPlayer=null;
+        if(fallbackUrl&&fallbackUrl!==currentUrl){
+          currentUrl='';
+          startPlayer(fallbackUrl,'');
+          setStatus('直播中・切換直播串流',true);
+        }else{
+          showMessage('直播畫面連線失敗，正在重新連線…');
+          setStatus('直播連線不穩定',true);
+          scheduleRetry(15000);
+        }
+      });
+    }else if(isFlv&&window.flvjs&&flvjs.isSupported()){
+      video.muted=true;
+      flvPlayer=flvjs.createPlayer({type:'flv',url:playUrl,isLive:true,config:{enableStashBuffer:true,stashInitialSize:256}});
       flvPlayer.attachMediaElement(video);
       flvPlayer.load();
       video.onplaying=markPlaying;
