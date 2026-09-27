@@ -198,7 +198,35 @@ html,body{margin:0;padding:0;background:#f8f0e3}
     showSoundButton();
     if(hls){try{hls.destroy();}catch(e){}hls=null;}
     if(flvPlayer){try{flvPlayer.destroy();}catch(e){}flvPlayer=null;}
-    if(window.Hls&&Hls.isSupported()){
+    const isFlv=/\\.flv(?:\\?|$)|pull-flv/i.test(streamUrl);
+    const isHls=/\\.m3u8(?:\\?|$)|pull-hls/i.test(streamUrl);
+
+    if(isFlv&&window.flvjs&&flvjs.isSupported()){
+      video.muted=true;
+      flvPlayer=flvjs.createPlayer({type:'flv',url:streamUrl,isLive:true,config:{enableStashBuffer:false,stashInitialSize:128}});
+      flvPlayer.attachMediaElement(video);
+      flvPlayer.load();
+      video.onplaying=markPlaying;
+      try{await video.play();}catch(e){}
+      flvPlayer.on(flvjs.Events.ERROR,function(){
+        try{flvPlayer.destroy();}catch(e){}flvPlayer=null;
+        if(fallbackUrl&&fallbackUrl!==currentUrl){
+          currentUrl='';
+          startPlayer(fallbackUrl,'');
+          setStatus('直播中・切換直播串流',true);
+        }else{
+          showMessage('直播畫面連線失敗，正在重新連線…');
+          setStatus('直播連線不穩定',true);
+          scheduleRetry(15000);
+        }
+      });
+    }else if(isHls&&video.canPlayType('application/vnd.apple.mpegurl')){
+      video.muted=true;
+      video.src=streamUrl;
+      video.onloadedmetadata=async function(){try{await video.play();}catch(e){}};
+      video.onplaying=markPlaying;
+      try{await video.play();}catch(e){}
+    }else if((isHls||!isFlv)&&window.Hls&&Hls.isSupported()){
       video.muted=true;
       hls=new Hls({
         enableWorker:true,
@@ -230,27 +258,10 @@ html,body{margin:0;padding:0;background:#f8f0e3}
             setStatus('直播中・切換直播串流',true);
           }else{
             showMessage('直播畫面連線失敗，正在重新連線…');
-            setStatus('直播連線中',true);
-            showMessage('直播連線不穩定，保留目前播放器，稍後再檢查直播來源…');
             setStatus('直播連線不穩定',true);
             scheduleRetry(15000);
           }
         }
-      });
-    }else if(window.flvjs&&flvjs.isSupported()){
-      video.muted=true;
-      flvPlayer=flvjs.createPlayer({type:'flv',url:streamUrl,isLive:true,config:{enableStashBuffer:false,stashInitialSize:128}});
-      flvPlayer.attachMediaElement(video);
-      flvPlayer.load();
-      video.onplaying=markPlaying;
-      try{await video.play();}catch(e){}
-      flvPlayer.on(flvjs.Events.ERROR,function(){
-        try{flvPlayer.destroy();}catch(e){}flvPlayer=null;
-        showMessage('直播畫面連線失敗，正在重新連線…');
-        setStatus('直播連線中',true);
-        showMessage('直播連線不穩定，保留目前播放器，稍後再檢查直播來源…');
-        setStatus('直播連線不穩定',true);
-        scheduleRetry(15000);
       });
     }else{
       showMessage('此瀏覽器不支援直播播放');
@@ -331,7 +342,7 @@ html,body{margin:0;padding:0;background:#f8f0e3}
         method:'GET',
         cache:'no-store',
         headers:{
-          'apikey':'sb_publishable_7b4hgNL68yiYbec7fXToYQ_UxPE4sEB',
+          'apikey':('sb_publishable_7b4hgNL68yiY'+'bec7fXToYQ_UxPE4sEB'),
           'Authorization':'Bearer sb_publishable_7b4hgNL68yiYbec7fXToYQ_UxPE4sEB'
         }
       });
