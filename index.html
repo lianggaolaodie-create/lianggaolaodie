@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- LDG_VERSION:20260927-F -->
+<!-- LDG_VERSION:20260927-G -->
 <html lang="zh-Hant">
 <head>
 <meta charset="utf-8">
@@ -50,7 +50,7 @@ html,body{margin:0;padding:0;background:#f8f0e3}
 .marquee-track{display:flex;align-items:center;width:max-content;min-width:100%;animation:marqueeRun 22s linear infinite;will-change:transform}
 marquee-track span{display:block;flex:none;white-space:nowrap;font-size:clamp(8px,1.65vw,12px);font-weight:900;padding-right:48px}
 @keyframes marqueeRun{from{transform:translateX(0)}to{transform:translateX(calc(-100% - 110vw))}}
-.tiktok-section{padding:24px 12px 40px;background:#f8f0e3;text-align:center;line-height:1.2}.tiktok-title{font-size:clamp(20px,5vw,30px);font-weight:900;color:#5b2815;margin-bottom:6px}.tiktok-subtitle{font-size:14px;color:#76513d;font-weight:700;margin-bottom:16px}.tiktok-live-button{display:inline-block;margin-top:12px;padding:11px 18px;border-radius:999px;background:#8a3d1d;color:#fff;text-decoration:none;font-weight:900;font-size:14px}.tiktok-section .tiktok-embed{margin-bottom:0!important}</style>
+.live-section{padding:26px 12px 42px;background:#f8f0e3;text-align:center;line-height:1.2}.live-title{font-size:clamp(21px,5vw,30px);font-weight:900;color:#5b2815;margin-bottom:6px}.live-subtitle{font-size:14px;color:#76513d;font-weight:700;margin-bottom:16px}.live-player-wrap{width:min(100%,680px);margin:0 auto;background:#17120f;border-radius:16px;overflow:hidden;box-shadow:0 5px 18px rgba(0,0,0,.18);aspect-ratio:16/9;position:relative}.live-player{width:100%;height:100%;display:block;background:#17120f;object-fit:contain}.live-placeholder{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;color:#fff;padding:20px;text-align:center}.live-placeholder strong{font-size:20px}.live-placeholder span{font-size:13px;opacity:.82}.live-status{display:inline-flex;align-items:center;gap:6px;margin-top:14px;padding:8px 14px;border-radius:999px;background:#fffaf1;color:#6b2d16;font-size:13px;font-weight:900}.live-dot{width:9px;height:9px;border-radius:50%;background:#c62828}.live-section.is-live .live-placeholder{display:none}</style>
 </head>
 <body>
 <main class="page">
@@ -122,19 +122,22 @@ marquee-track span{display:block;flex:none;white-space:nowrap;font-size:clamp(8p
 </div>
 </main>
 
-<section class="tiktok-section" aria-label="老爹．涼糕 TikTok 最新影片">
-  <div class="tiktok-title">🎵 老爹．涼糕 TikTok</div>
-  <div class="tiktok-subtitle">最新影片｜點擊影片即可直接觀看</div>
-  <blockquote class="tiktok-embed" cite="https://www.tiktok.com/@kaip1018" data-unique-id="kaip1018" data-embed-type="creator" style="max-width:720px;min-width:288px;margin:0 auto;">
-    <section><a target="_blank" href="https://www.tiktok.com/@kaip1018?refer=creator_embed">@kaip1018</a></section>
-  </blockquote>
-  <a class="tiktok-live-button" href="https://www.tiktok.com/@kaip1018" target="_blank" rel="noopener">🔴 直播時點這裡直接觀看 LIVE</a>
+<section id="officialLive" class="live-section" aria-label="老爹．涼糕官網直播">
+  <div class="live-title">🔴 老爹．涼糕 LIVE</div>
+  <div class="live-subtitle">直播時直接在官網觀看，不跳到抖音</div>
+  <div class="live-player-wrap">
+    <video id="officialLivePlayer" class="live-player" controls playsinline preload="none"></video>
+    <div id="officialLivePlaceholder" class="live-placeholder">
+      <strong>🔴 老爹．涼糕直播</strong>
+      <span>直播開始後，這裡直接播放</span>
+    </div>
+  </div>
+  <div id="officialLiveStatus" class="live-status"><span class="live-dot"></span>目前尚未開始直播</div>
 </section>
-<script async src="https://www.tiktok.com/embed.js"></script>
 
 <script>
 (function(){
-  const VERSION='LDG-20260927-F';
+  const VERSION='LDG-20260927-G';
   const FALLBACK='🍡 老爹．涼糕｜新鮮製作・每日更新｜當日口味、出攤地點與時間請看官網｜歡迎提前預訂｜謝謝大家支持 ❤️';
   const link=document.getElementById('marqueeLive');
   const text=document.getElementById('marqueeLiveText');
@@ -210,6 +213,39 @@ marquee-track span{display:block;flex:none;white-space:nowrap;font-size:clamp(8p
     }
   }
   loadMarquee();
+})();
+</script>
+<script>
+(function(){
+  const section=document.getElementById('officialLive');
+  const player=document.getElementById('officialLivePlayer');
+  const placeholder=document.getElementById('officialLivePlaceholder');
+  const status=document.getElementById('officialLiveStatus');
+  if(!section||!player)return;
+  async function loadLive(){
+    try{
+      const url='https://yemzdwxtyosuaczsqwea.supabase.co/rest/v1/site_admin_content?section_id=eq.live&select=data&_cb='+Date.now();
+      const resp=await fetch(url,{cache:'no-store',headers:{'apikey':'sb_publishable_7b4hgNL68yiYbec7fXToYQ_UxPE4sEB','Authorization':'Bearer sb_publishable_7b4hgNL68yiYbec7fXToYQ_UxPE4sEB'}});
+      if(!resp.ok)throw new Error('live fetch '+resp.status);
+      const rows=await resp.json();
+      const d=rows&&rows[0]&&rows[0].data?rows[0].data:{};
+      if(d.enabled!==true||!d.url){
+        section.classList.remove('is-live');
+        status.innerHTML='<span class="live-dot"></span>目前尚未開始直播';
+        return;
+      }
+      player.src=d.url;
+      section.classList.add('is-live');
+      status.innerHTML='<span class="live-dot"></span>直播中｜官網直接觀看';
+      if(d.autoplay===true){ player.muted=true; player.play().catch(()=>{}); }
+    }catch(e){
+      section.classList.remove('is-live');
+      status.innerHTML='<span class="live-dot"></span>直播尚未設定';
+      console.warn('官網直播同步失敗',e);
+    }
+  }
+  loadLive();
+  setInterval(loadLive,30000);
 })();
 </script>
 </body>
