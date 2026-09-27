@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- LDG_VERSION:20260927-W -->
+<!-- LDG_VERSION:20260927-X -->
 <html lang="zh-Hant">
 <head>
 <meta charset="utf-8">
@@ -231,8 +231,9 @@ html,body{margin:0;padding:0;background:#f8f0e3}
           }else{
             showMessage('直播畫面連線失敗，正在重新連線…');
             setStatus('直播連線中',true);
-            currentUrl='';
-            scheduleRetry(5000);
+            showMessage('直播連線不穩定，保留目前播放器，稍後再檢查直播來源…');
+            setStatus('直播連線不穩定',true);
+            scheduleRetry(15000);
           }
         }
       });
@@ -247,8 +248,9 @@ html,body{margin:0;padding:0;background:#f8f0e3}
         try{flvPlayer.destroy();}catch(e){}flvPlayer=null;
         showMessage('直播畫面連線失敗，正在重新連線…');
         setStatus('直播連線中',true);
-        currentUrl='';
-        scheduleRetry(5000);
+        showMessage('直播連線不穩定，保留目前播放器，稍後再檢查直播來源…');
+        setStatus('直播連線不穩定',true);
+        scheduleRetry(15000);
       });
     }else{
       showMessage('此瀏覽器不支援直播播放');
@@ -274,9 +276,6 @@ html,body{margin:0;padding:0;background:#f8f0e3}
         const fallbackUrl=relayHls&&directFlv?directFlv:(directHls&&directFlv?directFlv:'');
         if(streamUrl){
           if(streamUrl!==currentUrl){
-            await startPlayer(streamUrl,fallbackUrl);
-          }else if(Date.now()-lastGoodAt>45000){
-            currentUrl='';
             await startPlayer(streamUrl,fallbackUrl);
           }
           if(!lastGoodAt) setStatus('直播連線中',true);
