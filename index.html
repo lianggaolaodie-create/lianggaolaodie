@@ -257,10 +257,10 @@ html,body{margin:0;padding:0;background:#f8f0e3}
         backBufferLength:0,
         maxBufferLength:5,
         maxMaxBufferLength:8,
-        liveSyncDuration:2.5,
-        liveMaxLatencyDuration:7.5,
-        liveSyncOnStallIncrease:0.5,
-        maxLiveSyncPlaybackRate:1.15,
+        liveSyncDuration:3,
+        liveMaxLatencyDuration:10,
+        liveSyncOnStallIncrease:0.75,
+        maxLiveSyncPlaybackRate:1.2,
         liveSyncMode:'edge',
         capLevelToPlayerSize:true,
         startOnSegmentBoundary:true,
@@ -309,8 +309,8 @@ html,body{margin:0;padding:0;background:#f8f0e3}
         const directFlv=data.flv_url||'';
         const isAndroid=/Android/i.test(navigator.userAgent);
         const isIOS=/iPhone|iPad|iPod/i.test(navigator.userAgent);
-        const streamUrl=isAndroid ? (directHls||directFlv) : (directHls||directFlv);
-        const fallbackUrl=isAndroid && directHls&&directFlv ? directFlv : '';
+        const streamUrl=isAndroid ? (directFlv||directHls) : (directHls||directFlv);
+        const fallbackUrl=isAndroid && directFlv&&directHls ? directHls : (directFlv&&directHls ? directFlv : '');
         if(streamUrl){
           if(streamUrl!==currentUrl){
             await startPlayer(streamUrl,fallbackUrl);
