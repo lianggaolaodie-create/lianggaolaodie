@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- LDG_VERSION:20260927-X -->
+<!-- LDG_VERSION:20260927-Y -->
 <html lang="zh-Hant">
 <head>
 <meta charset="utf-8">
@@ -270,10 +270,11 @@ html,body{margin:0;padding:0;background:#f8f0e3}
       if(data&&data.is_live){
         isLive=true;
         const directHls=data.hls_url||'';
-        const relayHls=data.hls_relay_url||'';
         const directFlv=data.flv_url||'';
-        const streamUrl=relayHls||directHls||directFlv;
-        const fallbackUrl=relayHls&&directFlv?directFlv:(directHls&&directFlv?directFlv:'');
+        const isAndroid=/Android/i.test(navigator.userAgent);
+        const isIOS=/iPhone|iPad|iPod/i.test(navigator.userAgent);
+        const streamUrl=isAndroid ? (directFlv||directHls) : (directHls||directFlv);
+        const fallbackUrl=isAndroid && directHls ? directHls : (directFlv&&directHls ? directFlv : '');
         if(streamUrl){
           if(streamUrl!==currentUrl){
             await startPlayer(streamUrl,fallbackUrl);
