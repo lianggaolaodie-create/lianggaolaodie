@@ -205,12 +205,12 @@ html,body{margin:0;padding:0;background:#f8f0e3}
 
     if(isFlv&&window.mpegts&&mpegts.getFeatureList().mseLivePlayback){
       video.muted=true;
-      const mtPlayer=mpegts.createPlayer({type:'flv',isLive:true,url:playUrl,cors:true},{enableWorker:true,enableWorkerForMSE:true,enableStashBuffer:true,stashInitialSize:256*1024,liveBufferLatencyChasing:true});
+      const mtPlayer=mpegts.createPlayer({type:'flv',isLive:true,url:playUrl,cors:true},{enableWorker:false,enableWorkerForMSE:false,enableStashBuffer:true,stashInitialSize:384*1024,liveBufferLatencyChasing:true,liveBufferLatencyMaxLatency:3,liveBufferLatencyMinRemain:0.8});
       flvPlayer=mtPlayer;
       mtPlayer.attachMediaElement(video);
       mtPlayer.load();
       video.onplaying=markPlaying;
-      try{await video.play();}catch(e){}
+      try{await mtPlayer.play();}catch(e){try{await video.play();}catch(_){}}
       mtPlayer.on(mpegts.Events.ERROR,function(){
         try{mtPlayer.destroy();}catch(e){}
         flvPlayer=null;
@@ -307,13 +307,13 @@ html,body{margin:0;padding:0;background:#f8f0e3}
         const directFlv=data.flv_url||'';
         const isAndroid=/Android/i.test(navigator.userAgent);
         const isIOS=/iPhone|iPad|iPod/i.test(navigator.userAgent);
-        const streamUrl=isAndroid ? (directFlv||directHls) : (directHls||directFlv);
-        const fallbackUrl=isAndroid && directHls ? directHls : (directFlv&&directHls ? directFlv : '');
+        const streamUrl=isAndroid ? (directHls||directFlv) : (directHls||directFlv);
+        const fallbackUrl=isAndroid && directHls&&directFlv ? directFlv : '';
         if(streamUrl){
           if(streamUrl!==currentUrl){
             await startPlayer(streamUrl,fallbackUrl);
           }
-          if(!lastGoodAt) setStatus('直播連線中',true);
+          if(!lastGoodAt) setStatus('正在載入直播畫面…',true);
         }else{
           showMessage('已偵測到直播，正在取得直播畫面…');
           setStatus('直播連線中',true);
