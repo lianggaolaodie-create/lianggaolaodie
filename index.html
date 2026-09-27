@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- LDG_VERSION:20260927-H -->
+<!-- LDG_VERSION:20260927-I -->
 <html lang="zh-Hant">
 <head>
 <meta charset="utf-8">
@@ -50,7 +50,7 @@ html,body{margin:0;padding:0;background:#f8f0e3}
 .marquee-track{display:flex;align-items:center;width:max-content;min-width:100%;animation:marqueeRun 22s linear infinite;will-change:transform}
 marquee-track span{display:block;flex:none;white-space:nowrap;font-size:clamp(8px,1.65vw,12px);font-weight:900;padding-right:48px}
 @keyframes marqueeRun{from{transform:translateX(0)}to{transform:translateX(calc(-100% - 110vw))}}
-.live-section{padding:26px 12px 42px;background:#f8f0e3;text-align:center;line-height:1.2}.live-title{font-size:clamp(21px,5vw,30px);font-weight:900;color:#5b2815;margin-bottom:6px}.live-subtitle{font-size:14px;color:#76513d;font-weight:700;margin-bottom:16px}.live-player-wrap{width:min(100%,680px);margin:0 auto;background:#17120f;border-radius:16px;overflow:hidden;box-shadow:0 5px 18px rgba(0,0,0,.18);aspect-ratio:16/9;position:relative}.live-iframe{width:100%;height:100%;display:block;border:0;background:#17120f}.live-status{display:inline-flex;align-items:center;gap:6px;margin-top:14px;padding:8px 14px;border-radius:999px;background:#fffaf1;color:#6b2d16;font-size:13px;font-weight:900}.live-dot{width:9px;height:9px;border-radius:50%;background:#c62828}</style>
+.live-section{padding:26px 12px 42px;background:#f8f0e3;text-align:center;line-height:1.2}.live-title{font-size:clamp(21px,5vw,30px);font-weight:900;color:#5b2815;margin-bottom:6px}.live-subtitle{font-size:14px;color:#76513d;font-weight:700;margin-bottom:16px}.live-player-wrap{width:min(100%,680px);margin:0 auto;background:#17120f;border-radius:16px;overflow:hidden;box-shadow:0 5px 18px rgba(0,0,0,.18);aspect-ratio:16/9;position:relative}.live-video{width:100%;height:100%;display:block;background:#17120f;object-fit:contain}.live-message{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:20px;text-align:center;color:#fff;background:rgba(23,18,15,.78);font-size:15px;font-weight:900}.live-message.hidden{display:none}.live-status{display:inline-flex;align-items:center;gap:6px;margin-top:14px;padding:8px 14px;border-radius:999px;background:#fffaf1;color:#6b2d16;font-size:13px;font-weight:900}.live-dot{width:9px;height:9px;border-radius:50%;background:#c62828}.live-dot.on{background:#16a34a;box-shadow:0 0 0 3px rgba(22,163,74,.15)}</style>
 </head>
 <body>
 <main class="page">
@@ -124,11 +124,12 @@ marquee-track span{display:block;flex:none;white-space:nowrap;font-size:clamp(8p
 
 <section id="officialLive" class="live-section" aria-label="老爹．涼糕官網直播">
   <div class="live-title">🔴 老爹．涼糕 LIVE</div>
-  <div class="live-subtitle">直播時直接在官網觀看，不跳到抖音</div>
+  <div class="live-subtitle">TikTok 開播後，直播畫面直接顯示在官網</div>
   <div class="live-player-wrap">
-    <iframe class="live-iframe" src="https://player.livepush.io/live/emPbKlWe2iIJujiN" title="老爹．涼糕官網直播" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen loading="lazy"></iframe>
+    <video id="tiktokLiveVideo" class="live-video" controls playsinline webkit-playsinline muted preload="none" poster="https://yemzdwxtyosuaczsqwea.supabase.co/storage/v1/object/public/site-images/home/homepage-1790434111140.png"></video>
+    <div id="tiktokLiveMessage" class="live-message">正在確認直播狀態…</div>
   </div>
-  <div class="live-status"><span class="live-dot"></span>直播開始後可直接在官網觀看</div>
+  <div id="tiktokLiveStatus" class="live-status"><span class="live-dot"></span>正在確認直播狀態</div>
 </section>
 
 <script>
