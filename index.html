@@ -253,20 +253,22 @@ html,body{margin:0;padding:0;background:#f8f0e3}
       video.muted=true;
       hls=new Hls({
         enableWorker:true,
-        lowLatencyMode:false,
+        lowLatencyMode:true,
         backBufferLength:0,
-        maxBufferLength:12,
-        maxMaxBufferLength:20,
-        liveSyncDuration:8,
-        liveMaxLatencyDuration:24,
-        liveSyncOnStallIncrease:2,
-        maxLiveSyncPlaybackRate:1.15,
+        maxBufferLength:5,
+        maxMaxBufferLength:8,
+        liveSyncDuration:3,
+        liveMaxLatencyDuration:9,
+        liveSyncOnStallIncrease:1,
+        maxLiveSyncPlaybackRate:1.08,
         liveSyncMode:'edge',
         capLevelToPlayerSize:true,
         startOnSegmentBoundary:true,
-        manifestLoadingMaxRetry:2,
-        levelLoadingMaxRetry:3,
-        fragLoadingMaxRetry:3
+        manifestLoadingMaxRetry:1,
+        levelLoadingMaxRetry:2,
+        fragLoadingMaxRetry:2,
+        maxBufferHole:0.5,
+        highBufferWatchdogPeriod:1
       });
       hls.loadSource(streamUrl);
       hls.attachMedia(video);
