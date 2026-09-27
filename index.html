@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- LDG_VERSION:20260927-V -->
+<!-- LDG_VERSION:20260927-W -->
 <html lang="zh-Hant">
 <head>
 <meta charset="utf-8">
@@ -267,8 +267,11 @@ html,body{margin:0;padding:0;background:#f8f0e3}
       const data=await res.json();
       if(data&&data.is_live){
         isLive=true;
-        const streamUrl=data.hls_url||data.flv_url||'';
-        const fallbackUrl=data.hls_url&&data.flv_url?data.flv_url:'';
+        const directHls=data.hls_url||'';
+        const relayHls=data.hls_relay_url||'';
+        const directFlv=data.flv_url||'';
+        const streamUrl=relayHls||directHls||directFlv;
+        const fallbackUrl=relayHls&&directFlv?directFlv:(directHls&&directFlv?directFlv:'');
         if(streamUrl){
           if(streamUrl!==currentUrl){
             await startPlayer(streamUrl,fallbackUrl);
