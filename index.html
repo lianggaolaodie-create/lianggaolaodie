@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- LDG_VERSION:20260927-P -->
+<!-- LDG_VERSION:20260927-Q -->
 <html lang="zh-Hant">
 <head>
 <meta charset="utf-8">
@@ -162,7 +162,7 @@ html,body{margin:0;padding:0;background:#f8f0e3}
     }
     currentUrl='';
   }
-  async function startPlayer(streamUrl){
+  async function startPlayer(streamUrl, fallbackUrl){
     if(!video||!streamUrl||streamUrl===currentUrl)return;
     currentUrl=streamUrl;
     hideMessage();
@@ -180,8 +180,16 @@ html,body{margin:0;padding:0;background:#f8f0e3}
       hls.on(Hls.Events.MANIFEST_PARSED,async function(){try{await video.play();}catch(e){}});
       hls.on(Hls.Events.ERROR,function(_,data){
         if(data&&data.fatal){
-          setStatus('直播連線中，正在重新連線',true);
-          setTimeout(checkLive,3000);
+          try{hls.destroy();}catch(e){}hls=null;
+          if(fallbackUrl&&fallbackUrl!==currentUrl){
+            currentUrl='';
+            startPlayer(fallbackUrl,'');
+            setStatus('直播中・切換直播串流',true);
+          }else{
+            showMessage('已偵測到直播，但目前播放串流無法播放，正在重新連線…');
+            setStatus('直播連線中，正在重新連線',true);
+            setTimeout(checkLive,3000);
+          }
         }
       });
     }else if(window.flvjs&&flvjs.isSupported()){
@@ -190,6 +198,8 @@ html,body{margin:0;padding:0;background:#f8f0e3}
       flvPlayer.load();
       try{await video.play();}catch(e){}
       flvPlayer.on(flvjs.Events.ERROR,function(){
+        try{flvPlayer.destroy();}catch(e){}flvPlayer=null;
+        showMessage('已偵測到直播，但目前播放串流無法播放，正在重新連線…');
         setStatus('直播連線中，正在重新連線',true);
         setTimeout(checkLive,3000);
       });
