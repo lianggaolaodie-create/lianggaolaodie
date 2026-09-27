@@ -205,7 +205,7 @@ html,body{margin:0;padding:0;background:#f8f0e3}
 
     if(isFlv&&window.mpegts&&mpegts.getFeatureList().mseLivePlayback){
       video.muted=true;
-      const mtPlayer=mpegts.createPlayer({type:'flv',isLive:true,url:playUrl,cors:true},{enableWorker:false,enableWorkerForMSE:false,enableStashBuffer:true,stashInitialSize:384*1024,liveBufferLatencyChasing:true,liveBufferLatencyMaxLatency:3,liveBufferLatencyMinRemain:0.8});
+      const mtPlayer=mpegts.createPlayer({type:'flv',isLive:true,url:playUrl,cors:true},{enableWorker:true,enableWorkerForMSE:true,enableStashBuffer:false,stashInitialSize:128*1024,liveBufferLatencyChasing:true,liveBufferLatencyMaxLatency:1.2,liveBufferLatencyMinRemain:0.5,liveSync:true,liveSyncMaxLatency:1.2,liveSyncTargetLatency:0.8,liveSyncPlaybackRate:1.2});
       flvPlayer=mtPlayer;
       mtPlayer.attachMediaElement(video);
       mtPlayer.load();
