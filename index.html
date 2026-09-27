@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- LDG_VERSION:20260927-Q -->
+<!-- LDG_VERSION:20260927-R -->
 <html lang="zh-Hant">
 <head>
 <meta charset="utf-8">
@@ -144,6 +144,10 @@ html,body{margin:0;padding:0;background:#f8f0e3}
   let hls=null;
   let flvPlayer=null;
   let currentUrl='';
+  let isLive=false;
+  let retryTimer=null;
+  let checkBusy=false;
+  let lastGoodAt=0;
 
   function setStatus(text,on){
     if(status)status.innerHTML='<span class="live-dot'+(on?' on':'')+'"></span>'+text;
@@ -162,6 +166,15 @@ html,body{margin:0;padding:0;background:#f8f0e3}
     }
     currentUrl='';
   }
+  function scheduleRetry(ms){
+    clearTimeout(retryTimer);
+    retryTimer=setTimeout(checkLive,ms);
+  }
+  function markPlaying(){
+    lastGoodAt=Date.now();
+    hideMessage();
+    setStatus('直播中・官網直接觀看',true);
+  }
   async function startPlayer(streamUrl, fallbackUrl){
     if(!video||!streamUrl||streamUrl===currentUrl)return;
     currentUrl=streamUrl;
@@ -170,14 +183,31 @@ html,body{margin:0;padding:0;background:#f8f0e3}
     if(flvPlayer){try{flvPlayer.destroy();}catch(e){}flvPlayer=null;}
     if(video.canPlayType('application/vnd.apple.mpegurl')){
       video.src=streamUrl;
+      video.onplaying=markPlaying;
+      video.onerror=function(){
+        showMessage('直播畫面連線失敗，正在重新連線…');
+        setStatus('直播連線中',true);
+        scheduleRetry(5000);
+      };
       try{await video.play();}catch(e){}
       return;
     }
     if(window.Hls&&Hls.isSupported()){
-      hls=new Hls({enableWorker:true,lowLatencyMode:true});
+      hls=new Hls({
+        enableWorker:true,
+        lowLatencyMode:true,
+        backBufferLength:15,
+        maxBufferLength:20,
+        maxMaxBufferLength:30,
+        liveSyncDurationCount:3,
+        manifestLoadingMaxRetry:2,
+        levelLoadingMaxRetry:2,
+        fragLoadingMaxRetry:2
+      });
       hls.loadSource(streamUrl);
       hls.attachMedia(video);
       hls.on(Hls.Events.MANIFEST_PARSED,async function(){try{await video.play();}catch(e){}});
+      video.onplaying=markPlaying;
       hls.on(Hls.Events.ERROR,function(_,data){
         if(data&&data.fatal){
           try{hls.destroy();}catch(e){}hls=null;
@@ -186,22 +216,25 @@ html,body{margin:0;padding:0;background:#f8f0e3}
             startPlayer(fallbackUrl,'');
             setStatus('直播中・切換直播串流',true);
           }else{
-            showMessage('已偵測到直播，但目前播放串流無法播放，正在重新連線…');
-            setStatus('直播連線中，正在重新連線',true);
-            setTimeout(checkLive,3000);
+            showMessage('直播畫面連線失敗，正在重新連線…');
+            setStatus('直播連線中',true);
+            currentUrl='';
+            scheduleRetry(5000);
           }
         }
       });
     }else if(window.flvjs&&flvjs.isSupported()){
-      flvPlayer=flvjs.createPlayer({type:'flv',url:streamUrl,isLive:true});
+      flvPlayer=flvjs.createPlayer({type:'flv',url:streamUrl,isLive:true,config:{enableStashBuffer:false,stashInitialSize:128}});
       flvPlayer.attachMediaElement(video);
       flvPlayer.load();
+      video.onplaying=markPlaying;
       try{await video.play();}catch(e){}
       flvPlayer.on(flvjs.Events.ERROR,function(){
         try{flvPlayer.destroy();}catch(e){}flvPlayer=null;
-        showMessage('已偵測到直播，但目前播放串流無法播放，正在重新連線…');
-        setStatus('直播連線中，正在重新連線',true);
-        setTimeout(checkLive,3000);
+        showMessage('直播畫面連線失敗，正在重新連線…');
+        setStatus('直播連線中',true);
+        currentUrl='';
+        scheduleRetry(5000);
       });
     }else{
       showMessage('此瀏覽器不支援直播播放');
@@ -209,34 +242,50 @@ html,body{margin:0;padding:0;background:#f8f0e3}
     }
   }
   async function checkLive(){
+    if(checkBusy)return;
+    checkBusy=true;
     try{
-      const res=await fetch(API+'&_cb='+Date.now(),{cache:'no-store'});
+      const controller=new AbortController();
+      const timeout=setTimeout(()=>controller.abort(),8000);
+      const res=await fetch(API+'&_cb='+Date.now(),{cache:'no-store',signal:controller.signal});
+      clearTimeout(timeout);
       if(!res.ok)throw new Error('HTTP '+res.status);
       const data=await res.json();
       if(data&&data.is_live){
+        isLive=true;
         const streamUrl=data.hls_url||data.flv_url||'';
+        const fallbackUrl=data.hls_url&&data.flv_url?data.flv_url:'';
         if(streamUrl){
-          await startPlayer(streamUrl);
-          setStatus('直播中・官網直接觀看',true);
+          if(streamUrl!==currentUrl){
+            await startPlayer(streamUrl,fallbackUrl);
+          }else if(Date.now()-lastGoodAt>45000){
+            currentUrl='';
+            await startPlayer(streamUrl,fallbackUrl);
+          }
+          if(!lastGoodAt) setStatus('直播連線中',true);
         }else{
-          stopPlayer();
           showMessage('已偵測到直播，正在取得直播畫面…');
           setStatus('直播連線中',true);
         }
       }else{
-        stopPlayer();
+        isLive=false;
+        if(currentUrl||hls||flvPlayer)stopPlayer();
         showMessage('目前沒有直播，開播後這裡會自動顯示');
         setStatus('目前未直播',false);
       }
     }catch(e){
-      stopPlayer();
-      showMessage('直播狀態暫時無法取得，稍後自動重試');
-      setStatus('等待直播連線',false);
+      // 網路短暫失敗時不要摧毀現有播放器，避免畫面卡頓與反覆重載
+      if(!currentUrl){
+        showMessage('直播狀態暫時無法取得，稍後自動重試');
+        setStatus('等待直播連線',false);
+      }
       console.warn('TikTok LIVE proxy error',e);
+    }finally{
+      checkBusy=false;
     }
   }
   checkLive();
-  setInterval(checkLive,20000);
+  setInterval(checkLive,30000);
 })();
 </script>
 
@@ -288,38 +337,7 @@ html,body{margin:0;padding:0;background:#f8f0e3}
   });
 })();
 </script>
-<script>
-(function(){
-  const client=supabase.createClient('https://yemzdwxtyosuaczsqwea.supabase.co','sb_publishable_7b4hgNL68yiYbec7fXToYQ_UxPE4sEB');
-  const VERSION='LDG-20260927-F';
-  document.documentElement.setAttribute('data-site-version',VERSION);
-  const link=document.getElementById('marqueeLive');
-  const text=document.getElementById('marqueeLiveText');
-  const copy=document.getElementById('marqueeLiveCopy');
-  if(!link||!text)return;
-  async function loadMarquee(){
-    try{
-      const url='https://yemzdwxtyosuaczsqwea.supabase.co/rest/v1/site_admin_content?section_id=eq.marquee&select=data&_cb='+Date.now();
-      const resp=await fetch(url,{method:'GET',cache:'no-store',headers:{'apikey':'sb_publishable_7b4hgNL68yiYbec7fXToYQ_UxPE4sEB','Authorization':'Bearer sb_publishable_7b4hgNL68yiYbec7fXToYQ_UxPE4sEB'}});
-      if(!resp.ok)throw new Error('marquee fetch '+resp.status);
-      const rows=await resp.json();
-      const d=rows&&rows[0]&&rows[0].data?rows[0].data:{};
-      if(d.enabled===false||!d.text){link.style.display='none';return;}
-      text.textContent=d.text;
-      copy.textContent=d.text;
-      link.href=d.link||'activity.html';
-      link.style.display='flex';
-    }catch(e){
-      text.textContent='老爹．涼糕｜最新消息請看官網';
-      copy.textContent=text.textContent;
-      link.href='activity.html';
-      link.style.display='flex';
-      console.warn('跑馬燈同步失敗',e);
-    }
-  }
-  loadMarquee();
-})();
-</script>
+
 
 </body>
 </html>
