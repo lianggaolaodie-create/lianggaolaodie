@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- LDG_VERSION:20260927-E -->
+<!-- LDG_VERSION:20260927-F -->
 <html lang="zh-Hant">
 <head>
 <meta charset="utf-8">
@@ -48,8 +48,8 @@ html,body{margin:0;padding:0;background:#f8f0e3}
 .mobile-menu-close{position:absolute;right:10px;top:6px;border:0;background:none;font-size:32px;color:#4d2413;line-height:1}
 .marquee-live{position:absolute;top:8.75%;left:6%;right:6%;height:1.85%;z-index:100000;display:flex;align-items:center;overflow:hidden;background:rgba(255,250,241,.92);border-radius:8px;color:#6b2d16;text-decoration:none;line-height:1;pointer-events:auto;box-shadow:0 1px 5px rgba(0,0,0,.12)}
 .marquee-track{display:flex;align-items:center;width:max-content;min-width:100%;animation:marqueeRun 22s linear infinite;will-change:transform}
-.live-card{position:absolute;top:11.2%;left:6%;right:6%;height:7.8%;z-index:100001;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 12px;background:rgba(255,250,241,.96);border:1px solid rgba(138,61,29,.18);border-radius:12px;box-shadow:0 3px 12px rgba(0,0,0,.14);text-decoration:none;color:#5b2815;line-height:1.1;overflow:hidden}.live-card-title{font-size:clamp(12px,2.7vw,18px);font-weight:900;white-space:nowrap}.live-card-sub{font-size:clamp(9px,1.9vw,12px);font-weight:700;white-space:nowrap;opacity:.82}.live-card-btn{flex:none;background:#8a3d1d;color:#fff;border-radius:999px;padding:7px 11px;font-size:clamp(9px,2vw,12px);font-weight:900;white-space:nowrap}.marquee-track span{display:block;flex:none;white-space:nowrap;font-size:clamp(8px,1.65vw,12px);font-weight:900;padding-right:48px}
-@keyframes marqueeRun{from{transform:translateX(0)}to{transform:translateX(calc(-100% - 110vw))}}to{transform:translateX(-50%)}}
+marquee-track span{display:block;flex:none;white-space:nowrap;font-size:clamp(8px,1.65vw,12px);font-weight:900;padding-right:48px}
+@keyframes marqueeRun{from{transform:translateX(0)}to{transform:translateX(calc(-100% - 110vw))}}
 .tiktok-section{padding:24px 12px 40px;background:#f8f0e3;text-align:center;line-height:1.2}.tiktok-title{font-size:clamp(20px,5vw,30px);font-weight:900;color:#5b2815;margin-bottom:6px}.tiktok-subtitle{font-size:14px;color:#76513d;font-weight:700;margin-bottom:16px}.tiktok-live-button{display:inline-block;margin-top:12px;padding:11px 18px;border-radius:999px;background:#8a3d1d;color:#fff;text-decoration:none;font-weight:900;font-size:14px}.tiktok-section .tiktok-embed{margin-bottom:0!important}</style>
 </head>
 <body>
@@ -73,7 +73,6 @@ html,body{margin:0;padding:0;background:#f8f0e3}
 <a class="hot nav-news" href="activity.html" aria-label="最新活動"></a>
 <a class="hot nav-contact" href="contact.html" aria-label="聯絡我們"></a>
 
-<a class="live-card" href="https://www.tiktok.com/@kaip1018" target="_blank" rel="noopener" aria-label="老爹．涼糕 TikTok 直播"><span><span class="live-card-title">🔴 老爹．涼糕 LIVE</span><br><span class="live-card-sub">抖音／TikTok 直播入口</span></span><span class="live-card-btn">立即觀看</span></a>
 
 <a id="marqueeLive" class="hot marquee-live" href="activity.html" aria-label="最新消息"><span class="marquee-track"><span id="marqueeLiveText">🍡 老爹．涼糕｜新鮮製作・每日更新｜當日口味、出攤地點與時間請看官網｜歡迎提前預訂｜謝謝大家支持 ❤️</span><span id="marqueeLiveCopy" aria-hidden="true">🍡 老爹．涼糕｜新鮮製作・每日更新｜當日口味、出攤地點與時間請看官網｜歡迎提前預訂｜謝謝大家支持 ❤️</span></span></a>
 
@@ -135,7 +134,7 @@ html,body{margin:0;padding:0;background:#f8f0e3}
 
 <script>
 (function(){
-  const VERSION='LDG-20260927-C';
+  const VERSION='LDG-20260927-F';
   const FALLBACK='🍡 老爹．涼糕｜新鮮製作・每日更新｜當日口味、出攤地點與時間請看官網｜歡迎提前預訂｜謝謝大家支持 ❤️';
   const link=document.getElementById('marqueeLive');
   const text=document.getElementById('marqueeLiveText');
@@ -184,7 +183,7 @@ html,body{margin:0;padding:0;background:#f8f0e3}
 <script>
 (function(){
   const client=supabase.createClient('https://yemzdwxtyosuaczsqwea.supabase.co','sb_publishable_7b4hgNL68yiYbec7fXToYQ_UxPE4sEB');
-  const VERSION='LDG-20260927-B';
+  const VERSION='LDG-20260927-F';
   document.documentElement.setAttribute('data-site-version',VERSION);
   const link=document.getElementById('marqueeLive');
   const text=document.getElementById('marqueeLiveText');
