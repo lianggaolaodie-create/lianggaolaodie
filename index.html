@@ -192,15 +192,15 @@ html,body{margin:0;padding:0;background:#f8f0e3}
     setStatus('直播中・官網直接觀看',true);
     if(video && video.muted)showSoundButton();
   }
-  async function startPlayer(streamUrl, fallbackUrl){
+  async function startPlayer(streamUrl, fallbackUrl, forcedType){
     if(!video||!streamUrl||streamUrl===currentUrl)return;
     currentUrl=streamUrl;
     hideMessage();
     showSoundButton();
     if(hls){try{hls.destroy();}catch(e){}hls=null;}
     if(flvPlayer){try{flvPlayer.destroy();}catch(e){}flvPlayer=null;}
-    const isFlv=/\\.flv(?:\\?|$)|pull-flv/i.test(streamUrl);
-    const isHls=/\\.m3u8(?:\\?|$)|pull-hls/i.test(streamUrl);
+    const isFlv=forcedType==='flv'||/\\.flv(?:\\?|$)|pull-flv/i.test(streamUrl);
+    const isHls=forcedType==='hls'||/\\.m3u8(?:\\?|$)|pull-hls/i.test(streamUrl);
     const playUrl=isFlv ? API.split('?')[0]+'?proxy='+encodeURIComponent(streamUrl) : streamUrl;
 
     if(isFlv&&window.mpegts&&mpegts.getFeatureList().mseLivePlayback){
@@ -311,9 +311,10 @@ html,body{margin:0;padding:0;background:#f8f0e3}
         const isIOS=/iPhone|iPad|iPod/i.test(navigator.userAgent);
         const streamUrl=isAndroid ? (directFlv||directHls) : (directHls||directFlv);
         const fallbackUrl=isAndroid && directFlv&&directHls ? directHls : (directFlv&&directHls ? directFlv : '');
+        const streamType=isAndroid&&directFlv ? 'flv' : 'hls';
         if(streamUrl){
           if(streamUrl!==currentUrl){
-            await startPlayer(streamUrl,fallbackUrl);
+            await startPlayer(streamUrl,fallbackUrl,streamType);
           }
           if(!lastGoodAt) setStatus('正在載入直播畫面…',true);
         }else{
