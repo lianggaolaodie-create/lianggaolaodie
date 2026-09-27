@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- LDG_VERSION:20260927-R -->
+<!-- LDG_VERSION:20260927-S -->
 <html lang="zh-Hant">
 <head>
 <meta charset="utf-8">
@@ -132,7 +132,7 @@ html,body{margin:0;padding:0;background:#f8f0e3}
   <div id="tiktokLiveStatus" class="live-status"><span class="live-dot"></span>正在確認直播狀態</div>
 </section>
 
-<script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.18/dist/hls.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/hls.js@1.6.15/dist/hls.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/flv.js@1.6.2/dist/flv.min.js"></script>
 <script>
 (function(){
@@ -181,25 +181,17 @@ html,body{margin:0;padding:0;background:#f8f0e3}
     hideMessage();
     if(hls){try{hls.destroy();}catch(e){}hls=null;}
     if(flvPlayer){try{flvPlayer.destroy();}catch(e){}flvPlayer=null;}
-    if(video.canPlayType('application/vnd.apple.mpegurl')){
-      video.src=streamUrl;
-      video.onplaying=markPlaying;
-      video.onerror=function(){
-        showMessage('直播畫面連線失敗，正在重新連線…');
-        setStatus('直播連線中',true);
-        scheduleRetry(5000);
-      };
-      try{await video.play();}catch(e){}
-      return;
-    }
     if(window.Hls&&Hls.isSupported()){
       hls=new Hls({
         enableWorker:true,
-        lowLatencyMode:true,
-        backBufferLength:15,
-        maxBufferLength:20,
-        maxMaxBufferLength:30,
-        liveSyncDurationCount:3,
+        lowLatencyMode:false,
+        backBufferLength:0,
+        maxBufferLength:30,
+        maxMaxBufferLength:45,
+        liveSyncDurationCount:5,
+        liveMaxLatencyDurationCount:12,
+        liveSyncOnStallIncrease:2,
+        capLevelToPlayerSize:true,
         manifestLoadingMaxRetry:2,
         levelLoadingMaxRetry:2,
         fragLoadingMaxRetry:2
