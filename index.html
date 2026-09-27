@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- LDG_VERSION:20260927-T -->
+<!-- LDG_VERSION:20260927-U -->
 <html lang="zh-Hant">
 <head>
 <meta charset="utf-8">
@@ -126,7 +126,8 @@ html,body{margin:0;padding:0;background:#f8f0e3}
   <div class="live-title">🔴 老爹．涼糕 LIVE</div>
   <div class="live-subtitle">TikTok 開播後，直播畫面直接顯示在官網</div>
   <div class="live-player-wrap">
-    <video id="tiktokLiveVideo" class="live-video" controls playsinline webkit-playsinline muted preload="none" poster="https://yemzdwxtyosuaczsqwea.supabase.co/storage/v1/object/public/site-images/home/homepage-1790434111140.png"></video>
+    <video id="tiktokLiveVideo" class="live-video" controls playsinline webkit-playsinline preload="none" poster="https://yemzdwxtyosuaczsqwea.supabase.co/storage/v1/object/public/site-images/home/homepage-1790434111140.png"></video>
+    <button id="liveSoundButton" type="button" style="position:absolute;left:50%;bottom:18px;transform:translateX(-50%);z-index:5;border:0;border-radius:999px;padding:10px 18px;background:rgba(0,0,0,.72);color:#fff;font-size:14px;font-weight:900;display:none">🔊 點一下開啟聲音</button>
     <div id="tiktokLiveMessage" class="live-message">正在確認直播狀態…</div>
   </div>
   <div id="tiktokLiveStatus" class="live-status"><span class="live-dot"></span>正在確認直播狀態</div>
@@ -141,6 +142,7 @@ html,body{margin:0;padding:0;background:#f8f0e3}
   const video=document.getElementById('tiktokLiveVideo');
   const msg=document.getElementById('tiktokLiveMessage');
   const status=document.getElementById('tiktokLiveStatus');
+  const soundButton=document.getElementById('liveSoundButton');
   let hls=null;
   let flvPlayer=null;
   let currentUrl='';
@@ -156,6 +158,19 @@ html,body{margin:0;padding:0;background:#f8f0e3}
     if(msg){msg.textContent=text;msg.classList.remove('hidden');}
   }
   function hideMessage(){if(msg)msg.classList.add('hidden');}
+  function showSoundButton(){if(soundButton)soundButton.style.display='block';}
+  function hideSoundButton(){if(soundButton)soundButton.style.display='none';}
+  async function enableSound(){
+    if(!video)return;
+    video.muted=false;
+    video.volume=1;
+    try{await video.play();}catch(e){}
+    hideSoundButton();
+  }
+  if(soundButton)soundButton.addEventListener('click',enableSound);
+  if(video)video.addEventListener('click',function(){
+    if(video.muted)showSoundButton();
+  });
   function stopPlayer(){
     if(hls){try{hls.destroy();}catch(e){}hls=null;}
     if(flvPlayer){try{flvPlayer.destroy();}catch(e){}flvPlayer=null;}
@@ -174,11 +189,13 @@ html,body{margin:0;padding:0;background:#f8f0e3}
     lastGoodAt=Date.now();
     hideMessage();
     setStatus('直播中・官網直接觀看',true);
+    if(video && video.muted)showSoundButton();
   }
   async function startPlayer(streamUrl, fallbackUrl){
     if(!video||!streamUrl||streamUrl===currentUrl)return;
     currentUrl=streamUrl;
     hideMessage();
+    showSoundButton();
     if(hls){try{hls.destroy();}catch(e){}hls=null;}
     if(flvPlayer){try{flvPlayer.destroy();}catch(e){}flvPlayer=null;}
     if(window.Hls&&Hls.isSupported()){
