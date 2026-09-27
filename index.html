@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- LDG_VERSION:20260927-U -->
+<!-- LDG_VERSION:20260927-V -->
 <html lang="zh-Hant">
 <head>
 <meta charset="utf-8">
@@ -199,6 +199,7 @@ html,body{margin:0;padding:0;background:#f8f0e3}
     if(hls){try{hls.destroy();}catch(e){}hls=null;}
     if(flvPlayer){try{flvPlayer.destroy();}catch(e){}flvPlayer=null;}
     if(window.Hls&&Hls.isSupported()){
+      video.muted=true;
       hls=new Hls({
         enableWorker:true,
         lowLatencyMode:false,
@@ -236,6 +237,7 @@ html,body{margin:0;padding:0;background:#f8f0e3}
         }
       });
     }else if(window.flvjs&&flvjs.isSupported()){
+      video.muted=true;
       flvPlayer=flvjs.createPlayer({type:'flv',url:streamUrl,isLive:true,config:{enableStashBuffer:false,stashInitialSize:128}});
       flvPlayer.attachMediaElement(video);
       flvPlayer.load();
