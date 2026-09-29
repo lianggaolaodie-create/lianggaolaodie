@@ -15,16 +15,31 @@ jobs:
         run: |
           python3 - <<'PY'
           from pathlib import Path
-          import re
+
+          # Existing iPhone touch fix for the fixed admin page.
           p=Path('admin-orders-fixed.html')
-          s=p.read_text()
-          s=s.replace('''/* ADMIN_IPHONE_TOUCH_FIX_20260930 */\n(function(){\n  document.querySelectorAll('button').forEach(function(b){ b.type='button'; });\n  document.addEventListener('touchend',function(e){\n    var b=e.target && e.target.closest ? e.target.closest('button') : null;\n    if(!b || b.disabled) return;\n    e.preventDefault();\n    b.click();\n  },{passive:false});\n  window.addEventListener('error',function(e){\n    var el=document.getElementById('orderMsg') || document.getElementById('loginMsg');\n    if(el && e.message) el.innerHTML='<div class="notice err">系統錯誤：'+String(e.message).replace(/[&<>]/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[m]})+'</div>';\n  });\n})();\n''','''/* ADMIN_IPHONE_TOUCH_FIX_20260930 */\n(function(){\n  document.querySelectorAll('button').forEach(function(b){ b.type='button'; });\n  function hit(x,y){\n    var list=document.elementsFromPoint ? document.elementsFromPoint(x,y) : [];\n    for(var i=0;i<list.length;i++){\n      var el=list[i];\n      var b=el && el.closest ? el.closest('button') : null;\n      if(b && !b.disabled && b.offsetParent!==null) return b;\n    }\n    return null;\n  }\n  function fire(e){\n    var t=e.changedTouches && e.changedTouches[0];\n    if(!t) return;\n    var b=hit(t.clientX,t.clientY);\n    if(!b) return;\n    e.preventDefault();\n    e.stopPropagation();\n    b.click();\n  }\n  document.addEventListener('touchend',fire,{passive:false,capture:true});\n  document.addEventListener('pointerup',function(e){\n    if(e.pointerType==='touch'){\n      var b=hit(e.clientX,e.clientY);\n      if(b){ e.preventDefault(); e.stopPropagation(); b.click(); }\n    }\n  },{passive:false,capture:true});\n  window.addEventListener('error',function(e){\n    var el=document.getElementById('orderMsg') || document.getElementById('loginMsg');\n    if(el && e.message) el.innerHTML='<div class="notice err">系統錯誤：'+String(e.message).replace(/[&<>]/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[m]})+'</div>';\n  });\n})();\n''')
-          p.write_text(s)
+          if p.exists():
+              s=p.read_text()
+              old='''/* ADMIN_IPHONE_TOUCH_FIX_20260930 */\n(function(){\n  document.querySelectorAll('button').forEach(function(b){ b.type='button'; });\n  document.addEventListener('touchend',function(e){\n    var b=e.target && e.target.closest ? e.target.closest('button') : null;\n    if(!b || b.disabled) return;\n    e.preventDefault();\n    b.click();\n  },{passive:false});\n  window.addEventListener('error',function(e){\n    var el=document.getElementById('orderMsg') || document.getElementById('loginMsg');\n    if(el && e.message) el.innerHTML='<div class="notice err">系統錯誤：'+String(e.message).replace(/[&<>]/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[m]})+'</div>';\n  });\n})();\n'''
+              new='''/* ADMIN_IPHONE_TOUCH_FIX_20260930 */\n(function(){\n  document.querySelectorAll('button').forEach(function(b){ b.type='button'; });\n  function hit(x,y){\n    var list=document.elementsFromPoint ? document.elementsFromPoint(x,y) : [];\n    for(var i=0;i<list.length;i++){\n      var el=list[i];\n      var b=el && el.closest ? el.closest('button') : null;\n      if(b && !b.disabled && b.offsetParent!==null) return b;\n    }\n    return null;\n  }\n  function fire(e){\n    var t=e.changedTouches && e.changedTouches[0];\n    if(!t) return;\n    var b=hit(t.clientX,t.clientY);\n    if(!b) return;\n    e.preventDefault();\n    e.stopPropagation();\n    b.click();\n  }\n  document.addEventListener('touchend',fire,{passive:false,capture:true});\n  document.addEventListener('pointerup',function(e){\n    if(e.pointerType==='touch'){\n      var b=hit(e.clientX,e.clientY);\n      if(b){ e.preventDefault(); e.stopPropagation(); b.click(); }\n    }\n  },{passive:false,capture:true});\n  window.addEventListener('error',function(e){\n    var el=document.getElementById('orderMsg') || document.getElementById('loginMsg');\n    if(el && e.message) el.innerHTML='<div class="notice err">系統錯誤：'+String(e.message).replace(/[&<>]/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[m]})+'</div>';\n  });\n})();\n'''
+              if old in s:
+                  s=s.replace(old,new)
+                  p.write_text(s)
+
+          # Production admin page: make customer deletion work for both pickup and home-delivery records.
+          p=Path('admin-orders-live.html')
+          if p.exists():
+              s=p.read_text()
+              marker='ADMIN_CUSTOMER_DELETE_FIX_20260930'
+              if marker not in s:
+                  patch='''\n<script>\n/* ADMIN_CUSTOMER_DELETE_FIX_20260930 */\n(function(){\n  window.deleteCustomer=async function(o){\n    if(!o)return;\n    if(!confirm('確定刪除這筆客戶個資嗎？訂單本身會保留。'))return;\n    try{\n      if(o.type==='pickup'){\n        if(!o.customer_id){alert('找不到客戶資料');return;}\n        const a=await db.from('cooling_pickup_orders').update({customer_id:null}).eq('customer_id',o.customer_id);\n        if(a.error){alert('解除個資關聯失敗：'+a.error.message);return;}\n        const r=await db.from('order_customers').delete().eq('id',o.customer_id);\n        if(r.error){alert('刪除個資失敗：'+r.error.message);return;}\n      }else{\n        const r=await db.from('order_private').update({customer_name:'',customer_phone:'',delivery_address:''}).eq('order_id',o.id);\n        if(r.error){alert('刪除個資失敗：'+r.error.message);return;}\n      }\n      await loadAll();\n    }catch(e){alert('刪除個資失敗：'+(e.message||e));}\n  };\n})();\n</script>\n'''
+                  s=s.replace('</body>',patch+'</body>') if '</body>' in s else s+patch
+                  p.write_text(s)
           PY
       - name: Commit fix
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add admin-orders-fixed.html
-          git diff --cached --quiet || git commit -m 'fix iPhone admin touch hit testing'
+          git add admin-orders-fixed.html admin-orders-live.html
+          git diff --cached --quiet || git commit -m 'fix production customer personal data deletion'
           git push
