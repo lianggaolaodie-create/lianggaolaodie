@@ -71,5 +71,32 @@ $('loginForm').addEventListener('submit',doLogin);$('reload').addEventListener('
   };
 })();
 </script>
+<script>/* Inject reliable customer delete handler v2 */
+(function(){
+  document.addEventListener('click', async function(e){
+    const b=e.target.closest('#customers .btn.red');
+    if(!b) return;
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    const card=b.closest('.order');
+    if(!card) return;
+    const m=card.textContent.match(/訂單編號\s*([A-Z0-9-]+)/i);
+    const orderNo=m?m[1]:'';
+    const all=[...(window.pickup||[]),...(window.home||[])];
+    const o=all.find(x=>String(x.order_number||'')===String(orderNo));
+    if(!o){alert('找不到這筆客戶資料，請重新整理後再試。');return;}
+    if(!confirm('確定刪除這筆客戶個資嗎？訂單本身會保留。')) return;
+    let r;
+    if(o.type==='home'){
+      r=await window.db.from('order_private').update({customer_name:'',customer_phone:'',delivery_address:''}).eq('order_id',o.id).select('order_id');
+    }else{
+      r=await window.db.from('cooling_pickup_orders').update({customer_id:null}).eq('customer_id',o.customer_id).select('id');
+      if(!r.error) r=await window.db.from('order_customers').delete().eq('id',o.customer_id).select('id');
+    }
+    if(r.error){alert('刪除個資失敗：'+r.error.message);return;}
+    if(typeof window.loadAll==='function') await window.loadAll();
+  }, true);
+})();
+</script>
 </body>
 </html>

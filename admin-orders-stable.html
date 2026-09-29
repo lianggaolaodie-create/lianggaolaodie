@@ -32,4 +32,31 @@ function customerCard(o){return '<div class="order"><div><b>訂單編號　'+esc
 async function editCustomer(id,type){if(type==='home')return alert('送到府資料請從訂單查看；目前先提供超商客戶個資編輯。');const c=customers.get(id);if(!c)return;const name=prompt('修改姓名',c.name||'');if(name===null)return;const phone=prompt('修改電話',c.phone||'');if(phone===null)return;const r=await db.from('order_customers').update({name:name.trim(),phone:phone.trim()}).eq('id',id);if(r.error)alert('更新失敗：'+r.error.message);else await loadAll()}
 async function deleteCustomer(id){if(!id)return;if(!confirm('確定要刪除這筆個資嗎？訂單會保留。'))return;const r1=await db.from('cooling_pickup_orders').update({customer_id:null}).eq('customer_id',id);if(r1.error){alert('解除關聯失敗：'+r1.error.message);return}const r=await db.from('order_customers').delete().eq('id',id);if(r.error){alert('刪除個資失敗：'+r.error.message);return}await loadAll()}
 $('loginForm').addEventListener('submit',login);$('reload').onclick=loadAll;$('date').onchange=renderOrders;$('ps').oninput=renderOrders;$('hs').oninput=renderOrders;$('cps').oninput=renderCustomers;$('chs').oninput=renderCustomers;$('logout').onclick=()=>db.auth.signOut().then(()=>location.reload());document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active');['orders','customers','daily'].forEach(id=>$(id).classList.add('hidden'));$(b.dataset.page).classList.remove('hidden');if(b.dataset.page==='customers')renderCustomers()});db.auth.getSession().then(async r=>{if(r.data.session&&!await access(r.data.session.user))openApp()});
-</script></body></html>
+</script><script>/* Inject reliable customer delete handler v2 */
+(function(){
+  document.addEventListener('click', async function(e){
+    const b=e.target.closest('#customers .btn.red');
+    if(!b) return;
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    const card=b.closest('.order');
+    if(!card) return;
+    const m=card.textContent.match(/訂單編號\s*([A-Z0-9-]+)/i);
+    const orderNo=m?m[1]:'';
+    const all=[...(window.pickup||[]),...(window.home||[])];
+    const o=all.find(x=>String(x.order_number||'')===String(orderNo));
+    if(!o){alert('找不到這筆客戶資料，請重新整理後再試。');return;}
+    if(!confirm('確定刪除這筆客戶個資嗎？訂單本身會保留。')) return;
+    let r;
+    if(o.type==='home'){
+      r=await window.db.from('order_private').update({customer_name:'',customer_phone:'',delivery_address:''}).eq('order_id',o.id).select('order_id');
+    }else{
+      r=await window.db.from('cooling_pickup_orders').update({customer_id:null}).eq('customer_id',o.customer_id).select('id');
+      if(!r.error) r=await window.db.from('order_customers').delete().eq('id',o.customer_id).select('id');
+    }
+    if(r.error){alert('刪除個資失敗：'+r.error.message);return;}
+    if(typeof window.loadAll==='function') await window.loadAll();
+  }, true);
+})();
+</script>
+</body></html>
