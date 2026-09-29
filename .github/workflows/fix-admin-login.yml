@@ -1,0 +1,33 @@
+name: Fix admin login
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: write
+jobs:
+  fix-login:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch Safari-safe login handler
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('admin-orders-fixed.html')
+          s=p.read_text(encoding='utf-8')
+          old="loginForm.onsubmit=async e=>{e.preventDefault();const r=await db.auth.signInWithPassword({email:email.value.trim(),password:password.value});if(r.error)return note('loginMsg','登入失敗：'+r.error.message,true);const er=await access(r.data.user);if(er){await db.auth.signOut();return note('loginMsg',er,true)}open()};logout.onclick=()=>db.auth.signOut().then(()=>location.reload());"
+          new="const loginFormEl=document.getElementById('loginForm'),emailEl=document.getElementById('email'),passwordEl=document.getElementById('password'),loginMsgEl=document.getElementById('loginMsg'),loginBtn=loginFormEl.querySelector('button[type=submit],button');loginFormEl.addEventListener('submit',async e=>{e.preventDefault();e.stopPropagation();loginBtn.disabled=true;loginBtn.textContent='登入中…';loginMsgEl.innerHTML='';try{const r=await db.auth.signInWithPassword({email:emailEl.value.trim(),password:passwordEl.value});if(r.error){note('loginMsg','登入失敗：'+r.error.message,true);return}const er=await access(r.data.user);if(er){await db.auth.signOut();note('loginMsg',er,true);return}open()}catch(err){note('loginMsg','登入失敗：'+(err?.message||err),true)}finally{loginBtn.disabled=false;loginBtn.textContent='登入'}});logout.onclick=()=>db.auth.signOut().then(()=>location.reload());"
+          if old not in s:
+              print('Login handler already patched or source differs; no change.')
+          else:
+              p.write_text(s.replace(old,new),encoding='utf-8')
+              print('Patched login handler.')
+          PY
+      - name: Commit patch
+        run: |
+          if git diff --quiet; then exit 0; fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add admin-orders-fixed.html
+          git commit -m 'Fix admin login on Safari'
+          git push
