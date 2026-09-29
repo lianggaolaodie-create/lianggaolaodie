@@ -16,37 +16,37 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Inject customer delete handler inside existing app scope
+      - name: Clean broken patch and install customer delete handler
         shell: python
         run: |
           from pathlib import Path
+          import re
 
-          code = r'''\
-/* CUSTOMER_DELETE_FIX_V3 */
-          document.addEventListener('click',async function(e){
-            const b=e.target.closest('#customers .btn.red');
-            if(!b)return;
-            e.preventDefault();
-            e.stopImmediatePropagation();
-            const card=b.closest('.order');
-            if(!card)return;
-            const m=card.textContent.match(/訂單編號\s*([A-Z0-9-]+)/i);
-            const orderNo=m?m[1]:'';
-            const all=[...pickup,...home];
-            const o=all.find(x=>String(x.order_number||'')===String(orderNo));
-            if(!o){alert('找不到這筆客戶資料，請重新整理後再試。');return;}
-            if(!confirm('確定刪除這筆客戶個資嗎？訂單本身會保留。'))return;
-            let r;
-            if(o.type==='home'){
-              r=await db.from('order_private').update({customer_name:'',customer_phone:'',delivery_address:''}).eq('order_id',o.id).select('order_id');
-            }else{
-              r=await db.from('cooling_pickup_orders').update({customer_id:null}).eq('customer_id',o.customer_id).select('id');
-              if(!r.error)r=await db.from('order_customers').delete().eq('id',o.customer_id).select('id');
-            }
-            if(r.error){alert('刪除個資失敗：'+r.error.message);return;}
-            await loadAll();
-          },true);
-'''
+          code = """
+/* CUSTOMER_DELETE_FIX_V4 */
+document.addEventListener('click',async function(e){
+  const b=e.target.closest('#customers .btn.red');
+  if(!b)return;
+  e.preventDefault();
+  e.stopImmediatePropagation();
+  const card=b.closest('.order');
+  if(!card)return;
+  const orderNo=(card.querySelector('b')?.textContent||'').replace('訂單編號','').trim();
+  const all=[...pickup,...home];
+  const o=all.find(x=>String(x.order_number||'')===String(orderNo));
+  if(!o){alert('找不到這筆客戶資料，請重新整理後再試。');return;}
+  if(!confirm('確定刪除這筆客戶個資嗎？訂單本身會保留。'))return;
+  let r;
+  if(o.type==='home'){
+    r=await db.from('order_private').update({customer_name:'',customer_phone:'',delivery_address:''}).eq('order_id',o.id).select('order_id');
+  }else{
+    r=await db.from('cooling_pickup_orders').update({customer_id:null}).eq('customer_id',o.customer_id).select('id');
+    if(!r.error)r=await db.from('order_customers').delete().eq('id',o.customer_id).select('id');
+  }
+  if(r.error){alert('刪除個資失敗：'+r.error.message);return;}
+  await loadAll();
+},true);
+"""
 
           changed=False
           for filename in ['admin-orders-stable.html','admin-orders-live.html']:
@@ -54,8 +54,12 @@ jobs:
               if not p.exists():
                   continue
               s=p.read_text(encoding='utf-8')
-              if 'CUSTOMER_DELETE_FIX_V3' in s:
-                  continue
+
+              # Remove every previous injected customer-delete patch, including
+              # the malformed V2/V3 versions that could break the page script.
+              s=re.sub(r'/\* Inject reliable customer delete handler v2 \*/.*?(?=</body>)', '', s, flags=re.S)
+              s=re.sub(r'/\* CUSTOMER_DELETE_FIX_V[0-9]+ \*/.*?(?=</script>)', '', s, flags=re.S)
+
               pos=s.rfind('</script>')
               if pos < 0:
                   continue
@@ -73,6 +77,6 @@ jobs:
           if git diff --cached --quiet; then
             echo 'No changes.'
           else
-            git commit -m '修正個資管理刪除按鈕'
+            git commit -m '修正個資管理刪除功能並清除錯誤補丁'
             git push
           fi
