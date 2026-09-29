@@ -9,28 +9,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Patch Safari-safe login, session restore, and syntax
+      - name: Restore browser-safe admin script loading
         run: |
           python3 - <<'PY'
           from pathlib import Path
-          import re
           p=Path('admin-orders-fixed.html')
           s=p.read_text(encoding='utf-8')
-          s=s.replace('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"', 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"')
+          s=s.replace('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js','https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2')
           s=s.replace('<input id="email" type="email" required>', '<input id="email" type="email" required autocomplete="username">')
           s=s.replace('<input id="password" type="password" required>', '<input id="password" type="password" required autocomplete="current-password">')
           s=s.replace('<button class="btn">登入</button>', '<button class="btn" type="submit">登入</button>')
-          s=s.replace('window.editCustomer=id=>{', 'window.editCustomer=async id=>{')
-          # Remove the touch/pointer shim that was appended after the main app script.
-          # It force-changed every button to type=button and is not needed for native iPhone touch handling.
-          s=re.sub(r'\n/\* ADMIN_IPHONE_TOUCH_FIX_20260930 \*/.*?\n</script>', '\n</script>', s, flags=re.S)
-          marker='/* ADMIN_SESSION_RESTORE_20260930 */'
-          if marker not in s:
-              needle='function status(s){'
-              patch='''/* ADMIN_SESSION_RESTORE_20260930 */\n(async function restoreAdminSession(){\n  try {\n    const { data, error } = await db.auth.getSession();\n    if (error) throw error;\n    if (data && data.session && data.session.user) {\n      const er = await access(data.session.user);\n      if (!er) open();\n    }\n  } catch (err) { console.warn("admin session restore:", err); }\n})();\ndb.auth.onAuthStateChange((event, session) => {\n  if (session && session.user && event !== "SIGNED_OUT") {\n    setTimeout(async () => {\n      try {\n        const er = await access(session.user);\n        if (!er) open();\n      } catch (err) { console.warn("admin auth state:", err); }\n    }, 0);\n  }\n});\nfunction status(s){'''
-              if needle not in s:
-                  raise SystemExit('target function not found')
-              s=s.replace(needle,patch,1)
           p.write_text(s,encoding='utf-8')
           PY
       - name: Check embedded JavaScript syntax
@@ -41,13 +29,11 @@ jobs:
           html=Path('admin-orders-fixed.html').read_text(encoding='utf-8')
           scripts=re.findall(r'<script(?:\s[^>]*)?>(.*?)</script>', html, flags=re.S|re.I)
           for i,src in enumerate(scripts,1):
-              if not src.strip():
-                  continue
+              if not src.strip(): continue
               f=Path(tempfile.gettempdir())/f'admin-orders-{i}.js'
               f.write_text(src,encoding='utf-8')
               r=subprocess.run(['node','--check',str(f)],text=True,capture_output=True)
               if r.returncode:
-                  print(r.stdout)
                   print(r.stderr)
                   raise SystemExit(f'JavaScript syntax error in script {i}')
           print('JavaScript syntax check passed')
@@ -58,5 +44,5 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add admin-orders-fixed.html
-          git commit -m 'Fix admin orders JavaScript syntax and iPhone touch handling'
+          git commit -m 'Restore admin button script loading'
           git push
