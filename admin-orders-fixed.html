@@ -12,6 +12,13 @@
 正在開啟正式版後台…
 <script>
 location.replace('admin-orders-fixed-v3.html?v=20260930-daily-restored');
-</script>
+/* ADMIN_SESSION_RESTORE_20260930 */
+    db.auth.getSession().then(async r=>{
+      if(r.data && r.data.session){
+        const er=await access(r.data.session.user);
+        if(!er) open();
+      }
+    });
+    </script>
 </body>
 </html>
