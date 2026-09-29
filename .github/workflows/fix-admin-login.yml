@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Patch Safari-safe login handler and Supabase asset
+      - name: Patch Safari-safe login handler and force a fresh Pages build
         run: |
           python3 - <<'PY'
           from pathlib import Path
@@ -19,6 +19,9 @@ jobs:
           s=s.replace('<input id="email" type="email" required>', '<input id="email" type="email" required autocomplete="username">')
           s=s.replace('<input id="password" type="password" required>', '<input id="password" type="password" required autocomplete="current-password">')
           s=s.replace('<button class="btn">登入</button>', '<button class="btn" type="submit">登入</button>')
+          marker='<!-- admin-orders-stable-20260930 -->'
+          if marker not in s:
+              s=s.replace('<!doctype html>', '<!doctype html>\n'+marker, 1)
           p.write_text(s,encoding='utf-8')
           PY
       - name: Commit patch
@@ -27,5 +30,5 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add admin-orders-fixed.html
-          git commit -m 'Harden Safari admin login asset loading'
+          git commit -m 'Stabilize admin backend login deployment'
           git push
