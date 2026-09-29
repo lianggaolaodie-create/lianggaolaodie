@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>老爹．涼糕｜後台登入測試</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f7f3ef;color:#30241d;font-family:-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC",sans-serif}.shell{max-width:520px;margin:60px auto;padding:12px}.card{background:#fff;border:1px solid #e4dad3;border-radius:15px;padding:20px}.brand{font-size:21px;font-weight:900}.muted{color:#786e68;font-size:13px;line-height:1.6}.field{margin:14px 0}.field label{display:block;font-weight:800;margin-bottom:7px}.field input{width:100%;border:1px solid #ddd2ca;border-radius:10px;padding:13px 12px;font:inherit;background:#fff}.btn{width:100%;border:0;border-radius:10px;padding:12px 14px;background:#8d5939;color:#fff;font-weight:900;font-size:16px}.btn:disabled{opacity:.6}.notice{padding:10px;border-radius:10px;margin-top:10px;background:#edf8f1;color:#286c47}.err{background:#fff0ef;color:#a43b35}</style>
+</head>
+<body>
+<div class="shell"><div class="card">
+<div class="brand">🍡 老爹．涼糕｜線上下單管理後台</div>
+<p class="muted">登入測試版：登入後直接進入訂單管理。</p>
+<form id="loginForm" novalidate>
+<div class="field"><label>管理員 Email</label><input id="email" type="email" autocomplete="username" required></div>
+<div class="field"><label>密碼</label><input id="password" type="password" autocomplete="current-password" required></div>
+<button id="loginButton" class="btn" type="submit">登入</button>
+</form><div id="msg"></div>
+</div></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const db=window.supabase.createClient('https://yemzdwxtyosuaczsqwea.supabase.co','sb_publishable_7b4hgNL68yiYbec7fXToYQ_UxPE4sEB',{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
+const form=document.getElementById('loginForm'),email=document.getElementById('email'),password=document.getElementById('password'),button=document.getElementById('loginButton'),msg=document.getElementById('msg');
+function show(t,e=false){msg.className=t?'notice'+(e?' err':''):'';msg.textContent=t||'';}
+async function access(user){const r=await db.from('admin_profiles').select('role,enabled,can_manage_products').eq('user_id',user.id).maybeSingle();if(r.error)return r.error.message;if(!r.data||!r.data.enabled)return'管理員帳號無管理權限';return null;}
+async function go(){const r=await db.auth.getSession();if(!r.data.session)return;const e=await access(r.data.session.user);if(e){await db.auth.signOut();return;}location.replace('admin-orders-fixed.html?v=20260930-test-login');}
+form.addEventListener('submit',async e=>{e.preventDefault();if(button.disabled)return;button.disabled=true;button.textContent='登入中…';show('正在登入…');try{const r=await db.auth.signInWithPassword({email:email.value.trim(),password:password.value});if(r.error)throw r.error;const a=await access(r.data.user);if(a){await db.auth.signOut();throw new Error(a);}const s=await db.auth.getSession();if(!s.data.session)throw new Error('登入成功但沒有保存登入狀態');show('登入成功，正在進入後台…');setTimeout(()=>location.replace('admin-orders-fixed.html?v=20260930-test-login'),150); }catch(x){show('登入失敗：'+(x.message||x),true);button.disabled=false;button.textContent='登入';}});go();
+</script></body></html>
