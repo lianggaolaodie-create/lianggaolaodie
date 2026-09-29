@@ -1,0 +1,34 @@
+name: Apply admin pagination preview
+on:
+  push:
+    branches: [admin-pagination-preview]
+permissions:
+  contents: write
+jobs:
+  paginate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Add pagination overlay
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('admin-orders.html')
+          s=p.read_text()
+          marker='ADMIN_PAGINATION_V1'
+          if marker in s:
+              print('Pagination already applied')
+              raise SystemExit(0)
+          css='''<style id="admin-pagination-style">.admin-pager{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin:14px 0 2px}.admin-pager button{border:1px solid #d9cec6;border-radius:9px;padding:8px 12px;background:#fff;color:#5a4940;font-weight:800}.admin-pager button:disabled{opacity:.45}.admin-pager .info{font-size:13px;color:#766b64;margin:0 6px}</style>'''
+          js='''<script id="admin-pagination-script">/* ADMIN_PAGINATION_V1 */(()=>{const SIZE=10;const state={order:1,customer:1};function pager(id,key,getItems){let box=document.getElementById(id);if(!box){box=document.createElement('div');box.id=id;box.className='admin-pager';const list=key==='order'?document.getElementById('orderList'):document.getElementById('customerList');list.parentElement.insertAdjacentElement('afterend',box)}const items=getItems();const pages=Math.max(1,Math.ceil(items.length/SIZE));if(state[key]>pages)state[key]=pages;const page=state[key];items.forEach((el,i)=>el.style.display=(i>=(page-1)*SIZE&&i<page*SIZE)?'':'none');box.innerHTML='';const prev=document.createElement('button');prev.textContent='上一頁';prev.disabled=page<=1;prev.onclick=()=>{state[key]--;render(key,getItems)};box.appendChild(prev);const info=document.createElement('span');info.className='info';info.textContent=`第 ${page} / ${pages} 頁（共 ${items.length} 筆）`;box.appendChild(info);const next=document.createElement('button');next.textContent='下一頁';next.disabled=page>=pages;next.onclick=()=>{state[key]++;render(key,getItems)};box.appendChild(next)}function render(key,getItems){pager(key==='order'?'orderPager':'customerPager',key,getItems)}function rows(id){return()=>Array.from(document.getElementById(id)?.children||[]).filter(x=>x.classList.contains('data-row'))}function init(){const o=document.getElementById('orderList'),c=document.getElementById('customerList');if(!o||!c)return;const ro=new MutationObserver(()=>pager('orderPager','order',rows('orderList')));const rc=new MutationObserver(()=>pager('customerPager','customer',rows('customerList')));ro.observe(o,{childList:true});rc.observe(c,{childList:true});pager('orderPager','order',rows('orderList'));pager('customerPager','customer',rows('customerList'))}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init()})();</script>'''
+          s=s.replace('</head>',css+'</head>',1)
+          s=s.replace('</body>',js+'</body>',1)
+          p.write_text(s)
+          PY
+      - name: Commit preview
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add admin-orders.html
+          git diff --cached --quiet || git commit -m 'feat: paginate admin orders and personal data'
+          git push
