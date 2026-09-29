@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Patch Safari-safe login handler and force a fresh Pages build
+      - name: Patch Safari-safe login and restore existing session
         run: |
           python3 - <<'PY'
           from pathlib import Path
@@ -19,9 +19,13 @@ jobs:
           s=s.replace('<input id="email" type="email" required>', '<input id="email" type="email" required autocomplete="username">')
           s=s.replace('<input id="password" type="password" required>', '<input id="password" type="password" required autocomplete="current-password">')
           s=s.replace('<button class="btn">登入</button>', '<button class="btn" type="submit">登入</button>')
-          marker='<!-- admin-orders-stable-20260930 -->'
+          marker='/* ADMIN_SESSION_RESTORE_20260930 */'
           if marker not in s:
-              s=s.replace('<!doctype html>', '<!doctype html>\n'+marker, 1)
+              needle='function status(s){'
+              patch='''/* ADMIN_SESSION_RESTORE_20260930 */\n(async function restoreAdminSession(){\n  try {\n    const { data, error } = await db.auth.getSession();\n    if (error) throw error;\n    if (data && data.session && data.session.user) {\n      const er = await access(data.session.user);\n      if (!er) open();\n    }\n  } catch (err) { console.warn("admin session restore:", err); }\n})();\ndb.auth.onAuthStateChange((event, session) => {\n  if (session && session.user && event !== "SIGNED_OUT") {\n    setTimeout(async () => {\n      try {\n        const er = await access(session.user);\n        if (!er) open();\n      } catch (err) { console.warn("admin auth state:", err); }\n    }, 0);\n  }\n});\nfunction status(s){'''
+              if needle not in s:
+                  raise SystemExit('target function not found')
+              s=s.replace(needle,patch,1)
           p.write_text(s,encoding='utf-8')
           PY
       - name: Commit patch
@@ -30,5 +34,5 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add admin-orders-fixed.html
-          git commit -m 'Stabilize admin backend login deployment'
+          git commit -m 'Fix admin session restore after successful login'
           git push
