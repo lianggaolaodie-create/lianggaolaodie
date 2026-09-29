@@ -25,8 +25,18 @@
   'use strict';
   const SUPABASE_URL = 'https://yemzdwxtyosuaczsqwea.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_7b4hgNL68yiYbec7fXToYQ_UxPE4sEB';
+  function getStorage() {
+    try {
+      const s = window.localStorage;
+      const k = '__laodie_storage_test__';
+      s.setItem(k, '1'); s.removeItem(k);
+      return s;
+    } catch (_) {
+      return window.sessionStorage;
+    }
+  }
   const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
-    auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false }
+    auth: { persistSession: true, storage: getStorage(), storageKey: 'laodie-admin-auth', autoRefreshToken: true, detectSessionInUrl: false }
   });
   const form = document.getElementById('loginForm');
   const emailInput = document.getElementById('adminEmail');
@@ -47,6 +57,18 @@
     if (result.error) return result.error.message;
     if (!result.data || !result.data.enabled) return '管理員帳號無管理權限';
     return null;
+  }
+
+  async function openIfAlreadySignedIn() {
+    const result = await db.auth.getSession();
+    if (!result.data.session) return;
+    const accessError = await checkAccess(result.data.session.user);
+    if (accessError) {
+      await db.auth.signOut();
+      return;
+    }
+    showMessage('已登入，正在進入後台…', false);
+    window.location.replace('admin-orders-fixed.html?v=20260930-loginfix');
   }
 
   form.addEventListener('submit', async (event) => {
@@ -70,6 +92,10 @@
         await db.auth.signOut();
         throw new Error(accessError);
       }
+      const sessionCheck = await db.auth.getSession();
+      if (!sessionCheck.data.session) {
+        throw new Error('登入成功，但瀏覽器沒有保存登入狀態，請重新按一次登入。');
+      }
       showMessage('登入成功，正在進入後台…', false);
       window.location.replace('admin-orders-fixed.html?v=20260930-loginfix');
     } catch (error) {
@@ -79,6 +105,8 @@
       loginButton.textContent = '登入';
     }
   });
+
+  openIfAlreadySignedIn().catch(error => console.error(error));
 })();
 </script>
 </body>
