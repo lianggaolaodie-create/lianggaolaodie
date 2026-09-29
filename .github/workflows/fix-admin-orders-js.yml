@@ -1,0 +1,49 @@
+name: Fix admin orders JavaScript
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'admin-orders.html'
+      - 'admin-orders-fixed.html'
+      - 'admin-orders-test.html'
+      - '.github/workflows/fix-admin-orders-js.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fix invalid JavaScript escaping
+        shell: python
+        run: |
+          from pathlib import Path
+          old = "const esc=s=>String(s??'').replace(/[&<>\\\"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','\\\"':'&quot;',\\\"'\\\":'&#39;'}[m]));"
+          new = "const esc=s=>String(s??'').replace(/[&<>\"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',\"'\":'&#39;'}[m]));"
+          changed = False
+          for name in ['admin-orders.html','admin-orders-fixed.html','admin-orders-test.html']:
+              p = Path(name)
+              if not p.exists():
+                  continue
+              s = p.read_text(encoding='utf-8')
+              if old in s:
+                  s = s.replace(old, new)
+                  p.write_text(s, encoding='utf-8')
+                  changed = True
+          if not changed:
+              print('No matching invalid escaping found; nothing to commit.')
+      - name: Commit fix
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add admin-orders.html admin-orders-fixed.html admin-orders-test.html
+          if git diff --cached --quiet; then
+            echo 'No changes.'
+          else
+            git commit -m '修正訂單後台 JavaScript 語法錯誤'
+            git push
+          fi
