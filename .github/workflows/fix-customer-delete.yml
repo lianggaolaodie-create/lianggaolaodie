@@ -1,0 +1,77 @@
+name: Fix customer delete
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/fix-customer-delete.yml'
+      - 'admin-orders-stable.html'
+      - 'admin-orders-live.html'
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fix customer delete handlers
+        shell: python
+        run: |
+          from pathlib import Path
+          import re
+
+          changed = False
+
+          for filename in ['admin-orders-stable.html', 'admin-orders-live.html']:
+              p = Path(filename)
+              if not p.exists():
+                  continue
+              s = p.read_text(encoding='utf-8')
+
+              # The old UI passed an empty id for home-delivery customers and
+              # the old live handler expected an object. Use order id + type
+              # consistently, and clear only private customer data.
+              old_card = r"onclick=\\\"deleteCustomer\\(\\\\'\+esc\(o\.customer_id\|\|'\)\\\\'\\)\\\">🗑 刪除"
+              new_card = r"onclick=\\\"deleteCustomer('\\+esc(o.id)+'\\', '\\'+esc(o.type)+'\\')\\\">🗑 刪除"
+              s2, n = re.subn(old_card, new_card, s, count=1)
+              if n:
+                  s = s2
+                  changed = True
+
+              # Stable version has the exact inline handler as a JS string.
+              s2, n = re.subn(
+                  r"async function deleteCustomer\(id\)\{.*?\}\n\$\('loginForm'\)",
+                  """async function deleteCustomer(id,type){\nif(!id)return;\nif(!confirm('確定要刪除這筆個資嗎？訂單會保留。'))return;\nconst orders=type==='home'?home:pickup;\nconst o=orders.find(x=>String(x.id)===String(id));\nif(!o){alert('找不到這筆客戶資料');return;}\nlet r;\nif(type==='home'){r=await db.from('order_private').update({customer_name:'',customer_phone:'',delivery_address:''}).eq('order_id',id).select('order_id');}\nelse{r=await db.from('cooling_pickup_orders').update({customer_id:null}).eq('customer_id',id).select('id');if(!r.error)r=await db.from('order_customers').delete().eq('id',id).select('id');}\nif(r.error){alert('刪除個資失敗：'+r.error.message);return;}\nawait loadAll();\n}\n$('loginForm')""",
+                  s, count=1, flags=re.S)
+              if n:
+                  s = s2
+                  changed = True
+
+              # Live version may use deleteCustomer(o); replace it with the
+              # same id/type implementation when that signature is present.
+              s2, n = re.subn(
+                  r"async function deleteCustomer\(o\)\{.*?\}\n",
+                  """async function deleteCustomer(id,type){if(!id)return;if(!confirm('確定要刪除這筆個資嗎？訂單會保留。'))return;const o=(type==='home'?home:pickup).find(x=>String(x.id)===String(id));if(!o){alert('找不到這筆客戶資料');return;}let r;if(type==='home'){r=await db.from('order_private').update({customer_name:'',customer_phone:'',delivery_address:''}).eq('order_id',id).select('order_id');}else{r=await db.from('cooling_pickup_orders').update({customer_id:null}).eq('customer_id',id).select('id');if(!r.error)r=await db.from('order_customers').delete().eq('id',id).select('id');}if(r.error){alert('刪除個資失敗：'+r.error.message);return;}await loadAll()}\n""",
+                  s, count=1, flags=re.S)
+              if n:
+                  s = s2
+                  changed = True
+
+              p.write_text(s, encoding='utf-8')
+
+          print('changed=', changed)
+
+      - name: Commit fix
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add admin-orders-stable.html admin-orders-live.html
+          if git diff --cached --quiet; then
+            echo 'No changes.'
+          else
+            git commit -m '修正個資管理刪除按鈕'
+            git push
+          fi
