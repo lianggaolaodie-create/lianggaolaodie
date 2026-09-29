@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>老爹．涼糕｜線上下單管理後台</title>
+<style>html,body{margin:0;width:100%;height:100%;background:#f7f3ef;overflow:hidden}iframe{border:0;width:100%;height:100%;display:block}</style>
+</head>
+<body>
+<iframe id="adminFrame" src="admin-orders-live.html?v=20260930-cn1" title="老爹．涼糕線上下單管理後台"></iframe>
+<script>
+(function(){
+  const statusMap={
+    pending:'待確認匯款',
+    paid:'已付款',
+    stored:'已寄放',
+    preparing:'製作中',
+    shipping:'配送中',
+    delivering:'配送中',
+    delivered:'已送達',
+    completed:'已完成',
+    cancelled:'已取消'
+  };
+  const frame=document.getElementById('adminFrame');
+  function translate(){
+    try{
+      const d=frame.contentDocument;
+      if(!d)return;
+      d.querySelectorAll('.status').forEach(el=>{
+        const raw=(el.textContent||'').trim();
+        if(statusMap[raw])el.textContent=statusMap[raw];
+      });
+      d.querySelectorAll('option').forEach(el=>{
+        const raw=(el.textContent||'').trim();
+        if(statusMap[raw])el.textContent=statusMap[raw];
+      });
+      d.querySelectorAll('.modalbox h3').forEach(el=>{
+        if((el.textContent||'').includes('Edit Order Status'))el.textContent='編輯訂單狀態';
+      });
+    }catch(e){}
+  }
+  frame.addEventListener('load',function(){
+    translate();
+    try{
+      const d=frame.contentDocument;
+      new MutationObserver(translate).observe(d.body,{subtree:true,childList:true,characterData:true});
+    }catch(e){}
+  });
+})();
+</script>
+</body>
+</html>
