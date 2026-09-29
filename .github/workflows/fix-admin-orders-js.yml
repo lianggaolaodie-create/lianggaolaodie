@@ -6,6 +6,7 @@ on:
     paths:
       - 'admin-orders.html'
       - 'admin-orders-fixed.html'
+      - 'admin-orders-fixed-v3.html'
       - 'admin-orders-test.html'
       - '.github/workflows/fix-admin-orders-js.yml'
 
@@ -17,33 +18,56 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Fix invalid JavaScript escaping
+      - name: Fix invalid JavaScript and customer deletion
         shell: python
         run: |
           from pathlib import Path
+          import re
+
+          changed = False
+
+          # Keep the existing JavaScript escaping fix.
           old = "const esc=s=>String(s??'').replace(/[&<>\\\"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','\\\"':'&quot;',\\\"'\\\":'&#39;'}[m]));"
           new = "const esc=s=>String(s??'').replace(/[&<>\"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',\"'\":'&#39;'}[m]));"
-          changed = False
           for name in ['admin-orders.html','admin-orders-fixed.html','admin-orders-test.html']:
               p = Path(name)
-              if not p.exists():
-                  continue
+              if p.exists():
+                  s = p.read_text(encoding='utf-8')
+                  if old in s:
+                      p.write_text(s.replace(old, new), encoding='utf-8')
+                      changed = True
+
+          # Fix the production v3 customer-management flow.
+          p = Path('admin-orders-fixed-v3.html')
+          if p.exists():
               s = p.read_text(encoding='utf-8')
-              if old in s:
-                  s = s.replace(old, new)
-                  p.write_text(s, encoding='utf-8')
+
+              new_load = r'''async function loadCustomers(){try{const cs=(await db.from('order_customers').select('id,name,phone,created_at').order('created_at',{ascending:false}).limit(300)).data||[];const ids=cs.map(x=>x.id);const po=ids.length?(await db.from('cooling_pickup_orders').select('id,order_number,customer_id,convenience_store,store_name,store_address,payment_last5,created_at').in('customer_id',ids)).data||[]:[];const ho=(await db.from('orders').select('id,order_number,created_at').eq('pickup_type','home_delivery').limit(300)).data||[];const priv=ho.length?(await db.from('order_private').select('order_id,customer_name,customer_phone,delivery_address').in('order_id',ho.map(x=>x.id))).data||[]:[];const latest=new Map();po.forEach(o=>{if(!latest.has(String(o.customer_id)))latest.set(String(o.customer_id),{...o,source:'pickup'});});const pickupRows=cs.map(c=>({...c,order:latest.get(String(c.id))}));const homeRows=ho.map(o=>{const x=priv.find(v=>v.order_id===o.id)||{};return{id:'h:'+o.id,order_number:o.order_number,name:x.customer_name||'',phone:x.customer_phone||'',store_address:x.delivery_address||'',created_at:o.created_at,source:'home',order:{...o,...x,source:'home'}};}).filter(x=>x.name.trim()||x.phone.trim()||x.store_address.trim());customerRows=[...pickupRows,...homeRows];renderCustomers();}catch(x){note('orderMsg','讀取個資失敗：'+(x.message||x),true);}}'''
+              s2, n = re.subn(r'async function loadCustomers\(\)\{.*?\}\nfunction cmatch', new_load + '\nfunction cmatch', s, count=1, flags=re.S)
+              if n:
+                  s = s2
                   changed = True
+
+              new_listener = r'''$('customers').addEventListener('click',async e=>{const b=e.target.closest('button[data-ca]');if(!b)return;const x=customerRows.find(v=>String(v.id)===String(b.dataset.id));if(!x)return;if(b.dataset.ca==='edit'){const n=prompt('修改姓名',x.name||'');if(n===null)return;const p=prompt('修改電話',x.phone||'');if(p===null)return;let r;if(x.source==='home'){r=await db.from('order_private').update({customer_name:n.trim(),customer_phone:p.trim()}).eq('order_id',String(x.id).slice(2));}else{r=await db.from('order_customers').update({name:n.trim(),phone:p.trim()}).eq('id',x.id);}if(r.error){alert('更新失敗：'+r.error.message);return;}await loadCustomers();await loadOrders();}else{if(!confirm('確定要刪除這筆個資嗎？訂單資料保留。'))return;let r;if(x.source==='home'){r=await db.from('order_private').update({customer_name:'',customer_phone:'',delivery_address:''}).eq('order_id',String(x.id).slice(2)).select('order_id');}else{r=await db.from('cooling_pickup_orders').update({customer_id:null}).eq('customer_id',x.id).select('id');if(!r.error)r=await db.from('order_customers').delete().eq('id',x.id).select('id');}if(r.error){alert('刪除個資失敗：'+r.error.message);return;}await loadCustomers();await loadOrders();}});'''
+              s2, n = re.subn(r"\$\('customers'\)\.addEventListener\('click',async e=>\{.*?\}\);\n\$\('searchCP'\)", new_listener + "\n$('searchCP')", s, count=1, flags=re.S)
+              if n:
+                  s = s2
+                  changed = True
+
+              p.write_text(s, encoding='utf-8')
+
           if not changed:
-              print('No matching invalid escaping found; nothing to commit.')
+              print('No changes needed.')
+
       - name: Commit fix
         shell: bash
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add admin-orders.html admin-orders-fixed.html admin-orders-test.html
+          git add admin-orders.html admin-orders-fixed.html admin-orders-fixed-v3.html admin-orders-test.html
           if git diff --cached --quiet; then
             echo 'No changes.'
           else
-            git commit -m '修正訂單後台 JavaScript 語法錯誤'
+            git commit -m '修正個資管理刪除功能'
             git push
           fi
