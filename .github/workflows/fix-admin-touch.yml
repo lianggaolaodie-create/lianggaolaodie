@@ -1,0 +1,33 @@
+name: Fix admin touch buttons
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/fix-admin-touch.yml'
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch admin page
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('admin-orders-fixed.html')
+          s=p.read_text()
+          marker='/* ADMIN_IPHONE_TOUCH_FIX_20260930 */'
+          if marker not in s:
+              s=s.replace('</style></head>', '.btn,.nav button,button{pointer-events:auto!important;touch-action:manipulation;-webkit-tap-highlight-color:transparent}\n#app{position:relative;z-index:10;pointer-events:auto}\n</style></head>')
+              inject='''\n/* ADMIN_IPHONE_TOUCH_FIX_20260930 */\n(function(){\n  document.querySelectorAll('button').forEach(function(b){ b.type='button'; });\n  document.addEventListener('touchend',function(e){\n    var b=e.target && e.target.closest ? e.target.closest('button') : null;\n    if(!b || b.disabled) return;\n    e.preventDefault();\n    b.click();\n  },{passive:false});\n  window.addEventListener('error',function(e){\n    var el=document.getElementById('orderMsg') || document.getElementById('loginMsg');\n    if(el && e.message) el.innerHTML='<div class="notice err">系統錯誤：'+String(e.message).replace(/[&<>]/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[m]})+'</div>';\n  });\n})();\n'''
+              s=s.replace('</script></body>', inject+'</script></body>')
+              p.write_text(s)
+          PY
+      - name: Commit fix
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add admin-orders-fixed.html
+          git diff --cached --quiet || git commit -m 'fix iPhone admin button touch handling'
+          git push
