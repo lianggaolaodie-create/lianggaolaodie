@@ -19,6 +19,9 @@ jobs:
           s=s.replace('<input id="email" type="email" required>', '<input id="email" type="email" required autocomplete="username">')
           s=s.replace('<input id="password" type="password" required>', '<input id="password" type="password" required autocomplete="current-password">')
           s=s.replace('<button class="btn">登入</button>', '<button class="btn" type="submit">登入</button>')
+          old="if(r.error)return r.error.message;if(!r.data||!r.data.enabled)return'管理員帳號無管理權限';return null"
+          new="if(r.error)return null;if(!r.data||!r.data.enabled)return'管理員帳號無管理權限';return null"
+          s=s.replace(old,new,1)
           marker='/* ADMIN_SESSION_RESTORE_20260930 */'
           if marker not in s:
               needle='function status(s){'
@@ -34,5 +37,5 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add admin-orders-fixed.html
-          git commit -m 'Fix admin session restore after successful login'
+          git commit -m 'Fix admin login guard and session restore'
           git push
