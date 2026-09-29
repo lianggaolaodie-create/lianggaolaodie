@@ -9,27 +9,24 @@ html,body{margin:0;width:100%;height:100%;background:#f7f3ef;overflow:hidden}ifr
 </style>
 </head>
 <body>
-<iframe id="adminFrame" src="admin-orders-fixed.html?v=20260930-cn1" title="老爹．涼糕線上下單管理後台"></iframe>
+<iframe id="adminFrame" src="admin-orders-fixed.html?v=20260930-cn2" title="老爹．涼糕線上下單管理後台"></iframe>
 <script>
 const frame=document.getElementById('adminFrame');
 const statusMap={pending:'待確認匯款',paid:'已付款',stored:'已寄放',preparing:'製作中',shipping:'配送中',delivering:'配送中',delivered:'已送達',completed:'已完成',cancelled:'已取消'};
-const editMap={pending:'待確認匯款',paid:'已付款',stored:'已寄放',preparing:'製作中',shipping:'配送中',delivering:'配送中',delivered:'已送達',completed:'已完成',cancelled:'已取消'};
 function translate(){
   try{
     const w=frame.contentWindow,d=frame.contentDocument;
+    if(!d)return;
     d.querySelectorAll('.status').forEach(el=>{const k=(el.textContent||'').trim();if(statusMap[k])el.textContent=statusMap[k]});
-    d.querySelectorAll('.notice').forEach(el=>{if((el.textContent||'').includes('delivered'))el.textContent=el.textContent.replace(/delivered/g,'已送達')});
-    const originalEdit=w.editOrder;
-    if(!w.__cnEditInstalled && typeof originalEdit==='function'){
+    if(!w.__cnEditInstalled && typeof w.editOrder==='function'){
       w.__cnEditInstalled=true;
+      const originalEdit=w.editOrder;
       w.editOrder=function(key){
-        const o=w.orders.find(x=>x.key===key); if(!o)return;
-        const raw=o.display_status||o.status||'';
-        const current=statusMap[raw]||raw;
-        const s=w.prompt('修改訂單狀態',current);
-        if(!s)return;
+        const o=w.orders.find(x=>x.key===key);if(!o)return;
+        const current=statusMap[o.display_status||o.status]||(o.display_status||o.status||'');
+        const s=w.prompt('修改訂單狀態',current);if(!s)return;
         const reverse={待確認匯款:'pending',已付款:'paid',已寄放:'stored',製作中:'preparing',待配送:'pending',配送中:'delivering',已送達:'delivered',已完成:'completed',已取消:'cancelled'};
-        w.changeStatus(o,reverse[s]||s);
+        return w.changeStatus(o,reverse[s]||s);
       };
     }
   }catch(e){}
