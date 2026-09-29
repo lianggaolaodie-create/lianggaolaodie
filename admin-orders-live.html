@@ -48,5 +48,28 @@ async function deleteCustomer(o){if(!confirm('確定刪除這筆客戶個資嗎�
 $('loginForm').addEventListener('submit',doLogin);$('reload').addEventListener('click',loadAll);$('pSearch').addEventListener('click',renderOrders);$('hSearch').addEventListener('click',renderOrders);$('cpSearch').addEventListener('click',renderCustomers);$('chSearch').addEventListener('click',renderCustomers);$('ps').addEventListener('input',renderOrders);$('hs').addEventListener('input',renderOrders);$('cps').addEventListener('input',renderCustomers);$('chs').addEventListener('input',renderCustomers);$('date').addEventListener('change',renderOrders);$('logout').addEventListener('click',async()=>{await db.auth.signOut();location.reload()});document.querySelectorAll('.nav button').forEach(b=>b.addEventListener('click',function(){document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));this.classList.add('active');['orders','customers','daily'].forEach(id=>$(id).classList.add('hidden'));$(this.dataset.page).classList.remove('hidden')}));$('cancelStatus').addEventListener('click',()=>{$('statusModal').classList.add('hidden');editing=null});$('saveStatus').addEventListener('click',saveEdit);$('closeView').addEventListener('click',()=>$('viewModal').classList.add('hidden'));['pickupList','homeList'].forEach(id=>$(id).addEventListener('click',async e=>{const b=e.target.closest('button[data-action]');if(!b)return;const o=findOrder(b.dataset.id);if(!o)return;if(b.dataset.action==='view')openView(o);else if(b.dataset.action==='edit')openEdit(o);else if(b.dataset.action==='delete')await removeOrder(o)}));['cpList','chList'].forEach(id=>$(id).addEventListener('click',async e=>{const b=e.target.closest('button[data-customer-action]');if(!b)return;const o=findOrder(b.dataset.id);if(!o)return;if(b.dataset.customerAction==='edit')await editCustomer(o);else await deleteCustomer(o)}));db.auth.getSession().then(async r=>{if(r.data.session){const err=await checkAccess(r.data.session.user);if(!err)showApp()}});
 })();
 </script>
+
+<script>
+/* ADMIN_CUSTOMER_DELETE_FIX_20260930 */
+(function(){
+  window.deleteCustomer=async function(o){
+    if(!o)return;
+    if(!confirm('確定刪除這筆客戶個資嗎？訂單本身會保留。'))return;
+    try{
+      if(o.type==='pickup'){
+        if(!o.customer_id){alert('找不到客戶資料');return;}
+        const a=await db.from('cooling_pickup_orders').update({customer_id:null}).eq('customer_id',o.customer_id);
+        if(a.error){alert('解除個資關聯失敗：'+a.error.message);return;}
+        const r=await db.from('order_customers').delete().eq('id',o.customer_id);
+        if(r.error){alert('刪除個資失敗：'+r.error.message);return;}
+      }else{
+        const r=await db.from('order_private').update({customer_name:'',customer_phone:'',delivery_address:''}).eq('order_id',o.id);
+        if(r.error){alert('刪除個資失敗：'+r.error.message);return;}
+      }
+      await loadAll();
+    }catch(e){alert('刪除個資失敗：'+(e.message||e));}
+  };
+})();
+</script>
 </body>
 </html>
