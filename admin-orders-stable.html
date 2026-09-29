@@ -58,5 +58,5 @@ $('loginForm').addEventListener('submit',login);$('reload').onclick=loadAll;$('d
     if(typeof window.loadAll==='function') await window.loadAll();
   }, true);
 })();
-</script>
+\n/* CUSTOMER_DELETE_FIX_V3 */\ndocument.addEventListener('click',async function(e){\n  const b=e.target.closest('#customers .btn.red');\n  if(!b)return;\n  e.preventDefault();\n  e.stopImmediatePropagation();\n  const card=b.closest('.order');\n  if(!card)return;\n  const m=card.textContent.match(/訂單編號\\s*([A-Z0-9-]+)/i);\n  const orderNo=m?m[1]:'';\n  const all=[...pickup,...home];\n  const o=all.find(x=>String(x.order_number||'')===String(orderNo));\n  if(!o){alert('找不到這筆客戶資料，請重新整理後再試。');return;}\n  if(!confirm('確定刪除這筆客戶個資嗎？訂單本身會保留。'))return;\n  let r;\n  if(o.type==='home'){\n    r=await db.from('order_private').update({customer_name:'',customer_phone:'',delivery_address:''}).eq('order_id',o.id).select('order_id');\n  }else{\n    r=await db.from('cooling_pickup_orders').update({customer_id:null}).eq('customer_id',o.customer_id).select('id');\n    if(!r.error)r=await db.from('order_customers').delete().eq('id',o.customer_id).select('id');\n  }\n  if(r.error){alert('刪除個資失敗：'+r.error.message);return;}\n  await loadAll();\n},true);\n</script>
 </body></html>
