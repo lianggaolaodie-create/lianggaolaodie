@@ -19,7 +19,7 @@ jobs:
           def get(url):
             r=urllib.request.Request(url,headers=headers)
             return urllib.request.urlopen(r,timeout=20).read().decode('utf-8','ignore')
-          out={}
+          out={'proxy_version':'21'}
           try:
             s=get(f'https://www.tiktok.com/@{u}/live')
             out['page_hls']='hls_pull_url' in s or '.m3u8' in s
@@ -28,8 +28,17 @@ jobs:
           except Exception as e: out['page_error']=str(e)
           try:
             s=get(f'https://www.tiktok.com/api-live/user/room?aid=1988&sourceType=54&uniqueId={u}')
-            d=json.loads(s); out['api_hls']=bool(re.search(r'(?:hls_pull_url|pull-hls|\\.m3u8)',s,re.I)); out['api_flv']=bool(re.search(r'(?:flv_pull_url|pull-flv|\\.flv|rtmp_pull_url)',s,re.I)); out['api_len']=len(s); out['api_status']=d.get('status')
+            d=json.loads(s); out['api_hls']=bool(re.search(r'(?:hls_pull_url|pull-hls|\\.m3u8)',s,re.I)); out['api_flv']=bool(re.search(r'(?:flv_pull_url|pull-flv|\\.flv|rtmp_pull_url)',s,re.I)); out['api_len']=len(s); out['api_status']=d.get('status'); out['api_keys']=list((d.get('data') or {}).keys())
           except Exception as e: out['api_error']=str(e)
+          try:
+            # Extract room id from the public room endpoint, then query the webcast room-info endpoint.
+            s=get(f'https://www.tiktok.com/api-live/user/room?aid=1988&sourceType=54&uniqueId={u}')
+            d=json.loads(s); room=d.get('data',{}).get('liveRoom',{}); rid=str(room.get('roomId') or room.get('room_id') or room.get('id') or d.get('data',{}).get('roomId') or '')
+            out['room_id_present']=bool(rid)
+            if rid:
+              w=get(f'https://webcast.tiktok.com/webcast/room/info/?aid=1988&room_id={rid}')
+              out['webcast_hls']=bool(re.search(r'(?:hls_pull_url|pull-hls|\\.m3u8)',w,re.I)); out['webcast_flv']=bool(re.search(r'(?:flv_pull_url|pull-flv|\\.flv|rtmp_pull_url)',w,re.I)); out['webcast_len']=len(w)
+          except Exception as e: out['webcast_error']=str(e)
           open('live-upstream-test-result.json','w').write(json.dumps(out,ensure_ascii=False,indent=2))
           PY
       - name: Commit result
