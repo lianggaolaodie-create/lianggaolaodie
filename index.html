@@ -243,7 +243,7 @@ html,body{margin:0;padding:0;background:#f8f0e3}
     if(flvPlayer){try{flvPlayer.destroy();}catch(e){}flvPlayer=null;}
     const isFlv=forcedType==='flv'||/\\.flv(?:\\?|$)|pull-flv/i.test(streamUrl);
     const isHls=forcedType==='hls'||/\\.m3u8(?:\\?|$)|pull-hls/i.test(streamUrl);
-    const playUrl=isFlv ? API.split('?')[0]+'?proxy='+encodeURIComponent(streamUrl) : streamUrl;
+    const playUrl=API.split('?')[0]+'?proxy='+encodeURIComponent(streamUrl);
 
     if(isFlv&&window.mpegts&&mpegts.getFeatureList().mseLivePlayback){
       video.muted=true;
@@ -287,7 +287,7 @@ html,body{margin:0;padding:0;background:#f8f0e3}
       });
     }else if(isHls&&video.canPlayType('application/vnd.apple.mpegurl')){
       video.muted=true;
-      video.src=streamUrl;
+      video.src=playUrl;
       video.onloadedmetadata=async function(){try{await video.play();}catch(e){}};
       video.onplaying=markPlaying;
       try{await video.play();}catch(e){}
@@ -312,7 +312,7 @@ html,body{margin:0;padding:0;background:#f8f0e3}
         maxBufferHole:0.5,
         highBufferWatchdogPeriod:1
       });
-      hls.loadSource(streamUrl);
+      hls.loadSource(playUrl);
       hls.attachMedia(video);
       hls.on(Hls.Events.MANIFEST_PARSED,async function(){try{await video.play();}catch(e){}});
       video.onplaying=markPlaying;
@@ -351,9 +351,9 @@ html,body{margin:0;padding:0;background:#f8f0e3}
         const directFlv=data.flv_url||'';
         const isAndroid=/Android/i.test(navigator.userAgent);
         const isIOS=/iPhone|iPad|iPod/i.test(navigator.userAgent);
-        const streamUrl=isAndroid ? (directFlv||directHls) : (directHls||directFlv);
-        const fallbackUrl=isAndroid && directFlv&&directHls ? directHls : (directFlv&&directHls ? directFlv : '');
-        const streamType=isAndroid&&directFlv ? 'flv' : 'hls';
+        const streamUrl=directHls||directFlv;
+        const fallbackUrl=directHls&&directFlv ? directFlv : '';
+        const streamType=directHls ? 'hls' : 'flv';
         if(streamUrl){
           if(streamUrl!==currentUrl){
             await startPlayer(streamUrl,fallbackUrl,streamType);
