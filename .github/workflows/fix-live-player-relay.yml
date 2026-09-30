@@ -1,0 +1,49 @@
+name: Fix LIVE Player Relay
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  patch-live-player:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Patch LIVE player
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('index.html')
+          s = p.read_text(encoding='utf-8')
+          old = """    const playUrl=isFlv ? API.split('?')[0]+'?proxy='+encodeURIComponent(streamUrl) : streamUrl;"""
+          new = """    const playUrl=API.split('?')[0]+'?proxy='+encodeURIComponent(streamUrl);"""
+          s = s.replace(old, new)
+          s = s.replace("video.src=streamUrl;", "video.src=playUrl;")
+          s = s.replace("hls.loadSource(streamUrl);", "hls.loadSource(playUrl);")
+          old2 = """        const streamUrl=isAndroid ? (directFlv||directHls) : (directHls||directFlv);
+        const fallbackUrl=isAndroid && directFlv&&directHls ? directHls : (directFlv&&directHls ? directFlv : '');
+        const streamType=isAndroid&&directFlv ? 'flv' : 'hls';"""
+          new2 = """        const streamUrl=directHls||directFlv;
+        const fallbackUrl=directHls&&directFlv ? directFlv : '';
+        const streamType=directHls ? 'hls' : 'flv';"""
+          s = s.replace(old2, new2)
+          p.write_text(s, encoding='utf-8')
+          PY
+
+      - name: Commit fix
+        run: |
+          if git diff --quiet -- index.html; then
+            echo "No LIVE player patch needed"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "fix: relay TikTok LIVE playback through proxy"
+          git push
