@@ -1,0 +1,24 @@
+name: TikTok LIVE smoke test
+on:
+  push:
+    paths:
+      - '.github/workflows/tiktok-live-smoke.yml'
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Probe relay
+        run: |
+          set -e
+          curl -fsS --max-time 30 'https://yemzdwxtyosuaczsqwea.supabase.co/functions/v1/tiktok-live-proxy?user=kaip1018' | tee result.json
+          python - <<'PY'
+          import json
+          d=json.load(open('result.json'))
+          print('is_live=',d.get('is_live'))
+          print('source=',d.get('source'))
+          print('hls=',bool(d.get('hls_url') or d.get('hls_relay_url')))
+          print('flv=',bool(d.get('flv_url') or d.get('flv_relay_url')))
+          print('error=',d.get('error'))
+          assert d.get('is_live') and (d.get('hls_relay_url') or d.get('flv_relay_url')), d
+          PY
