@@ -1,0 +1,17 @@
+{
+  "username": "kaip1018",
+  "connected": true,
+  "roomId": "7691152500896451346",
+  "roomInfoKeys": [
+    "data",
+    "extra",
+    "status_code"
+  ],
+  "streamUrlKeys": [],
+  "hasHls": false,
+  "hasFlv": false,
+  "streamUrlSummary": {
+    "hls": null,
+    "flv": null
+  }
+}
