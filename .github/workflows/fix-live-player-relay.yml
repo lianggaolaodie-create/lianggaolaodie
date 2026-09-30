@@ -1,6 +1,6 @@
 name: Fix LIVE Player Relay
 
-on:
+"on":
   push:
     branches:
       - main
@@ -14,36 +14,27 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
       - name: Patch LIVE player
+        shell: bash
         run: |
-          python - <<'PY'
+          python3 - <<'PY'
           from pathlib import Path
           p = Path('index.html')
           s = p.read_text(encoding='utf-8')
-          old = """    const playUrl=isFlv ? API.split('?')[0]+'?proxy='+encodeURIComponent(streamUrl) : streamUrl;"""
-          new = """    const playUrl=API.split('?')[0]+'?proxy='+encodeURIComponent(streamUrl);"""
-          s = s.replace(old, new)
-          s = s.replace("video.src=streamUrl;", "video.src=playUrl;")
-          s = s.replace("hls.loadSource(streamUrl);", "hls.loadSource(playUrl);")
-          old2 = """        const streamUrl=isAndroid ? (directFlv||directHls) : (directHls||directFlv);
-        const fallbackUrl=isAndroid && directFlv&&directHls ? directHls : (directFlv&&directHls ? directFlv : '');
-        const streamType=isAndroid&&directFlv ? 'flv' : 'hls';"""
-          new2 = """        const streamUrl=directHls||directFlv;
-        const fallbackUrl=directHls&&directFlv ? directFlv : '';
-        const streamType=directHls ? 'hls' : 'flv';"""
-          s = s.replace(old2, new2)
+          s = s.replace("const playUrl=isFlv ? API.split('?')[0]+'?proxy='+encodeURIComponent(streamUrl) : streamUrl;", "const playUrl=API.split('?')[0]+'?proxy='+encodeURIComponent(streamUrl);")
+          s = s.replace('video.src=streamUrl;', 'video.src=playUrl;')
+          s = s.replace('hls.loadSource(streamUrl);', 'hls.loadSource(playUrl);')
+          s = s.replace("const streamUrl=isAndroid ? (directFlv||directHls) : (directHls||directFlv);", "const streamUrl=directHls||directFlv;")
+          s = s.replace("const fallbackUrl=isAndroid && directFlv&&directHls ? directHls : (directFlv&&directHls ? directFlv : '');", "const fallbackUrl=directHls&&directFlv ? directFlv : '';")
+          s = s.replace("const streamType=isAndroid&&directFlv ? 'flv' : 'hls';", "const streamType=directHls ? 'hls' : 'flv';")
           p.write_text(s, encoding='utf-8')
           PY
-
       - name: Commit fix
+        shell: bash
         run: |
-          if git diff --quiet -- index.html; then
-            echo "No LIVE player patch needed"
-            exit 0
-          fi
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add index.html
-          git commit -m "fix: relay TikTok LIVE playback through proxy"
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m 'fix: relay TikTok LIVE playback through proxy [skip ci]'
           git push
