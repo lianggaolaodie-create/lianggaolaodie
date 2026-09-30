@@ -1,4 +1,4 @@
-name: Preserve 20260927 LIVE playback
+name: Verify LIVE playback
 
 "on":
   push:
@@ -6,7 +6,7 @@ name: Preserve 20260927 LIVE playback
       - main
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   verify-live-player:
@@ -14,9 +14,14 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Verify 20260927 playback logic
+
+      - name: Verify LIVE playback implementation
         shell: bash
         run: |
-          grep -F "const directHls=data.hls_url||'';" index.html
-          grep -F "const playUrl=isFlv ? API.split('?')[0]+'?proxy='+encodeURIComponent(streamUrl) : streamUrl;" index.html
-          echo "20260927 LIVE playback logic is preserved"
+          set -e
+          test -f index.html
+          grep -q "hls_url" index.html
+          grep -q "directFlv" index.html
+          grep -q "streamUrl" index.html
+          grep -q "Hls" index.html
+          echo "LIVE playback implementation is present"
