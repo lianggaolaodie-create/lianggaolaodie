@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- LDG_VERSION:20260927-Y -->
+<!-- LDG_VERSION:20260930-LIVE -->
 <html lang="zh-Hant">
 <head>
 <meta charset="utf-8">
@@ -348,12 +348,12 @@ html,body{margin:0;padding:0;background:#f8f0e3}
       if(data&&data.is_live){
         isLive=true;
         const directHls=data.hls_relay_url||data.hls_url||'';
-        const directFlv=data.flv_url||'';
+        const directFlv=data.flv_relay_url||data.flv_url||'';
         const isAndroid=/Android/i.test(navigator.userAgent);
         const isIOS=/iPhone|iPad|iPod/i.test(navigator.userAgent);
         const streamUrl=isAndroid ? (directFlv||directHls) : (directHls||directFlv);
         const fallbackUrl=isAndroid && directFlv&&directHls ? directHls : (directFlv&&directHls ? directFlv : '');
-        const streamType=isAndroid&&directFlv ? 'flv' : 'hls';
+        const streamType=directHls ? 'hls' : 'flv';
         if(streamUrl){
           if(streamUrl!==currentUrl){
             await startPlayer(streamUrl,fallbackUrl,streamType);
@@ -387,7 +387,7 @@ html,body{margin:0;padding:0;background:#f8f0e3}
 
 <script>
 (function(){
-  const VERSION='LDG-20260927-G';
+  const VERSION='LDG-20260930-LIVE';
   const FALLBACK='🍡 老爹．涼糕｜新鮮製作・每日更新｜當日口味、出攤地點與時間請看官網｜歡迎提前預訂｜謝謝大家支持 ❤️';
   const link=document.getElementById('marqueeLive');
   const text=document.getElementById('marqueeLiveText');
