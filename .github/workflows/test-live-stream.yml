@@ -4,13 +4,22 @@ on:
     paths:
       - '.github/workflows/test-live-stream.yml'
 permissions:
-  contents: read
+  contents: write
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
       - name: Check stream source
         run: |
           URL='https://yemzdwxtyosuaczsqwea.supabase.co/functions/v1/tiktok-live-proxy?user=kaip1018'
-          BODY=$(curl -fsS --max-time 20 "$URL")
-          echo "$BODY" | python3 -c 'import json,sys; d=json.load(sys.stdin); print({"ok":d.get("ok"),"is_live":d.get("is_live"),"has_hls":bool(d.get("hls_url")),"has_flv":bool(d.get("flv_url")),"has_hls_relay":bool(d.get("hls_relay_url")),"error":d.get("error")})'
+          BODY=$(curl -sS --max-time 20 "$URL" || true)
+          echo "$BODY" | python3 -c 'import json,sys; d=json.load(sys.stdin); print(json.dumps({"ok":d.get("ok"),"is_live":d.get("is_live"),"has_hls":bool(d.get("hls_url")),"has_flv":bool(d.get("flv_url")),"has_hls_relay":bool(d.get("hls_relay_url")),"error":d.get("error")},ensure_ascii=False))' > live-stream-test-result.json
+      - name: Commit result
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add live-stream-test-result.json
+          git diff --cached --quiet && exit 0
+          git commit -m 'test: record LIVE stream source result [skip ci]'
+          git push
