@@ -1,0 +1,52 @@
+name: Debug TikTok LIVE connector
+on:
+  push:
+    paths:
+      - '.github/workflows/debug-tiktok-live.yml'
+permissions:
+  contents: write
+jobs:
+  debug:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Inspect connector
+        run: |
+          npm init -y >/dev/null 2>&1
+          npm install tiktok-live-connector@2.5.0 >/dev/null 2>&1
+          node <<'NODE' > tiktok-connector-debug.json
+          const { TikTokLiveConnection } = require('tiktok-live-connector');
+          (async()=>{
+            const username='kaip1018';
+            const out={username};
+            try {
+              const c=new TikTokLiveConnection(username,{fetchRoomInfoOnConnect:true,processInitialData:false,requestPollingIntervalMs:1000});
+              try {
+                await c.connect();
+                out.connected=true;
+                out.roomId=String(c.roomId||'');
+                const info=c.roomInfo||{};
+                out.roomInfoKeys=Object.keys(info||{});
+                out.streamUrlKeys=Object.keys(info?.stream_url||{});
+                out.hasHls=!!info?.stream_url?.hls_pull_url;
+                out.hasFlv=!!info?.stream_url?.flv_pull_url;
+                out.streamUrlSummary={
+                  hls: typeof info?.stream_url?.hls_pull_url==='string' ? info.stream_url.hls_pull_url.slice(0,120) : null,
+                  flv: typeof info?.stream_url?.flv_pull_url==='string' ? info.stream_url.flv_pull_url.slice(0,120) : (info?.stream_url?.flv_pull_url ? Object.keys(info.stream_url.flv_pull_url) : null)
+                };
+              } finally { try{c.disconnect()}catch{} }
+            } catch(e) { out.error=String(e?.stack||e); }
+            console.log(JSON.stringify(out,null,2));
+          })();
+          NODE
+      - name: Commit debug result
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add tiktok-connector-debug.json
+          git diff --cached --quiet && exit 0
+          git commit -m 'debug: record TikTok connector stream result [skip ci]'
+          git push
