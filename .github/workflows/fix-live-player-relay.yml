@@ -1,4 +1,4 @@
-name: Fix LIVE Player Relay
+name: Preserve 20260927 LIVE playback
 
 "on":
   push:
@@ -9,32 +9,14 @@ permissions:
   contents: write
 
 jobs:
-  patch-live-player:
+  verify-live-player:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Patch LIVE player
+      - name: Verify 20260927 playback logic
         shell: bash
         run: |
-          python3 - <<'PY'
-          from pathlib import Path
-          p = Path('index.html')
-          s = p.read_text(encoding='utf-8')
-          s = s.replace("const playUrl=isFlv ? API.split('?')[0]+'?proxy='+encodeURIComponent(streamUrl) : streamUrl;", "const playUrl=API.split('?')[0]+'?proxy='+encodeURIComponent(streamUrl);")
-          s = s.replace('video.src=streamUrl;', 'video.src=playUrl;')
-          s = s.replace('hls.loadSource(streamUrl);', 'hls.loadSource(playUrl);')
-          s = s.replace("const streamUrl=isAndroid ? (directFlv||directHls) : (directHls||directFlv);", "const streamUrl=directHls||directFlv;")
-          s = s.replace("const fallbackUrl=isAndroid && directFlv&&directHls ? directHls : (directFlv&&directHls ? directFlv : '');", "const fallbackUrl=directHls&&directFlv ? directFlv : '';")
-          s = s.replace("const streamType=isAndroid&&directFlv ? 'flv' : 'hls';", "const streamType=directHls ? 'hls' : 'flv';")
-          p.write_text(s, encoding='utf-8')
-          PY
-      - name: Commit fix
-        shell: bash
-        run: |
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add index.html
-          if git diff --cached --quiet; then exit 0; fi
-          git commit -m 'fix: relay TikTok LIVE playback through proxy [skip ci]'
-          git push
+          grep -F "const directHls=data.hls_url||'';" index.html
+          grep -F "const playUrl=isFlv ? API.split('?')[0]+'?proxy='+encodeURIComponent(streamUrl) : streamUrl;" index.html
+          echo "20260927 LIVE playback logic is preserved"
