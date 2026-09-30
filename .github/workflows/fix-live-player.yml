@@ -12,6 +12,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Fix Android live playback
         run: |
+          # Re-run the LIVE relay patch so the current homepage uses the proxy HLS URL.
           python3 - <<'PY'
           from pathlib import Path
           p=Path('index.html')
