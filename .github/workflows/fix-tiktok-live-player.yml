@@ -1,0 +1,45 @@
+name: Fix TikTok LIVE relay playback
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  patch-live-player:
+    if: github.event.head_commit.message != 'Fix TikTok LIVE relay playback'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Patch live player
+        shell: python
+        run: |
+          from pathlib import Path
+          p = Path('index.html')
+          s = p.read_text(encoding='utf-8')
+          old = "const directFlv=data.flv_url||'';"
+          new = "const directFlv=data.flv_relay_url||data.flv_url||'';"
+          if old in s:
+              s = s.replace(old, new, 1)
+          old2 = "const streamType=isAndroid&&directFlv ? 'flv' : 'hls';"
+          new2 = "const streamType=directHls ? 'hls' : 'flv';"
+          if old2 in s:
+              s = s.replace(old2, new2, 1)
+          s = s.replace('LDG_VERSION:20260927-Y', 'LDG_VERSION:20260930-LIVE', 1)
+          s = s.replace("const VERSION='LDG-20260927-G';", "const VERSION='LDG-20260930-LIVE';", 1)
+          p.write_text(s, encoding='utf-8')
+      - name: Commit fix
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html
+          if git diff --cached --quiet; then
+            echo 'No changes needed'
+            exit 0
+          fi
+          git commit -m 'Fix TikTok LIVE relay playback'
+          git push
