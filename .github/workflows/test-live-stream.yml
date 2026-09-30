@@ -1,0 +1,16 @@
+name: Test LIVE stream source
+on:
+  push:
+    paths:
+      - '.github/workflows/test-live-stream.yml'
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check stream source
+        run: |
+          URL='https://yemzdwxtyosuaczsqwea.supabase.co/functions/v1/tiktok-live-proxy?user=kaip1018'
+          BODY=$(curl -fsS --max-time 20 "$URL")
+          echo "$BODY" | python3 -c 'import json,sys; d=json.load(sys.stdin); print({"ok":d.get("ok"),"is_live":d.get("is_live"),"has_hls":bool(d.get("hls_url")),"has_flv":bool(d.get("flv_url")),"has_hls_relay":bool(d.get("hls_relay_url")),"error":d.get("error")})'
