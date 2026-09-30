@@ -23,20 +23,19 @@ jobs:
             const username='kaip1018';
             const out={username};
             try {
-              const c=new TikTokLiveConnection(username,{fetchRoomInfoOnConnect:true,processInitialData:false,requestPollingIntervalMs:1000});
+              const c=new TikTokLiveConnection(username,{fetchRoomInfoOnConnect:false,processInitialData:false,requestPollingIntervalMs:1000});
               try {
-                await c.connect();
+                const raw=await c.fetchRoomInfo();
                 out.connected=true;
-                out.roomId=String(c.roomId||'');
-                const info=c.roomInfo||{};
-                out.roomInfoKeys=Object.keys(info||{});
-                out.streamUrlKeys=Object.keys(info?.stream_url||{});
-                out.hasHls=!!info?.stream_url?.hls_pull_url;
-                out.hasFlv=!!info?.stream_url?.flv_pull_url;
-                out.streamUrlSummary={
-                  hls: typeof info?.stream_url?.hls_pull_url==='string' ? info.stream_url.hls_pull_url.slice(0,120) : null,
-                  flv: typeof info?.stream_url?.flv_pull_url==='string' ? info.stream_url.flv_pull_url.slice(0,120) : (info?.stream_url?.flv_pull_url ? Object.keys(info.stream_url.flv_pull_url) : null)
-                };
+                out.roomId=String(c.roomId||raw?.room_id||raw?.roomId||'');
+                out.rawKeys=Object.keys(raw||{});
+                const find=(v)=>{if(!v||typeof v!=='object')return null;if(v.stream_url)return v;for(const k of ['data','room_info','roomInfo','result','response']){if(v[k]){const x=find(v[k]);if(x)return x}}return null};
+                const info=find(raw)||raw||{};
+                const su=info?.stream_url||{};
+                out.streamUrlKeys=Object.keys(su||{});
+                out.hasHls=!!su?.hls_pull_url;
+                out.hasFlv=!!su?.flv_pull_url;
+                out.streamUrlSummary={hls:typeof su?.hls_pull_url==='string'?su.hls_pull_url.slice(0,120):null,flv:typeof su?.flv_pull_url==='string'?su.flv_pull_url.slice(0,120):null};
               } finally { try{c.disconnect()}catch{} }
             } catch(e) { out.error=String(e?.stack||e); }
             console.log(JSON.stringify(out,null,2));
