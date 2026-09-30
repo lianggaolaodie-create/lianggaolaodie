@@ -1,4 +1,4 @@
-name: Fix TikTok live player
+name: Restore TikTok live player
 on:
   push:
     branches:
@@ -6,31 +6,31 @@ on:
 permissions:
   contents: write
 jobs:
-  fix:
+  restore:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Patch LIVE relay URL
+      - name: Restore 20260927 LIVE playback URL
         run: |
           python3 - <<'PY'
           from pathlib import Path
           p=Path('index.html')
           s=p.read_text(encoding='utf-8')
-          old="const directHls=data.hls_url||'';"
-          new="const directHls=data.hls_relay_url||data.hls_url||'';"
+          old="const directHls=data.hls_relay_url||data.hls_url||'';"
+          new="const directHls=data.hls_url||'';"
           if old in s:
               p.write_text(s.replace(old,new,1),encoding='utf-8')
-              print('LIVE relay URL patch applied')
+              print('Restored 20260927 LIVE playback URL')
           elif new in s:
-              print('LIVE relay URL already patched')
+              print('20260927 LIVE playback URL already restored')
           else:
               raise SystemExit('LIVE HLS URL line not found')
           PY
-      - name: Commit patch
+      - name: Commit restore
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot].com'
           git add index.html
           if git diff --cached --quiet; then exit 0; fi
-          git commit -m 'Fix TikTok LIVE relay playback [skip ci]'
+          git commit -m 'Restore 20260927 TikTok LIVE playback [skip ci]'
           git push
