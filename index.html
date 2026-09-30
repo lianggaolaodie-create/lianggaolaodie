@@ -347,7 +347,7 @@ html,body{margin:0;padding:0;background:#f8f0e3}
       const data=await res.json();
       if(data&&data.is_live){
         isLive=true;
-        const directHls=data.hls_relay_url||data.hls_url||'';
+        const directHls=data.hls_url||'';
         const directFlv=data.flv_url||'';
         const isAndroid=/Android/i.test(navigator.userAgent);
         const isIOS=/iPhone|iPad|iPod/i.test(navigator.userAgent);
