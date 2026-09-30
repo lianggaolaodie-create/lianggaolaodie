@@ -1,16 +1,14 @@
 {
-  "proxy_version": "21",
+  "proxy_version": "22",
   "page_hls": false,
   "page_flv": false,
-  "page_len": 210630,
+  "page_len": 210640,
   "api_hls": false,
   "api_flv": false,
-  "api_len": 1566,
-  "api_status": null,
+  "api_len": 1572,
   "api_keys": [
     "user",
     "stats",
     "liveRoom"
-  ],
-  "room_id_present": false
+  ]
 }
