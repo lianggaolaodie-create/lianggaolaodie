@@ -1,0 +1,42 @@
+name: Fix TikTok live player
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: write
+jobs:
+  fix:
+    if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fix Android live playback
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text(encoding='utf-8')
+          old="""        const directHls=data.hls_url||'';
+        const directFlv=data.flv_url||'';
+        const isAndroid=/Android/i.test(navigator.userAgent);
+        const isIOS=/iPhone|iPad|iPod/i.test(navigator.userAgent);
+        const streamUrl=isAndroid ? (directFlv||directHls) : (directHls||directFlv);
+        const fallbackUrl=isAndroid && directFlv&&directHls ? directHls : (directFlv&&directHls ? directFlv : '');
+        const streamType=isAndroid&&directFlv ? 'flv' : 'hls';"""
+          new="""        const directHls=data.hls_relay_url||data.hls_url||'';
+        const directFlv=data.flv_url||'';
+        const streamUrl=directHls||directFlv;
+        const fallbackUrl=directHls&&directFlv ? directFlv : '';
+        const streamType=directHls ? 'hls' : 'flv';"""
+          if old not in s:
+              raise SystemExit('target code not found')
+          p.write_text(s.replace(old,new,1),encoding='utf-8')
+          PY
+      - name: Commit fix
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html
+          git diff --cached --quiet && exit 0
+          git commit -m 'Fix TikTok LIVE HLS relay playback [skip ci]'
+          git push
