@@ -10,33 +10,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Inspect upstream sources
+      - name: Verify proxy response
         run: |
+          curl -fsS --max-time 30 'https://yemzdwxtyosuaczsqwea.supabase.co/functions/v1/tiktok-live-proxy?user=kaip1018' > proxy-result-raw.json
           python3 - <<'PY'
-          import json,re,urllib.request
-          u='kaip1018'
-          headers={'User-Agent':'Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 Version/26.3 Mobile/15E148 Safari/604.1','Referer':f'https://www.tiktok.com/@{u}/live','Accept':'application/json,text/plain,*/*'}
-          def get(url):
-            r=urllib.request.Request(url,headers=headers)
-            return urllib.request.urlopen(r,timeout=20).read().decode('utf-8','ignore')
-          out={'proxy_version':'22'}
-          try:
-            s=get(f'https://www.tiktok.com/@{u}/live')
-            out['page_hls']='hls_pull_url' in s or '.m3u8' in s
-            out['page_flv']='flv_pull_url' in s or '.flv' in s
-            out['page_len']=len(s)
-          except Exception as e: out['page_error']=str(e)
-          try:
-            s=get(f'https://www.tiktok.com/api-live/user/room?aid=1988&sourceType=54&uniqueId={u}')
-            d=json.loads(s); out['api_hls']=bool(re.search(r'(?:hls_pull_url|pull-hls|\\.m3u8)',s,re.I)); out['api_flv']=bool(re.search(r'(?:flv_pull_url|pull-flv|\\.flv|rtmp_pull_url)',s,re.I)); out['api_len']=len(s); out['api_keys']=list((d.get('data') or {}).keys())
-          except Exception as e: out['api_error']=str(e)
+          import json
+          d=json.load(open('proxy-result-raw.json'))
+          out={'ok':d.get('ok'),'is_live':d.get('is_live'),'has_hls':bool(d.get('hls_url')),'has_flv':bool(d.get('flv_url')),'has_hls_relay':bool(d.get('hls_relay_url')),'title':bool(d.get('title')),'error':d.get('error')}
           open('live-upstream-test-result.json','w').write(json.dumps(out,ensure_ascii=False,indent=2))
           PY
+          rm -f proxy-result-raw.json
       - name: Commit result
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add live-upstream-test-result.json
           git diff --cached --quiet && exit 0
-          git commit -m 'test: record TikTok upstream stream fields [skip ci]'
+          git commit -m 'test: record proxy response [skip ci]'
           git push
