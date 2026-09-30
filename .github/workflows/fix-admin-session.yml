@@ -1,0 +1,48 @@
+name: Fix admin session restore
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  patch-admin-session:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch admin session restore
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('admin-orders-fixed.html')
+          s = p.read_text(encoding='utf-8')
+          marker = 'ADMIN_SESSION_RESTORE_20260930'
+          if marker not in s:
+              fix = r'''/* ADMIN_SESSION_RESTORE_20260930 */
+              db.auth.getSession().then(async r=>{
+                if(r.data && r.data.session){
+                  const er=await access(r.data.session.user);
+                  if(!er) open();
+                }
+              });
+              '''
+              needle='</script></body></html>'
+              if needle not in s:
+                  needle='</script>'
+                  pos=s.rfind(needle)
+                  if pos<0: raise SystemExit('No closing script tag found')
+                  s=s[:pos]+fix+s[pos:]
+              else:
+                  s=s.replace(needle,fix+needle,1)
+              p.write_text(s,encoding='utf-8')
+          PY
+      - name: Commit patch
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add admin-orders-fixed.html
+          git diff --cached --quiet || git commit -m 'fix admin session restore'
+          git push

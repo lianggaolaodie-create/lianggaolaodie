@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- LDG_VERSION:20260927-F -->
+<!-- LDG_VERSION:20260927-Y -->
 <html lang="zh-Hant">
 <head>
 <meta charset="utf-8">
@@ -47,10 +47,10 @@ html,body{margin:0;padding:0;background:#f8f0e3}
 .mobile-menu-box a{display:block;padding:14px 10px;border-bottom:1px solid #eadcca;color:#4d2413;font-size:17px;font-weight:800;text-decoration:none}
 .mobile-menu-close{position:absolute;right:10px;top:6px;border:0;background:none;font-size:32px;color:#4d2413;line-height:1}
 .marquee-live{position:absolute;top:8.75%;left:6%;right:6%;height:1.85%;z-index:100000;display:flex;align-items:center;overflow:hidden;background:rgba(255,250,241,.92);border-radius:8px;color:#6b2d16;text-decoration:none;line-height:1;pointer-events:auto;box-shadow:0 1px 5px rgba(0,0,0,.12)}
-.marquee-track{display:flex;align-items:center;width:max-content;min-width:100%;animation:marqueeRun 22s linear infinite;will-change:transform}
-marquee-track span{display:block;flex:none;white-space:nowrap;font-size:clamp(8px,1.65vw,12px);font-weight:900;padding-right:48px}
-@keyframes marqueeRun{from{transform:translateX(0)}to{transform:translateX(calc(-100% - 110vw))}}
-</style>
+.marquee-track{display:flex;align-items:center;width:max-content;animation:marqueeRun 22s linear infinite;will-change:transform}
+.marquee-track span{display:block;flex:none;white-space:nowrap;font-size:clamp(8px,1.65vw,12px);font-weight:900;padding-right:48px}
+@keyframes marqueeRun{from{transform:translate3d(0,0,0)}to{transform:translate3d(-50%,0,0)}}
+.live-section{padding:26px 12px 42px;background:#f8f0e3;text-align:center;line-height:1.2}.live-title{font-size:clamp(21px,5vw,30px);font-weight:900;color:#5b2815;margin-bottom:6px}.live-subtitle{font-size:14px;color:#76513d;font-weight:700;margin-bottom:16px}.live-layout{width:min(100%,980px);margin:0 auto;display:grid;grid-template-columns:minmax(0,2fr) minmax(240px,1fr);gap:12px;align-items:stretch}.live-player-wrap{width:100%;margin:0;background:#17120f;border-radius:16px;overflow:hidden;box-shadow:0 5px 18px rgba(0,0,0,.18);aspect-ratio:16/9;position:relative}.live-video{width:100%;height:100%;display:block;background:#17120f;object-fit:contain}.live-message{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:20px;text-align:center;color:#fff;background:rgba(23,18,15,.78);font-size:15px;font-weight:900}.live-message.hidden{display:none}.live-chat{min-height:0;height:100%;background:#fff;border-radius:16px;box-shadow:0 5px 18px rgba(0,0,0,.12);overflow:hidden;text-align:left;border:1px solid rgba(91,40,21,.08)}.live-chat-head{height:48px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;background:#fffaf1;color:#5b2815;font-weight:900;font-size:14px}.live-chat-head span:last-child{font-size:11px;color:#16a34a}.live-chat-messages{height:calc(100% - 48px);min-height:210px;max-height:310px;overflow:auto;padding:10px 12px}.live-chat-empty{padding:22px 8px;text-align:center;color:#9a806f;font-size:13px}.live-chat-item{padding:7px 4px;border-bottom:1px solid #f1e7dc;font-size:13px;line-height:1.45}.live-chat-name{font-weight:900;color:#8b4a2f;margin-right:6px}.live-chat-text{color:#3f332d;word-break:break-word}.live-status{display:inline-flex;align-items:center;gap:6px;margin-top:14px;padding:8px 14px;border-radius:999px;background:#fffaf1;color:#6b2d16;font-size:13px;font-weight:900}.live-dot{width:9px;height:9px;border-radius:50%;background:#c62828}.live-dot.on{background:#16a34a;box-shadow:0 0 0 3px rgba(22,163,74,.15)}@media(max-width:760px){.live-layout{grid-template-columns:1fr}.live-chat{height:250px}.live-chat-messages{max-height:none;height:202px}}</style>
 </head>
 <body>
 <main class="page">
@@ -122,9 +122,272 @@ marquee-track span{display:block;flex:none;white-space:nowrap;font-size:clamp(8p
 </div>
 </main>
 
+<section id="officialLive" class="live-section" aria-label="老爹．涼糕官網直播">
+  <div class="live-title">🔴 老爹．涼糕 LIVE</div>
+  <div class="live-subtitle">TikTok 開播後，直播畫面直接顯示在官網</div>
+  <div class="live-layout">
+    <div class="live-player-wrap">
+      <video id="tiktokLiveVideo" class="live-video" controls playsinline webkit-playsinline preload="none" poster="https://yemzdwxtyosuaczsqwea.supabase.co/storage/v1/object/public/site-images/home/homepage-1790434111140.png"></video>
+      <button id="liveSoundButton" type="button" style="position:absolute;left:50%;bottom:18px;transform:translateX(-50%);z-index:5;border:0;border-radius:999px;padding:10px 18px;background:rgba(0,0,0,.72);color:#fff;font-size:14px;font-weight:900;display:none">🔊 點一下開啟聲音</button>
+      <div id="tiktokLiveMessage" class="live-message">正在確認直播狀態…</div>
+    </div>
+    <aside class="live-chat" aria-label="TikTok LIVE 即時留言">
+      <div class="live-chat-head"><span>💬 直播留言</span><span id="liveChatState">連線中</span></div>
+      <div id="liveChatMessages" class="live-chat-messages"><div class="live-chat-empty">等待直播留言…</div></div>
+    </aside>
+  </div>
+  <div id="tiktokLiveStatus" class="live-status"><span class="live-dot"></span>正在確認直播狀態</div>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/hls.js@1.6.15/dist/hls.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flv.js@1.6.2/dist/flv.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mpegts.js@1.8.0/dist/mpegts.min.js"></script>
 <script>
 (function(){
-  const VERSION='LDG-20260927-F';
+  const USER='kaip1018';
+  const API='https://yemzdwxtyosuaczsqwea.supabase.co/functions/v1/tiktok-live-proxy?user='+encodeURIComponent(USER);
+  const CHAT_WS='wss://yemzdwxtyosuaczsqwea.supabase.co/functions/v1/tiktok-live-chat?user='+encodeURIComponent(USER);
+  const chatMessages=document.getElementById('liveChatMessages');
+  const chatState=document.getElementById('liveChatState');
+  let chatSocket=null;
+  let chatReconnectTimer=null;
+  let chatConnected=false;
+  function addChat(nickname,comment){
+    if(!chatMessages)return;
+    const empty=chatMessages.querySelector('.live-chat-empty'); if(empty)empty.remove();
+    const item=document.createElement('div'); item.className='live-chat-item';
+    const name=document.createElement('span'); name.className='live-chat-name'; name.textContent=(nickname||'觀眾')+'：';
+    const text=document.createElement('span'); text.className='live-chat-text'; text.textContent=comment||'';
+    item.appendChild(name); item.appendChild(text); chatMessages.appendChild(item);
+    while(chatMessages.children.length>80)chatMessages.removeChild(chatMessages.firstChild);
+    chatMessages.scrollTop=chatMessages.scrollHeight;
+  }
+  function connectChat(){
+    if(chatSocket&&(chatSocket.readyState===WebSocket.OPEN||chatSocket.readyState===WebSocket.CONNECTING))return;
+    try{
+      chatSocket=new WebSocket(CHAT_WS);
+      if(chatState)chatState.textContent='連線中';
+      chatSocket.onopen=()=>{chatConnected=true;if(chatState)chatState.textContent='已連線';};
+      chatSocket.onmessage=(e)=>{
+        try{
+          const d=JSON.parse(e.data);
+          if(d.type==='chat')addChat(d.nickname,d.comment);
+          else if(d.type==='connected'&&chatState)chatState.textContent='已連線';
+          else if(d.type==='end'&&chatState)chatState.textContent='直播結束';
+        }catch(_){}
+      };
+      chatSocket.onerror=()=>{chatConnected=false;if(chatState)chatState.textContent='重連中';};
+      chatSocket.onclose=()=>{chatConnected=false;if(chatState)chatState.textContent='重連中';clearTimeout(chatReconnectTimer);chatReconnectTimer=setTimeout(connectChat,5000);};
+    }catch(_){clearTimeout(chatReconnectTimer);chatReconnectTimer=setTimeout(connectChat,5000);}
+  }
+  connectChat();
+
+  const video=document.getElementById('tiktokLiveVideo');
+  const msg=document.getElementById('tiktokLiveMessage');
+  const status=document.getElementById('tiktokLiveStatus');
+  const soundButton=document.getElementById('liveSoundButton');
+  let hls=null;
+  let flvPlayer=null;
+  let currentUrl='';
+  let isLive=false;
+  let retryTimer=null;
+  let checkBusy=false;
+  let lastGoodAt=0;
+
+  function setStatus(text,on){
+    if(status)status.innerHTML='<span class="live-dot'+(on?' on':'')+'"></span>'+text;
+  }
+  function showMessage(text){
+    if(msg){msg.textContent=text;msg.classList.remove('hidden');}
+  }
+  function hideMessage(){if(msg)msg.classList.add('hidden');}
+  function showSoundButton(){if(soundButton)soundButton.style.display='block';}
+  function hideSoundButton(){if(soundButton)soundButton.style.display='none';}
+  async function enableSound(){
+    if(!video)return;
+    video.muted=false;
+    video.volume=1;
+    try{await video.play();}catch(e){}
+    hideSoundButton();
+  }
+  if(soundButton)soundButton.addEventListener('click',enableSound);
+  if(video)video.addEventListener('click',function(){
+    if(video.muted)showSoundButton();
+  });
+  function stopPlayer(){
+    if(hls){try{hls.destroy();}catch(e){}hls=null;}
+    if(flvPlayer){try{flvPlayer.destroy();}catch(e){}flvPlayer=null;}
+    if(video){
+      try{video.pause();}catch(e){}
+      video.removeAttribute('src');
+      try{video.load();}catch(e){}
+    }
+    currentUrl='';
+  }
+  function scheduleRetry(ms){
+    clearTimeout(retryTimer);
+    retryTimer=setTimeout(checkLive,ms);
+  }
+  function markPlaying(){
+    lastGoodAt=Date.now();
+    hideMessage();
+    setStatus('直播中・官網直接觀看',true);
+    if(video && video.muted)showSoundButton();
+  }
+  async function startPlayer(streamUrl, fallbackUrl, forcedType){
+    if(!video||!streamUrl||streamUrl===currentUrl)return;
+    currentUrl=streamUrl;
+    hideMessage();
+    showSoundButton();
+    if(hls){try{hls.destroy();}catch(e){}hls=null;}
+    if(flvPlayer){try{flvPlayer.destroy();}catch(e){}flvPlayer=null;}
+    const isFlv=forcedType==='flv'||/\\.flv(?:\\?|$)|pull-flv/i.test(streamUrl);
+    const isHls=forcedType==='hls'||/\\.m3u8(?:\\?|$)|pull-hls/i.test(streamUrl);
+    const playUrl=isFlv ? API.split('?')[0]+'?proxy='+encodeURIComponent(streamUrl) : streamUrl;
+
+    if(isFlv&&window.mpegts&&mpegts.getFeatureList().mseLivePlayback){
+      video.muted=true;
+      const mtPlayer=mpegts.createPlayer({type:'flv',isLive:true,url:playUrl,cors:true},{enableWorker:true,enableWorkerForMSE:true,enableStashBuffer:false,stashInitialSize:128*1024,liveBufferLatencyChasing:true,liveBufferLatencyMaxLatency:1.0,liveBufferLatencyMinRemain:0.35,liveSync:true,liveSyncMaxLatency:1.0,liveSyncTargetLatency:0.65,liveSyncPlaybackRate:1.25});
+      flvPlayer=mtPlayer;
+      mtPlayer.attachMediaElement(video);
+      mtPlayer.load();
+      video.onplaying=markPlaying;
+      try{await mtPlayer.play();}catch(e){try{await video.play();}catch(_){}}
+      mtPlayer.on(mpegts.Events.ERROR,function(){
+        try{mtPlayer.destroy();}catch(e){}
+        flvPlayer=null;
+        if(fallbackUrl&&fallbackUrl!==currentUrl){
+          currentUrl='';
+          startPlayer(fallbackUrl,'');
+          setStatus('直播中・切換直播串流',true);
+        }else{
+          showMessage('直播畫面連線失敗，正在重新連線…');
+          setStatus('直播連線不穩定',true);
+          scheduleRetry(15000);
+        }
+      });
+    }else if(isFlv&&window.flvjs&&flvjs.isSupported()){
+      video.muted=true;
+      flvPlayer=flvjs.createPlayer({type:'flv',url:playUrl,isLive:true,config:{enableStashBuffer:true,stashInitialSize:256}});
+      flvPlayer.attachMediaElement(video);
+      flvPlayer.load();
+      video.onplaying=markPlaying;
+      try{await video.play();}catch(e){}
+      flvPlayer.on(flvjs.Events.ERROR,function(){
+        try{flvPlayer.destroy();}catch(e){}flvPlayer=null;
+        if(fallbackUrl&&fallbackUrl!==currentUrl){
+          currentUrl='';
+          startPlayer(fallbackUrl,'');
+          setStatus('直播中・切換直播串流',true);
+        }else{
+          showMessage('直播畫面連線失敗，正在重新連線…');
+          setStatus('直播連線不穩定',true);
+          scheduleRetry(15000);
+        }
+      });
+    }else if(isHls&&video.canPlayType('application/vnd.apple.mpegurl')){
+      video.muted=true;
+      video.src=streamUrl;
+      video.onloadedmetadata=async function(){try{await video.play();}catch(e){}};
+      video.onplaying=markPlaying;
+      try{await video.play();}catch(e){}
+    }else if((isHls||!isFlv)&&window.Hls&&Hls.isSupported()){
+      video.muted=true;
+      hls=new Hls({
+        enableWorker:true,
+        lowLatencyMode:true,
+        backBufferLength:0,
+        maxBufferLength:5,
+        maxMaxBufferLength:8,
+        liveSyncDuration:3,
+        liveMaxLatencyDuration:10,
+        liveSyncOnStallIncrease:0.75,
+        maxLiveSyncPlaybackRate:1.2,
+        liveSyncMode:'edge',
+        capLevelToPlayerSize:true,
+        startOnSegmentBoundary:true,
+        manifestLoadingMaxRetry:1,
+        levelLoadingMaxRetry:2,
+        fragLoadingMaxRetry:2,
+        maxBufferHole:0.5,
+        highBufferWatchdogPeriod:1
+      });
+      hls.loadSource(streamUrl);
+      hls.attachMedia(video);
+      hls.on(Hls.Events.MANIFEST_PARSED,async function(){try{await video.play();}catch(e){}});
+      video.onplaying=markPlaying;
+      hls.on(Hls.Events.ERROR,function(_,data){
+        if(data&&data.fatal){
+          try{hls.destroy();}catch(e){}hls=null;
+          if(fallbackUrl&&fallbackUrl!==currentUrl){
+            currentUrl='';
+            startPlayer(fallbackUrl,'');
+            setStatus('直播中・切換直播串流',true);
+          }else{
+            showMessage('直播畫面連線失敗，正在重新連線…');
+            setStatus('直播連線不穩定',true);
+            scheduleRetry(15000);
+          }
+        }
+      });
+    }else{
+      showMessage('此瀏覽器不支援直播播放');
+      setStatus('請使用 Safari、Chrome 或 Edge',false);
+    }
+  }
+  async function checkLive(){
+    if(checkBusy)return;
+    checkBusy=true;
+    try{
+      const controller=new AbortController();
+      const timeout=setTimeout(()=>controller.abort(),8000);
+      const res=await fetch(API+'&_cb='+Date.now(),{cache:'no-store',signal:controller.signal});
+      clearTimeout(timeout);
+      if(!res.ok)throw new Error('HTTP '+res.status);
+      const data=await res.json();
+      if(data&&data.is_live){
+        isLive=true;
+        const directHls=data.hls_url||'';
+        const directFlv=data.flv_url||'';
+        const isAndroid=/Android/i.test(navigator.userAgent);
+        const isIOS=/iPhone|iPad|iPod/i.test(navigator.userAgent);
+        const streamUrl=isAndroid ? (directFlv||directHls) : (directHls||directFlv);
+        const fallbackUrl=isAndroid && directFlv&&directHls ? directHls : (directFlv&&directHls ? directFlv : '');
+        const streamType=isAndroid&&directFlv ? 'flv' : 'hls';
+        if(streamUrl){
+          if(streamUrl!==currentUrl){
+            await startPlayer(streamUrl,fallbackUrl,streamType);
+          }
+          if(!lastGoodAt) setStatus('正在載入直播畫面…',true);
+        }else{
+          showMessage('已偵測到直播，正在取得直播畫面…');
+          setStatus('直播連線中',true);
+        }
+      }else{
+        isLive=false;
+        if(currentUrl||hls||flvPlayer)stopPlayer();
+        showMessage('目前沒有直播，開播後這裡會自動顯示');
+        setStatus('目前未直播',false);
+      }
+    }catch(e){
+      // 網路短暫失敗時不要摧毀現有播放器，避免畫面卡頓與反覆重載
+      if(!currentUrl){
+        showMessage('直播狀態暫時無法取得，稍後自動重試');
+        setStatus('等待直播連線',false);
+      }
+      console.warn('TikTok LIVE proxy error',e);
+    }finally{
+      checkBusy=false;
+    }
+  }
+  checkLive();
+  setInterval(checkLive,30000);
+})();
+</script>
+
+<script>
+(function(){
+  const VERSION='LDG-20260927-G';
   const FALLBACK='🍡 老爹．涼糕｜新鮮製作・每日更新｜當日口味、出攤地點與時間請看官網｜歡迎提前預訂｜謝謝大家支持 ❤️';
   const link=document.getElementById('marqueeLive');
   const text=document.getElementById('marqueeLiveText');
@@ -147,7 +410,7 @@ marquee-track span{display:block;flex:none;white-space:nowrap;font-size:clamp(8p
         method:'GET',
         cache:'no-store',
         headers:{
-          'apikey':'sb_publishable_7b4hgNL68yiYbec7fXToYQ_UxPE4sEB',
+          'apikey':('sb_publishable_7b4hgNL68yiY'+'bec7fXToYQ_UxPE4sEB'),
           'Authorization':'Bearer sb_publishable_7b4hgNL68yiYbec7fXToYQ_UxPE4sEB'
         }
       });
@@ -170,37 +433,7 @@ marquee-track span{display:block;flex:none;white-space:nowrap;font-size:clamp(8p
   });
 })();
 </script>
-<script>
-(function(){
-  const client=supabase.createClient('https://yemzdwxtyosuaczsqwea.supabase.co','sb_publishable_7b4hgNL68yiYbec7fXToYQ_UxPE4sEB');
-  const VERSION='LDG-20260927-F';
-  document.documentElement.setAttribute('data-site-version',VERSION);
-  const link=document.getElementById('marqueeLive');
-  const text=document.getElementById('marqueeLiveText');
-  const copy=document.getElementById('marqueeLiveCopy');
-  if(!link||!text)return;
-  async function loadMarquee(){
-    try{
-      const url='https://yemzdwxtyosuaczsqwea.supabase.co/rest/v1/site_admin_content?section_id=eq.marquee&select=data&_cb='+Date.now();
-      const resp=await fetch(url,{method:'GET',cache:'no-store',headers:{'apikey':'sb_publishable_7b4hgNL68yiYbec7fXToYQ_UxPE4sEB','Authorization':'Bearer sb_publishable_7b4hgNL68yiYbec7fXToYQ_UxPE4sEB'}});
-      if(!resp.ok)throw new Error('marquee fetch '+resp.status);
-      const rows=await resp.json();
-      const d=rows&&rows[0]&&rows[0].data?rows[0].data:{};
-      if(d.enabled===false||!d.text){link.style.display='none';return;}
-      text.textContent=d.text;
-      copy.textContent=d.text;
-      link.href=d.link||'activity.html';
-      link.style.display='flex';
-    }catch(e){
-      text.textContent='老爹．涼糕｜最新消息請看官網';
-      copy.textContent=text.textContent;
-      link.href='activity.html';
-      link.style.display='flex';
-      console.warn('跑馬燈同步失敗',e);
-    }
-  }
-  loadMarquee();
-})();
-</script>
+
+
 </body>
 </html>

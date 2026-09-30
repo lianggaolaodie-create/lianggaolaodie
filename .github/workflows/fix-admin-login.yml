@@ -1,0 +1,48 @@
+name: Fix admin login
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: write
+jobs:
+  fix-login:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore browser-safe admin script loading
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('admin-orders-fixed.html')
+          s=p.read_text(encoding='utf-8')
+          s=s.replace('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js','https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2')
+          s=s.replace('<input id="email" type="email" required>', '<input id="email" type="email" required autocomplete="username">')
+          s=s.replace('<input id="password" type="password" required>', '<input id="password" type="password" required autocomplete="current-password">')
+          s=s.replace('<button class="btn">登入</button>', '<button class="btn" type="submit">登入</button>')
+          p.write_text(s,encoding='utf-8')
+          PY
+      - name: Check embedded JavaScript syntax
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re, subprocess, tempfile
+          html=Path('admin-orders-fixed.html').read_text(encoding='utf-8')
+          scripts=re.findall(r'<script(?:\s[^>]*)?>(.*?)</script>', html, flags=re.S|re.I)
+          for i,src in enumerate(scripts,1):
+              if not src.strip(): continue
+              f=Path(tempfile.gettempdir())/f'admin-orders-{i}.js'
+              f.write_text(src,encoding='utf-8')
+              r=subprocess.run(['node','--check',str(f)],text=True,capture_output=True)
+              if r.returncode:
+                  print(r.stderr)
+                  raise SystemExit(f'JavaScript syntax error in script {i}')
+          print('JavaScript syntax check passed')
+          PY
+      - name: Commit patch
+        run: |
+          if git diff --quiet; then exit 0; fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add admin-orders-fixed.html
+          git commit -m 'Restore admin button script loading'
+          git push
