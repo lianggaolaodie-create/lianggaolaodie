@@ -88,7 +88,54 @@
 }
 </style><style id="marquee-full-editor">
 #sitePanel .marquee-full-text{min-height:260px!important}
-</style></head>
+</style><style id="admin-redesign-v1">
+/* ADMIN-REDESIGN-V1 */
+:root{--ad-brown:#4b2d20;--ad-cream:#fbf6ee;--ad-line:#e7d9ca;--ad-pink:#ee4f82;--ad-blue:#2f78c9}
+body{background:linear-gradient(180deg,#f8f2e9 0,#f4ede3 100%)}
+.layout{gap:0}
+.side{width:258px;background:linear-gradient(180deg,#17283b,#20384f);padding:16px 14px;box-shadow:8px 0 24px rgba(24,40,59,.08)}
+.side .brand{padding:8px 12px 18px;border-bottom:1px solid rgba(255,255,255,.1);margin-bottom:8px}
+.side .brand small{opacity:.75}
+.group{font-size:12px;letter-spacing:.5px;color:#b9c5d0;padding:16px 10px 7px}
+.nav{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.nav a{margin:0;padding:11px 9px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.035);border-radius:12px;font-size:14px;line-height:1.25;min-height:52px;display:flex;align-items:center}
+.nav a:hover,.nav a.active{background:#2f6fb5;border-color:#5d95cf}
+.side>a:last-child{background:rgba(255,255,255,.08);border-radius:12px;padding:11px 13px!important;margin:16px 2px!important}
+.top{height:68px;background:rgba(255,255,255,.92);backdrop-filter:blur(10px);padding:0 24px}
+.wrap{max-width:1320px;padding:24px}
+.hero{position:relative;overflow:hidden;background:linear-gradient(135deg,#4b2d20,#8d5136 70%,#b96b63);border-radius:24px;padding:30px 32px;box-shadow:0 12px 32px rgba(75,45,32,.14)}
+.hero:after{content:'🍡';position:absolute;right:28px;bottom:-18px;font-size:100px;opacity:.12;transform:rotate(-12deg)}
+.hero h1{font-size:32px;letter-spacing:.5px}.hero p{font-size:15px}
+.section{margin:26px 0}.section h2{font-size:21px;margin:0 0 14px;color:var(--ad-brown);display:flex;align-items:center;gap:8px}
+.grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.card{border:1px solid var(--ad-line);border-radius:18px;padding:18px;background:rgba(255,255,255,.94);box-shadow:0 7px 22px rgba(61,42,32,.06);transition:.18s ease}
+.card:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(61,42,32,.1)}
+.card h3{font-size:17px;color:#33251e}.card .btn{border-radius:11px;background:var(--ad-blue);padding:9px 13px}
+#siteTabs{gap:12px!important}
+#siteTabs a{border:1px solid var(--ad-line)!important;background:#fff!important;color:var(--ad-brown)!important;box-shadow:0 5px 18px rgba(61,42,32,.05)!important}
+@media(max-width:900px){
+  .layout{display:block}
+  .side{width:100%;height:auto;position:relative;padding:12px 12px 14px;box-shadow:none}
+  .side .brand{font-size:23px;padding:5px 10px 12px}
+  .group{padding:11px 8px 6px}
+  .nav{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+  .nav a{font-size:14px;min-height:48px;padding:10px 9px}
+  .side>a:last-child{margin:12px 2px!important}
+  .top{height:auto;min-height:58px;padding:11px 14px}
+  .wrap{padding:14px}
+  .hero{padding:23px 20px;border-radius:20px}.hero h1{font-size:26px}.hero:after{font-size:75px}
+  .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
+  .card{padding:14px;border-radius:15px}.card h3{font-size:15px}.muted{font-size:12px}
+}
+@media(max-width:520px){
+  .nav{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .nav a{font-size:13px;min-height:46px}
+  .grid{grid-template-columns:1fr 1fr}
+  .hero h1{font-size:23px}.hero p{font-size:13px}
+  .section h2{font-size:19px}
+}
+</style>
+</head>
 <body>
 <div id="login" style="max-width:480px;margin:70px auto;padding:18px">
 <div class="card"><div class="brand" style="color:#30251f;padding:0 0 10px">🍡 老爹．涼糕</div><p class="muted">後台管理系統</p>
