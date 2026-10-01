@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>老爹．涼糕｜後台管理</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC","Noto Sans",sans-serif;color:#3b2921;background:#f7f0e7}body{overflow-x:hidden}.hidden{display:none!important}
+.shell{max-width:1180px;margin:auto;padding:14px}.login{max-width:480px;padding-top:70px}.card{background:#fff;border:1px solid #eadfd4;border-radius:22px;box-shadow:0 8px 28px rgba(67,45,31,.07)}
+.brand{font-size:25px;font-weight:950;color:#4b2d20}.muted{color:#83756c;line-height:1.6}.field{margin:14px 0}.field label{display:block;font-weight:900;margin-bottom:7px}.field input{width:100%;padding:14px;border:1px solid #ddd1c7;border-radius:13px;font:inherit}.btn{border:0;border-radius:13px;padding:12px 17px;background:#2f78c9;color:#fff;font:inherit;font-weight:900;cursor:pointer}.btn.gray{background:#81746b}.btn.pink{background:#ee4f82}.btn.red{background:#d94a42}.login .card{padding:24px}.login .btn{width:100%;margin-top:8px}.notice{margin-top:12px;padding:11px 13px;border-radius:12px;background:#fff0ef;color:#a43d36;font-weight:800}
+.app-head{position:sticky;top:0;z-index:20;background:rgba(247,240,231,.94);backdrop-filter:blur(14px);padding:10px 0 8px;border-bottom:1px solid #eadfd4}.head-row{display:flex;align-items:center;justify-content:space-between;gap:12px}.head-sub{font-size:13px;color:#8b7c72;margin-top:3px}.logout{border:0;border-radius:12px;padding:10px 13px;background:#eee5dd;color:#49372d;font-weight:900}
+.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}.tab{border:1px solid #e5d8cc;background:#fff;color:#5b4134;border-radius:14px;padding:12px 8px;font-weight:950;text-align:center;cursor:pointer}.tab.active{background:#4b2d20;color:#fff;border-color:#4b2d20}
+.page{padding:16px 0 30px}.welcome{padding:20px 22px;border-radius:22px;background:linear-gradient(135deg,#4b2d20,#8d533a 70%,#b96d63);color:#fff;margin-bottom:16px;box-shadow:0 10px 28px rgba(75,45,32,.13)}.welcome h1{font-size:25px;margin:0 0 5px}.welcome p{margin:0;opacity:.9;font-size:14px}
+.section-title{display:flex;align-items:center;justify-content:space-between;margin:17px 2px 10px}.section-title h2{margin:0;font-size:20px}.section-title span{font-size:12px;color:#8a7b71}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.item{min-height:145px;padding:16px;display:flex;flex-direction:column;justify-content:space-between}.item h3{margin:0;font-size:17px;line-height:1.35}.item p{margin:7px 0 0;font-size:13px;color:#81736a;line-height:1.5}.item .go{margin-top:12px;display:flex;align-items:center;justify-content:space-between;gap:8px}.tag{font-size:11px;padding:4px 8px;border-radius:999px;background:#edf7ef;color:#35704c;font-weight:900}.arrow{font-size:20px;color:#9b8a7f}.quick{background:#fff8ef;border-color:#ead5c2}
+.footer{margin-top:16px;padding:14px 2px;color:#897a70;font-size:12px;text-align:center}
+@media(max-width:760px){.shell{padding:10px}.grid{grid-template-columns:1fr 1fr;gap:9px}.item{min-height:128px;padding:13px;border-radius:16px}.item h3{font-size:15px}.item p{font-size:12px}.welcome{padding:18px;border-radius:18px}.welcome h1{font-size:22px}.tabs{gap:6px}.tab{font-size:13px;padding:11px 4px}.brand{font-size:21px}.head-sub{font-size:12px}}
+@media(max-width:430px){.grid{grid-template-columns:1fr 1fr}.item{min-height:122px}.item .btn{padding:9px 10px;font-size:13px}.section-title h2{font-size:18px}.tabs{grid-template-columns:repeat(4,1fr)}}
+</style>
+</head>
+<body>
+<div id="login" class="shell login"><div class="card"><div class="brand">🍡 老爹．涼糕</div><p class="muted">後台管理系統</p><form id="loginForm"><div class="field"><label>管理員 Email</label><input id="email" type="email" autocomplete="username" required></div><div class="field"><label>密碼</label><input id="password" type="password" autocomplete="current-password" required></div><button class="btn" type="submit">登入後台</button></form><div id="loginMsg"></div></div></div>
+<div id="app" class="hidden">
+<header class="app-head"><div class="shell"><div class="head-row"><div><div class="brand">🍡 老爹．涼糕｜後台</div><div class="head-sub">管理功能已重新分組，不再全部塞在同一頁</div></div><div><span id="who" class="head-sub"></span> <button id="logout" class="logout">登出</button></div></div><div id="tabs" class="tabs"></div></div></header>
+<main class="shell page"><section class="welcome"><h1 id="pageTitle">📦 營運管理</h1><p id="pageDesc">訂單、餐車、口味與周邊商品集中在這裡。</p></section><div id="content"></div><div class="footer">老爹．涼糕後台｜手機版已改為分類切換，不需要一直上下滑</div></main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+'use strict';
+const db=window.supabase.createClient('https://yemzdwxtyosuaczsqwea.supabase.co','sb_publishable_7b4hgNL68yiYbec7fXToYQ_UxPE4sEB',{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
+const $=id=>document.getElementById(id);
+const groups={
+ ops:{title:'📦 營運管理',desc:'訂單、餐車、口味與周邊商品集中在這裡。',sections:[{title:'日常營運',items:[
+ ['🚚','涼糕餐車管理','出攤日期、地區、時間、口味','admin-schedule.html'],
+ ['🏪','擺攤管理','管理擺攤日期、地區與口味','admin-schedule.html'],
+ ['🍡','涼糕口味管理','新增、修改、刪除口味與價格','admin-products.html'],
+ ['🛒','線上訂購管理','線上訂購相關管理','online-order.html'],
+ ['🎁','周邊商品管理','商品與服飾選項','merch-admin-v2.html'],
+ ['📋','訂單管理','訂單、付款、配送狀態','admin-orders-fixed-v3.html'],
+ ['👤','個資管理','姓名、電話、門市與後五碼','admin-customers.html']
+ ]}]},
+ site:{title:'🌐 官網內容',desc:'官網文字、首頁、跑馬燈與網站內容在這裡管理。',sections:[{title:'網站內容',items:[
+ ['🏠','首頁管理','首頁文字、照片、區塊與按鈕','admin-site-content-v2.html?section=home'],
+ ['📢','跑馬燈管理','修改上方跑馬燈內容','admin-site-content-v2.html?section=marquee'],
+ ['🎉','最新活動','活動標題、內容與照片','admin-site-content-v2.html?section=activity'],
+ ['📝','購買涼糕規則','購買方式與注意事項','admin-site-content-v2.html?section=rules'],
+ ['🥕','純米蘿蔔糕','專區介紹、照片與價格','admin-site-content-v2.html?section=radish'],
+ ['ℹ️','關於老爹','品牌介紹與照片','admin-site-content-v2.html?section=about'],
+ ['📞','聯絡我們','電話、LINE、地址等資訊','admin-site-content-v2.html?section=contact'],
+ ['☰','選單管理','網站選單內容與順序','admin-site-content-v2.html?section=menu']
+ ]}]},
+ social:{title:'📣 宣傳與社群',desc:'把社群、宣傳與最新內容分開管理，畫面更乾淨。',sections:[{title:'宣傳工具',items:[
+ ['📱','IG／Facebook','管理社群連結','admin-site-content-v2.html?section=social'],
+ ['🎵','TikTok／直播','查看 TikTok 相關管理入口','admin-site-content-v2.html?section=social'],
+ ['📷','首頁照片','管理首頁輪播照片','admin-site-content-v2.html?section=home'],
+ ['📣','活動內容','管理最新活動宣傳','admin-site-content-v2.html?section=activity']
+ ]}]},
+ system:{title:'⚙️ 系統設定',desc:'維護模式、網站預覽與管理員操作集中在這裡。',sections:[{title:'系統',items:[
+ ['🔧','維護模式','開啟／關閉官網維護模式','admin-maintenance.html'],
+ ['👁️','管理員預覽官網','直接查看目前官網','index.html?admin_preview=1'],
+ ['🌐','查看公開官網','查看一般訪客看到的官網','index.html'],
+ ['🔐','管理員登入測試','重新檢查登入與權限','admin-login-fixed.html']
+ ]}]}
+};
+let current='ops';
+function itemCard(x){return `<article class="card item"><div><h3>${x[0]} ${x[1]}</h3><p>${x[2]}</p></div><div class="go"><span class="tag">管理</span><a class="btn" href="${x[3]}">進入 →</a></div></article>`}
+function renderTabs(){const names=[['ops','📦 營運'],['site','🌐 官網'],['social','📣 宣傳'],['system','⚙️ 系統']];$('tabs').innerHTML=names.map(x=>`<button class="tab ${x[0]===current?'active':''}" data-tab="${x[0]}">${x[1]}</button>`).join('');document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{current=b.dataset.tab;render()})}
+function render(){const g=groups[current];$('pageTitle').textContent=g.title;$('pageDesc').textContent=g.desc;renderTabs();$('content').innerHTML=g.sections.map(s=>`<section><div class="section-title"><h2>${s.title}</h2><span>${s.items.length} 個功能</span></div><div class="grid">${s.items.map(itemCard).join('')}</div></section>`).join('')}
+async function access(user){const r=await db.from('admin_profiles').select('role,enabled').eq('user_id',user.id).maybeSingle();if(r.error)return r.error.message;if(!r.data)return'找不到管理員資料';if(!r.data.enabled)return'此帳號已停用';if(r.data.role!=='super_admin')return'沒有後台管理權限';return null}
+function show(user){$('login').classList.add('hidden');$('app').classList.remove('hidden');$('who').textContent=user.email||'';render()}
+$('loginForm').addEventListener('submit',async e=>{e.preventDefault();const b=e.currentTarget.querySelector('button');b.disabled=true;b.textContent='登入中…';$('loginMsg').innerHTML='';try{const r=await db.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});if(r.error)throw r.error;const er=await access(r.data.user);if(er){await db.auth.signOut();throw new Error(er)}show(r.data.user)}catch(err){$('loginMsg').className='notice';$('loginMsg').textContent='登入失敗：'+(err.message||err)}finally{b.disabled=false;b.textContent='登入後台'}});
+$('logout').onclick=async()=>{await db.auth.signOut();location.reload()};
+db.auth.getSession().then(async r=>{if(r.data.session){const er=await access(r.data.session.user);if(!er)show(r.data.session.user)}});
+</script>
+</body>
+</html>
