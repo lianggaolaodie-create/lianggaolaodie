@@ -10,7 +10,7 @@
 </head>
 <body>
 <div class="wrap">
-<div class="top"><div class="brand">🍡 老爹．涼糕｜超商冷藏寄放訂購</div><div class="muted">每個口味的數量由客人自行選擇。</div></div>
+<div class="top"><div class="brand">🍡 老爹．涼糕｜超商冷藏寄放訂購</div><div class="muted">每個口味的數量由客人自行選擇。最低訂購 2 盒，可混搭不同口味。</div></div>
 <div id="closed" class="card closed" style="display:none"></div>
 <form id="orderForm">
 <div class="card"><h2>① 選擇今日口味</h2><div id="flavors"></div><div id="flavorEmpty" class="muted" style="display:none">今日尚未開放口味。</div></div>
@@ -18,7 +18,7 @@
 <div class="card"><h2>③ 超商冷藏寄放</h2><div id="pickupChoices" class="choice"></div><div class="field"><label>門市名稱 <span class="req">*</span></label><input id="storeName" required placeholder="例如：台北○○店"></div><div class="field"><label>門市地址（可填）</label><input id="storeAddress" placeholder="方便核對門市"></div></div>
 <div class="card"><h2>④ 收件人資料</h2><div class="field"><label>姓名 <span class="req">*</span></label><input id="customerName" required maxlength="80"></div><div class="field"><label>手機 <span class="req">*</span></label><input id="customerPhone" required maxlength="30" inputmode="tel"></div></div>
 <div class="card"><h2>⑤ 匯款資訊</h2><div id="bankInfo" class="bank">匯款資料／付款問題請洽詢官方 LINE：<a class="line-link" href="https://line.me/R/ti/p/@502iugah" target="_blank" rel="noopener">@502iugah｜點此直接聯絡官方 LINE</a></div><div class="field"><label>匯款後五碼 <span class="req">*</span></label><input id="last5" required maxlength="5" minlength="5" pattern="[0-9]{5}" inputmode="numeric" placeholder="請填 5 位數字"><div class="muted">未填寫匯款後五碼，訂單無法送出。</div></div><div class="field"><label>備註</label><textarea id="notes" rows="3" maxlength="500" placeholder="其他需要告知我們的事項"></textarea></div></div>
-<div class="card"><h2>⑥ 訂單金額</h2><div class="summary"><div class="sumrow"><span>涼糕總數</span><b id="totalQty">0 盒</b></div><div class="sumrow"><span>涼糕小計</span><b>NT$ <span id="productTotal">0</span></b></div><div class="sumrow"><span>超商寄放費</span><b>NT$ <span id="storageFee">0</span></b></div><div class="sumrow total"><span>應付總額</span><span>NT$ <span id="grandTotal">0</span></span></div></div><button class="btn" id="submitBtn" type="submit" style="margin-top:14px">送出訂單</button><div id="msg"></div></div>
+<div class="card"><h2>⑥ 訂單金額</h2><div class="summary"><div class="sumrow"><span>涼糕總數</span><b id="totalQty">0 盒</b></div><div class="sumrow"><span>涼糕小計</span><b>NT$ <span id="productTotal">0</span></b></div><div class="sumrow"><span>超商寄放費</span><b>NT$ <span id="storageFee">0</span></b></div><div class="sumrow total"><span>應付總額</span><span>NT$ <span id="grandTotal">0</span></span></div></div><div id="minimumNotice" class="notice err">最低訂購 2 盒，目前 0 盒。</div><button class="btn" id="submitBtn" type="submit" style="margin-top:14px" disabled>送出訂單</button><div id="msg"></div></div>
 </form>
 <div id="result" class="card result"><h2>訂單已建立</h2><p>請記下你的訂單編號，並依訂單總額完成匯款。</p><div id="resultOrder" class="order-number"></div><div id="resultDetail" class="muted" style="margin-top:10px"></div><button class="btn" type="button" onclick="location.reload()" style="margin-top:14px">重新訂購</button></div>
 </div>
@@ -58,9 +58,9 @@ function setClosed(t){$('closed').style.display='block';$('closed').textContent=
 function renderFlavors(){$('flavors').innerHTML=flavors.map((f,i)=>'<div class="flavor">'+(f.image_url?'<img class="flavor-img" src="'+esc(f.image_url)+'" alt="'+esc(f.flavor_name)+'" loading="lazy">':'<div class="flavor-img empty">暫無圖片</div>')+'<div><b>'+esc(f.product_name||'涼糕')+'／'+esc(f.flavor_name)+'</b><span class="price">NT$ '+Number(f.price||0).toLocaleString()+'</span></div><div class="qty"><button type="button" onclick="changeQty('+i+',-1)">−</button><span id="q'+i+'">0</span><button type="button" onclick="changeQty('+i+',1)">＋</button></div></div>').join('');$('flavorEmpty').style.display=flavors.length?'none':'block';}
 function changeQty(i,n){const e=$('q'+i);let q=Math.max(0,Math.min(99,Number(e.textContent||0)+n));e.textContent=q;updateTotals()}
 function selectedItems(){return flavors.map((f,i)=>({product_name:f.product_name||'涼糕',flavor_id:Number(f.flavor_id),flavor_name:f.flavor_name,unit_price:Number(f.price||0),quantity:Number($('q'+i)?.textContent||0)})).filter(x=>x.quantity>0).map(x=>({...x,line_total:x.unit_price*x.quantity}))}
-function updateTotals(){const items=selectedItems();const qty=items.reduce((s,x)=>s+x.quantity,0),product=items.reduce((s,x)=>s+x.line_total,0),radio=document.querySelector('input[name=pickup]:checked'),fee=radio?Number(radio.dataset.fee||0):0;$('totalQty').textContent=qty+' 盒';$('productTotal').textContent=product.toLocaleString();$('storageFee').textContent=fee.toLocaleString();$('grandTotal').textContent=(product+fee).toLocaleString()}
+function updateTotals(){const items=selectedItems();const qty=items.reduce((s,x)=>s+x.quantity,0),product=items.reduce((s,x)=>s+x.line_total,0),radio=document.querySelector('input[name=pickup]:checked'),fee=radio?Number(radio.dataset.fee||0):0;$('totalQty').textContent=qty+' 盒';$('productTotal').textContent=product.toLocaleString();$('storageFee').textContent=fee.toLocaleString();$('grandTotal').textContent=(product+fee).toLocaleString();$('submitBtn').disabled=qty<2;$('minimumNotice').textContent=qty<2?'最低訂購 2 盒，目前 '+qty+' 盒。':'已達最低訂購數量：'+qty+' 盒。';$('minimumNotice').className='notice '+(qty<2?'err':'ok')}
 $('orderForm').addEventListener('submit',async e=>{e.preventDefault();$('submitBtn').disabled=true;$('msg').innerHTML='';try{
- const items=selectedItems();if(!items.length)throw new Error('請至少選擇 1 盒涼糕。');
+ const items=selectedItems();const totalQty=items.reduce((s,x)=>s+x.quantity,0);if(totalQty<2)throw new Error('最低訂購 2 盒，請再選購 1 盒後送出訂單。');
  const region=$('region').value,radio=document.querySelector('input[name=pickup]:checked');if(!region)throw new Error('請選擇配送地區。');if(!radio)throw new Error('請選擇超商冷藏寄放方式。');
  const last5=$('last5').value.trim();if(!/^\d{5}$/.test(last5))throw new Error('匯款後五碼必須是 5 位數字。');
  const productTotal=items.reduce((s,x)=>s+x.line_total,0),fee=Number(radio.dataset.fee||0),total=productTotal+fee;
@@ -68,7 +68,7 @@ $('orderForm').addEventListener('submit',async e=>{e.preventDefault();$('submitB
  const order=await sb.from('cooling_pickup_orders').insert({order_date:today(),customer_id:customer.data,region_name:region,convenience_store:radio.value,store_name:$('storeName').value.trim(),store_address:$('storeAddress').value.trim()||null,merchandise_total:productTotal,storage_fee:fee,total_amount:total,payment_last5:last5,status:'待確認匯款',notes:$('notes').value.trim()||null}).select('id,order_number,total_amount').single();if(order.error)throw order.error;
  const rows=items.map(({line_total,...x})=>({...x,order_id:order.data.id}));const ir=await sb.from('cooling_pickup_order_items').insert(rows);if(ir.error)throw ir.error;
  $('resultOrder').textContent=order.data.order_number;$('resultDetail').innerHTML='應付總額：<b>NT$ '+Number(order.data.total_amount).toLocaleString()+'</b><br>請保留訂單編號，後續查詢或提供匯款資料時使用。';$('result').classList.add('show');$('orderForm').style.display='none';window.scrollTo({top:0,behavior:'smooth'});
- }catch(err){setMsg('訂單送出失敗：'+(err.message||'請稍後再試'),true);$('submitBtn').disabled=false}}
+ }catch(err){setMsg('訂單送出失敗：'+(err.message||'請稍後再試'),true);$('submitBtn').disabled=selectedItems().reduce((s,x)=>s+x.quantity,0)<2}}
 );
 init();updateTotals();
 </script>
