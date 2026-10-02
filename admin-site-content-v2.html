@@ -14,7 +14,7 @@
 <body>
 <div id="login" class="wrap login"><div class="card">
 <div class="brand">🍡 老爹．涼糕｜網站內容管理</div>
-<p class="muted">請使用後台管理員帳號登入。這 8 個內容管理入口共用同一個登入狀態。</p>
+<p class="muted">請使用後台管理員帳號登入。這些內容管理入口共用同一個登入狀態。</p>
 <form id="loginForm" novalidate>
 <div class="field"><label for="email">管理員 Email</label><input id="email" type="email" autocomplete="username" required></div>
 <div class="field"><label for="password">密碼</label><input id="password" type="password" autocomplete="current-password" required></div>
@@ -42,16 +42,17 @@ const defs=[
 {id:'radish',title:'🥕 純米蘿蔔糕管理',desc:'專區介紹、照片與價格',fields:[['title','商品／專區名稱','input'],['content','介紹內容','textarea'],['price','價格','number'],['image_url','圖片網址','input'],['enabled','顯示','check']]},
 {id:'about',title:'ℹ️ 關於老爹管理',desc:'品牌介紹與照片',fields:[['content','品牌介紹','textarea'],['image_url','圖片網址','input'],['enabled','顯示','check']]},
 {id:'contact',title:'📞 聯絡我們管理',desc:'電話、LINE、地址等資訊',fields:[['content','聯絡資訊','textarea'],['line_url','LINE連結','input'],['phone','電話','input'],['address','地址','input'],['enabled','顯示','check']]},
-{id:'menu',title:'☰ 選單管理',desc:'網站選單內容與順序',fields:[['menu_json','選單設定 JSON','textarea'],['enabled','啟用選單設定','check']]}
+{id:'menu',title:'☰ 選單管理',desc:'網站選單內容與順序',fields:[['menu_json','選單設定 JSON','textarea'],['enabled','啟用選單設定','check']]},
+{id:'social',title:'📣 社群連結管理',desc:'管理 IG、Facebook、TikTok 與直播入口',fields:[['instagram_url','Instagram 連結','input'],['facebook_url','Facebook 連結','input'],['tiktok_url','TikTok 連結','input'],['tiktok_live_url','TikTok 直播連結','input'],['content','其他社群說明','textarea'],['enabled','啟用社群連結','check']]}
 ];
-const pageFor={home:'index.html',marquee:'index.html',activity:'activity.html',rules:'rules.html',radish:'radish-cake.html',about:'about.html',contact:'contact.html',menu:'index.html'};
+const pageFor={home:'index.html',marquee:'index.html',activity:'activity.html',rules:'rules.html',radish:'radish-cake.html',about:'about.html',contact:'contact.html',menu:'index.html',social:'index.html'};
 function currentSection(){const q=new URLSearchParams(location.search).get('section');return defs.some(d=>d.id===q)?q:'home'}
-function escapeHtml(v){return String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')}
-function renderTabs(id){$('tabs').innerHTML=defs.map(d=>`<a class="${d.id===id?'active':''}" href="admin-site-content-v2.html?section=${d.id}&v=20261002">${d.title}</a>`).join('')}
+function escapeHtml(v){return String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\"/g,'&quot;').replace(/'/g,'&#39;')}
+function renderTabs(id){$('tabs').innerHTML=defs.map(d=>`<a class="${d.id===id?'active':''}" href="admin-site-content-v2.html?section=${d.id}&v=${Date.now()}">${d.title}</a>`).join('')}
 function render(id,data){const d=defs.find(x=>x.id===id);renderTabs(id);$('panel').innerHTML=`<div class="card"><h2 style="margin-top:0">${d.title}</h2><p class="muted">${d.desc}</p><div class="grid">${d.fields.map(f=>f[2]==='check'?`<div class="field"><label class="switch"><input id="f_${f[0]}" type="checkbox" ${data?.[f[0]]?'checked':''}> ${f[1]}</label></div>`:`<div class="field"><label>${f[1]}</label>${f[2]==='textarea'?`<textarea id="f_${f[0]}">${escapeHtml(data?.[f[0]])}</textarea>`:`<input id="f_${f[0]}" type="${f[2]==='number'?'number':'text'}" value="${escapeHtml(data?.[f[0]])}">`}</div>`).join('')}</div><button class="btn" id="save" type="button">儲存並發布</button><div id="msg"></div><div class="card" style="margin-top:16px;background:#fbf7f2"><b>🌐 官網頁面</b><p class="muted">${pageFor[id]}</p><a class="btn gray" href="${pageFor[id]}" target="_blank">開啟官網</a></div></div>`;$('save').onclick=()=>save(id)}
 async function loadSection(id){$('panel').innerHTML='<div class="card">載入中…</div>';const r=await db.from('site_admin_content').select('*').eq('section_id',id).maybeSingle();if(r.error){$('panel').innerHTML='<div class="card"><div class="msg err">讀取失敗：'+escapeHtml(r.error.message)+'<br><small>如果看到這裡，代表登入已成功，問題是在資料權限，不是密碼。</small></div></div>';return}render(id,r.data?.data||{})}
 async function save(id){const d=defs.find(x=>x.id===id),data={};for(const f of d.fields){const e=$('f_'+f[0]);data[f[0]]=f[2]==='check'?e.checked:e.value}const r=await db.from('site_admin_content').upsert({section_id:id,data,updated_at:new Date().toISOString()},{onConflict:'section_id'});$('msg').className=r.error?'msg err':'msg';$('msg').textContent=r.error?'儲存失敗：'+r.error.message:'✅ 已儲存並發布'}
-async function enter(user){if(!user){return false}$('login').classList.add('hide');$('app').classList.remove('hide');$('who').textContent=user.email||'';await loadSection(currentSection());return true}
+async function enter(user){if(!user)return false;$('login').classList.add('hide');$('app').classList.remove('hide');$('who').textContent=user.email||'';await loadSection(currentSection());return true}
 $('loginForm').addEventListener('submit',async e=>{e.preventDefault();const b=$('loginBtn');b.disabled=true;b.textContent='登入中…';$('loginMsg').className='muted';$('loginMsg').textContent='正在驗證…';try{const r=await db.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});if(r.error)throw r.error;const u=await db.auth.getUser();if(u.error)throw u.error;if(!u.data.user)throw new Error('登入成功但沒有取得登入狀態，請重新整理頁面');await enter(u.data.user)}catch(err){$('loginMsg').className='msg err';$('loginMsg').textContent='登入失敗：'+(err?.message||err)}finally{b.disabled=false;b.textContent='登入並進入內容管理'}});
 $('logout').onclick=async()=>{await db.auth.signOut();location.href='admin-site-content-v2.html?section='+currentSection()+'&v='+Date.now()};
 db.auth.onAuthStateChange((event,session)=>{if(event==='SIGNED_IN'&&session)enter(session.user);if(event==='SIGNED_OUT'&&!$('app').classList.contains('hide'))location.reload()});
