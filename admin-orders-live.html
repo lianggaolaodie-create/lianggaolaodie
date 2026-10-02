@@ -58,8 +58,8 @@
     }catch(e){msg('儲存失敗：'+(e.message||e),true);}finally{if(btn)btn.disabled=false;}
   }
   function addRegion(){
-    const date=(dEl()&&dEl().value);const name=prompt('請輸入開放地區，例如：台北、桃園、台中');if(!name||!name.trim())return;
-    db.from('daily_order_regions').insert({order_date:date,region_name:name.trim(),enabled:true}).then(r=>{if(r.error)msg('新增地區失敗：'+r.error.message,true);else loadDaily();});
+    const date=(dEl()&&dEl().value);const name=prompt('臨時加開地區：請輸入地區，例如：嘉義、雲林、彰化');if(!name||!name.trim())return;
+    db.from('daily_order_regions').insert({order_date:date,region_name:name.trim(),enabled:true}).then(r=>{if(r.error)msg('臨時加開地區失敗：'+r.error.message,true);else loadDaily();});
   }
   document.addEventListener('DOMContentLoaded',function(){
     const d=dEl();if(d){d.value=new Date().toLocaleDateString('en-CA',{timeZone:'Asia/Taipei'});d.addEventListener('change',loadDaily);}
