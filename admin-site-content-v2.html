@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow"><meta http-equiv="Cache-Control" content="no-cache,no-store,must-revalidate">
+<title>老爹．涼糕｜網站內容管理</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f7f4f0;color:#30251f;font-family:-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC",sans-serif}.wrap{max-width:1000px;margin:auto;padding:16px}.card{background:#fff;border:1px solid #e5ddd5;border-radius:18px;padding:18px;margin-bottom:14px}.top{display:flex;justify-content:space-between;align-items:center;gap:10px}.brand{font-size:22px;font-weight:950}.muted{color:#81766e;font-size:13px;line-height:1.6}.btn{border:0;border-radius:10px;padding:10px 14px;background:#2f78c9;color:#fff;font-weight:900;text-decoration:none;cursor:pointer}.gray{background:#756b65}.tabs{display:flex;gap:8px;overflow:auto;margin:14px 0}.tabs a{white-space:nowrap;text-decoration:none;color:#4a3428;background:#eee7e1;border-radius:10px;padding:10px 12px;font-weight:900}.tabs a.active{background:#4b2d20;color:#fff}.field{margin:12px 0}.field label{display:block;font-weight:900;margin-bottom:6px}.field input,.field textarea{width:100%;padding:12px;border:1px solid #d8cec5;border-radius:10px;font:inherit}.field textarea{min-height:150px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.switch{display:flex;align-items:center;gap:8px;font-weight:900}.msg{padding:11px;border-radius:10px;background:#edf8f1;color:#286c47;margin-top:10px}.err{background:#fff0ef;color:#a43b35}.hide{display:none!important}.login{max-width:520px;padding-top:60px}@media(max-width:650px){.grid{grid-template-columns:1fr}.brand{font-size:20px}}
+</style>
+</head>
+<body>
+<div id="login" class="wrap login"><div class="card"><div class="brand">🍡 老爹．涼糕｜網站內容管理</div><p class="muted">請先從後台登入。這裡使用目前後台登入狀態，不需要再次輸入帳號密碼。</p><a class="btn" href="admin-dashboard.html">前往後台</a><div id="loginMsg" class="muted"></div></div></div>
+<div id="app" class="wrap hide">
+<div class="card top"><div><div class="brand">🍡 網站內容管理</div><div id="who" class="muted"></div></div><div><a class="btn gray" href="admin-dashboard.html">返回後台</a> <button id="logout" class="btn gray">登出</button></div></div>
+<nav class="tabs" id="tabs"></nav><div id="panel"></div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+'use strict';
+const db=window.supabase.createClient('https://yemzdwxtyosuaczsqwea.supabase.co','sb_publishable_7b4hgNL68yiYbec7fXToYQ_UxPE4sEB',{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
+const defs=[
+{id:'home',title:'🏠 首頁管理',desc:'首頁文字、照片、區塊與按鈕',fields:[['title','首頁標題','input'],['content','首頁介紹／宣傳內容','textarea'],['image_url','首頁圖片網址','input'],['button_text','按鈕文字','input'],['button_url','按鈕連結','input'],['enabled','顯示','check']]},
+{id:'marquee',title:'📢 跑馬燈管理',desc:'修改網站上方跑馬燈內容',fields:[['text','跑馬燈文字','input'],['link','連結','input'],['enabled','顯示','check']]},
+{id:'activity',title:'🎉 最新活動管理',desc:'活動標題、內容與照片',fields:[['title','活動標題','input'],['content','活動內容','textarea'],['image_url','圖片網址','input'],['enabled','顯示','check']]},
+{id:'rules',title:'📝 購買涼糕規則管理',desc:'購買方式與注意事項',fields:[['content','規則內容','textarea'],['enabled','顯示','check']]},
+{id:'radish',title:'🥕 純米蘿蔔糕管理',desc:'專區介紹、照片與價格',fields:[['title','商品／專區名稱','input'],['content','介紹內容','textarea'],['price','價格','number'],['image_url','圖片網址','input'],['enabled','顯示','check']]},
+{id:'about',title:'ℹ️ 關於老爹管理',desc:'品牌介紹與照片',fields:[['content','品牌介紹','textarea'],['image_url','圖片網址','input'],['enabled','顯示','check']]},
+{id:'contact',title:'📞 聯絡我們管理',desc:'電話、LINE、地址等資訊',fields:[['content','聯絡資訊','textarea'],['line_url','LINE連結','input'],['phone','電話','input'],['address','地址','input'],['enabled','顯示','check']]},
+{id:'menu',title:'☰ 選單管理',desc:'網站選單內容與順序',fields:[['menu_json','選單設定 JSON','textarea'],['enabled','啟用選單設定','check']]}
+];
+const pageFor={home:'index.html',marquee:'index.html',activity:'activity.html',rules:'rules.html',radish:'radish-cake.html',about:'about.html',contact:'contact.html',menu:'index.html'};
+function currentSection(){const q=new URLSearchParams(location.search).get('section');if(defs.some(d=>d.id===q))return q;const h=(location.hash||'').replace('#','');return defs.some(d=>d.id===h)?h:'home'}
+function renderTabs(id){$('tabs').innerHTML=defs.map(d=>`<a class="${d.id===id?'active':''}" href="?section=${d.id}">${d.title}</a>`).join('')}
+function render(id,data){const d=defs.find(x=>x.id===id);renderTabs(id);$('panel').innerHTML=`<div class="card"><h2 style="margin-top:0">${d.title}</h2><p class="muted">${d.desc}</p><div class="grid">${d.fields.map(f=>f[2]==='check'?`<div class="field"><label class="switch"><input id="f_${f[0]}" type="checkbox" ${data?.[f[0]]?'checked':''}> ${f[1]}</label></div>`:`<div class="field"><label>${f[1]}</label>${f[2]==='textarea'?`<textarea id="f_${f[0]}">${escapeHtml(data?.[f[0]]??'')}</textarea>`:`<input id="f_${f[0]}" type="${f[2]==='number'?'number':'text'}" value="${escapeAttr(data?.[f[0]]??'')}">`}</div>`).join('')}</div><button class="btn" id="save">儲存並發布</button><div id="msg"></div><div class="card" style="margin-top:16px;background:#fbf7f2"><b>🌐 官網頁面</b><p class="muted">${pageFor[id]}</p><a class="btn gray" href="${pageFor[id]}" target="_blank">開啟官網</a></div></div>`;$('save').onclick=()=>save(id)}
+function escapeHtml(v){return String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function escapeAttr(v){return escapeHtml(v).replace(/"/g,'&quot;')}
+async function loadSection(id){const r=await db.from('site_admin_content').select('*').eq('section_id',id).maybeSingle();render(id,r.data?.data||{})}
+async function save(id){const d=defs.find(x=>x.id===id),data={};for(const f of d.fields){const e=document.getElementById('f_'+f[0]);data[f[0]]=f[2]==='check'?e.checked:e.value}const r=await db.from('site_admin_content').upsert({section_id:id,data,updated_at:new Date().toISOString()},{onConflict:'section_id'});$('msg').className=r.error?'msg err':'msg';$('msg').textContent=r.error?'儲存失敗：'+r.error.message:'✅ 已儲存並發布'}
+async function start(){const s=await db.auth.getSession();if(!s.data.session){$('loginMsg').textContent='尚未登入，請先回後台登入。';return}const u=s.data.session.user;const p=await db.from('admin_profiles').select('role,enabled').eq('user_id',u.id).maybeSingle();if(p.error||!p.data||!p.data.enabled||p.data.role!=='super_admin'){$('loginMsg').textContent='目前帳號沒有網站內容管理權限。';return}$('login').classList.add('hide');$('app').classList.remove('hide');$('who').textContent=u.email||'';await loadSection(currentSection())}
+$('logout').onclick=()=>db.auth.signOut().then(()=>location.href='admin-dashboard.html');window.addEventListener('popstate',()=>loadSection(currentSection()));start();
+</script>
+</body></html>
