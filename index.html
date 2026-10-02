@@ -74,7 +74,7 @@ html,body{margin:0;padding:0;background:#f8f0e3}
 <a class="hot nav-contact" href="contact.html" aria-label="聯絡我們"></a>
 
 
-<a id="marqueeLive" class="hot marquee-live" href="activity.html" aria-label="最新消息"><span class="marquee-track"><span id="marqueeLiveText">🍡 老爹．涼糕｜新鮮製作・每日更新｜當日口味、出攤地點與時間請看官網｜歡迎提前預訂｜謝謝大家支持 ❤️</span><span id="marqueeLiveCopy" aria-hidden="true">🍡 老爹．涼糕｜新鮮製作・每日更新｜當日口味、出攤地點與時間請看官網｜歡迎提前預訂｜謝謝大家支持 ❤️</span></span></a>
+<a id="marqueeLive" class="hot marquee-live" href="activity.html" aria-label="最新消息"><span class="marquee-track"><span id="marqueeLiveText">🍡 老爹．涼糕｜新口味陸續推出中 ✨｜每次出攤都有不同驚喜｜最新口味、出攤地點與時間請看官網｜歡迎提前預訂 ❤️</span><span id="marqueeLiveCopy" aria-hidden="true">🍡 老爹．涼糕｜新口味陸續推出中 ✨｜每次出攤都有不同驚喜｜最新口味、出攤地點與時間請看官網｜歡迎提前預訂 ❤️</span></span></a>
 
 <a class="hot hero-order" href="online-order.html" aria-label="線上訂購"></a>
 <a class="hot hero-schedule" href="schedule.html" aria-label="出攤時間"></a>
@@ -371,7 +371,7 @@ html,body{margin:0;padding:0;background:#f8f0e3}
 <script>
 (function(){
   const VERSION='LDG-20260927-G';
-  const FALLBACK='🍡 老爹．涼糕｜新鮮製作・每日更新｜當日口味、出攤地點與時間請看官網｜歡迎提前預訂｜謝謝大家支持 ❤️';
+  const FALLBACK='🍡 老爹．涼糕｜新口味陸續推出中 ✨｜每次出攤都有不同驚喜｜最新口味、出攤地點與時間請看官網｜歡迎提前預訂 ❤️';
   const link=document.getElementById('marqueeLive');
   const text=document.getElementById('marqueeLiveText');
   const copy=document.getElementById('marqueeLiveCopy');
@@ -393,8 +393,7 @@ html,body{margin:0;padding:0;background:#f8f0e3}
         method:'GET',
         cache:'no-store',
         headers:{
-          'apikey':('sb_publishable_7b4hgNL68yiY'+'bec7fXToYQ_UxPE4sEB'),
-          'Authorization':'Bearer sb_publishable_7b4hgNL68yiYbec7fXToYQ_UxPE4sEB'
+          'apikey':('sb_publishable_7b4hgNL68yiY'+'bec7fXToYQ_UxPE4sEB')
         }
       });
       if(!resp.ok)throw new Error('marquee fetch '+resp.status);
