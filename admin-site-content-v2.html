@@ -14,13 +14,13 @@
 <body>
 <div id="login" class="wrap login"><div class="card">
 <div class="brand">🍡 老爹．涼糕｜網站內容管理</div>
-<p class="muted">請使用與後台相同的管理員帳號登入。登入成功後會直接進入目前的內容管理頁。</p>
+<p class="muted">請使用後台管理員帳號登入。這 8 個內容管理入口共用同一個登入狀態。</p>
 <form id="loginForm" novalidate>
 <div class="field"><label for="email">管理員 Email</label><input id="email" type="email" autocomplete="username" required></div>
 <div class="field"><label for="password">密碼</label><input id="password" type="password" autocomplete="current-password" required></div>
 <button id="loginBtn" class="btn" type="submit">登入並進入內容管理</button>
 </form>
-<div id="loginMsg" class="muted" aria-live="polite"></div>
+<div id="loginMsg" aria-live="polite"></div>
 </div></div>
 <div id="app" class="wrap hide">
 <div class="card top"><div><div class="brand">🍡 網站內容管理</div><div id="who" class="muted"></div></div><div><a class="btn gray" href="admin-dashboard.html">返回後台</a> <button id="logout" class="btn gray" type="button">登出</button></div></div>
@@ -49,14 +49,13 @@ function currentSection(){const q=new URLSearchParams(location.search).get('sect
 function escapeHtml(v){return String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')}
 function renderTabs(id){$('tabs').innerHTML=defs.map(d=>`<a class="${d.id===id?'active':''}" href="admin-site-content-v2.html?section=${d.id}&v=20261002">${d.title}</a>`).join('')}
 function render(id,data){const d=defs.find(x=>x.id===id);renderTabs(id);$('panel').innerHTML=`<div class="card"><h2 style="margin-top:0">${d.title}</h2><p class="muted">${d.desc}</p><div class="grid">${d.fields.map(f=>f[2]==='check'?`<div class="field"><label class="switch"><input id="f_${f[0]}" type="checkbox" ${data?.[f[0]]?'checked':''}> ${f[1]}</label></div>`:`<div class="field"><label>${f[1]}</label>${f[2]==='textarea'?`<textarea id="f_${f[0]}">${escapeHtml(data?.[f[0]])}</textarea>`:`<input id="f_${f[0]}" type="${f[2]==='number'?'number':'text'}" value="${escapeHtml(data?.[f[0]])}">`}</div>`).join('')}</div><button class="btn" id="save" type="button">儲存並發布</button><div id="msg"></div><div class="card" style="margin-top:16px;background:#fbf7f2"><b>🌐 官網頁面</b><p class="muted">${pageFor[id]}</p><a class="btn gray" href="${pageFor[id]}" target="_blank">開啟官網</a></div></div>`;$('save').onclick=()=>save(id)}
-async function loadSection(id){$('panel').innerHTML='<div class="card">載入中…</div>';const r=await db.from('site_admin_content').select('*').eq('section_id',id).maybeSingle();if(r.error){$('panel').innerHTML='<div class="card"><div class="msg err">讀取失敗：'+escapeHtml(r.error.message)+'</div></div>';return}render(id,r.data?.data||{})}
+async function loadSection(id){$('panel').innerHTML='<div class="card">載入中…</div>';const r=await db.from('site_admin_content').select('*').eq('section_id',id).maybeSingle();if(r.error){$('panel').innerHTML='<div class="card"><div class="msg err">讀取失敗：'+escapeHtml(r.error.message)+'<br><small>如果看到這裡，代表登入已成功，問題是在資料權限，不是密碼。</small></div></div>';return}render(id,r.data?.data||{})}
 async function save(id){const d=defs.find(x=>x.id===id),data={};for(const f of d.fields){const e=$('f_'+f[0]);data[f[0]]=f[2]==='check'?e.checked:e.value}const r=await db.from('site_admin_content').upsert({section_id:id,data,updated_at:new Date().toISOString()},{onConflict:'section_id'});$('msg').className=r.error?'msg err':'msg';$('msg').textContent=r.error?'儲存失敗：'+r.error.message:'✅ 已儲存並發布'}
-async function checkAccess(user){const r=await db.from('admin_profiles').select('enabled').eq('user_id',user.id).maybeSingle();if(r.error)return '權限檢查失敗：'+r.error.message;if(!r.data||r.data.enabled!==true)return '目前帳號沒有網站內容管理權限。';return null}
-async function enter(user){const er=await checkAccess(user);if(er){$('loginMsg').className='msg err';$('loginMsg').textContent=er;return false}$('login').classList.add('hide');$('app').classList.remove('hide');$('who').textContent=user.email||'';await loadSection(currentSection());return true}
-$('loginForm').addEventListener('submit',async e=>{e.preventDefault();const b=$('loginBtn');b.disabled=true;b.textContent='登入中…';$('loginMsg').className='muted';$('loginMsg').textContent='正在驗證…';try{const r=await db.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});if(r.error)throw r.error;const ok=await enter(r.data.user);if(!ok)await db.auth.signOut()}catch(err){$('loginMsg').className='msg err';$('loginMsg').textContent='登入失敗：'+(err?.message||err)}finally{b.disabled=false;b.textContent='登入並進入內容管理'}});
+async function enter(user){if(!user){return false}$('login').classList.add('hide');$('app').classList.remove('hide');$('who').textContent=user.email||'';await loadSection(currentSection());return true}
+$('loginForm').addEventListener('submit',async e=>{e.preventDefault();const b=$('loginBtn');b.disabled=true;b.textContent='登入中…';$('loginMsg').className='muted';$('loginMsg').textContent='正在驗證…';try{const r=await db.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});if(r.error)throw r.error;const u=await db.auth.getUser();if(u.error)throw u.error;if(!u.data.user)throw new Error('登入成功但沒有取得登入狀態，請重新整理頁面');await enter(u.data.user)}catch(err){$('loginMsg').className='msg err';$('loginMsg').textContent='登入失敗：'+(err?.message||err)}finally{b.disabled=false;b.textContent='登入並進入內容管理'}});
 $('logout').onclick=async()=>{await db.auth.signOut();location.href='admin-site-content-v2.html?section='+currentSection()+'&v='+Date.now()};
-db.auth.onAuthStateChange((event,session)=>{if(event==='SIGNED_OUT'&&!$('app').classList.contains('hide'))location.reload()});
-db.auth.getSession().then(async r=>{if(r.data.session){await enter(r.data.session.user)}}).catch(e=>{console.error(e);$('loginMsg').className='msg err';$('loginMsg').textContent='無法讀取登入狀態：'+e.message});
+db.auth.onAuthStateChange((event,session)=>{if(event==='SIGNED_IN'&&session)enter(session.user);if(event==='SIGNED_OUT'&&!$('app').classList.contains('hide'))location.reload()});
+db.auth.getSession().then(async r=>{if(r.error){$('loginMsg').className='msg err';$('loginMsg').textContent='讀取登入狀態失敗：'+r.error.message;return}if(r.data.session)await enter(r.data.session.user)}).catch(e=>{$('loginMsg').className='msg err';$('loginMsg').textContent='無法讀取登入狀態：'+e.message});
 })();
 </script>
 </body>
