@@ -17,6 +17,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
 'use strict';
+const $=id=>document.getElementById(id);
 const db=window.supabase.createClient('https://yemzdwxtyosuaczsqwea.supabase.co','sb_publishable_7b4hgNL68yiYbec7fXToYQ_UxPE4sEB',{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
 const defs=[
 {id:'home',title:'🏠 首頁管理',desc:'首頁文字、照片、區塊與按鈕',fields:[['title','首頁標題','input'],['content','首頁介紹／宣傳內容','textarea'],['image_url','首頁圖片網址','input'],['button_text','按鈕文字','input'],['button_url','按鈕連結','input'],['enabled','顯示','check']]},
