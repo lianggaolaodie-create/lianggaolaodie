@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>老爹．涼糕｜後台登入</title>
 <meta name="robots" content="noindex,nofollow">
-<!-- admin-login-stable-20260930 -->
+<!-- admin-login-stable-20261002 -->
 <style>
-*{box-sizing:border-box}body{margin:0;background:#f7f3ef;color:#30241d;font-family:-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC",sans-serif}.shell{max-width:520px;margin:60px auto;padding:12px}.card{background:#fff;border:1px solid #e4dad3;border-radius:15px;padding:20px}.brand{font-size:21px;font-weight:900}.muted{color:#786e68;font-size:13px;line-height:1.6}.field{margin:14px 0}.field label{display:block;font-weight:800;margin-bottom:7px}.field input{width:100%;border:1px solid #ddd2ca;border-radius:10px;padding:13px 12px;font:inherit;background:#fff}.btn{width:100%;border:0;border-radius:10px;padding:12px 14px;background:#8d5939;color:#fff;font-weight:900;font-size:16px}.btn:disabled{opacity:.6}.notice{padding:10px;border-radius:10px;margin-top:10px;background:#edf8f1;color:#286c47}.err{background:#fff0ef;color:#a43b35}@media(max-width:700px){.shell{margin:35px auto;padding:10px}.brand{font-size:19px}}
+*{box-sizing:border-box}body{margin:0;background:#f7f3ef;color:#30241d;font-family:-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC",sans-serif}.shell{max-width:520px;margin:60px auto;padding:12px}.card{background:#fff;border:1px solid #e4dad3;border-radius:15px;padding:20px}.brand{font-size:21px;font-weight:900}.muted{color:#786e68;font-size:13px;line-height:1.6}.field{margin:14px 0}.field label{display:block;font-weight:800;margin-bottom:7px}.field input{width:100%;border:1px solid #ddd2ca;border-radius:10px;padding:13px 12px;font:inherit;background:#fff}.btn{width:100%;border:0;border-radius:10px;padding:12px 14px;background:#8d5939;color:#fff;font-weight:900;font-size:16px}.btn:disabled{opacity:.6}.notice{padding:10px;border-radius:10px;margin-top:10px;background:#edf8f1;color:#286c47}.err{background:#fff0ef;color:#a43b35}.reset{display:block;text-align:center;margin-top:14px;color:#2f78c9;text-decoration:none;font-weight:800;font-size:14px}@media(max-width:700px){.shell{margin:35px auto;padding:10px}.brand{font-size:19px}}
 </style>
 </head>
 <body>
@@ -19,6 +19,7 @@
 <div class="field"><label for="adminPassword">密碼</label><input id="adminPassword" name="password" type="password" autocomplete="current-password" required></div>
 <button id="loginButton" class="btn" type="submit">登入</button>
 </form>
+<a class="reset" href="admin-password-reset.html">忘記密碼／重設後台密碼</a>
 <div id="loginMessage" aria-live="polite"></div>
 </div></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -48,7 +49,7 @@
     const accessError = await checkAccess(result.data.session.user);
     if (accessError) { await db.auth.signOut(); return; }
     showMessage('已登入，正在進入後台…', false);
-    window.location.replace('admin-orders-fixed.html?v=20260930-stable');
+    window.location.replace('admin-orders-fixed.html?v=20261002-stable');
   }
   form.addEventListener('submit', async (event) => {
     event.preventDefault(); event.stopPropagation();
@@ -64,7 +65,7 @@
       const sessionCheck = await db.auth.getSession();
       if (!sessionCheck.data.session) throw new Error('登入成功，但瀏覽器沒有保存登入狀態。');
       showMessage('登入成功，正在進入後台…', false);
-      window.location.replace('admin-orders-fixed.html?v=20260930-stable');
+      window.location.replace('admin-orders-fixed.html?v=20261002-stable');
     } catch (error) {
       console.error(error); showMessage(error?.message || '登入失敗，請稍後再試。', true); loginButton.disabled = false; loginButton.textContent = '登入';
     }
