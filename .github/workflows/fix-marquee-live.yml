@@ -1,0 +1,40 @@
+name: Fix marquee live sync
+
+on:
+  push:
+    paths:
+      - .marquee-live-trigger
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fix marquee REST request and fallback
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('index.html')
+          s = p.read_text(encoding='utf-8')
+          old = "          'apikey':('sb_publishable_7b4hgNL68yiY'+'bec7fXToYQ_UxPE4sEB'),\n          'Authorization':'Bearer sb_publishable_7b4hgNL68yiYbec7fXToYQ_UxPE4sEB'\n"
+          new = "          'apikey':('sb_publishable_7b4hgNL68yiY'+'bec7fXToYQ_UxPE4sEB')\n"
+          if old not in s:
+              raise SystemExit('Expected marquee headers were not found')
+          s = s.replace(old, new, 1)
+          old_fallback = '🍡 老爹．涼糕｜新鮮製作・每日更新｜當日口味、出攤地點與時間請看官網｜歡迎提前預訂｜謝謝大家支持 ❤️'
+          new_fallback = '🍡 老爹．涼糕｜新口味陸續推出中 ✨｜每次出攤都有不同驚喜｜最新口味、出攤地點與時間請看官網｜歡迎提前預訂 ❤️'
+          s = s.replace(old_fallback, new_fallback)
+          p.write_text(s, encoding='utf-8')
+          PY
+      - name: Commit fix and clean up trigger workflow
+        run: |
+          rm -f .marquee-live-trigger .github/workflows/fix-marquee-live.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html .marquee-live-trigger .github/workflows/fix-marquee-live.yml
+          git diff --cached --quiet && exit 0
+          git commit -m "fix: make marquee content sync reliably"
+          git push
