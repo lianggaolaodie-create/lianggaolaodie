@@ -1,0 +1,45 @@
+name: Update flavor type options
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Update admin flavor type selector
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('admin-products.html')
+          s=p.read_text()
+          old='<option value="single">單一口味（不包餡）</option><option value="filled">包餡</option>'
+          new='<option value="single">單一口味（不包餡）</option><option value="filled">包餡</option><option value="mixed">綜合</option>'
+          if old not in s:
+              raise SystemExit('flavor type selector not found')
+          s=s.replace(old,new,1)
+          s=s.replace('包餡口味會在官網下單時顯示「切／不切」；單一口味不會顯示。','包餡口味會在官網下單時顯示「切／不切」；單一口味與綜合口味不會顯示。',1)
+          old_badge="(p.flavor_type==='filled'?'包餡':'單一口味')"
+          new_badge="(p.flavor_type==='filled'?'包餡':p.flavor_type==='mixed'?'綜合':'單一口味')"
+          if old_badge not in s:
+              raise SystemExit('product badge expression not found')
+          s=s.replace(old_badge,new_badge,1)
+          old_save="flavor_type:$(\'flavorType\').value===\'filled\'?\'filled\':\'single\'"
+          new_save="flavor_type:['single','filled','mixed'].includes($(\'flavorType\').value)?$(\'flavorType\').value:'single'"
+          if old_save not in s:
+              raise SystemExit('save flavor type expression not found')
+          s=s.replace(old_save,new_save,1)
+          p.write_text(s)
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          rm -f .github/workflows/update-flavor-types.yml
+          git add admin-products.html .github/workflows/update-flavor-types.yml
+          git commit -m "Add mixed flavor type option" || exit 0
+          git push
