@@ -1,4 +1,4 @@
-name: Ensure filled flavor cut choice
+name: Fix filled flavor cut choice position
 on:
   push:
     branches: [main]
@@ -9,65 +9,64 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Patch ordering pages
+      - name: Move cut choice to bottom
         shell: bash
         run: |
           python - <<'PY'
           from pathlib import Path
+          import re
 
+          css = r'''.global-cut-choice{margin-top:14px;padding:14px 16px;border-radius:14px;background:#fff7fa;border:1px solid #f0d6e1}.global-cut-title{font-size:16px;font-weight:900;color:#7a304d;margin-bottom:10px}.global-cut-choice label{display:inline-flex;align-items:center;margin-right:24px;font-size:16px;cursor:pointer}.global-cut-choice input{accent-color:#c52f68;margin-right:7px;width:18px;height:18px}'''
           snippet = r'''<script id="filled-cut-option-fix">
           (()=>{
-            function addCutChoices(){
-              const root=document.getElementById('flavors');
-              if(!root) return;
-              [...root.querySelectorAll('.flavor')].forEach((card,i)=>{
-                if(card.querySelector('.cut-choice')) return;
-                const priceEl=card.querySelector('.price');
-                if(!priceEl) return;
-                const price=Number((priceEl.textContent||'').replace(/[^0-9.]/g,''));
-                if(price<150) return;
-                const info=[...card.children].find(x=>x.querySelector&&x.querySelector('.price'));
-                if(!info) return;
-                const box=document.createElement('div');
-                box.className='cut-choice';
-                box.innerHTML='<div class="cut-title">包餡切法</div><label><input type="radio" name="cut-option-'+i+'" value="不切" checked>不切</label><label><input type="radio" name="cut-option-'+i+'" value="切">切</label>';
-                info.appendChild(box);
-              });
-            }
             const root=document.getElementById('flavors');
-            if(root) new MutationObserver(addCutChoices).observe(root,{childList:true,subtree:true});
-            addCutChoices();
-            const form=document.getElementById('orderForm');
-            if(form && !form.dataset.cutBound){
-              form.dataset.cutBound='1';
-              form.addEventListener('submit',()=>{
-                const notes=document.getElementById('notes');
-                if(!notes) return;
-                const choices=[...document.querySelectorAll('#flavors .flavor')].map((card,i)=>{
-                  const q=card.querySelector('.qty span');
-                  const qty=Number(q?.textContent||0);
-                  if(qty<=0 || !card.querySelector('.cut-choice')) return null;
-                  const name=card.querySelector('b')?.textContent?.trim()||'包餡口味';
-                  const cut=card.querySelector('input[type="radio"]:checked')?.value||'不切';
-                  return name+' × '+qty+'：'+cut;
-                }).filter(Boolean);
-                const base=notes.value.replace(/\n?\[包餡切法\][\s\S]*$/,'').trim();
-                notes.value=[base,choices.length?'[包餡切法] '+choices.join('；'):''].filter(Boolean).join('\n');
-              },{capture:true});
-            }
+            const choice=document.getElementById('globalCutChoice');
+            if(!root||!choice) return;
+            const refresh=()=>{
+              const hasFilled=[...root.querySelectorAll('.flavor')].some(card=>card.querySelector('.qty span') && Number(card.querySelector('.qty span').textContent||0)>0 && /150/.test(card.querySelector('.price')?.textContent||''));
+              choice.style.display=hasFilled?'block':'block';
+            };
+            new MutationObserver(refresh).observe(root,{childList:true,subtree:true});
+            refresh();
           })();
           </script>'''
-          css = r'''.cut-choice{margin-top:8px;padding:8px 10px;border-radius:12px;background:#fff7fa;border:1px solid #f0d6e1}.cut-title{font-size:13px;font-weight:900;color:#7a304d;margin-bottom:5px}.cut-choice label{font-size:13px;margin-right:12px;cursor:pointer}.cut-choice input{accent-color:#c52f68;margin-right:4px}'''
+          global_html = r'''<div id="globalCutChoice" class="global-cut-choice">
+            <div class="global-cut-title">包餡切法</div>
+            <label><input type="radio" name="global-cut-option" value="不切" checked>不切</label>
+            <label><input type="radio" name="global-cut-option" value="切">切</label>
+          </div>'''
 
           for fn in ['home-delivery-order.html','convenience-order.html']:
               p=Path(fn)
               s=p.read_text()
-              if 'id="filled-cut-option-fix"' not in s:
-                  s=s.replace('</style>',css+'</style>',1)
-                  s=s.replace('</body>',snippet+'</body>',1)
-                  p.write_text(s)
-                  print('patched',fn)
-
+              # Remove the old per-item injected UI/script.
+              s=re.sub(r'<script id="filled-cut-option-fix">.*?</script>', '', s, flags=re.S)
+              s=re.sub(r'<div class="cut-choice">.*?<div class="cut-title">包餡切法</div>.*?</div>', '', s, flags=re.S)
+              # Remove repeated old CSS rules.
+              s=re.sub(r'\.cut-choice\{.*?</style>', '</style>', s, count=1, flags=re.S)
+              # Add the new single choice block exactly below the flavor list.
+              s=re.sub(r'(<div id="flavors"></div>)', r'\1'+global_html, s, count=1)
+              # Add CSS before </style>.
+              s=s.replace('</style>', css+'</style>', 1)
+              # Record the global choice in notes on submit, without changing per-item quantities.
+              submit_js = r'''<script id="global-cut-submit-fix">
+          (()=>{
+            const form=document.getElementById('orderForm');
+            if(!form||form.dataset.globalCutBound) return;
+            form.dataset.globalCutBound='1';
+            form.addEventListener('submit',()=>{
+              const notes=document.getElementById('notes');
+              const selected=document.querySelector('input[name="global-cut-option"]:checked')?.value||'不切';
+              if(notes){
+                const base=notes.value.replace(/\n?\[包餡切法\][\s\S]*$/,'').trim();
+                notes.value=[base,'[包餡切法] '+selected].filter(Boolean).join('\n');
+              }
+            },{capture:true});
+          })();
+          </script>'''
+              s=s.replace('</body>',submit_js+'</body>',1)
+              p.write_text(s)
+              print('patched',fn)
           PY
       - name: Commit patched pages
         shell: bash
@@ -75,4 +74,4 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add home-delivery-order.html convenience-order.html
-          if git diff --cached --quiet; then echo "No changes"; else git commit -m "fix: render filled flavor cut choice"; git push; fi
+          if git diff --cached --quiet; then echo "No changes"; else git commit -m "fix: use one global filled cut choice"; git push; fi
