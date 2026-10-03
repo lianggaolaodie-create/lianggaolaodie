@@ -1,0 +1,42 @@
+name: Apply filled flavor cut option
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: write
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch ordering pages
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          for name in ['home-delivery-order.html','convenience-order.html']:
+              p=Path(name)
+              if not p.exists():
+                  continue
+              s=p.read_text()
+              if 'class="cut-choice"' in s:
+                  continue
+              css='.cut-choice{margin-top:8px;padding:8px 10px;border-radius:12px;background:#fff7fa;border:1px solid #f0d6e1}.cut-title{font-size:13px;font-weight:900;color:#7a304d;margin-bottom:5px}.cut-choice label{font-size:13px;margin-right:12px;cursor:pointer}.cut-choice input{accent-color:#c52f68;margin-right:4px}'
+              s=s.replace('</style>',css+'</style>',1)
+              marker="<span class=\"price\">NT$ '+Number(f.price||0).toLocaleString()+'</span>"
+              insert="""<span class=\"price\">NT$ '+Number(f.price||0).toLocaleString()+'</span>'+(Number(f.price||0)>=150?'<div class=\"cut-choice\"><div class=\"cut-title\">包餡切法</div><label><input type=\"radio\" name=\"cut'+i+'\" value=\"不切\" checked>不切</label><label><input type=\"radio\" name=\"cut'+i+'\" value=\"切\">切</label></div>':'')"""
+              if marker in s:
+                  s=s.replace(marker,insert,1)
+              else:
+                  marker2="'<div class=\"price\">NT$ '+Number(f.price).toLocaleString()+'</div>'"
+                  insert2="""'<div class=\"price\">NT$ '+Number(f.price).toLocaleString()+'</div>'+(Number(f.price)>=150?'<div class=\"cut-choice\"><div class=\"cut-title\">包餡切法</div><label><input type=\"radio\" name=\"cut'+i+'\" value=\"不切\" checked>不切</label><label><input type=\"radio\" name=\"cut'+i+'\" value=\"切\">切</label></div>':'')"""
+                  s=s.replace(marker2,insert2,1)
+              p.write_text(s)
+          PY
+      - name: Commit patched pages
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add home-delivery-order.html convenience-order.html
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "Add cut option for filled flavors"
+          git push
