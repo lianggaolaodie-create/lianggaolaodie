@@ -149,5 +149,34 @@ init();updateTotals();
   setTimeout(normalize,300);
 })();
 </script>
-</body>
+<script id="global-filled-cut-choice">
+(()=>{
+  function apply(){
+    const root=document.getElementById('flavors');
+    if(!root)return;
+    root.querySelectorAll('.cut-choice').forEach(x=>x.style.display='none');
+    let box=document.getElementById('global-cut-choice');
+    const hasFilled=root.querySelector('.cut-choice');
+    if(!hasFilled){ if(box)box.remove(); return; }
+    if(!box){
+      box=document.createElement('div');
+      box.id='global-cut-choice';
+      box.className='cut-choice global-cut-choice';
+      box.innerHTML='<div class="cut-title">包餡切法</div><label><input type="radio" name="global-cut-option" value="不切" checked>不切</label><label><input type="radio" name="global-cut-option" value="切">切</label>';
+      root.appendChild(box);
+      box.addEventListener('change',()=>{
+        const v=box.querySelector('input[name="global-cut-option"]:checked')?.value||'不切';
+        root.querySelectorAll('.cut-choice').forEach(c=>{
+          if(c===box)return;
+          const r=c.querySelector('input[value="'+v+'"]');
+          if(r)r.checked=true;
+        });
+      });
+    }
+  }
+  const root=document.getElementById('flavors');
+  if(root)new MutationObserver(apply).observe(root,{childList:true,subtree:true});
+  apply();
+})();
+</script></body>
 </html>
