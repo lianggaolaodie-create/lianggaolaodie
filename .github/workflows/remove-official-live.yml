@@ -3,6 +3,7 @@ name: Remove official live block
 on:
   push:
     branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -12,25 +13,37 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Remove official live section
+      - name: Remove official LIVE section safely
+        shell: python
         run: |
-          python - <<'PY'
           from pathlib import Path
           import re
+
           p = Path('index.html')
           s = p.read_text(encoding='utf-8')
-          pattern = r'\n<section id="officialLive"\b[\s\S]*?</section>\n'
-          new, n = re.subn(pattern, '\n', s, count=1)
-          if n != 1:
-              raise SystemExit('officialLive section not found; no change made')
-          p.write_text(new, encoding='utf-8')
-          print('Removed officialLive section')
-          PY
+          original = s
+
+          patterns = [
+              r'\n<section\s+id=["\']officialLive["\'][\s\S]*?</section>\s*',
+              r'\n<section\s+class=["\'][^"\']*\blive-section\b[^"\']*["\'][\s\S]*?</section>\s*',
+          ]
+          for pattern in patterns:
+              s = re.sub(pattern, '\n', s, count=1, flags=re.I)
+
+          if s == original:
+              print('Official LIVE block already removed; no change needed')
+          else:
+              p.write_text(s, encoding='utf-8')
+              print('Removed homepage LIVE block')
+
       - name: Commit removal
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add index.html
-          git diff --cached --quiet && exit 0
+          if git diff --cached --quiet; then
+            echo 'No changes to commit'
+            exit 0
+          fi
           git commit -m 'Remove official LIVE block from homepage'
           git push
