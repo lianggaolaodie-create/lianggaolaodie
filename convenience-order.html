@@ -84,46 +84,5 @@ init();updateTotals();
 </script>
 
 
-<script id="filled-cut-option-fix">
-(()=>{
-  function addCutChoices(){
-    const root=document.getElementById('flavors');
-    if(!root) return;
-    [...root.querySelectorAll('.flavor')].forEach((card,i)=>{
-      if(card.querySelector('.cut-choice')) return;
-      const priceEl=card.querySelector('.price');
-      if(!priceEl) return;
-      const price=Number((priceEl.textContent||'').replace(/[^0-9.]/g,''));
-      if(price<150) return;
-      const info=[...card.children].find(x=>x.querySelector&&x.querySelector('.price'));
-      if(!info) return;
-      const box=document.createElement('div');
-      box.className='cut-choice';
-      box.innerHTML='<div class="cut-title">包餡切法</div><label><input type="radio" name="cut-option-'+i+'" value="不切" checked>不切</label><label><input type="radio" name="cut-option-'+i+'" value="切">切</label>';
-      info.appendChild(box);
-    });
-  }
-  const root=document.getElementById('flavors');
-  if(root) new MutationObserver(addCutChoices).observe(root,{childList:true,subtree:true});
-  addCutChoices();
-  const form=document.getElementById('orderForm');
-  if(form && !form.dataset.cutBound){
-    form.dataset.cutBound='1';
-    form.addEventListener('submit',()=>{
-      const notes=document.getElementById('notes');
-      if(!notes) return;
-      const choices=[...document.querySelectorAll('#flavors .flavor')].map((card,i)=>{
-        const q=card.querySelector('.qty span');
-        const qty=Number(q?.textContent||0);
-        if(qty<=0 || !card.querySelector('.cut-choice')) return null;
-        const name=card.querySelector('b')?.textContent?.trim()||'包餡口味';
-        const cut=card.querySelector('input[type="radio"]:checked')?.value||'不切';
-        return name+' × '+qty+'：'+cut;
-      }).filter(Boolean);
-      const base=notes.value.replace(/\n?\[包餡切法\][\s\S]*$/,'').trim();
-      notes.value=[base,choices.length?'[包餡切法] '+choices.join('；'):''].filter(Boolean).join('\n');
-    },{capture:true});
-  }
-})();
-</script></body>
+</body>
 </html>
