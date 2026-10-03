@@ -1,0 +1,71 @@
+name: Fix Home Delivery Region
+
+on:
+  push:
+    paths:
+      - '.github/workflows/fix-home-delivery-region.yml'
+
+jobs:
+  fix:
+    if: ${{ !startsWith(github.event.head_commit.message, 'auto-fix: home delivery') }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch home delivery page
+        shell: python
+        run: |
+          from pathlib import Path
+          import re
+          p = Path('home-delivery-order.html')
+          s = p.read_text(encoding='utf-8')
+
+          # Remove the old duplicate cut-choice block; keep only #cut.
+          s = re.sub(r'<div id="globalCutChoice".*?</div>\s*', '', s, count=1, flags=re.S)
+          s = re.sub(r'\n\.global-cut-choice\{.*?\.global-cut-choice input\{.*?\}\</style>', '</style>', s, count=1, flags=re.S)
+
+          new_load = r'''async function loadDate(){
+const d=$('deliveryDate').value;if(!d)return;
+$('region').innerHTML='<option value="">讀取中…</option>';
+$('flavors').innerHTML='<div class="muted">正在讀取當日口味…</div>';
+$('cut').style.display='none';
+try{
+  const rr=await sb.from('daily_order_regions').select('region_name').eq('order_date',d).eq('enabled',true).order('id');
+  if(rr.error)throw rr.error;
+  const regions=rr.data||[];
+  $('region').innerHTML='<option value="">請選擇當日開放地區</option>'+regions.map(x=>'<option value="'+esc(x.region_name)+'">'+esc(x.region_name)+'</option>').join('');
+  if(!regions.length)$('region').innerHTML='<option value="">當日尚未開放送到府地區</option>';
+
+  const ff=await sb.from('daily_order_flavors').select('flavor_id,product_name,flavor_name,price').eq('order_date',d).eq('enabled',true).order('id');
+  if(ff.error)throw ff.error;
+  const baseFlavors=ff.data||[];
+
+  let imageMap={},typeMap={};
+  try{
+    const mm=await sb.from('flavors').select('id,image_url,flavor_type').eq('enabled',true);
+    if(!mm.error){imageMap=Object.fromEntries((mm.data||[]).map(x=>[Number(x.id),x.image_url||'']));typeMap=Object.fromEntries((mm.data||[]).map(x=>[Number(x.id),String(x.flavor_type||'')]));}
+  }catch(_){ }
+
+  flavors=baseFlavors.map(x=>({...x,image_url:imageMap[Number(x.flavor_id)]||'',flavor_type:typeMap[Number(x.flavor_id)]||''}));
+  $('flavors').innerHTML=flavors.map((x,i)=>'<div class="flavor">'+(x.image_url?'<img class="flavor-img" src="'+esc(x.image_url)+'" alt="'+esc(x.flavor_name)+'">':'<div class="flavor-placeholder">尚未設定照片</div>')+'<div><b>'+esc(x.product_name||'涼糕')+'／'+esc(x.flavor_name)+'</b><div class="price">NT$ '+Number(x.price||0).toLocaleString()+'</div></div><div class="qty"><button type="button" onclick="changeQty('+i+',-1)">−</button><span id="q'+i+'">0</span><button type="button" onclick="changeQty('+i+',1)">＋</button></div></div>').join('');
+  $('flavorEmpty').style.display=flavors.length?'none':'block';
+  const hasFilled=flavors.some(x=>{const t=String(x.flavor_type||'').toLowerCase();return t==='filled'||t.includes('包餡')||t.includes('夾心')});
+  $('cut').style.display=hasFilled?'block':'none';
+  updateTotals();
+}catch(e){
+  $('region').innerHTML='<option value="">讀取失敗，請稍後再試</option>';
+  $('flavors').innerHTML='';
+  msg('當日資料讀取失敗：'+(e.message||e));
+}}
+'''
+          s = re.sub(r'async function loadDate\(\)\{.*?\}\s*function changeQty', new_load + 'function changeQty', s, count=1, flags=re.S)
+          p.write_text(s, encoding='utf-8')
+
+      - name: Commit fix
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add home-delivery-order.html
+          git diff --cached --quiet || git commit -m 'auto-fix: home delivery region'
+          git push
