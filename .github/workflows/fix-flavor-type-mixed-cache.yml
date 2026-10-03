@@ -1,0 +1,49 @@
+name: Fix flavor type mixed option cache
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Ensure mixed option and cache refresh
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('admin-products.html')
+          s = p.read_text(encoding='utf-8')
+          old = '<meta name="viewport" content="width=device-width,initial-scale=1">'
+          new = '<meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0">'
+          if old in s and 'Cache-Control" content="no-cache' not in s:
+              s = s.replace(old, new, 1)
+          select_old = '<option value="single">單一口味（不包餡）</option><option value="filled">包餡</option>'
+          select_new = '<option value="single">單一口味（不包餡）</option><option value="filled">包餡</option><option value="mixed">綜合</option>'
+          if '<option value="mixed">綜合</option>' not in s and select_old in s:
+              s = s.replace(select_old, select_new, 1)
+          p.write_text(s, encoding='utf-8')
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add admin-products.html
+          if git diff --cached --quiet; then
+            echo "No changes needed"
+            exit 0
+          fi
+          git commit -m "fix: show mixed flavor type and disable cache"
+          git push
+      - name: Remove workflow
+        if: success()
+        shell: bash
+        run: |
+          git rm .github/workflows/fix-flavor-type-mixed-cache.yml || true
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "chore: remove temporary flavor type workflow" || true
+          git push || true
