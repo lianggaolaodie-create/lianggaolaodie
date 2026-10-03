@@ -1,0 +1,33 @@
+name: Fix home delivery region loading
+on:
+  push:
+    paths:
+      - '.github/workflows/fix-home-region.yml'
+permissions:
+  contents: write
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch page
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('home-delivery-order.html')
+          s=p.read_text(encoding='utf-8')
+          old='init();</script>'
+          new="init().then(()=>{const d=document.getElementById('deliveryDate');if(d&&d.value)loadDate();});</script>"
+          if old not in s:
+              raise SystemExit('target init call not found')
+          s=s.replace(old,new,1)
+          p.write_text(s,encoding='utf-8')
+          PY
+      - name: Commit fix
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add home-delivery-order.html
+          git diff --cached --quiet && exit 0
+          git commit -m 'fix home delivery region auto load'
+          git push
