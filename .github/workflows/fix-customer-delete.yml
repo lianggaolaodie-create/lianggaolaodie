@@ -7,6 +7,8 @@ on:
       - '.github/workflows/fix-customer-delete.yml'
       - 'admin-orders-stable.html'
       - 'admin-orders-live.html'
+      - 'home-delivery-order.html'
+      - 'convenience-order.html'
 
 permissions:
   contents: write
@@ -48,24 +50,75 @@ document.addEventListener('click',async function(e){
 },true);
 """
 
+          cut_patch = r'''<script id="filled-cut-option-fix">
+          (()=>{
+            const addCutChoices=()=>{
+              const root=document.getElementById('flavors');
+              if(!root)return;
+              [...root.querySelectorAll('.flavor')].forEach((card,i)=>{
+                if(card.querySelector('.cut-choice'))return;
+                const priceEl=card.querySelector('.price');
+                if(!priceEl)return;
+                const price=Number((priceEl.textContent||'').replace(/[^0-9.]/g,''));
+                if(price<150)return;
+                const info=[...card.children].find(x=>x.querySelector&&x.querySelector('.price'));
+                if(!info)return;
+                const box=document.createElement('div');
+                box.className='cut-choice';
+                box.innerHTML='<div class="cut-title">包餡切法</div><label><input type="radio" name="cut-option-'+i+'" value="不切" checked>不切</label><label><input type="radio" name="cut-option-'+i+'" value="切">切</label>';
+                info.appendChild(box);
+              });
+            };
+            const root=document.getElementById('flavors');
+            if(root)new MutationObserver(addCutChoices).observe(root,{childList:true,subtree:true});
+            addCutChoices();
+            const form=document.getElementById('orderForm');
+            if(form&&!form.dataset.cutBound){
+              form.dataset.cutBound='1';
+              form.addEventListener('submit',()=>{
+                const notes=document.getElementById('notes');
+                if(!notes)return;
+                const choices=[...document.querySelectorAll('#flavors .flavor')].map(card=>{
+                  const qty=Number(card.querySelector('.qty span')?.textContent||0);
+                  const choice=card.querySelector('.cut-choice');
+                  if(qty<=0||!choice)return null;
+                  const name=card.querySelector('b')?.textContent?.trim()||'包餡口味';
+                  const cut=choice.querySelector('input:checked')?.value||'不切';
+                  return name+' × '+qty+'：'+cut;
+                }).filter(Boolean);
+                const base=notes.value.replace(/\n?\[包餡切法\][\s\S]*$/,'').trim();
+                notes.value=[base,choices.length?'[包餡切法] '+choices.join('；'):''].filter(Boolean).join('\n');
+              },{capture:true});
+            }
+          })();
+          </script>'''
+          cut_css = r'''.cut-choice{margin-top:8px;padding:8px 10px;border-radius:12px;background:#fff7fa;border:1px solid #f0d6e1}.cut-title{font-size:13px;font-weight:900;color:#7a304d;margin-bottom:5px}.cut-choice label{font-size:13px;margin-right:12px;cursor:pointer}.cut-choice input{accent-color:#c52f68;margin-right:4px}'''
+
           changed=False
           for filename in ['admin-orders-stable.html','admin-orders-live.html']:
               p=Path(filename)
               if not p.exists():
                   continue
               s=p.read_text(encoding='utf-8')
-
-              # Remove every previous injected customer-delete patch, including
-              # the malformed V2/V3 versions that could break the page script.
               s=re.sub(r'/\* Inject reliable customer delete handler v2 \*/.*?(?=</body>)', '', s, flags=re.S)
               s=re.sub(r'/\* CUSTOMER_DELETE_FIX_V[0-9]+ \*/.*?(?=</script>)', '', s, flags=re.S)
-
               pos=s.rfind('</script>')
               if pos < 0:
                   continue
               s=s[:pos]+code+s[pos:]
               p.write_text(s,encoding='utf-8')
               changed=True
+
+          for filename in ['home-delivery-order.html','convenience-order.html']:
+              p=Path(filename)
+              if not p.exists():
+                  continue
+              s=p.read_text(encoding='utf-8')
+              if 'id="filled-cut-option-fix"' not in s:
+                  s=s.replace('</style>',cut_css+'</style>',1)
+                  s=s.replace('</body>',cut_patch+'</body>',1)
+                  p.write_text(s,encoding='utf-8')
+                  changed=True
           print('changed=',changed)
 
       - name: Commit fix
@@ -73,10 +126,10 @@ document.addEventListener('click',async function(e){
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add admin-orders-stable.html admin-orders-live.html
+          git add admin-orders-stable.html admin-orders-live.html home-delivery-order.html convenience-order.html
           if git diff --cached --quiet; then
             echo 'No changes.'
           else
-            git commit -m '修正個資管理刪除功能並清除錯誤補丁'
+            git commit -m '修正包餡切法選項顯示'
             git push
           fi
