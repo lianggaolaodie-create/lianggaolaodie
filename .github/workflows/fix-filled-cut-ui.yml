@@ -9,7 +9,7 @@ permissions:
 
 jobs:
   fix:
-    if: ${{ !contains(github.event.head_commit.message, '[filled-cut-stable]') }}
+    if: ${{ !contains(github.event.head_commit.message, '[filled-cut-stable-v4]') }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -40,50 +40,51 @@ jobs:
             },{capture:true});
           })();
           </script>'''
+          fallback_js = r'''<script id="convenience-data-fallback">
+          (function(){
+            const URL='https://yemzdwxtyosuaczsqwea.supabase.co';
+            const KEY='sb_publishable_7b4hgNL68yiYbec7fXToYQ_UxPE4sEB';
+            async function load(){
+              const dateEl=document.getElementById('orderDate');
+              const regionEl=document.getElementById('region');
+              if(!dateEl||!regionEl) return;
+              if(dateEl.options.length>1 && regionEl.options.length>1) return;
+              const headers={apikey:KEY,Authorization:'Bearer '+KEY};
+              try{
+                const today=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Taipei',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+                const base=URL+'/rest/v1/';
+                const qs='select=order_date,ordering_enabled&order_date=gte.'+encodeURIComponent(today)+'&ordering_enabled=eq.true&order=order_date.asc';
+                const r=await fetch(base+'daily_order_settings?'+qs,{headers});
+                if(!r.ok) throw new Error('settings '+r.status);
+                const dates=await r.json();
+                if(dates.length){
+                  dateEl.innerHTML=dates.map(x=>'<option value="'+x.order_date+'">'+x.order_date.replace(/^(\\d{4})-(\\d{2})-(\\d{2})$/,'$1年$2月$3日')+'</option>').join('');
+                  dateEl.value=dates[0].order_date;
+                  const rr=await fetch(base+'daily_order_regions?select=region_name&order_date=eq.'+encodeURIComponent(dateEl.value)+'&enabled=eq.true&order=id.asc',{headers});
+                  if(rr.ok){
+                    const regions=await rr.json();
+                    regionEl.innerHTML='<option value="">請選擇當日開放地區</option>'+regions.map(x=>'<option>'+String(x.region_name).replace(/[&<>]/g,'')+'</option>').join('');
+                  }
+                }
+              }catch(e){ console.error('order fallback',e); }
+            }
+            setTimeout(load,500);
+            setTimeout(load,1500);
+          })();
+          </script>'''
 
-          def remove_balanced_blocks(text, marker):
-              out=[]; pos=0; first=None
-              while True:
-                  j=text.find(marker,pos)
-                  if j<0:
-                      out.append(text[pos:]); break
-                  out.append(text[pos:j])
-                  depth=0; i=j
-                  while i<len(text):
-                      if text.startswith('<div',i):
-                          depth+=1; k=text.find('>',i)
-                          if k<0: i=len(text); break
-                          i=k+1; continue
-                      if text.startswith('</div>',i):
-                          depth-=1; i+=6
-                          if depth==0: break
-                          continue
-                      i+=1
-                  block=text[j:i]
-                  if first is None:
-                      first=block; out.append(block)
-                  pos=i
-              return ''.join(out), first
-
+          block_re=re.compile(r'<div id="globalCutChoice" class="global-cut-choice">\s*<div class="global-cut-title">包餡切法</div>\s*<label><input type="radio" name="global-cut-option" value="不切" checked>不切</label>\s*<label><input type="radio" name="global-cut-option" value="切">切</label>\s*</div>',re.S)
           for fn in ['home-delivery-order.html','convenience-order.html']:
               p=Path(fn)
               if not p.exists(): continue
               s=p.read_text(encoding='utf-8')
-
-              # Remove all global cut blocks and reinsert exactly one after the flavor list.
-              s,_=remove_balanced_blocks(s,'<div id="globalCutChoice" class="global-cut-choice">')
+              s=block_re.sub('',s)
               s=re.sub(r'<script id="global-cut-submit-fix">.*?</script>','',s,flags=re.S)
               s=s.replace('</style>',css+'</style>',1)
               s=re.sub(r'(<div id="flavors"></div>)',r'\1'+global_html,s,count=1)
-              s=s.replace('</body>',submit_js+'</body>',1)
-
-              # Convenience page: start init() in the same script scope.
-              if fn=='convenience-order.html' and 'async function init()' in s and '/* filled-cut-init-started */' not in s:
-                  pos=s.find('async function init()')
-                  end=s.find('</script>',pos)
-                  if end>=0:
-                      s=s[:end]+'\n/* filled-cut-init-started */\ninit();\n'+s[end:]
-
+              s=s.replace('</body>',submit_js+'\n'+('</script></body>' if False else '')+'</body>',1)
+              if fn=='convenience-order.html':
+                  s=s.replace('</body>',fallback_js+'\n</body>',1)
               p.write_text(s,encoding='utf-8')
 
       - name: Commit repaired pages
@@ -94,6 +95,6 @@ jobs:
           if git diff --cached --quiet; then
             echo "No changes"
           else
-            git commit -m "fix: stabilize global cut choice [filled-cut-stable]"
+            git commit -m "fix: reliable order date and region loading [filled-cut-stable-v4]"
             git push
           fi
