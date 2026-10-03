@@ -65,20 +65,14 @@ jobs:
               if not p.exists(): continue
               s=p.read_text(encoding='utf-8')
 
-              # Remove every old per-flavor selector, old cut box, and duplicate global selector.
               for marker in ('<div class="cut-choice">','<div class="cut-box">','<div id="globalCutChoice" class="global-cut-choice">'):
                   s=remove_balanced(s,marker)
 
-              # Remove old scripts that can recreate per-flavor selectors.
               s=re.sub(r'<script id="(?:filled-cut-option-fix|filled-cut-only|global-filled-cut-choice|global-filled-cut-option|global-cut-submit-fix)">.*?</script>','',s,flags=re.S)
-
-              # Remove old cut-selector CSS and duplicate global CSS.
               s=re.sub(r'\.cut-choice\{[^}]*\}\.cut-title\{[^}]*\}\.cut-choice label\{[^}]*\}\.cut-choice input\{[^}]*\}','',s)
               s=re.sub(r'\.cut-box\{[^}]*\}\.cut-title\{[^}]*\}\.cut-box label\{[^}]*\}\.cut-box input\{[^}]*\}','',s)
               s=re.sub(r'(?:\.global-cut-choice\{[^}]*\}\.global-cut-title\{[^}]*\}\.global-cut-choice label\{[^}]*\}\.global-cut-choice input\{[^}]*\})+','',s)
               s=s.replace('</style>',css+'</style>',1)
-
-              # Add exactly one global choice after the flavor list.
               s=re.sub(r'(<div id="flavors"></div>)',r'\1'+html,s,count=1)
               s=s.replace('</body>',submit+'</body>',1)
               p.write_text(s,encoding='utf-8')
@@ -94,3 +88,5 @@ jobs:
             git commit -m "fix: one global filled cut choice [global-cut-final]"
             git push
           fi
+
+# Trigger repair after workflow installation.
