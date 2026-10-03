@@ -6,7 +6,7 @@
 <title>老爹．涼糕｜超商冷藏寄放訂購</title>
 <style>
 *{box-sizing:border-box}body{margin:0;background:#f7f1ea;color:#33251d;font-family:-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC",sans-serif}.wrap{max-width:760px;margin:auto;padding:18px 14px 48px}.top,.card{background:#fff;border:1px solid #e6dbd1;border-radius:20px;padding:18px;margin-bottom:14px;box-shadow:0 4px 18px #5b3d2510}.brand{font-size:25px;font-weight:900}.muted{color:#786d65;font-size:13px;line-height:1.6}h1,h2{margin:0 0 10px}h2{font-size:20px}.closed{padding:14px;border-radius:14px;background:#fff0ef;color:#a33c35;font-weight:800}.field{margin:12px 0}.field label{display:block;font-weight:800;margin-bottom:6px}.field input,.field select,.field textarea{width:100%;padding:12px;border:1px solid #d9cec6;border-radius:12px;background:#fff;font:inherit}.date-select{font-weight:800;font-size:17px}.flavor{display:grid;grid-template-columns:92px 1fr auto;gap:13px;align-items:center;border:1px solid #e8ded6;border-radius:15px;padding:10px;margin:9px 0;background:#fff}.flavor-img{width:92px;height:92px;border-radius:12px;object-fit:cover;background:#f3ece6;border:1px solid #eadfd7}.flavor-img.empty{display:flex;align-items:center;justify-content:center;color:#9a8d83;font-size:12px}.flavor b{display:block;font-size:17px}.price{display:block;font-size:14px;color:#8d5939;font-weight:800;margin-top:4px}.qty{display:flex;align-items:center;gap:8px}.qty button{width:36px;height:36px;border:0;border-radius:10px;background:#eee5de;color:#4a392f;font-size:21px;font-weight:900}.qty span{min-width:28px;text-align:center;font-weight:900}.choice{display:grid;grid-template-columns:1fr 1fr;gap:10px}.choice label{border:1px solid #ded2c8;border-radius:13px;padding:12px;cursor:pointer}.choice label:has(input:checked){border-color:#8d5939;background:#fff7f0}.choice input{margin-right:7px}.summary{background:#fffaf4;border:1px solid #eadbcd;border-radius:15px;padding:14px}.sumrow{display:flex;justify-content:space-between;padding:5px 0}.total{font-size:24px;font-weight:900;color:#8d5939;border-top:1px solid #e6d7c9;margin-top:8px;padding-top:10px}.btn{width:100%;border:0;border-radius:14px;padding:14px;background:#8d5939;color:#fff;font-size:17px;font-weight:900;cursor:pointer}.btn:disabled{opacity:.5}.notice{margin-top:10px;padding:12px;border-radius:12px}.ok{background:#edf8f1;color:#286c47}.err{background:#fff0ef;color:#a43b35}.result{display:none}.result.show{display:block}.order-number{font-size:28px;font-weight:900;color:#8d5939;letter-spacing:1px}.req{color:#a33c35}.bank{background:#f5eee8;border-radius:14px;padding:13px;line-height:1.8}.line-link{display:inline-block;margin-top:6px;font-weight:900;color:#8d5939;text-decoration:none}.line-link:active{opacity:.7}@media(max-width:560px){.flavor{grid-template-columns:78px 1fr}.flavor-img{width:78px;height:78px}.flavor .qty{grid-column:2;justify-content:flex-end}.choice{grid-template-columns:1fr}}
-.cut-choice{margin-top:8px;padding:8px 10px;border-radius:12px;background:#fff7fa;border:1px solid #f0d6e1}.cut-title{font-size:13px;font-weight:900;color:#7a304d;margin-bottom:5px}.cut-choice label{font-size:13px;margin-right:12px;cursor:pointer}.cut-choice input{accent-color:#c52f68;margin-right:4px}</style>
+.cut-choice{margin-top:8px;padding:8px 10px;border-radius:12px;background:#fff7fa;border:1px solid #f0d6e1}.cut-title{font-size:13px;font-weight:900;color:#7a304d;margin-bottom:5px}.cut-choice label{font-size:13px;margin-right:12px;cursor:pointer}.cut-choice input{accent-color:#c52f68;margin-right:4px}.cut-choice{margin-top:8px;padding:8px 10px;border-radius:12px;background:#fff7fa;border:1px solid #f0d6e1}.cut-title{font-size:13px;font-weight:900;color:#7a304d;margin-bottom:5px}.cut-choice label{font-size:13px;margin-right:12px;cursor:pointer}.cut-choice input{accent-color:#c52f68;margin-right:4px}</style>
 </head>
 <body>
 <div class="wrap">
@@ -82,5 +82,46 @@ $('orderForm').addEventListener('submit',async e=>{e.preventDefault();$('submitB
 );
 init();updateTotals();
 </script>
-</body>
+<script id="filled-cut-option-fix">
+(()=>{
+  function addCutChoices(){
+    const root=document.getElementById('flavors');
+    if(!root) return;
+    [...root.querySelectorAll('.flavor')].forEach((card,i)=>{
+      if(card.querySelector('.cut-choice')) return;
+      const priceEl=card.querySelector('.price');
+      if(!priceEl) return;
+      const price=Number((priceEl.textContent||'').replace(/[^0-9.]/g,''));
+      if(price<150) return;
+      const info=[...card.children].find(x=>x.querySelector&&x.querySelector('.price'));
+      if(!info) return;
+      const box=document.createElement('div');
+      box.className='cut-choice';
+      box.innerHTML='<div class="cut-title">包餡切法</div><label><input type="radio" name="cut-option-'+i+'" value="不切" checked>不切</label><label><input type="radio" name="cut-option-'+i+'" value="切">切</label>';
+      info.appendChild(box);
+    });
+  }
+  const root=document.getElementById('flavors');
+  if(root) new MutationObserver(addCutChoices).observe(root,{childList:true,subtree:true});
+  addCutChoices();
+  const form=document.getElementById('orderForm');
+  if(form && !form.dataset.cutBound){
+    form.dataset.cutBound='1';
+    form.addEventListener('submit',()=>{
+      const notes=document.getElementById('notes');
+      if(!notes) return;
+      const choices=[...document.querySelectorAll('#flavors .flavor')].map((card,i)=>{
+        const q=card.querySelector('.qty span');
+        const qty=Number(q?.textContent||0);
+        if(qty<=0 || !card.querySelector('.cut-choice')) return null;
+        const name=card.querySelector('b')?.textContent?.trim()||'包餡口味';
+        const cut=card.querySelector('input[type="radio"]:checked')?.value||'不切';
+        return name+' × '+qty+'：'+cut;
+      }).filter(Boolean);
+      const base=notes.value.replace(/\n?\[包餡切法\][\s\S]*$/,'').trim();
+      notes.value=[base,choices.length?'[包餡切法] '+choices.join('；'):''].filter(Boolean).join('\n');
+    },{capture:true});
+  }
+})();
+</script></body>
 </html>
