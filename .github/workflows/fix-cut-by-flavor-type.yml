@@ -1,0 +1,66 @@
+name: Fix cut option by flavor type
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch ordering pages
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          files = [Path('home-delivery-order.html'), Path('convenience-order.html')]
+          changed = []
+          for p in files:
+              if not p.exists():
+                  continue
+              s = p.read_text(encoding='utf-8')
+              original = s
+
+              # The cut selector must be driven by the flavor type, never by price.
+              s = s.replace("Number(f.price||0)>=150?", "String(f.flavor_type||'').toLowerCase()==='filled'?")
+              s = s.replace("Number(f.price||0)>=150 ?", "String(f.flavor_type||'').toLowerCase()==='filled' ?")
+              s = s.replace("Number(f.price)>=150?", "String(f.flavor_type||'').toLowerCase()==='filled'?")
+
+              # Ensure the page loads flavor_type from the master flavors table and merges it onto daily flavors.
+              if p.name == 'convenience-order.html':
+                  s = s.replace("sb.from('flavors').select('id,image_url').eq('enabled',true)", "sb.from('flavors').select('id,image_url,flavor_type').eq('enabled',true)")
+                  s = s.replace("flavors=(fs.data||[]).map(f=>({...f,image_url:imageMap[Number(f.flavor_id)]||''}));", "const typeMap=Object.fromEntries((master.data||[]).map(x=>[Number(x.id),x.flavor_type||'']));flavors=(fs.data||[]).map(f=>({...f,image_url:imageMap[Number(f.flavor_id)]||'',flavor_type:typeMap[Number(f.flavor_id)]||''}));")
+              else:
+                  # Home page has several historical loaders; inject a small lookup immediately before rendering.
+                  marker = "renderFlavors();updateTotals();"
+                  if marker in s and "async function applyFlavorTypes" not in s:
+                      helper = "async function applyFlavorTypes(){const ids=[...new Set(flavors.map(f=>Number(f.flavor_id)).filter(Boolean))];if(!ids.length)return;const r=await sb.from('flavors').select('id,flavor_type').in('id',ids);if(r.error)return;const m=Object.fromEntries((r.data||[]).map(x=>[Number(x.id),x.flavor_type||'']));flavors=flavors.map(f=>({...f,flavor_type:m[Number(f.flavor_id)]||''}))}"
+                      s = s.replace(marker, "await applyFlavorTypes();" + marker, 1)
+                      # Place helper before the first render function.
+                      pos = s.find('function renderFlavors()')
+                      if pos >= 0:
+                          s = s[:pos] + helper + s[pos:]
+
+              if s != original:
+                  p.write_text(s, encoding='utf-8')
+                  changed.append(str(p))
+
+          print('CHANGED', changed)
+          if not changed:
+              raise SystemExit('No ordering page changes were made')
+          PY
+      - name: Commit and push
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add home-delivery-order.html convenience-order.html .github/workflows/fix-cut-by-flavor-type.yml
+          git commit -m "fix: hide cut choice for single and mixed flavors"
+          git rm .github/workflows/fix-cut-by-flavor-type.yml
+          git commit -m "chore: remove one-time cut fix workflow"
+          git push
