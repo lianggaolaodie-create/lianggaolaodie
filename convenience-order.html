@@ -141,5 +141,27 @@ init();updateTotals();
     }
   },{capture:true});
 })();
-</script></body>
+</script><script id="convenience-order-init-fix">
+(function(){
+  function start(){
+    if(typeof window.init!=='function') return false;
+    if(window.__convenienceOrderInitStarted) return true;
+    window.__convenienceOrderInitStarted=true;
+    Promise.resolve(window.init()).catch(function(err){
+      const msg=document.getElementById('msg');
+      if(msg) msg.innerHTML='<div class="notice err">訂購資料讀取失敗，請重新整理頁面。</div>';
+      console.error(err);
+    });
+    return true;
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', start);
+  else start();
+  let tries=0;
+  const timer=setInterval(function(){
+    tries++;
+    if(start() || tries>=20) clearInterval(timer);
+  }, 250);
+})();
+</script>
+</body>
 </html>
