@@ -6,6 +6,7 @@ on:
       - '.github/workflows/fix-region-autoload.yml'
       - 'home-delivery-order.html'
       - 'convenience-order.html'
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -17,23 +18,28 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Add region autoload fix
+        shell: python
         run: |
-          python - <<'PY'
           from pathlib import Path
           snippet = r'''<script id="region-autoload-fix">
           (function(){
             function bind(){
               const date=document.getElementById('deliveryDate');
-              if(!date || typeof window.loadDate!=='function') return;
-              if(date.dataset.regionAutoloadBound==='1') return;
+              if(!date || typeof window.loadDate!=='function') return false;
+              if(date.dataset.regionAutoloadBound==='1') return true;
               date.dataset.regionAutoloadBound='1';
               date.addEventListener('change', window.loadDate);
               date.addEventListener('input', window.loadDate);
               if(date.value) setTimeout(function(){ window.loadDate(); }, 50);
+              return true;
             }
             if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', bind);
             else bind();
-            setTimeout(bind, 300);
+            let tries=0;
+            const timer=setInterval(function(){
+              tries++;
+              if(bind() || tries>=20) clearInterval(timer);
+            }, 250);
           })();
           </script>'''
           for name in ['home-delivery-order.html','convenience-order.html']:
@@ -47,12 +53,14 @@ jobs:
               if marker in s:
                   s=s.replace(marker, snippet+'\n'+marker, 1)
                   p.write_text(s, encoding='utf-8')
-          PY
       - name: Commit fix
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add home-delivery-order.html convenience-order.html
-          if git diff --cached --quiet; then exit 0; fi
-          git commit -m "fix: autoload delivery regions [region-autoload-fixed]"
+          if git diff --cached --quiet; then
+            echo 'No changes to commit'
+            exit 0
+          fi
+          git commit -m 'fix: autoload delivery regions [region-autoload-fixed]'
           git push
