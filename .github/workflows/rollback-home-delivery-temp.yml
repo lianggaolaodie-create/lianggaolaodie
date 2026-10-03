@@ -12,6 +12,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Restore working page
         run: |
+          git fetch origin 9f83618e3594a6d76175cb0d63aca08a934bc92e --depth=1
           git checkout 9f83618e3594a6d76175cb0d63aca08a934bc92e -- home-delivery-order.html
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
