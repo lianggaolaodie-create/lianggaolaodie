@@ -32,3 +32,5 @@ jobs:
           git diff --cached --quiet && exit 0
           git commit -m 'Apply order status picker'
           git push
+
+# retrigger
