@@ -13,17 +13,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Replace prompt with touch picker
+      - name: Replace prompt with touch picker and Chinese status labels
         shell: python
         run: |
           from pathlib import Path
           p = Path('admin-orders-fixed-v3.html')
           s = p.read_text(encoding='utf-8')
           old = "const s=prompt('修改訂單狀態',o.display_status||o.status||'');if(s===null)return;const map={'待配送':'pending','配送中':'delivering','已送達':'delivered','已完成':'completed'};const r=await db.from(o.source==='pickup'?'cooling_pickup_orders':'orders').update({status:o.source==='home'?(map[s]||s):s,updated_at:new Date().toISOString()}).eq('id',o.id);if(r.error)alert(r.error.message);else loadOrders();return;"
-          new = "const list=o.source==='home'?['待配送','配送中','已送達','已完成']:['待確認匯款','待付款','已付款','待配送','配送中','已寄放','已完成','已取消'];const box=document.createElement('div');box.style='position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px';const panel=document.createElement('div');panel.style='background:#fff;border-radius:20px;padding:18px;width:min(420px,100%);box-shadow:0 20px 60px rgba(0,0,0,.25)';panel.innerHTML='<div style=\"font-size:20px;font-weight:900;margin-bottom:14px\">修改訂單狀態</div>';list.forEach(s=>{const b=document.createElement('button');b.textContent=s;b.style='display:block;width:100%;border:1px solid #ddd2ca;background:#faf7f4;border-radius:12px;padding:14px;margin:8px 0;font-size:16px;font-weight:900';b.onclick=async()=>{let v=s;if(o.source==='home')v=({待配送:'pending',配送中:'delivering',已送達:'delivered',已完成:'completed'})[s]||s;const r=await db.from(o.source==='pickup'?'cooling_pickup_orders':'orders').update({status:v,updated_at:new Date().toISOString()}).eq('id',o.id);if(r.error)alert(r.error.message);else{box.remove();loadOrders();}};panel.appendChild(b)});const c=document.createElement('button');c.textContent='取消';c.style='display:block;width:100%;border:0;background:#6d625b;color:#fff;border-radius:12px;padding:13px;margin-top:10px;font-size:16px;font-weight:900';c.onclick=()=>box.remove();panel.appendChild(c);box.appendChild(panel);document.body.appendChild(box);return;"
-          if old not in s:
-              raise SystemExit('target code not found')
-          p.write_text(s.replace(old, new), encoding='utf-8')
+          new = "const list=o.source==='home'?['待配送','配送中','已送達','已完成']:['待確認匯款','待付款','已付款','待配送','配送中','已寄放','已完成','已取消'];const box=document.createElement('div');box.style='position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px';const panel=document.createElement('div');panel.style='background:#fff;border-radius:20px;padding:18px;width:min(420px,100%);box-shadow:0 20px 60px rgba(0,0,0,.25)';panel.innerHTML='<div style=\\\"font-size:20px;font-weight:900;margin-bottom:14px\\\">修改訂單狀態</div>';list.forEach(s=>{const b=document.createElement('button');b.textContent=s;b.style='display:block;width:100%;border:1px solid #ddd2ca;background:#faf7f4;border-radius:12px;padding:14px;margin:8px 0;font-size:16px;font-weight:900';b.onclick=async()=>{let v=s;if(o.source==='home')v=({待配送:'pending',配送中:'delivering',已送達:'delivered',已完成:'completed'})[s]||s;const r=await db.from(o.source==='pickup'?'cooling_pickup_orders':'orders').update({status:v,updated_at:new Date().toISOString()}).eq('id',o.id);if(r.error)alert(r.error.message);else{box.remove();loadOrders();}};panel.appendChild(b)});const c=document.createElement('button');c.textContent='取消';c.style='display:block;width:100%;border:0;background:#6d625b;color:#fff;border-radius:12px;padding:13px;margin-top:10px;font-size:16px;font-weight:900';c.onclick=()=>box.remove();panel.appendChild(c);box.appendChild(panel);document.body.appendChild(box);return;"
+          if old in s:
+              s=s.replace(old,new)
+          old_label = "esc(o.display_status||o.status)"
+          new_label = "esc(({pending:'待配送',delivering:'配送中',delivered:'已送達',completed:'已完成',paid:'已付款',stored:'已寄放',cancelled:'已取消','待確認匯款':'待確認匯款','待付款':'待付款','待配送':'待配送','配送中':'配送中','已送達':'已送達','已完成':'已完成','已付款':'已付款','已寄放':'已寄放','已取消':'已取消'}[o.display_status||o.status]||(o.display_status||o.status)))"
+          if old_label not in s:
+              raise SystemExit('status label target not found')
+          s=s.replace(old_label,new_label)
+          p.write_text(s,encoding='utf-8')
       - name: Commit change
         run: |
           git config user.name 'github-actions[bot]'
@@ -32,5 +37,3 @@ jobs:
           git diff --cached --quiet && exit 0
           git commit -m 'Apply order status picker'
           git push
-
-# retrigger
