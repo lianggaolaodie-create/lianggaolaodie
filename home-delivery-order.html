@@ -5,7 +5,7 @@
 <title>老爹．涼糕｜送到府訂購</title>
 <style>
 *{box-sizing:border-box}body{margin:0;background:#fff3f7;color:#33251d;font-family:-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC",sans-serif}.wrap{max-width:760px;margin:auto;padding:18px 14px 50px}.card{background:#fff;border:1px solid #ead7df;border-radius:20px;padding:18px;margin-bottom:14px}.brand{font-size:25px;font-weight:900}.muted{color:#786d65;font-size:13px;line-height:1.6}.tag{display:inline-block;margin-top:8px;padding:7px 11px;border-radius:999px;background:#ffe0eb;color:#a62d5c;font-weight:900}.field{margin:12px 0}.field label{display:block;font-weight:800;margin-bottom:6px}.field input,.field select,.field textarea{width:100%;padding:12px;border:1px solid #dccbd2;border-radius:12px;background:#fff;font:inherit}.flavor{display:grid;grid-template-columns:80px 1fr auto;gap:12px;align-items:center;border:1px solid #eadde3;border-radius:15px;padding:10px;margin:9px 0}.flavor-img,.flavor-placeholder{width:80px;height:80px;border-radius:12px;object-fit:cover;background:#f6edf1}.flavor-placeholder{display:flex;align-items:center;justify-content:center;color:#a88d98;font-size:12px;text-align:center}.price{color:#a62d5c;font-weight:800}.qty{display:flex;align-items:center;gap:8px}.qty button{width:38px;height:38px;border:0;border-radius:10px;background:#f2e3e9;font-size:21px;font-weight:900}.qty span{min-width:25px;text-align:center;font-weight:900}.summary{background:#fff8fb;border:1px solid #ead6df;border-radius:15px;padding:14px}.row{display:flex;justify-content:space-between;padding:6px 0}.total{font-size:23px;font-weight:900;color:#a62d5c;border-top:1px solid #ead6df;margin-top:8px;padding-top:10px}.btn{display:block;width:100%;border:0;border-radius:14px;padding:14px;background:#c52f68;color:#fff;font-size:17px;font-weight:900;text-align:center;text-decoration:none;cursor:pointer}.btn:disabled{opacity:.55}.notice{margin-top:10px;padding:12px;border-radius:12px;line-height:1.6}.err{background:#fff0ef;color:#a43b35}.ok{background:#edf8f1;color:#286c47}.result{display:none}.result.show{display:block}.order-number{font-size:28px;font-weight:900;color:#a62d5c}.line-btn{background:#06c755;margin-top:14px}.item{display:flex;justify-content:space-between;border-bottom:1px dashed #ead6df;padding:8px 0}.cut-box{display:none;margin:12px 0 4px;padding:12px 14px;border:1px solid #f0d6e1;border-radius:14px;background:#fff7fa}.cut-box.show{display:block}.cut-title{font-weight:900;color:#7a304d;margin-bottom:7px}.cut-box label{font-size:15px;margin-right:22px;cursor:pointer}.cut-box input{accent-color:#c52f68;margin-right:5px}@media(max-width:560px){.flavor{grid-template-columns:72px 1fr}.flavor-img,.flavor-placeholder{width:72px;height:72px}.qty{grid-column:2;justify-content:flex-end}}
-.cut-choice{margin-top:8px;padding:8px 10px;border-radius:12px;background:#fff7fa;border:1px solid #f0d6e1}.cut-title{font-size:13px;font-weight:900;color:#7a304d;margin-bottom:5px}.cut-choice label{font-size:13px;margin-right:12px;cursor:pointer}.cut-choice input{accent-color:#c52f68;margin-right:4px}</style>
+.global-cut-choice{margin-top:14px;padding:14px 16px;border-radius:14px;background:#fff7fa;border:1px solid #f0d6e1}.global-cut-title{font-size:16px;font-weight:900;color:#7a304d;margin-bottom:10px}.global-cut-choice label{display:inline-flex;align-items:center;margin-right:24px;font-size:16px;cursor:pointer}.global-cut-choice input{accent-color:#c52f68;margin-right:7px;width:18px;height:18px}</style>
 </head>
 <body>
 <main class="wrap">
@@ -14,7 +14,11 @@
 <form id="orderForm">
 <div class="card"><h2>① 選擇配送日期</h2><div class="field"><label>日期 *</label><select id="deliveryDate" required><option value="">請選擇開放日期</option></select></div></div>
 <div class="card"><h2>② 選擇送到府地區</h2><div class="field"><label>地區 *</label><select id="region" required><option value="">請先選擇日期</option></select></div></div>
-<div class="card"><h2>③ 點選口味與數量</h2><div id="flavors"></div><div id="flavorEmpty" class="muted" style="display:none">這一天尚未開放口味。</div><div id="cutBox" class="cut-box"><div class="cut-title">包餡切法</div><label><input type="radio" name="globalCut" value="不切" checked>不切</label><label><input type="radio" name="globalCut" value="切">切</label></div></div>
+<div class="card"><h2>③ 點選口味與數量</h2><div id="flavors"></div><div id="globalCutChoice" class="global-cut-choice">
+  <div class="global-cut-title">包餡切法</div>
+  <label><input type="radio" name="global-cut-option" value="不切" checked>不切</label>
+  <label><input type="radio" name="global-cut-option" value="切">切</label>
+</div><div id="flavorEmpty" class="muted" style="display:none">這一天尚未開放口味。</div><div id="cutBox" class="cut-box"><div class="cut-title">包餡切法</div><label><input type="radio" name="globalCut" value="不切" checked>不切</label><label><input type="radio" name="globalCut" value="切">切</label></div></div>
 <div class="card"><h2>④ 填寫送達資料</h2><div class="field"><label>收件人姓名 *</label><input id="customerName" required maxlength="80"></div><div class="field"><label>手機 *</label><input id="customerPhone" required maxlength="30" inputmode="tel"></div><div class="field"><label>送達地址 *</label><textarea id="address" required rows="3" maxlength="300"></textarea></div><div class="field"><label>備註</label><textarea id="notes" rows="3" maxlength="500"></textarea></div></div>
 <div class="card"><h2>⑤ 確認訂單</h2><div class="summary"><div class="row"><span>涼糕總數</span><b id="totalQty">0 盒</b></div><div class="row"><span>涼糕小計</span><b>NT$ <span id="grandTotal">0</span></b></div><div class="row"><span>付款方式</span><b>貨到付款</b></div></div><div id="minimumNotice" class="notice err">最低訂購 2 盒，目前 0 盒。</div><button id="submitBtn" class="btn" type="submit" style="margin-top:14px" disabled>確認送到府訂單</button><div id="msg"></div></div>
 </form>
@@ -40,48 +44,7 @@ $('deliveryDate').addEventListener('change',loadDate);
 $('orderForm').addEventListener('submit',async e=>{e.preventDefault();const btn=$('submitBtn');btn.disabled=true;btn.textContent='送出中…';$('msg').innerHTML='';try{const d=$('deliveryDate').value,region=$('region').value,a=selectedItems(),qty=a.reduce((s,x)=>s+x.quantity,0);if(!d)throw new Error('請選擇配送日期');if(!region||region==='當日尚未開放送到府地區')throw new Error('請選擇送到府地區');if(qty<2)throw new Error('最低訂購 2 盒，請再選購 1 盒後送出訂單。');const cut=a.some(x=>x.flavor_type==='filled')?($('cutBox').querySelector('input[name="globalCut"]:checked')?.value||'不切'):'';const noteBase=$('notes').value.trim();const note=cut?'[包餡切法] '+cut+(noteBase?'\n'+noteBase:''):noteBase;const payload={p_delivery_date:d,p_delivery_region:region,p_pickup_type:'home_delivery',p_pickup_store:$('address').value.trim(),p_customer_name:$('customerName').value.trim(),p_customer_phone:$('customerPhone').value.trim(),p_customer_note:note||null,p_items:a.map(x=>({flavor_id:x.flavor_id,quantity:x.quantity}))};const r=await sb.rpc('create_customer_order',payload);if(r.error)throw new Error(r.error.message||r.error.details||'訂單建立失敗');const o=Array.isArray(r.data)?r.data[0]:r.data;if(!o||!o.order_number)throw new Error('訂單已建立但沒有取得線上訂單編號');$('resultOrder').textContent=o.order_number;$('resultDate').textContent=d;$('resultRegion').textContent=region;$('resultName').textContent=$('customerName').value.trim();$('resultPhone').textContent=$('customerPhone').value.trim();$('resultAddress').textContent=$('address').value.trim();$('resultTotal').textContent=Number(o.total_amount||0).toLocaleString();$('resultItems').innerHTML=a.map(x=>'<div class="item"><span>'+x.name+' × '+x.quantity+'</span><b>NT$ '+(x.price*x.quantity).toLocaleString()+'</b></div>').join('');const msg=['🍡 老爹．涼糕｜送到府訂單','線上訂單編號：'+o.order_number,'配送日期：'+d,'地區：'+region,'收件人：'+$('customerName').value.trim(),'電話：'+$('customerPhone').value.trim(),'地址：'+$('address').value.trim(),'付款方式：貨到付款',cut?'包餡切法：'+cut:'','訂購內容：'].concat(a.map(x=>'・'+x.name+' × '+x.quantity),'貨到付款金額：NT$ '+Number(o.total_amount||0).toLocaleString()).filter(Boolean).join('\n');$('lineSend').href='https://line.me/R/oaMessage/%40502iugah/?'+encodeURIComponent(msg);$('orderForm').style.display='none';$('result').classList.add('show');window.scrollTo({top:0,behavior:'smooth'})}catch(err){showMsg(err.message);btn.disabled=selectedItems().reduce((s,x)=>s+x.quantity,0)<2;btn.textContent='確認送到府訂單'}});
 init();
 </script>
-<script id="filled-cut-option-fix">
-(()=>{
-  function addCutChoices(){
-    const root=document.getElementById('flavors');
-    if(!root) return;
-    [...root.querySelectorAll('.flavor')].forEach((card,i)=>{
-      if(card.querySelector('.cut-choice')) return;
-      const priceEl=card.querySelector('.price');
-      if(!priceEl) return;
-      const price=Number((priceEl.textContent||'').replace(/[^0-9.]/g,''));
-      if(price<150) return;
-      const info=[...card.children].find(x=>x.querySelector&&x.querySelector('.price'));
-      if(!info) return;
-      const box=document.createElement('div');
-      box.className='cut-choice';
-      box.innerHTML='<div class="cut-title">包餡切法</div><label><input type="radio" name="cut-option-'+i+'" value="不切" checked>不切</label><label><input type="radio" name="cut-option-'+i+'" value="切">切</label>';
-      info.appendChild(box);
-    });
-  }
-  const root=document.getElementById('flavors');
-  if(root) new MutationObserver(addCutChoices).observe(root,{childList:true,subtree:true});
-  addCutChoices();
-  const form=document.getElementById('orderForm');
-  if(form && !form.dataset.cutBound){
-    form.dataset.cutBound='1';
-    form.addEventListener('submit',()=>{
-      const notes=document.getElementById('notes');
-      if(!notes) return;
-      const choices=[...document.querySelectorAll('#flavors .flavor')].map((card,i)=>{
-        const q=card.querySelector('.qty span');
-        const qty=Number(q?.textContent||0);
-        if(qty<=0 || !card.querySelector('.cut-choice')) return null;
-        const name=card.querySelector('b')?.textContent?.trim()||'包餡口味';
-        const cut=card.querySelector('input[type="radio"]:checked')?.value||'不切';
-        return name+' × '+qty+'：'+cut;
-      }).filter(Boolean);
-      const base=notes.value.replace(/\n?\[包餡切法\][\s\S]*$/,'').trim();
-      notes.value=[base,choices.length?'[包餡切法] '+choices.join('；'):''].filter(Boolean).join('\n');
-    },{capture:true});
-  }
-})();
-</script><script id="region-autoload-fix">
+<script id="region-autoload-fix">
 (function(){
   function bind(){
     const date=document.getElementById('deliveryDate');
@@ -102,4 +65,18 @@ init();
   }, 250);
 })();
 </script>
-</body></html>
+<script id="global-cut-submit-fix">
+(()=>{
+  const form=document.getElementById('orderForm');
+  if(!form||form.dataset.globalCutBound) return;
+  form.dataset.globalCutBound='1';
+  form.addEventListener('submit',()=>{
+    const notes=document.getElementById('notes');
+    const selected=document.querySelector('input[name="global-cut-option"]:checked')?.value||'不切';
+    if(notes){
+      const base=notes.value.replace(/\n?\[包餡切法\][\s\S]*$/,'').trim();
+      notes.value=[base,'[包餡切法] '+selected].filter(Boolean).join('\n');
+    }
+  },{capture:true});
+})();
+</script></body></html>
