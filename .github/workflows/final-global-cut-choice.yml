@@ -19,12 +19,31 @@ jobs:
           from pathlib import Path
           import re
 
-          css = r'''.global-cut-choice{margin-top:14px;padding:14px 16px;border-radius:14px;background:#fff7fa;border:1px solid #f0d6e1}.global-cut-title{font-size:16px;font-weight:900;color:#7a304d;margin-bottom:10px}.global-cut-choice label{display:inline-flex;align-items:center;margin-right:24px;font-size:16px;cursor:pointer}.global-cut-choice input{accent-color:#c52f68;margin-right:7px;width:18px;height:18px}'''
-          html = r'''<div id="globalCutChoice" class="global-cut-choice">
+          css = r'''.global-cut-choice{margin-top:14px;padding:14px 16px;border-radius:14px;background:#fff7fa;border:1px solid #f0d6e1}.global-cut-choice.is-hidden{display:none!important}.global-cut-title{font-size:16px;font-weight:900;color:#7a304d;margin-bottom:10px}.global-cut-choice label{display:inline-flex;align-items:center;margin-right:24px;font-size:16px;cursor:pointer}.global-cut-choice input{accent-color:#c52f68;margin-right:7px;width:18px;height:18px}'''
+          html = r'''<div id="globalCutChoice" class="global-cut-choice is-hidden">
             <div class="global-cut-title">包餡切法</div>
             <label><input type="radio" name="global-cut-option" value="不切" checked>不切</label>
             <label><input type="radio" name="global-cut-option" value="切">切</label>
           </div>'''
+          script = r'''<script id="global-cut-final-fix">
+          (()=>{
+            function setup(){
+              const root=document.getElementById('flavors');
+              const choice=document.getElementById('globalCutChoice');
+              if(!root||!choice) return false;
+              const update=()=>{
+                const text=(root.innerText||'').toLowerCase();
+                const hasFilled=[...root.querySelectorAll('.flavor')].some(el=>/包餡|夾心|芋心|布丁芋心|玫瑰芋心/.test(el.innerText||''));
+                choice.classList.toggle('is-hidden',!hasFilled);
+              };
+              update();
+              new MutationObserver(update).observe(root,{childList:true,subtree:true,characterData:true});
+              return true;
+            }
+            if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',setup); else setup();
+            let n=0; const t=setInterval(()=>{if(setup()||++n>20) clearInterval(t)},250);
+          })();
+          </script>'''
           submit = r'''<script id="global-cut-submit-fix">
           (()=>{
             const form=document.getElementById('orderForm');
@@ -51,8 +70,7 @@ jobs:
                           depth+=1
                           end=text.find('>',i)
                           if end<0: i=len(text); break
-                          i=end+1
-                          continue
+                          i=end+1; continue
                       if text.startswith('</div>',i):
                           depth-=1; i+=6
                           if depth==0: break
@@ -64,17 +82,15 @@ jobs:
               p=Path(filename)
               if not p.exists(): continue
               s=p.read_text(encoding='utf-8')
-
               for marker in ('<div class="cut-choice">','<div class="cut-box">','<div id="globalCutChoice" class="global-cut-choice">'):
                   s=remove_balanced(s,marker)
-
-              s=re.sub(r'<script id="(?:filled-cut-option-fix|filled-cut-only|global-filled-cut-choice|global-filled-cut-option|global-cut-submit-fix)">.*?</script>','',s,flags=re.S)
+              s=re.sub(r'<script id="(?:filled-cut-option-fix|filled-cut-only|global-filled-cut-choice|global-filled-cut-option|global-cut-submit-fix|global-cut-final-fix)">.*?</script>','',s,flags=re.S)
               s=re.sub(r'\.cut-choice\{[^}]*\}\.cut-title\{[^}]*\}\.cut-choice label\{[^}]*\}\.cut-choice input\{[^}]*\}','',s)
               s=re.sub(r'\.cut-box\{[^}]*\}\.cut-title\{[^}]*\}\.cut-box label\{[^}]*\}\.cut-box input\{[^}]*\}','',s)
-              s=re.sub(r'(?:\.global-cut-choice\{[^}]*\}\.global-cut-title\{[^}]*\}\.global-cut-choice label\{[^}]*\}\.global-cut-choice input\{[^}]*\})+','',s)
+              s=re.sub(r'(?:\.global-cut-choice(?:\.is-hidden)?\{[^}]*\}\.global-cut-title\{[^}]*\}\.global-cut-choice label\{[^}]*\}\.global-cut-choice input\{[^}]*\})+','',s)
               s=s.replace('</style>',css+'</style>',1)
               s=re.sub(r'(<div id="flavors"></div>)',r'\1'+html,s,count=1)
-              s=s.replace('</body>',submit+'</body>',1)
+              s=s.replace('</body>',script+submit+'</body>',1)
               p.write_text(s,encoding='utf-8')
 
       - name: Commit repair
@@ -85,8 +101,6 @@ jobs:
           if git diff --cached --quiet; then
             echo "No changes"
           else
-            git commit -m "fix: one global filled cut choice [global-cut-final]"
+            git commit -m "fix: one conditional global filled cut choice [global-cut-final]"
             git push
           fi
-
-# Trigger repair after workflow installation.
