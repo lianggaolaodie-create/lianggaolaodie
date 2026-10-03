@@ -1,0 +1,85 @@
+name: Global filled cut option
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Apply one global cut option
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          script = r'''<script id="global-filled-cut-option">
+          (()=>{
+            function setup(){
+              const root=document.getElementById('flavors');
+              if(!root) return;
+              const cards=[...root.querySelectorAll('.flavor')];
+              const old=[...root.querySelectorAll('.cut-choice')];
+              const hasFilled=old.length>0;
+              old.forEach(el=>el.remove());
+              let box=document.getElementById('global-cut-choice');
+              if(!hasFilled){ if(box) box.remove(); return; }
+              if(!box){
+                box=document.createElement('div');
+                box.id='global-cut-choice';
+                box.className='global-cut-choice';
+                box.innerHTML='<div class="global-cut-title">包餡切法</div><label><input type="radio" name="global-cut-option" value="不切" checked>不切</label><label><input type="radio" name="global-cut-option" value="切">切</label>';
+                root.parentElement.insertBefore(box,root.nextSibling);
+              }
+            }
+            const css=document.createElement('style');
+            css.textContent='.global-cut-choice{margin:12px 0 2px;padding:12px 14px;border:1px solid #f0d6e1;border-radius:14px;background:#fff7fa}.global-cut-title{font-weight:900;color:#7a304d;margin-bottom:7px}.global-cut-choice label{font-size:15px;margin-right:22px;cursor:pointer}.global-cut-choice input{accent-color:#c52f68;margin-right:5px}';
+            document.head.appendChild(css);
+            function addNote(e){
+              const notes=document.getElementById('notes');
+              const selected=document.querySelector('input[name="global-cut-option"]:checked')?.value;
+              if(!notes||!selected) return;
+              const base=notes.value.replace(/\n?\[包餡切法\].*$/s,'').trim();
+              notes.value=[base,'[包餡切法] '+selected].filter(Boolean).join('\n');
+            }
+            document.addEventListener('DOMContentLoaded',()=>{
+              const root=document.getElementById('flavors');
+              if(root){new MutationObserver(setup).observe(root,{childList:true,subtree:true});setup();}
+              const form=document.getElementById('orderForm');
+              if(form) form.addEventListener('submit',addNote,true);
+            });
+          })();
+          </script>'''
+
+          for name in ['home-delivery-order.html','convenience-order.html']:
+              p=Path(name)
+              s=p.read_text()
+              if 'id="global-filled-cut-option"' not in s:
+                  s=s.replace('</body>',script+'</body>')
+                  p.write_text(s)
+                  print('updated',name)
+              else:
+                  print('already updated',name)
+
+          wf=Path('.github/workflows/global-filled-cut-option.yml')
+          if wf.exists(): wf.unlink()
+          PY
+
+      - name: Commit applied pages
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add home-delivery-order.html convenience-order.html .github/workflows/global-filled-cut-option.yml
+          if git diff --cached --quiet; then
+            echo "No changes"
+          else
+            git commit -m "fix: show one global cut choice"
+            git push
+          fi
