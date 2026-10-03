@@ -130,4 +130,20 @@
     if(form) form.addEventListener('submit',addNote,true);
   });
 })();
-</script></body></html>
+</script><script id="region-autoload-fix">
+(function(){
+  function bind(){
+    const date=document.getElementById('deliveryDate');
+    if(!date || typeof window.loadDate!=='function') return;
+    if(date.dataset.regionAutoloadBound==='1') return;
+    date.dataset.regionAutoloadBound='1';
+    date.addEventListener('change', window.loadDate);
+    date.addEventListener('input', window.loadDate);
+    if(date.value) setTimeout(function(){ window.loadDate(); }, 50);
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', bind);
+  else bind();
+  setTimeout(bind, 300);
+})();
+</script>
+</body></html>
