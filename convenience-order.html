@@ -14,7 +14,11 @@
 <div id="closed" class="card closed" style="display:none"></div>
 <form id="orderForm">
 <div class="card"><h2>① 選擇訂購日期</h2><div class="field"><label>開放日期 <span class="req">*</span></label><select id="orderDate" class="date-select" required><option value="">讀取中…</option></select></div><div class="muted">只顯示後台已開放線上訂購的日期。</div></div>
-<div class="card"><h2>② 選擇當日口味</h2><div id="flavors"></div><div id="globalCutChoice" class="global-cut-choice" style="display:none">
+<div class="card"><h2>② 選擇當日口味</h2><div id="flavors"></div><div id="globalCutChoice" class="global-cut-choice">
+  <div class="global-cut-title">包餡切法</div>
+  <label><input type="radio" name="global-cut-option" value="不切" checked>不切</label>
+  <label><input type="radio" name="global-cut-option" value="切">切</label>
+</div><div id="globalCutChoice" class="global-cut-choice" style="display:none">
   <div class="global-cut-title">包餡切法</div>
   <label><input type="radio" name="global-cut-option" value="不切" checked>不切</label>
   <label><input type="radio" name="global-cut-option" value="切">切</label>

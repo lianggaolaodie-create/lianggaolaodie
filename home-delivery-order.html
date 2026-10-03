@@ -15,7 +15,11 @@
 <form id="orderForm">
 <div class="card"><h2>① 選擇配送日期</h2><div class="field"><label>日期 *</label><select id="deliveryDate" required><option value="">讀取中…</option></select></div></div>
 <div class="card"><h2>② 選擇送到府地區</h2><div class="field"><label>地區 *</label><select id="region" required><option value="">請先選擇日期</option></select></div></div>
-<div class="card"><h2>③ 點選口味與數量</h2><div id="flavors"></div><div id="globalCutChoice" class="global-cut-choice" style="display:none">
+<div class="card"><h2>③ 點選口味與數量</h2><div id="flavors"></div><div id="globalCutChoice" class="global-cut-choice">
+  <div class="global-cut-title">包餡切法</div>
+  <label><input type="radio" name="global-cut-option" value="不切" checked>不切</label>
+  <label><input type="radio" name="global-cut-option" value="切">切</label>
+</div><div id="globalCutChoice" class="global-cut-choice" style="display:none">
   <div class="global-cut-title">包餡切法</div>
   <label><input type="radio" name="global-cut-option" value="不切" checked>不切</label>
   <label><input type="radio" name="global-cut-option" value="切">切</label>
