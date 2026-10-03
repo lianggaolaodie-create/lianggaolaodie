@@ -1,10 +1,8 @@
-# repair workflow trigger
 name: Final global cut choice
 
 on:
   push:
     branches: [main]
-  workflow_dispatch:
 
 permissions:
   contents: write
@@ -15,14 +13,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Repair cut choice UI
+      - name: Repair order pages
         shell: python
         run: |
           from pathlib import Path
           import re
 
           css = r'''.global-cut-choice{margin-top:14px;padding:14px 16px;border-radius:14px;background:#fff7fa;border:1px solid #f0d6e1}.global-cut-title{font-size:16px;font-weight:900;color:#7a304d;margin-bottom:10px}.global-cut-choice label{display:inline-flex;align-items:center;margin-right:24px;font-size:16px;cursor:pointer}.global-cut-choice input{accent-color:#c52f68;margin-right:7px;width:18px;height:18px}'''
-          html = r'''<div id="globalCutChoice" class="global-cut-choice" style="display:none">
+          html = r'''<div id="globalCutChoice" class="global-cut-choice">
             <div class="global-cut-title">包餡切法</div>
             <label><input type="radio" name="global-cut-option" value="不切" checked>不切</label>
             <label><input type="radio" name="global-cut-option" value="切">切</label>
@@ -43,42 +41,38 @@ jobs:
           })();
           </script>'''
 
-          def remove_div_by_id(text, element_id):
-              pat=re.compile(r'<div\s+id=["\']'+re.escape(element_id)+r'["\'][^>]*>',re.I)
+          def remove_balanced(text, marker):
               while True:
-                  m=pat.search(text)
-                  if not m: return text
-                  start=m.start(); depth=1; i=m.end()
-                  while i<len(text) and depth:
-                      dm=re.search(r'<div\b[^>]*>|</div\s*>',text[i:],re.I)
-                      if not dm: return text[:start]
-                      raw=dm.group(0); i+=dm.end()
-                      if raw.lower().startswith('</div'): depth-=1
-                      else: depth+=1
+                  start=text.find(marker)
+                  if start<0: return text
+                  depth=0; i=start
+                  while i<len(text):
+                      if text.startswith('<div',i):
+                          depth+=1
+                          end=text.find('>',i)
+                          if end<0: i=len(text); break
+                          i=end+1
+                          continue
+                      if text.startswith('</div>',i):
+                          depth-=1; i+=6
+                          if depth==0: break
+                          continue
+                      i+=1
                   text=text[:start]+text[i:]
 
           for filename in ('home-delivery-order.html','convenience-order.html'):
               p=Path(filename)
               if not p.exists(): continue
               s=p.read_text(encoding='utf-8')
-              s=remove_div_by_id(s,'globalCutChoice')
-              for marker in ('<div class="cut-choice">','<div class="cut-box">'):
-                  while marker in s:
-                      start=s.find(marker); depth=1; i=start+len(marker)
-                      while i<len(s) and depth:
-                          dm=re.search(r'<div\b[^>]*>|</div\s*>',s[i:],re.I)
-                          if not dm: break
-                          raw=dm.group(0); i+=dm.end()
-                          if raw.lower().startswith('</div'): depth-=1
-                          else: depth+=1
-                      s=s[:start]+s[i:]
-              s=re.sub(r'<script id="(?:filled-cut-option-fix|filled-cut-only|global-filled-cut-choice|global-filled-cut-option|global-cut-submit-fix|global-cut-final-fix)">.*?</script>','',s,flags=re.S)
-              s=re.sub(r'(?:\.global-cut-choice(?:\.is-hidden)?\{[^}]*\}\.global-cut-title\{[^}]*\}\.global-cut-choice label\{[^}]*\}\.global-cut-choice input\{[^}]*\})+','',s)
+              for marker in ('<div class="cut-choice">','<div class="cut-box">','<div id="globalCutChoice" class="global-cut-choice">'):
+                  s=remove_balanced(s,marker)
+              s=re.sub(r'<script id="(?:filled-cut-option-fix|filled-cut-only|global-filled-cut-choice|global-filled-cut-option|global-cut-submit-fix)">.*?</script>','',s,flags=re.S)
+              s=re.sub(r'\.cut-choice\{[^}]*\}\.cut-title\{[^}]*\}\.cut-choice label\{[^}]*\}\.cut-choice input\{[^}]*\}','',s)
+              s=re.sub(r'\.cut-box\{[^}]*\}\.cut-title\{[^}]*\}\.cut-box label\{[^}]*\}\.cut-box input\{[^}]*\}','',s)
+              s=re.sub(r'(?:\.global-cut-choice\{[^}]*\}\.global-cut-title\{[^}]*\}\.global-cut-choice label\{[^}]*\}\.global-cut-choice input\{[^}]*\})+','',s)
               s=s.replace('</style>',css+'</style>',1)
               s=re.sub(r'(<div id="flavors"></div>)',r'\1'+html,s,count=1)
               s=s.replace('</body>',submit+'</body>',1)
-              s=s.replace('querySelector(\'input[name="globalCut"]:checked\')','querySelector(\'input[name="global-cut-option"]:checked\')')
-              s=s.replace('querySelector("input[name=\"globalCut\"]:checked")','querySelector("input[name=\"global-cut-option\"]:checked")')
               p.write_text(s,encoding='utf-8')
 
       - name: Commit repair
@@ -89,6 +83,6 @@ jobs:
           if git diff --cached --quiet; then
             echo "No changes"
           else
-            git commit -m "fix: deduplicate global filled cut choice [global-cut-final]"
+            git commit -m "fix: one global filled cut choice [global-cut-final]"
             git push
           fi
