@@ -20,7 +20,7 @@ jobs:
           import re
 
           css = r'''.global-cut-choice{margin-top:14px;padding:14px 16px;border-radius:14px;background:#fff7fa;border:1px solid #f0d6e1}.global-cut-title{font-size:16px;font-weight:900;color:#7a304d;margin-bottom:10px}.global-cut-choice label{display:inline-flex;align-items:center;margin-right:24px;font-size:16px;cursor:pointer}.global-cut-choice input{accent-color:#c52f68;margin-right:7px;width:18px;height:18px}'''
-          block = r'''<div id="globalCutChoice" class="global-cut-choice">
+          block = r'''<div id="globalCutChoice" class="global-cut-choice" style="display:none">
             <div class="global-cut-title">包餡切法</div>
             <label><input type="radio" name="global-cut-option" value="不切" checked>不切</label>
             <label><input type="radio" name="global-cut-option" value="切">切</label>
@@ -32,17 +32,17 @@ jobs:
                   continue
               s = p.read_text(encoding='utf-8')
 
-              # Remove every existing global cut-choice block, even if duplicated.
-              pattern = r'<div id="globalCutChoice" class="global-cut-choice">.*?</div>\s*(?=<div id="globalCutChoice"|<div id="flavorEmpty"|</div>)'
-              s = re.sub(pattern, '', s, flags=re.S)
-              # Also remove any remaining duplicate blocks conservatively.
-              s = re.sub(r'<div id="globalCutChoice" class="global-cut-choice">.*?</div>\s*', '', s, flags=re.S)
+              # Remove complete global cut-choice blocks, including their nested title div.
+              s = re.sub(r'<div id="globalCutChoice" class="global-cut-choice"[^>]*>.*?</div>\s*</div>', '', s, flags=re.S)
+              # Remove any legacy cut blocks that could also be displayed.
+              s = re.sub(r'<div class="cut-choice">.*?</div>\s*</div>', '', s, flags=re.S)
+              s = re.sub(r'<div class="cut-box">.*?</div>\s*</div>', '', s, flags=re.S)
 
-              # Remove old style definitions, then add one canonical style.
-              s = re.sub(r'\.global-cut-choice\{.*?\.global-cut-choice input\{.*?\}', '', s, flags=re.S)
+              # Keep exactly one canonical style definition.
+              s = re.sub(r'\.global-cut-choice\{[^}]*\}\.global-cut-title\{[^}]*\}\.global-cut-choice label\{[^}]*\}\.global-cut-choice input\{[^}]*\}', '', s)
               s = s.replace('</style>', css + '</style>', 1)
 
-              # Insert exactly one block after the flavors container.
+              # Insert exactly one block after the flavor container.
               if '<div id="flavors"></div>' in s:
                   s = s.replace('<div id="flavors"></div>', '<div id="flavors"></div>' + block, 1)
 
@@ -67,6 +67,6 @@ jobs:
           if git diff --cached --quiet; then
             echo "No changes"
           else
-            git commit -m "fix: repair home delivery cut choice [global-cut-final]"
+            git commit -m "fix: exactly one global filled cut choice [global-cut-final]"
             git push
           fi
