@@ -6,7 +6,7 @@
 <title>老爹．涼糕｜送到府訂購</title>
 <style>
 *{box-sizing:border-box}body{margin:0;background:#fff3f7;color:#33251d;font-family:-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC",sans-serif}.wrap{max-width:760px;margin:auto;padding:18px 14px 50px}.card{background:#fff;border:1px solid #ead7df;border-radius:20px;padding:18px;margin-bottom:14px}.brand{font-size:25px;font-weight:900}.muted{color:#786d65;font-size:13px;line-height:1.6}.tag{display:inline-block;margin-top:8px;padding:7px 11px;border-radius:999px;background:#ffe0eb;color:#a62d5c;font-weight:900}.field{margin:12px 0}.field label{display:block;font-weight:800;margin-bottom:6px}.field input,.field select,.field textarea{width:100%;padding:12px;border:1px solid #dccbd2;border-radius:12px;background:#fff;font:inherit}.flavor{display:grid;grid-template-columns:80px 1fr auto;gap:12px;align-items:center;border:1px solid #eadde3;border-radius:15px;padding:10px;margin:9px 0}.flavor-img,.flavor-placeholder{width:80px;height:80px;border-radius:12px;object-fit:cover;background:#f6edf1}.flavor-placeholder{display:flex;align-items:center;justify-content:center;color:#a88d98;font-size:12px;text-align:center}.price{color:#a62d5c;font-weight:800}.qty{display:flex;align-items:center;gap:8px}.qty button{width:38px;height:38px;border:0;border-radius:10px;background:#f2e3e9;font-size:21px;font-weight:900}.qty span{min-width:25px;text-align:center;font-weight:900}.summary{background:#fff8fb;border:1px solid #ead6df;border-radius:15px;padding:14px}.row{display:flex;justify-content:space-between;padding:6px 0}.total{font-size:23px;font-weight:900;color:#a62d5c;border-top:1px solid #ead6df;margin-top:8px;padding-top:10px}.btn{display:block;width:100%;border:0;border-radius:14px;padding:14px;background:#c52f68;color:#fff;font-size:17px;font-weight:900;text-align:center;text-decoration:none;cursor:pointer}.btn:disabled{opacity:.55}.notice{margin-top:10px;padding:12px;border-radius:12px;line-height:1.6}.err{background:#fff0ef;color:#a43b35}.ok{background:#edf8f1;color:#286c47}.result{display:none}.result.show{display:block}.order-number{font-size:28px;font-weight:900;color:#a62d5c}.line-btn{background:#06c755;margin-top:14px}.item{display:flex;justify-content:space-between;border-bottom:1px dashed #ead6df;padding:8px 0}@media(max-width:560px){.flavor{grid-template-columns:72px 1fr}.flavor-img,.flavor-placeholder{width:72px;height:72px}.qty{grid-column:2;justify-content:flex-end}}
-.global-cut-choice{margin-top:14px;padding:14px 16px;border-radius:14px;background:#fff7fa;border:1px solid #f0d6e1}.global-cut-title{font-size:16px;font-weight:900;color:#7a304d;margin-bottom:10px}.global-cut-choice label{display:inline-flex;align-items:center;margin-right:24px;font-size:16px;cursor:pointer}.global-cut-choice input{accent-color:#c52f68;margin-right:7px;width:18px;height:18px}</style>
+.global-cut-choice{margin-top:14px;padding:14px 16px;border-radius:14px;background:#fff7fa;border:1px solid #f0d6e1}.global-cut-choice.is-hidden{display:none!important}.global-cut-title{font-size:16px;font-weight:900;color:#7a304d;margin-bottom:10px}.global-cut-choice label{display:inline-flex;align-items:center;margin-right:24px;font-size:16px;cursor:pointer}.global-cut-choice input{accent-color:#c52f68;margin-right:7px;width:18px;height:18px}</style>
 </head>
 <body>
 <main class="wrap">
@@ -15,7 +15,7 @@
 <form id="orderForm">
 <div class="card"><h2>① 選擇配送日期</h2><div class="field"><label>日期 *</label><select id="deliveryDate" required><option value="">讀取中…</option></select></div></div>
 <div class="card"><h2>② 選擇送到府地區</h2><div class="field"><label>地區 *</label><select id="region" required><option value="">請先選擇日期</option></select></div></div>
-<div class="card"><h2>③ 點選口味與數量</h2><div id="flavors"></div><div id="globalCutChoice" class="global-cut-choice">
+<div class="card"><h2>③ 點選口味與數量</h2><div id="flavors"></div><div id="globalCutChoice" class="global-cut-choice is-hidden">
   <div class="global-cut-title">包餡切法</div>
   <label><input type="radio" name="global-cut-option" value="不切" checked>不切</label>
   <label><input type="radio" name="global-cut-option" value="切">切</label>
@@ -43,7 +43,25 @@ $('orderForm').addEventListener('submit',async e=>{e.preventDefault();const btn=
 init();
 </script>
 
-<script id="global-cut-submit-fix">
+<script id="global-cut-final-fix">
+(()=>{
+  function setup(){
+    const root=document.getElementById('flavors');
+    const choice=document.getElementById('globalCutChoice');
+    if(!root||!choice) return false;
+    const update=()=>{
+      const text=(root.innerText||'').toLowerCase();
+      const hasFilled=[...root.querySelectorAll('.flavor')].some(el=>/包餡|夾心|芋心|布丁芋心|玫瑰芋心/.test(el.innerText||''));
+      choice.classList.toggle('is-hidden',!hasFilled);
+    };
+    update();
+    new MutationObserver(update).observe(root,{childList:true,subtree:true,characterData:true});
+    return true;
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',setup); else setup();
+  let n=0; const t=setInterval(()=>{if(setup()||++n>20) clearInterval(t)},250);
+})();
+</script><script id="global-cut-submit-fix">
 (()=>{
   const form=document.getElementById('orderForm');
   if(!form||form.dataset.globalCutBound) return;
