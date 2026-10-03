@@ -13,55 +13,94 @@ permissions:
 
 jobs:
   fix:
-    if: ${{ !contains(github.event.head_commit.message, '[region-autoload-fixed-v2]') }}
+    if: ${{ !contains(github.event.head_commit.message, '[region-autoload-fixed-v3]') }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Fix order pages
+      - name: Repair convenience order page
         shell: python
         run: |
           from pathlib import Path
+          import re
 
           p=Path('convenience-order.html')
           if p.exists():
               s=p.read_text(encoding='utf-8')
 
-              # Keep exactly one global filled-cake cut-choice block.
-              block='''<div id="globalCutChoice" class="global-cut-choice">\n  <div class="global-cut-title">包餡切法</div>\n  <label><input type="radio" name="global-cut-option" value="不切" checked>不切</label>\n  <label><input type="radio" name="global-cut-option" value="切">切</label>\n</div>'''
-              if block in s:
-                  first=s.find(block)
-                  prefix=s[:first]
-                  suffix=s[first+len(block):]
-                  suffix=suffix.replace(block,'')
-                  s=prefix+block+suffix
+              # Remove every duplicate global cut-choice block, keeping the first complete block.
+              start_marker='<div id="globalCutChoice" class="global-cut-choice">'
+              def extract_block(text, start):
+                  depth=0
+                  i=start
+                  while i < len(text):
+                      if text.startswith('<div', i):
+                          depth += 1
+                          i = text.find('>', i) + 1
+                          continue
+                      if text.startswith('</div>', i):
+                          depth -= 1
+                          i += 6
+                          if depth == 0:
+                              return text[start:i]
+                          continue
+                      i += 1
+                  return None
 
-              # The page declares `const init = ...`; const bindings are not window.init.
-              # Start init() inside the same script scope so the date/region queries actually run.
-              if 'async function init()' in s and '/* convenience-init-started */' not in s:
+              blocks=[]
+              pos=0
+              while True:
+                  j=s.find(start_marker,pos)
+                  if j<0: break
+                  b=extract_block(s,j)
+                  if not b: break
+                  blocks.append(b)
+                  pos=j+len(b)
+              if blocks:
+                  first=blocks[0]
+                  for b in blocks[1:]:
+                      s=s.replace(b,'',1)
+
+              # Remove duplicate submit-fix scripts, then keep one if present.
+              sf='<script id="global-cut-submit-fix">'
+              seen=False
+              while True:
+                  a=s.find(sf)
+                  if a<0: break
+                  b=s.find('</script>',a)
+                  if b<0: break
+                  b+=len('</script>')
+                  chunk=s[a:b]
+                  if not seen:
+                      seen=True
+                      s=s[:a]+s[a:b]+s[b:]
+                      pos=b
+                      # Remove later copies only.
+                      while True:
+                          a2=s.find(sf,pos)
+                          if a2<0: break
+                          b2=s.find('</script>',a2)
+                          if b2<0: break
+                          b2+=len('</script>')
+                          s=s[:a2]+s[b2:]
+                      break
+
+              # Start init() inside the same script scope. `const`/function bindings are not window.init.
+              if 'async function init()' in s and '/* convenience-init-started-v3 */' not in s:
                   pos=s.find('async function init()')
                   end=s.find('</script>',pos)
-                  if end != -1:
-                      s=s[:end]+'\n/* convenience-init-started */\ninit();\n'+s[end:]
+                  if end>=0:
+                      s=s[:end]+'\n/* convenience-init-started-v3 */\ninit();\n'+s[end:]
 
               p.write_text(s,encoding='utf-8')
 
-          # Keep the home-delivery autoload helper, but do not depend on window.init.
-          hp=Path('home-delivery-order.html')
-          if hp.exists():
-              s=hp.read_text(encoding='utf-8')
-              if 'id="region-autoload-fix-v2"' not in s:
-                  snippet='''<script id="region-autoload-fix-v2">\n(function(){\n  function bind(){\n    const d=document.getElementById('deliveryDate');\n    if(!d || typeof window.loadDate!=='function') return false;\n    if(d.value) window.loadDate();\n    return true;\n  }\n  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',bind); else bind();\n})();\n</script>'''
-                  s=s.replace('</body>',snippet+'\n</body>',1)
-                  hp.write_text(s,encoding='utf-8')
-
-      - name: Commit fixed pages
+      - name: Commit repaired page
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add convenience-order.html home-delivery-order.html
+          git add convenience-order.html
           if git diff --cached --quiet; then
             echo 'No changes'
             exit 0
           fi
-          git commit -m 'fix: order page init and cut choice [region-autoload-fixed-v2]'
+          git commit -m 'fix: order page init and duplicate cut UI [region-autoload-fixed-v3]'
           git push
