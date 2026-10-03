@@ -123,5 +123,31 @@ init();updateTotals();
     },{capture:true});
   }
 })();
-</script></body>
+</script><script id="filled-cut-only">
+(()=>{
+  const FILLED = new Set([1,2,4,7,10,11,12,18,19,20,21,23,25,29]);
+  function normalize(){
+    const root=document.getElementById('flavors');
+    if(!root || !Array.isArray(window.flavors) && typeof flavors==='undefined') return;
+    const list = typeof flavors!=='undefined' ? flavors : window.flavors;
+    [...root.querySelectorAll('.flavor')].forEach((card,i)=>{
+      const f=list[i];
+      const filled=!!f && FILLED.has(Number(f.flavor_id));
+      const choice=card.querySelector('.cut-choice');
+      if(!filled){ if(choice) choice.remove(); return; }
+      if(choice) return;
+      const info=card.querySelector(':scope > div:nth-child(2)');
+      if(!info) return;
+      const box=document.createElement('div');
+      box.className='cut-choice';
+      box.innerHTML='<div class="cut-title">包餡切法</div><label><input type="radio" name="cut'+i+'" value="不切" checked>不切</label><label><input type="radio" name="cut'+i+'" value="切">切</label>';
+      info.appendChild(box);
+    });
+  }
+  const root=document.getElementById('flavors');
+  if(root){new MutationObserver(normalize).observe(root,{childList:true,subtree:true});}
+  setTimeout(normalize,300);
+})();
+</script>
+</body>
 </html>
