@@ -18,7 +18,6 @@ jobs:
         run: |
           from pathlib import Path
           import re
-
           css = r'''.global-cut-choice{margin-top:14px;padding:14px 16px;border-radius:14px;background:#fff7fa;border:1px solid #f0d6e1}.global-cut-title{font-size:16px;font-weight:900;color:#7a304d;margin-bottom:10px}.global-cut-choice label{display:inline-flex;align-items:center;margin-right:24px;font-size:16px;cursor:pointer}.global-cut-choice input{accent-color:#c52f68;margin-right:7px;width:18px;height:18px}'''
           block = r'''<div id="globalCutChoice" class="global-cut-choice" style="display:none">
             <div class="global-cut-title">包餡切法</div>
@@ -26,7 +25,6 @@ jobs:
             <label><input type="radio" name="global-cut-option" value="切">切</label>
           </div>'''
 
-          # 超商頁維持目前已正常運作的單一切法區塊。
           p = Path('convenience-order.html')
           if p.exists():
               s = p.read_text(encoding='utf-8')
@@ -37,13 +35,11 @@ jobs:
               s = s.replace('</style>', css + '</style>', 1)
               p.write_text(s, encoding='utf-8')
 
-          # 到府頁不要再插入第二個 globalCutChoice；只保留 #cut。
           p = Path('home-delivery-order.html')
           if p.exists():
               s = p.read_text(encoding='utf-8')
               s = re.sub(r'<div id="globalCutChoice".*?</div>\s*', '', s, count=1, flags=re.S)
               s = re.sub(r'\n\.global-cut-choice\{.*?\.global-cut-choice input\{.*?\}\</style>', '</style>', s, count=1, flags=re.S)
-
               new_load = r'''async function loadDate(){
 const d=$('deliveryDate').value;if(!d)return;
 $('region').innerHTML='<option value="">讀取中…</option>';
@@ -78,8 +74,9 @@ try{
           c = Path('convenience-order.html').read_text(encoding='utf-8')
           if h.count('id="globalCutChoice"') != 0:
               raise SystemExit('home-delivery-order.html must not contain globalCutChoice')
-          if c.count('id="globalCutChoice"') != 1:
-              raise SystemExit(f'convenience-order.html globalCutChoice count={c.count("id=\"globalCutChoice\"")}')
+          cc = c.count('id="globalCutChoice"')
+          if cc != 1:
+              raise SystemExit('convenience-order.html globalCutChoice count='+str(cc))
 
       - name: Commit repair
         run: |
