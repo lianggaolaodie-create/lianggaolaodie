@@ -50,41 +50,6 @@ document.addEventListener('click',async function(e){
 },true);
 """
 
-          global_cut_patch = r'''<script id="filled-cut-option-fix">
-(function(){
-  function ensureCutBox(){
-    const flavors=document.getElementById('flavors');
-    if(!flavors)return;
-    if(document.getElementById('cutBox'))return;
-    const empty=document.getElementById('flavorEmpty');
-    const box=document.createElement('div');
-    box.id='cutBox';
-    box.className='cut-box';
-    box.innerHTML='<div class="cut-title">包餡切法</div><label><input type="radio" name="globalCut" value="不切" checked>不切</label><label><input type="radio" name="globalCut" value="切">切</label>';
-    (empty||flavors).insertAdjacentElement('afterend',box);
-  }
-  function updateCutBox(){
-    const box=document.getElementById('cutBox');
-    if(!box)return;
-    const cards=[...document.querySelectorAll('#flavors .flavor')];
-    const hasFilled=cards.some(card=>{
-      const price=Number((card.querySelector('.price')?.textContent||'').replace(/[^0-9.]/g,''));
-      const qty=Number(card.querySelector('.qty span')?.textContent||0);
-      return qty>0 && price>=150;
-    });
-    box.classList.toggle('show',hasFilled);
-    if(!hasFilled){const r=box.querySelector('input[value="不切"]');if(r)r.checked=true;}
-  }
-  ensureCutBox();
-  const root=document.getElementById('flavors');
-  if(root)new MutationObserver(()=>{ensureCutBox();updateCutBox()}).observe(root,{childList:true,subtree:true});
-  document.addEventListener('click',()=>setTimeout(updateCutBox,0));
-  document.addEventListener('change',e=>{if(e.target.closest('#flavors'))updateCutBox()});
-  updateCutBox();
-})();
-</script>'''
-          cut_css = r'''.cut-box{display:none;margin:12px 0 4px;padding:12px 14px;border:1px solid #f0d6e1;border-radius:14px;background:#fff7fa}.cut-box.show{display:block}.cut-box .cut-title{font-weight:900;color:#7a304d;margin-bottom:7px}.cut-box label{font-size:15px;margin-right:22px;cursor:pointer}.cut-box input{accent-color:#c52f68;margin-right:5px}'''
-
           changed=False
           for filename in ['admin-orders-stable.html','admin-orders-live.html']:
               p=Path(filename)
@@ -94,35 +59,20 @@ document.addEventListener('click',async function(e){
               s=re.sub(r'/\* Inject reliable customer delete handler v2 \*/.*?(?=</body>)', '', s, flags=re.S)
               s=re.sub(r'/\* CUSTOMER_DELETE_FIX_V[0-9]+ \*/.*?(?=</script>)', '', s, flags=re.S)
               pos=s.rfind('</script>')
-              if pos < 0:
-                  continue
-              s=s[:pos]+code+s[pos:]
-              p.write_text(s,encoding='utf-8')
-              changed=True
+              if pos >= 0:
+                  s=s[:pos]+code+s[pos:]
+                  p.write_text(s,encoding='utf-8')
+                  changed=True
 
           for filename in ['home-delivery-order.html','convenience-order.html']:
               p=Path(filename)
               if not p.exists():
                   continue
               s=p.read_text(encoding='utf-8')
-              # Remove the old per-item cut selector script.
+              # 永久移除舊的「每個口味一個切／不切」注入程式與 HTML。
               s=re.sub(r'<script id="filled-cut-option-fix">.*?</script>', '', s, flags=re.S)
-              # Remove the old per-item selector from the flavor renderer.
-              old = "+(String(f.flavor_type||'').toLowerCase()==='filled'?'<div class=\\\"cut-choice\\\"><div class=\\\"cut-title\\\">包餡切法</div><label><input type=\\\"radio\\\" name=\\\"cut'+i+'\\\" value=\\\"不切\\\" checked>不切</label><label><input type=\\\"radio\\\" name=\\\"cut'+i+'\\\" value=\\\"切\\\">切</label></div>':'')"
-              s=s.replace(old,'')
-              if 'id="cutBox"' not in s:
-                  marker='<div id="flavorEmpty" class="muted" style="display:none">此日期尚未開放口味。</div>'
-                  insert=marker+'<div id="cutBox" class="cut-box"><div class="cut-title">包餡切法</div><label><input type="radio" name="globalCut" value="不切" checked>不切</label><label><input type="radio" name="globalCut" value="切">切</label></div>'
-                  s=s.replace(marker,insert,1)
-              if '.cut-box{' not in s:
-                  s=s.replace('</style>',cut_css+'</style>',1)
-              # Store one global cut choice in notes for convenience orders.
-              if filename=='convenience-order.html' and 'name="globalCut"' in s and "const cut=" not in s:
-                  marker="const productTotal=items.reduce((s,x)=>s+x.line_total,0),fee=Number(radio.dataset.fee||0),total=productTotal+fee;"
-                  insert=marker+"\n const cut=items.some(x=>String(x.flavor_type||'').toLowerCase()==='filled')?($('cutBox').querySelector('input[name=globalCut]:checked')?.value||'不切'):'';\n const noteBase=$('notes').value.trim();\n const orderNotes=cut?'[包餡切法] '+cut+(noteBase?'\\n'+noteBase:''):noteBase;"
-                  s=s.replace(marker,insert,1)
-                  s=s.replace("flavor_name:f.flavor_name,unit_price:Number(f.price||0),quantity:Number($('q'+i)?.textContent||0)","flavor_name:f.flavor_name,flavor_type:f.flavor_type,unit_price:Number(f.price||0),quantity:Number($('q'+i)?.textContent||0)")
-                  s=s.replace("notes:$('notes').value.trim()||null", "notes:orderNotes||null")
+              s=re.sub(r'<div class="cut-choice">.*?</div>\s*</div>', '', s, flags=re.S)
+              s=re.sub(r'\.cut-choice\{[^}]*\}(?:\.cut-title\{[^}]*\})?(?:\.cut-choice label\{[^}]*\})?(?:\.cut-choice input\{[^}]*\})?', '', s)
               p.write_text(s,encoding='utf-8')
               changed=True
           print('changed=',changed)
