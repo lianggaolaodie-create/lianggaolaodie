@@ -1,55 +1,31 @@
 name: Fix filled flavor cut choice position
+
 on:
   push:
     branches: [main]
+
 permissions:
   contents: write
+
 jobs:
   fix:
+    if: ${{ !contains(github.event.head_commit.message, '[filled-cut-stable]') }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Move cut choice to bottom
-        shell: bash
+      - name: Repair order pages
+        shell: python
         run: |
-          python - <<'PY'
           from pathlib import Path
           import re
 
           css = r'''.global-cut-choice{margin-top:14px;padding:14px 16px;border-radius:14px;background:#fff7fa;border:1px solid #f0d6e1}.global-cut-title{font-size:16px;font-weight:900;color:#7a304d;margin-bottom:10px}.global-cut-choice label{display:inline-flex;align-items:center;margin-right:24px;font-size:16px;cursor:pointer}.global-cut-choice input{accent-color:#c52f68;margin-right:7px;width:18px;height:18px}'''
-          snippet = r'''<script id="filled-cut-option-fix">
-          (()=>{
-            const root=document.getElementById('flavors');
-            const choice=document.getElementById('globalCutChoice');
-            if(!root||!choice) return;
-            const refresh=()=>{
-              const hasFilled=[...root.querySelectorAll('.flavor')].some(card=>card.querySelector('.qty span') && Number(card.querySelector('.qty span').textContent||0)>0 && /150/.test(card.querySelector('.price')?.textContent||''));
-              choice.style.display=hasFilled?'block':'block';
-            };
-            new MutationObserver(refresh).observe(root,{childList:true,subtree:true});
-            refresh();
-          })();
-          </script>'''
           global_html = r'''<div id="globalCutChoice" class="global-cut-choice">
             <div class="global-cut-title">包餡切法</div>
             <label><input type="radio" name="global-cut-option" value="不切" checked>不切</label>
             <label><input type="radio" name="global-cut-option" value="切">切</label>
           </div>'''
-
-          for fn in ['home-delivery-order.html','convenience-order.html']:
-              p=Path(fn)
-              s=p.read_text()
-              # Remove the old per-item injected UI/script.
-              s=re.sub(r'<script id="filled-cut-option-fix">.*?</script>', '', s, flags=re.S)
-              s=re.sub(r'<div class="cut-choice">.*?<div class="cut-title">包餡切法</div>.*?</div>', '', s, flags=re.S)
-              # Remove repeated old CSS rules.
-              s=re.sub(r'\.cut-choice\{.*?</style>', '</style>', s, count=1, flags=re.S)
-              # Add the new single choice block exactly below the flavor list.
-              s=re.sub(r'(<div id="flavors"></div>)', r'\1'+global_html, s, count=1)
-              # Add CSS before </style>.
-              s=s.replace('</style>', css+'</style>', 1)
-              # Record the global choice in notes on submit, without changing per-item quantities.
-              submit_js = r'''<script id="global-cut-submit-fix">
+          submit_js = r'''<script id="global-cut-submit-fix">
           (()=>{
             const form=document.getElementById('orderForm');
             if(!form||form.dataset.globalCutBound) return;
@@ -64,14 +40,60 @@ jobs:
             },{capture:true});
           })();
           </script>'''
+
+          def remove_balanced_blocks(text, marker):
+              out=[]; pos=0; first=None
+              while True:
+                  j=text.find(marker,pos)
+                  if j<0:
+                      out.append(text[pos:]); break
+                  out.append(text[pos:j])
+                  depth=0; i=j
+                  while i<len(text):
+                      if text.startswith('<div',i):
+                          depth+=1; k=text.find('>',i)
+                          if k<0: i=len(text); break
+                          i=k+1; continue
+                      if text.startswith('</div>',i):
+                          depth-=1; i+=6
+                          if depth==0: break
+                          continue
+                      i+=1
+                  block=text[j:i]
+                  if first is None:
+                      first=block; out.append(block)
+                  pos=i
+              return ''.join(out), first
+
+          for fn in ['home-delivery-order.html','convenience-order.html']:
+              p=Path(fn)
+              if not p.exists(): continue
+              s=p.read_text(encoding='utf-8')
+
+              # Remove all global cut blocks and reinsert exactly one after the flavor list.
+              s,_=remove_balanced_blocks(s,'<div id="globalCutChoice" class="global-cut-choice">')
+              s=re.sub(r'<script id="global-cut-submit-fix">.*?</script>','',s,flags=re.S)
+              s=s.replace('</style>',css+'</style>',1)
+              s=re.sub(r'(<div id="flavors"></div>)',r'\1'+global_html,s,count=1)
               s=s.replace('</body>',submit_js+'</body>',1)
-              p.write_text(s)
-              print('patched',fn)
-          PY
-      - name: Commit patched pages
-        shell: bash
+
+              # Convenience page: start init() in the same script scope.
+              if fn=='convenience-order.html' and 'async function init()' in s and '/* filled-cut-init-started */' not in s:
+                  pos=s.find('async function init()')
+                  end=s.find('</script>',pos)
+                  if end>=0:
+                      s=s[:end]+'\n/* filled-cut-init-started */\ninit();\n'+s[end:]
+
+              p.write_text(s,encoding='utf-8')
+
+      - name: Commit repaired pages
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add home-delivery-order.html convenience-order.html
-          if git diff --cached --quiet; then echo "No changes"; else git commit -m "fix: use one global filled cut choice"; git push; fi
+          if git diff --cached --quiet; then
+            echo "No changes"
+          else
+            git commit -m "fix: stabilize global cut choice [filled-cut-stable]"
+            git push
+          fi
