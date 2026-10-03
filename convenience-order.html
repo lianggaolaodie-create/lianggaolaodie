@@ -14,15 +14,11 @@
 <div id="closed" class="card closed" style="display:none"></div>
 <form id="orderForm">
 <div class="card"><h2>① 選擇訂購日期</h2><div class="field"><label>開放日期 <span class="req">*</span></label><select id="orderDate" class="date-select" required><option value="">讀取中…</option></select></div><div class="muted">只顯示後台已開放線上訂購的日期。</div></div>
-<div class="card"><h2>② 選擇當日口味</h2><div id="flavors"></div><div id="globalCutChoice" class="global-cut-choice">
+<div class="card"><h2>② 選擇當日口味</h2><div id="flavors"></div><div id="globalCutChoice" class="global-cut-choice" style="display:none">
   <div class="global-cut-title">包餡切法</div>
   <label><input type="radio" name="global-cut-option" value="不切" checked>不切</label>
   <label><input type="radio" name="global-cut-option" value="切">切</label>
-</div><div id="globalCutChoice" class="global-cut-choice" style="display:none">
-  <div class="global-cut-title">包餡切法</div>
-  <label><input type="radio" name="global-cut-option" value="不切" checked>不切</label>
-  <label><input type="radio" name="global-cut-option" value="切">切</label>
-</div><div id="flavorEmpty" class="muted" style="display:none">此日期尚未開放口味。</div></div>
+</div>
 <div class="card"><h2>③ 選擇配送地區</h2><div class="field"><label>地區 <span class="req">*</span></label><select id="region" required><option value="">請選擇當日開放地區</option></select></div></div>
 <div class="card"><h2>④ 超商冷藏寄放</h2><div id="pickupChoices" class="choice"></div><div class="field"><label>門市名稱 <span class="req">*</span></label><input id="storeName" required placeholder="例如：台北○○店"></div><div class="field"><label>門市地址（可填）</label><input id="storeAddress" placeholder="方便核對門市"></div></div>
 <div class="card"><h2>⑤ 收件人資料</h2><div class="field"><label>姓名 <span class="req">*</span></label><input id="customerName" required maxlength="80"></div><div class="field"><label>手機 <span class="req">*</span></label><input id="customerPhone" required maxlength="30" inputmode="tel"></div></div>
