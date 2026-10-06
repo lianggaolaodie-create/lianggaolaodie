@@ -25,7 +25,27 @@
 <a class="reset" href="admin-password-reset.html">忘記密碼／重設後台密碼</a>
 <div id="loginMessage" aria-live="polite"></div>
 </div></div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+(()=>{'use strict';
+const URL='https://yemzdwxtyosuaczsqwea.supabase.co';
+const KEY='sb_publishable_7b4hgNL68yiYbec7fXToYQ_UxPE4sEB';
+const form=document.getElementById('loginForm'), email=document.getElementById('adminEmail'), password=document.getElementById('adminPassword'), button=document.getElementById('loginButton'), message=document.getElementById('loginMessage');
+const setMsg=(t,e=false)=>{message.className=t?'notice'+(e?' err':''):'';message.textContent=t||''};
+async function login(){
+ button.disabled=true;button.textContent='登入中…';setMsg('正在驗證登入資訊…');
+ try{
+  const res=await fetch(URL+'/auth/v1/token?grant_type=password',{method:'POST',headers:{'Content-Type':'application/json','apikey':KEY},body:JSON.stringify({email:email.value.trim(),password:password.value})});
+  const data=await res.json();
+  if(!res.ok||!data.access_token) throw new Error(data.error_description||data.msg||data.error||'Email 或密碼錯誤');
+  const ref='yemzdwxtyosuaczsqwea';
+  localStorage.setItem('sb-'+ref+'-auth-token',JSON.stringify({access_token:data.access_token,refresh_token:data.refresh_token,expires_in:data.expires_in,expires_at:Math.floor(Date.now()/1000)+(data.expires_in||3600),token_type:data.token_type,user:data.user}));
+  setMsg('登入成功，正在進入訂單後台…');
+  location.replace('admin-orders-stable.html?v=20261006-final-'+Date.now());
+ }catch(e){setMsg('登入失敗：'+(e.message||'請確認 Email 與密碼。'),true);button.disabled=false;button.textContent='登入';}
+}
+form.addEventListener('submit',e=>{e.preventDefault();login()});
+})();
+</script>
 <script>
 (function(){
 'use strict';
