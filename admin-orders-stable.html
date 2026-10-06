@@ -26,8 +26,7 @@ db.auth={
 };
 window.db=db;
 </script><script>
-const db=supabase.createClient('https://yemzdwxtyosuaczsqwea.supabase.co','sb_publishable_7b4hgNL68yiYbec7fXToYQ_UxPE4sEB',{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
-window.db=db;
+// 使用上方原生 REST Auth client；此頁不依賴外部 Supabase JS CDN。
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 const today=()=>new Date().toLocaleDateString('en-CA',{timeZone:'Asia/Taipei'});
