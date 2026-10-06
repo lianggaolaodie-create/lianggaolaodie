@@ -29,10 +29,10 @@ html,body{margin:0;padding:0;background:#f8f0e3}
 .social-tt{top:1.4%;left:76%;width:7%;height:4.5%;z-index:9999999}
 .search-open{top:1.4%;left:83%;width:7%;height:4.5%;z-index:9999999}
 
-.hero-flavor{top:44%;left:1%;width:24%;height:13%;z-index:2147483646;pointer-events:auto!important}
-.hero-schedule{top:44%;left:25%;width:24%;height:13%;z-index:2147483646;pointer-events:auto!important}
-.hero-order{top:44%;left:50%;width:25%;height:13%;z-index:2147483646;pointer-events:auto!important}
-.hero-news{top:44%;left:75%;width:24%;height:13%;z-index:2147483646;pointer-events:auto!important}
+.hero-flavor{top:44%;left:1%;width:24%;height:13%;z-index:2147483646;pointer-events:none!important}
+.hero-schedule{top:44%;left:25%;width:24%;height:13%;z-index:2147483646;pointer-events:none!important}
+.hero-order{top:44%;left:50%;width:25%;height:13%;z-index:2147483646;pointer-events:none!important}
+.hero-news{top:44%;left:75%;width:24%;height:13%;z-index:2147483646;pointer-events:none!important}
 .schedule-section{top:55%;left:0;width:100%;height:15%;z-index:2147483647;pointer-events:auto!important}
 .flavor1{top:63%;left:2%;width:24%;height:14.5%;z-index:2147483646;pointer-events:auto!important}
 .flavor2{top:63%;left:26%;width:24%;height:14.5%;z-index:2147483646;pointer-events:auto!important}
@@ -428,6 +428,24 @@ html,body{margin:0;padding:0;background:#f8f0e3}
   .then(rows=>{const d=rows&&rows[0]&&rows[0].data;const u=d&&(d.image_url||(d.heroImage&&d.heroImage.url));if(u)img.src=u;})
   .catch(()=>{});
 })();
+<script>
+(function(){
+  const img=document.getElementById('homeHeroImage');
+  if(!img)return;
+  function go(e){
+    const r=img.getBoundingClientRect();
+    if(!r.width||!r.height)return;
+    const x=(e.clientX-r.left)/r.width, y=(e.clientY-r.top)/r.height;
+    if(y<0.40||y>0.59)return;
+    if(x<0.25)window.location.href='products.html';
+    else if(x<0.50)window.location.href='schedule.html';
+    else if(x<0.75)window.location.href='online-order.html';
+    else window.location.href='about.html';
+  }
+  img.addEventListener('click',go);
+  img.addEventListener('touchend',function(e){if(e.changedTouches&&e.changedTouches[0]){e.preventDefault();go(e.changedTouches[0]);}},{passive:false});
+})();
+</script>
 </script>
 </body>
 </html>
