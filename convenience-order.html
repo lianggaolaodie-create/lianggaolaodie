@@ -49,7 +49,7 @@ try{
   if(!name||phone.length<6)throw new Error('請完整填寫姓名與手機。');
   if(!storeName)throw new Error('請填寫門市名稱。');
   const last5=$('last5').value.trim();
-  if(!/^\\d{5}$/.test(last5))throw new Error('匯款後五碼必須是 5 位數字。');
+  if(!/^[0-9]{5}$/.test(last5))throw new Error('匯款後五碼必須是 5 位數字。');
   const productTotal=items.reduce((s,x)=>s+x.line_total,0),fee=Number(radio.dataset.fee||0),total=productTotal+fee;
   const order=await sb.rpc('create_cooling_pickup_order',{
     p_name:name,
