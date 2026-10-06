@@ -9,7 +9,7 @@
 <section id="daily" class="hidden"><div class="card"><h2>每日開放設定</h2><p class="muted">這一版先保留後台入口，訂單／個資功能可直接操作。</p></div></section></div>
 <div id="modal" class="modal hidden"><div class="modalbox"><h3>編輯訂單狀態</h3><select id="statusSelect"></select><div class="modalactions"><button class="btn gray" id="cancelStatus">取消</button><button class="btn" id="saveStatus">儲存狀態</button></div></div></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script><script>
-const db=supabase.createClient('https://yemzdwxtyosuaczsqwea.supabase.co','sb_publishable_7b4hgNL68yiYbec7fXToYQ_UxPE4sEB',{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
+const db=supabase.createClient('https://yemzdwxtyosuaczsqwea.supabase.co','sb_publishable_7b4hgNL68yiYbec7fXToYQ_UxPE4sEB',{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false,storageKey:'laodie-admin-auth'}});
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 const today=()=>new Date().toLocaleDateString('en-CA',{timeZone:'Asia/Taipei'});
