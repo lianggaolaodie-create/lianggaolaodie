@@ -40,7 +40,7 @@ $('submitBtn').disabled=true;
 $('msg').innerHTML='';
 try{
   const items=selectedItems(),totalQty=items.reduce((s,x)=>s+x.quantity,0);
-  if(totalQty<2)throw new Error('最低訂購 2 盒，請再選購後送出訂單。');
+  if(totalQty<2)throw new Error('最低訂購 2 盒，請先選滿 2 盒後再送出訂單。');
   const region=$('region').value,radio=document.querySelector('input[name=pickup]:checked');
   if(!selectedDate)throw new Error('請選擇訂購日期。');
   if(!region)throw new Error('請選擇當日開放地區。');
