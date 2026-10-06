@@ -34,6 +34,13 @@ async function editCustomer(id,type){if(type==='home')return alert('送到府資
 async function deleteCustomer(id){if(!id)return;if(!confirm('確定要刪除這筆個資嗎？訂單會保留。'))return;const r1=await db.from('cooling_pickup_orders').update({customer_id:null}).eq('customer_id',id);if(r1.error){alert('解除關聯失敗：'+r1.error.message);return}const r=await db.from('order_customers').delete().eq('id',id);if(r.error){alert('刪除個資失敗：'+r.error.message);return}await loadAll()}
 $('loginForm').addEventListener('submit',login);$('reload').onclick=loadAll;$('date').onchange=renderOrders;$('ps').oninput=renderOrders;$('hs').oninput=renderOrders;$('cps').oninput=renderCustomers;$('chs').oninput=renderCustomers;$('logout').onclick=()=>db.auth.signOut().then(()=>location.reload());document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active');['orders','customers','daily'].forEach(id=>$(id).classList.add('hidden'));$(b.dataset.page).classList.remove('hidden');if(b.dataset.page==='customers')renderCustomers()});(async()=>{
   try{
+    const hp=new URLSearchParams(location.hash.replace(/^#/,''));
+    const ha=hp.get('access_token'), hr=hp.get('refresh_token');
+    if(ha&&hr){
+      history.replaceState(null,'',location.pathname+location.search);
+      const sr=await db.auth.setSession({access_token:ha,refresh_token:hr});
+      if(sr.error) throw sr.error;
+    }
     const raw=sessionStorage.getItem('LAODIE_ADMIN_SESSION');
     if(raw){
       const s=JSON.parse(raw);
