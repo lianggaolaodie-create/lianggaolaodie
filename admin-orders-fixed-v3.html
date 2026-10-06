@@ -20,6 +20,35 @@ button,input,select{pointer-events:auto!important;touch-action:manipulation;-web
 <section id="daily" class="hidden"><div class="dailybox"><div class="head"><h2>每日開放設定</h2><button id="save" class="btn">儲存今日設定</button></div><div class="field"><label>日期</label><input id="dailyDate" type="date"></div><div class="field"><label>今日線上訂購</label><select id="enabled"><option value="true">開放</option><option value="false">關閉</option></select></div><div id="dailyMsg"></div></div><div class="dailybox"><h3>當日開放地區</h3><div id="regions"></div><button id="addRegion" class="btn gray">＋新增地區</button></div><div class="dailybox"><h3>當日開放口味</h3><div id="flavors"></div></div></section>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script id="emergency-login-fallback">
+(()=>{try{
+const URL='https://yemzdwxtyosuaczsqwea.supabase.co',KEY='sb_publishable_7b4hgNL68yiYbec7fXToYQ_UxPE4sEB';
+const client=window.supabase.createClient(URL,KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
+const form=document.getElementById('loginForm');
+if(!form)return;
+const go=()=>location.replace('admin-orders-stable.html?v=20261006-loginfix');
+form.addEventListener('submit',async ev=>{
+ ev.preventDefault();ev.stopImmediatePropagation();
+ const btn=form.querySelector('button[type="submit"]');
+ const email=document.getElementById('email')?.value.trim()||'';
+ const password=document.getElementById('password')?.value||'';
+ const msg=document.getElementById('loginMsg');
+ if(btn)btn.disabled=true;
+ if(msg)msg.textContent='登入中…';
+ try{
+   const r=await client.auth.signInWithPassword({email,password});
+   if(r.error)throw r.error;
+   const s=await client.auth.getSession();
+   if(!s.data?.session)throw new Error('登入成功，但登入狀態沒有保存，請重新登入。');
+   go();
+ }catch(e){
+   if(msg)msg.textContent='登入失敗：'+(e?.message||'請確認 Email 與密碼。');
+   if(btn)btn.disabled=false;
+ }
+},true);
+client.auth.getSession().then(s=>{if(s.data?.session)go()}).catch(()=>{});
+}catch(e){console.error(e)}})();
+</script>
 <script>
 'use strict';
 const db=supabase.createClient('https://yemzdwxtyosuaczsqwea.supabase.co','sb_publishable_7b4hgNL68yiYbec7fXToYQ_UxPE4sEB',{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
