@@ -10,6 +10,7 @@
 <div id="modal" class="modal hidden"><div class="modalbox"><h3>編輯訂單狀態</h3><select id="statusSelect"></select><div class="modalactions"><button class="btn gray" id="cancelStatus">取消</button><button class="btn" id="saveStatus">儲存狀態</button></div></div></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script><script>
 const db=supabase.createClient('https://yemzdwxtyosuaczsqwea.supabase.co','sb_publishable_7b4hgNL68yiYbec7fXToYQ_UxPE4sEB',{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
+window.db=db;
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 const today=()=>new Date().toLocaleDateString('en-CA',{timeZone:'Asia/Taipei'});
@@ -31,7 +32,22 @@ function renderCustomers(){const arr=pickup.map(o=>({id:o.customer_id,order:o}))
 function customerCard(o){return '<div class="order"><div><b>訂單編號　'+esc(o.order_number||'')+'</b><br>👤 '+esc(o.name||'')+'　'+esc(o.phone||'')+'<br>📍 '+esc(o.type==='pickup'?[o.convenience_store,o.store_name].filter(Boolean).join(' ')||'—':o.address||'—')+'</div><div class="actions"><button class="btn small" onclick="editCustomer(\''+esc(o.customer_id||o.id)+'\',\''+esc(o.type)+'\')">編輯</button><button class="btn red small" onclick="deleteCustomer(\''+esc(o.customer_id||'')+'\')">🗑 刪除</button></div></div>'}
 async function editCustomer(id,type){if(type==='home')return alert('送到府資料請從訂單查看；目前先提供超商客戶個資編輯。');const c=customers.get(id);if(!c)return;const name=prompt('修改姓名',c.name||'');if(name===null)return;const phone=prompt('修改電話',c.phone||'');if(phone===null)return;const r=await db.from('order_customers').update({name:name.trim(),phone:phone.trim()}).eq('id',id);if(r.error)alert('更新失敗：'+r.error.message);else await loadAll()}
 async function deleteCustomer(id){if(!id)return;if(!confirm('確定要刪除這筆個資嗎？訂單會保留。'))return;const r1=await db.from('cooling_pickup_orders').update({customer_id:null}).eq('customer_id',id);if(r1.error){alert('解除關聯失敗：'+r1.error.message);return}const r=await db.from('order_customers').delete().eq('id',id);if(r.error){alert('刪除個資失敗：'+r.error.message);return}await loadAll()}
-$('loginForm').addEventListener('submit',login);$('reload').onclick=loadAll;$('date').onchange=renderOrders;$('ps').oninput=renderOrders;$('hs').oninput=renderOrders;$('cps').oninput=renderCustomers;$('chs').oninput=renderCustomers;$('logout').onclick=()=>db.auth.signOut().then(()=>location.reload());document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active');['orders','customers','daily'].forEach(id=>$(id).classList.add('hidden'));$(b.dataset.page).classList.remove('hidden');if(b.dataset.page==='customers')renderCustomers()});db.auth.getSession().then(async r=>{if(r.data&&r.data.session){const e=await access(r.data.session.user);if(!e)openApp();else await db.auth.signOut();}});
+$('loginForm').addEventListener('submit',login);$('reload').onclick=loadAll;$('date').onchange=renderOrders;$('ps').oninput=renderOrders;$('hs').oninput=renderOrders;$('cps').oninput=renderCustomers;$('chs').oninput=renderCustomers;$('logout').onclick=()=>db.auth.signOut().then(()=>location.reload());document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active');['orders','customers','daily'].forEach(id=>$(id).classList.add('hidden'));$(b.dataset.page).classList.remove('hidden');if(b.dataset.page==='customers')renderCustomers()});(async()=>{
+  try{
+    const raw=sessionStorage.getItem('LAODIE_ADMIN_SESSION');
+    if(raw){
+      const s=JSON.parse(raw);
+      sessionStorage.removeItem('LAODIE_ADMIN_SESSION');
+      const sr=await db.auth.setSession({access_token:s.access_token,refresh_token:s.refresh_token});
+      if(sr.error) throw sr.error;
+    }
+    const r=await db.auth.getSession();
+    if(r.data&&r.data.session){
+      const e=await access(r.data.session.user);
+      if(!e)openApp();else await db.auth.signOut();
+    }
+  }catch(e){console.error('session restore failed',e);}
+})();
 </script><script>/* Inject reliable customer delete handler v2 */
 (function(){
   document.addEventListener('click', async function(e){
