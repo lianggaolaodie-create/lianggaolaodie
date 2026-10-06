@@ -439,7 +439,7 @@ html,body{margin:0;padding:0;background:#f8f0e3}
   const today=()=>new Date().toLocaleDateString('en-CA',{timeZone:'Asia/Taipei'});
   const time=s=>s?String(s).slice(0,5):'';
   function render(rows){
-    const cards=rows.slice(0,3).map(s=>{const img=s.image_url||'';return '<div class="sd-card">'+(img?'<img class="sd-img" src="'+esc(img)+'" alt="'+esc(s.title||'涼糕餐車')+'">':'<div class="sd-img sd-img-fallback">🚚</div>')+'<div class="sd-date">📅 '+esc(s.schedule_date)+'</div><div class="sd-region">📍 '+esc(s.region||'地點待公布')+'</div><div class="sd-time">🕐 '+esc(time(s.start_time))+(s.end_time?' - '+esc(time(s.end_time)):'')+'</div><a class="sd-btn" href="online-order.html">可預訂　›</a></div>'}).join('');
+    const cards=rows.slice(0,3).map(s=>{const img=s.image_url||'';const type=s.schedule_type==='stall'?'擺攤':'餐車';return '<div class="sd-card">'+(img?'<img class="sd-img" src="'+esc(img)+'" alt="'+esc(s.title||'涼糕餐車')+'">':'<div class="sd-img sd-img-fallback">🚚</div>')+'<div class="sd-date">'+type+'　📅 '+esc(s.schedule_date)+'</div><div class="sd-region">📍 '+esc(s.region||'地點待公布')+'</div><div class="sd-time">🕐 '+esc(time(s.start_time))+(s.end_time?' - '+esc(time(s.end_time)):'')+'</div><a class="sd-btn" href="online-order.html">可預訂　›</a></div>'}).join('');
     box.innerHTML='<div class="sd-intro"><div class="sd-title">餐車行程 <i style="font-weight:400">Schedule</i></div><div class="sd-sub">跟著老爹涼糕餐車<br>把美味帶到更多地方！</div><a class="sd-more" href="schedule.html">查看完整行程　›</a></div>'+(cards||'<div class="sd-empty">目前尚未公布新的餐車行程</div>');
   }
   async function load(){
@@ -449,7 +449,7 @@ html,body{margin:0;padding:0;background:#f8f0e3}
       const r=await sb.from('food_truck_schedules')
         .select('id,schedule_date,region,start_time,end_time,title,schedule_type,enabled')
         .eq('enabled',true)
-        .eq('schedule_type','food_truck')
+        .in('schedule_type',['food_truck','stall'])
         .gte('schedule_date',today())
         .order('schedule_date',{ascending:true})
         .limit(3);
