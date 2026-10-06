@@ -88,7 +88,7 @@ html,body{margin:0;padding:0;background:#f8f0e3}
 <a class="hot flavor3" href="products.html"></a>
 <a class="hot flavor4" href="products.html"></a>
 
-<a id="moreFlavorsLink" class="hot about" href="products.html" aria-label="查看更多口味" onclick="window.location.href='products.html';return false;"></a>
+<a id="moreFlavorsLink" class="hot more-flavors" href="products.html" aria-label="查看更多口味"></a>
 <a class="hot bottom1" href="schedule.html" aria-label="出攤時間"></a>
 <a class="hot bottom2" href="online-order.html" aria-label="線上訂購"></a>
 <a class="hot bottom3" href="https://www.facebook.com/laodielianggao" target="_blank" rel="noopener" aria-label="Facebook"></a>
@@ -428,24 +428,6 @@ html,body{margin:0;padding:0;background:#f8f0e3}
   .then(rows=>{const d=rows&&rows[0]&&rows[0].data;const u=d&&(d.image_url||(d.heroImage&&d.heroImage.url));if(u)img.src=u;})
   .catch(()=>{});
 })();
-<script>
-(function(){
-  const img=document.getElementById('homeHeroImage');
-  if(!img)return;
-  function go(e){
-    const r=img.getBoundingClientRect();
-    if(!r.width||!r.height)return;
-    const x=(e.clientX-r.left)/r.width, y=(e.clientY-r.top)/r.height;
-    if(y<0.40||y>0.59)return;
-    if(x<0.25)window.location.href='products.html';
-    else if(x<0.50)window.location.href='schedule.html';
-    else if(x<0.75)window.location.href='online-order.html';
-    else window.location.href='about.html';
-  }
-  img.addEventListener('click',go);
-  img.addEventListener('touchend',function(e){if(e.changedTouches&&e.changedTouches[0]){e.preventDefault();go(e.changedTouches[0]);}},{passive:false});
-})();
-</script>
 </script>
 </body>
 </html>
