@@ -34,7 +34,51 @@ function renderFlavors(){$('flavors').innerHTML=flavors.map((f,i)=>'<div class="
 function changeQty(i,n){const e=$('q'+i);e.textContent=Math.max(0,Math.min(99,Number(e.textContent||0)+n));updateTotals()}
 function selectedItems(){return flavors.map((f,i)=>({product_name:f.product_name||'涼糕',flavor_id:Number(f.flavor_id),flavor_name:f.flavor_name,unit_price:Number(f.price||0),quantity:Number($('q'+i)?.textContent||0)})).filter(x=>x.quantity>0).map(x=>({...x,line_total:x.unit_price*x.quantity}))}
 function updateTotals(){const items=selectedItems(),qty=items.reduce((s,x)=>s+x.quantity,0),product=items.reduce((s,x)=>s+x.line_total,0),radio=document.querySelector('input[name=pickup]:checked'),fee=radio?Number(radio.dataset.fee||0):0;$('totalQty').textContent=qty+' 盒';$('productTotal').textContent=product.toLocaleString();$('storageFee').textContent=fee.toLocaleString();$('grandTotal').textContent=(product+fee).toLocaleString();$('submitBtn').disabled=qty<2||!selectedDate||!flavors.length;$('minimumNotice').textContent=qty<2?'最低訂購 2 盒，目前 '+qty+' 盒。':'已達最低訂購數量：'+qty+' 盒。';$('minimumNotice').className='notice '+(qty<2?'err':'ok')}
-$('orderForm').addEventListener('submit',async e=>{e.preventDefault();$('submitBtn').disabled=true;$('msg').innerHTML='';try{const items=selectedItems(),totalQty=items.reduce((s,x)=>s+x.quantity,0);if(totalQty<2)throw new Error('最低訂購 2 盒，請再選購後送出訂單。');const region=$('region').value,radio=document.querySelector('input[name=pickup]:checked');if(!selectedDate)throw new Error('請選擇訂購日期。');if(!region)throw new Error('請選擇當日開放地區。');if(!radio)throw new Error('請選擇超商寄放方式。');const last5=$('last5').value.trim();if(!/^\d{5}$/.test(last5))throw new Error('匯款後五碼必須是 5 位數字。');const productTotal=items.reduce((s,x)=>s+x.line_total,0),fee=Number(radio.dataset.fee||0),total=productTotal+fee;const customer=await sb.rpc('create_order_customer',{p_name:$('customerName').value.trim(),p_phone:$('customerPhone').value.trim()});if(customer.error)throw customer.error;const customerId=typeof customer.data==='object'?customer.data?.id:customer.data;const order=await sb.from('cooling_pickup_orders').insert({order_date:selectedDate,customer_id:customerId,region_name:region,convenience_store:radio.value,store_name:$('storeName').value.trim(),store_address:$('storeAddress').value.trim()||null,merchandise_total:productTotal,storage_fee:fee,total_amount:total,payment_last5:last5,status:'待確認匯款',notes:$('notes').value.trim()||null}).select('id,order_number,total_amount').single();if(order.error)throw order.error;const rows=items.map(x=>({...x,order_id:order.data.id}));const ir=await sb.from('cooling_pickup_order_items').insert(rows);if(ir.error)throw ir.error;$('resultOrder').textContent=order.data.order_number;$('resultDetail').innerHTML='<b>'+formatDate(selectedDate)+'</b><br>NT$ '+Number(order.data.total_amount).toLocaleString()+'<br>超商：'+esc(radio.value)+'／'+esc($('storeName').value.trim());$('result').classList.add('show');$('orderForm').style.display='none';window.scrollTo({top:0,behavior:'smooth'})}catch(err){setMsg('訂單送出失敗：'+(err?.message||'請稍後再試。'),true);$('submitBtn').disabled=selectedItems().reduce((s,x)=>s+x.quantity,0)<2}});
+$('orderForm').addEventListener('submit',async e=>{
+e.preventDefault();
+$('submitBtn').disabled=true;
+$('msg').innerHTML='';
+try{
+  const items=selectedItems(),totalQty=items.reduce((s,x)=>s+x.quantity,0);
+  if(totalQty<2)throw new Error('最低訂購 2 盒，請再選購後送出訂單。');
+  const region=$('region').value,radio=document.querySelector('input[name=pickup]:checked');
+  if(!selectedDate)throw new Error('請選擇訂購日期。');
+  if(!region)throw new Error('請選擇當日開放地區。');
+  if(!radio)throw new Error('請選擇超商寄放方式。');
+  const name=$('customerName').value.trim(),phone=$('customerPhone').value.trim(),storeName=$('storeName').value.trim();
+  if(!name||phone.length<6)throw new Error('請完整填寫姓名與手機。');
+  if(!storeName)throw new Error('請填寫門市名稱。');
+  const last5=$('last5').value.trim();
+  if(!/^\\d{5}$/.test(last5))throw new Error('匯款後五碼必須是 5 位數字。');
+  const productTotal=items.reduce((s,x)=>s+x.line_total,0),fee=Number(radio.dataset.fee||0),total=productTotal+fee;
+  const order=await sb.rpc('create_cooling_pickup_order',{
+    p_name:name,
+    p_phone:phone,
+    p_order_date:selectedDate,
+    p_region_name:region,
+    p_convenience_store:radio.value,
+    p_store_name:storeName,
+    p_store_address:$('storeAddress').value.trim()||null,
+    p_merchandise_total:productTotal,
+    p_storage_fee:fee,
+    p_total_amount:total,
+    p_payment_last5:last5,
+    p_notes:$('notes').value.trim()||null,
+    p_items:items
+  });
+  if(order.error)throw order.error;
+  const data=Array.isArray(order.data)?order.data[0]:order.data;
+  if(!data?.id||!data?.order_number)throw new Error('訂單建立結果異常，請稍後再試。');
+  $('resultOrder').textContent=data.order_number;
+  $('resultDetail').innerHTML='<b>'+formatDate(selectedDate)+'</b><br>NT$ '+Number(data.total_amount).toLocaleString()+'<br>超商：'+esc(radio.value)+'／'+esc(storeName);
+  $('result').classList.add('show');
+  $('orderForm').style.display='none';
+  window.scrollTo({top:0,behavior:'smooth'});
+}catch(err){
+  setMsg('訂單送出失敗：'+(err?.message||'請稍後再試。'),true);
+  $('submitBtn').disabled=selectedItems().reduce((s,x)=>s+x.quantity,0)<2;
+}
+});
 init();
 </script>
 </body>
