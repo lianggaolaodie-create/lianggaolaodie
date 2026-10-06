@@ -454,7 +454,21 @@ html,body{margin:0;padding:0;background:#f8f0e3}
         .order('schedule_date',{ascending:true})
         .limit(3);
       if(r.error)throw r.error;
-      render(r.data||[]);
+      const rows=r.data||[];
+      if(rows.length){
+        const ids=rows.map(s=>s.id);
+        const links=await sb.from('food_truck_schedule_flavors').select('schedule_id,flavor_id').in('schedule_id',ids);
+        if(!links.error&&links.data?.length){
+          const fids=[...new Set(links.data.map(x=>x.flavor_id))];
+          const fs=await sb.from('flavors').select('id,image_url').in('id',fids);
+          if(!fs.error){
+            const imageBySchedule={};
+            links.data.forEach(x=>{const f=(fs.data||[]).find(v=>v.id===x.flavor_id);if(f?.image_url&&!imageBySchedule[x.schedule_id])imageBySchedule[x.schedule_id]=f.image_url});
+            rows.forEach(s=>s.image_url=imageBySchedule[s.id]||'');
+          }
+        }
+      }
+      render(rows);
     }catch(e){
       box.innerHTML='<div class="sd-intro"><div class="sd-title">餐車行程 <i style="font-weight:400">Schedule</i></div><div class="sd-sub">跟著老爹涼糕餐車<br>把美味帶到更多地方！</div><a class="sd-more" href="schedule.html">查看完整行程　›</a></div><div class="sd-empty">目前無法讀取行程，請重新整理</div>';
       console.warn('首頁餐車行程讀取失敗',e);
