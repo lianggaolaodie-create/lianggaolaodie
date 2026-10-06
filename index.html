@@ -440,7 +440,7 @@ html,body{margin:0;padding:0;background:#f8f0e3}
   const time=s=>s?String(s).slice(0,5):'';
   function render(rows){
     const cards=rows.slice(0,3).map(s=>{const img=s.image_url||'';const type=s.schedule_type==='stall'?'擺攤':'餐車';const cardHref=s.schedule_type==='stall'?'stall-schedule.html?v=20261006':'online-order.html?v=20261006';return '<a class="sd-card-link" href="'+cardHref+'"><div class="sd-card">'+(img?'<img class="sd-img" src="'+esc(img)+'" alt="'+esc(s.title||'涼糕餐車')+'">':'<div class="sd-img sd-img-fallback">🚚</div>')+'<div class="sd-date">'+type+'　📅 '+esc(s.schedule_date)+'</div><div class="sd-region">📍 '+esc(s.region||'地點待公布')+'</div><div class="sd-time">🕐 '+esc(time(s.start_time))+(s.end_time?' - '+esc(time(s.end_time)):'')+'</div><span class="sd-btn">'+(s.schedule_type==='stall'?'查看擺攤行程　›':'可預訂　›')+'</span></div></div></a>'}).join('');
-    box.innerHTML='<div class="sd-intro"><div class="sd-title">餐車行程 <i style="font-weight:400">Schedule</i></div><div class="sd-sub">跟著老爹涼糕餐車<br>把美味帶到更多地方！</div><a class="sd-more" href="schedule.html">查看完整行程　›</a></div>'+(cards||'<div class="sd-empty">目前尚未公布新的餐車行程</div>');
+    box.innerHTML='<div class="sd-intro"><div class="sd-title">餐車行程 <i style="font-weight:400">Schedule</i></div><div class="sd-sub">跟著老爹涼糕餐車<br>把美味帶到更多地方！</div><a class="sd-more" href="schedule.html?v=20261006">查看完整餐車行程　›</a></div>'+(cards||'<div class="sd-empty">目前尚未公布新的餐車行程</div>');
   }
   async function load(){
     try{
