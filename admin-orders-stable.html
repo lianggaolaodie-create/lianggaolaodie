@@ -46,7 +46,10 @@ async function login(e){
   const keep={access_token:r.data.session.access_token,refresh_token:r.data.session.refresh_token};
   sessionStorage.setItem('LAODIE_ADMIN_SESSION',JSON.stringify(keep));
   localStorage.setItem('LAODIE_ADMIN_LOGIN_OK','1');
-  openApp();
+  // 以 URL hash 重新載入本頁，避免 iOS Safari 在登入後丟失 JS session。
+  const s=r.data.session;
+  const next=location.pathname+location.search.split('&login=')[0]+'&login=ok#access_token='+encodeURIComponent(s.access_token)+'&refresh_token='+encodeURIComponent(s.refresh_token||'');
+  location.replace(next);
  }catch(x){
   $('loginMsg').innerHTML='<div class="msg">登入失敗：'+esc(x.message||x)+'</div>';
  }finally{b.disabled=false;b.textContent='登入'}
