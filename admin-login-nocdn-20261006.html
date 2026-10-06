@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>老爹．涼糕｜後台登入</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f7f3ef;color:#30241d;font-family:-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC",sans-serif}
+.shell{max-width:520px;margin:50px auto;padding:12px}.card{background:#fff;border:1px solid #e4dad3;border-radius:15px;padding:20px}
+.brand{font-size:21px;font-weight:900}.muted{color:#786e68;font-size:13px;line-height:1.6}.field{margin:14px 0}
+.field label{display:block;font-weight:800;margin-bottom:7px}.field input{width:100%;border:1px solid #ddd2ca;border-radius:10px;padding:13px 12px;font:inherit;background:#fff}
+.btn{width:100%;border:0;border-radius:10px;padding:12px 14px;background:#8d5939;color:#fff;font-weight:900;font-size:16px}.btn:disabled{opacity:.6}
+.notice{padding:10px;border-radius:10px;margin-top:10px;background:#edf8f1;color:#286c47}.err{background:#fff0ef;color:#a43b35}
+</style>
+</head>
+<body><div class="shell"><div class="card">
+<div class="brand">🍡 老爹．涼糕｜線上下單管理後台</div>
+<p class="muted">商品／口味、每日開放、訂單與個資管理。</p>
+<form id="loginForm" novalidate>
+<div class="field"><label for="email">管理員 Email</label><input id="email" type="email" autocomplete="username" required></div>
+<div class="field"><label for="password">密碼</label><input id="password" type="password" autocomplete="current-password" required></div>
+<button id="loginBtn" class="btn" type="submit">登入</button>
+</form>
+<div id="msg" aria-live="polite"></div>
+</div></div>
+<script>
+(()=>{'use strict';
+const SUPABASE_URL='https://yemzdwxtyosuaczsqwea.supabase.co';
+const SUPABASE_KEY='sb_publishable_7b4hgNL68yiYbec7fXToYQ_UxPE4sEB';
+const form=document.getElementById('loginForm'),email=document.getElementById('email'),password=document.getElementById('password'),btn=document.getElementById('loginBtn'),msg=document.getElementById('msg');
+function show(t,error){msg.className=t?'notice'+(error?' err':''):'';msg.textContent=t||''}
+async function login(e){
+ e.preventDefault(); if(btn.disabled)return;
+ const em=email.value.trim(),pw=password.value;
+ if(!em||!pw){show('請輸入管理員 Email 與密碼。',true);return}
+ btn.disabled=true;btn.textContent='登入中…';show('正在驗證登入資訊…');
+ try{
+  const r=await fetch(SUPABASE_URL+'/auth/v1/token?grant_type=password',{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY},body:JSON.stringify({email:em,password:pw})});
+  let d={};try{d=await r.json()}catch(_){}
+  if(!r.ok||!d.access_token)throw new Error(d.error_description||d.msg||d.error||('登入失敗（HTTP '+r.status+'）'));
+  const session={access_token:d.access_token,refresh_token:d.refresh_token};
+  sessionStorage.setItem('LAODIE_ADMIN_SESSION',JSON.stringify(session));
+  if(false){
+    const expiresIn=Number(d.expires_in||3600);
+    localStorage.setItem('sb-yemzdwxtyosuaczsqwea-auth-token',JSON.stringify({...d,expires_at:Math.floor(Date.now()/1000)+expiresIn}));
+  }
+  show('登入成功，正在進入訂單後台…');
+  location.replace('admin-orders-stable.html#access_token='+encodeURIComponent(session.access_token)+'&refresh_token='+encodeURIComponent(session.refresh_token)+'&v=20261006');
+ }catch(err){show('登入失敗：'+(err&&err.message?err.message:'請確認 Email 與密碼。'),true);btn.disabled=false;btn.textContent='登入'}
+}
+form.addEventListener('submit',login);
+})();
+</script>
+</body></html>
