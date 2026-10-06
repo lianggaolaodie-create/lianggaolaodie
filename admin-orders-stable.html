@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="zh-Hant"><head><!-- LOGIN_FIX_FINAL_20261006 --><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>老爹．涼糕｜線上下單管理後台</title><style>
+<html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>老爹．涼糕｜線上下單管理後台</title><style>
 *{box-sizing:border-box}body{margin:0;background:#f7f3ef;color:#30241d;font-family:-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC",sans-serif}.shell{max-width:1100px;margin:auto;padding:10px}.top{display:flex;align-items:center;justify-content:space-between;padding:6px 4px 12px}.brand{font-size:21px;font-weight:900}.btn{border:0;border-radius:10px;padding:10px 14px;background:#8d5939;color:#fff;font-weight:900;cursor:pointer;touch-action:manipulation}.btn.gray{background:#6d625b}.btn.red{background:#f33b3b}.btn.small{padding:8px 11px;font-size:12px}.hidden{display:none!important}.nav{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}.nav button{border:0;border-radius:12px;padding:11px 8px;background:#ebe4de;color:#5a4940;font-weight:900;font-size:14px;cursor:pointer}.nav .active{background:#8d5939;color:#fff}.head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px}.head h2{margin:0;font-size:24px}.date,.search{border:1px solid #d9cec6;border-radius:9px;padding:10px;background:#fff;font:inherit}.search{width:100%;margin-bottom:8px}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.stat,.card{background:#fff;border:1px solid #e4dad3;border-radius:15px;padding:12px}.stat{text-align:center}.stat b{display:block;font-size:24px}.section{border-radius:15px;padding:10px;margin:10px 0;border:1px solid #e5dcd5}.pickup{background:#fff2f3}.home{background:#eef8ff}.sectiontitle{display:flex;justify-content:space-between;gap:8px;font-size:18px;font-weight:900;margin-bottom:8px}.order{background:#fff;border:1px solid #e8ddd6;border-radius:13px;padding:10px;margin:8px 0}.ordertop{display:flex;justify-content:space-between;gap:6px}.status{border-radius:8px;padding:5px 8px;color:#fff;font-size:12px;font-weight:900;white-space:nowrap}.paid{background:#12b86a}.pending{background:#f23a43}.stored{background:#168fe4}.done{background:#168fe4}.person{margin:8px 0;font-size:13px;line-height:1.7}.flavors{display:flex;flex-wrap:wrap;gap:6px;background:#fff4f4;border-radius:9px;padding:7px;margin:6px 0}.chip{border-radius:7px;padding:5px 8px;font-size:12px;font-weight:800;background:#ffe1c5}.actions{display:flex;justify-content:flex-end;gap:6px;margin-top:8px}.muted{color:#786e68;font-size:13px}.login{max-width:520px;margin:60px auto}.field{margin:10px 0}.field label{display:block;font-weight:800;margin-bottom:6px}.field input{width:100%;padding:11px;border:1px solid #d9cec6;border-radius:10px;font:inherit}.msg{padding:10px;border-radius:10px;margin-top:8px;background:#fff0ef;color:#a43b35}.modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;padding:18px;z-index:99}.modalbox{background:#fff;border-radius:16px;padding:18px;width:min(420px,100%)}.modalbox select{width:100%;padding:12px;border:1px solid #d9cec6;border-radius:10px;font:inherit}.modalactions{display:flex;gap:8px;margin-top:12px}.modalactions .btn{flex:1}@media(max-width:700px){.brand{font-size:19px}.stats{grid-template-columns:repeat(2,1fr)}.head{align-items:flex-start}.head>div{max-width:65%}.person{font-size:14px}.actions .btn{padding:9px 10px}.nav button{font-size:13px}}
 </style></head><body>
 <div id="login" class="shell login"><div class="card"><div class="brand">🍡 老爹．涼糕｜線上下單管理後台</div><p class="muted">訂單、個資與狀態管理</p><form id="loginForm"><div class="field"><label>管理員 Email</label><input id="email" type="email" autocomplete="username" required></div><div class="field"><label>密碼</label><input id="password" type="password" autocomplete="current-password" required></div><button class="btn" type="submit" id="loginBtn">登入</button></form><div id="loginMsg"></div></div></div>
@@ -8,51 +8,15 @@
 <section id="customers" class="hidden"><div class="head"><h2>個資管理</h2></div><p class="muted">可查看、編輯、刪除客戶個資。刪除個資不刪除訂單。</p><div class="section pickup"><div class="sectiontitle"><span>🏪 超商寄放客戶資料</span><span>共 <b id="cpc">0</b> 筆</span></div><input id="cps" class="search" placeholder="搜尋訂單編號／姓名／電話／門市"><div id="cpList"></div></div><div class="section home"><div class="sectiontitle"><span>🏠 送到府客戶資料</span><span>共 <b id="chc">0</b> 筆</span></div><input id="chs" class="search" placeholder="搜尋訂單編號／姓名／電話／地址"><div id="chList"></div></div></section>
 <section id="daily" class="hidden"><div class="card"><h2>每日開放設定</h2><p class="muted">這一版先保留後台入口，訂單／個資功能可直接操作。</p></div></section></div>
 <div id="modal" class="modal hidden"><div class="modalbox"><h3>編輯訂單狀態</h3><select id="statusSelect"></select><div class="modalactions"><button class="btn gray" id="cancelStatus">取消</button><button class="btn" id="saveStatus">儲存狀態</button></div></div></div>
-<script>
-const SUPABASE_URL='https://yemzdwxtyosuaczsqwea.supabase.co';
-const SUPABASE_KEY='sb_publishable_7b4hgNL68yiYbec7fXToYQ_UxPE4sEB';
-let __accessToken='';
-let __sessionUser=null;
-const apiHeaders=()=>({'Content-Type':'application/json','apikey':SUPABASE_KEY,'Authorization':'Bearer '+__accessToken});
-function q(table){let path=SUPABASE_URL+'/rest/v1/'+table,params=[],method='GET',body=null,returning=false;
- const x={then(resolve,reject){return run(x,false).then(resolve,reject)},select(cols='*'){params.push('select='+encodeURIComponent(cols));return x},eq(k,v){params.push(k+'=eq.'+encodeURIComponent(v));return x},in(k,vals){params.push(k+'=in.('+vals.map(v=>encodeURIComponent(v)).join(',')+')');return x},order(k,o={}){params.push('order='+encodeURIComponent(k)+(o.ascending===false?'.desc':''));return x},limit(n){params.push('limit='+n);return x},maybeSingle(){return run(x,true)},single(){return run(x,true)},update(v){method='PATCH';body=v;return x},delete(){method='DELETE';return x},insert(v){method='POST';body=v;return x}};
- async function run(z,single){let u=path+(params.length?'?'+params.join('&'):'');let h=apiHeaders();if(method==='PATCH'||method==='POST'||method==='DELETE')h.Prefer='return=representation';let r=await fetch(u,{method,headers:h,body:body?JSON.stringify(body):undefined});let d={};try{d=await r.json()}catch(_){d=[]}if(!r.ok)return{data:null,error:{message:d.message||d.error||('HTTP '+r.status)}};return{data:single?(Array.isArray(d)?(d[0]||null):d):d,error:null}}
- return x}
-const db={from:q};
-db.auth={
- async signInWithPassword({email,password}){const r=await fetch(SUPABASE_URL+'/auth/v1/token?grant_type=password',{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY},body:JSON.stringify({email,password})});let d={};try{d=await r.json()}catch(_){};if(!r.ok)return{data:null,error:{message:d.error_description||d.msg||d.error||('登入失敗 HTTP '+r.status)}};__accessToken=d.access_token;return{data:{user:{id:d.user?.id,email:d.user?.email},session:d},error:null}},
- async getSession(){return __accessToken?{data:{session:{access_token:__accessToken,user:__sessionUser||{}}},error:null}:{data:{session:null},error:null}},
- async setSession(s){__accessToken=s.access_token||'';__sessionUser=s.user||__sessionUser||null;return{data:{session:{...s,user:__sessionUser}},error:null}},
- async signOut(){__accessToken='';__sessionUser=null;return{error:null}}
-};
-window.db=db;
-</script><script>
-// 使用上方原生 REST Auth client；此頁不依賴外部 Supabase JS CDN。
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script><script>
+const db=supabase.createClient('https://yemzdwxtyosuaczsqwea.supabase.co','sb_publishable_7b4hgNL68yiYbec7fXToYQ_UxPE4sEB',{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 const today=()=>new Date().toLocaleDateString('en-CA',{timeZone:'Asia/Taipei'});
 let pickup=[],home=[],pickupItems=new Map(),homeItems=new Map(),customers=new Map(),editing=null;
 function showMsg(t){$('orderMsg').innerHTML=t?'<div class="msg">'+esc(t)+'</div>':''}
-async function access(u){const r=await db.from('admin_profiles').select('role,enabled,can_manage_products').eq('user_id',u.id).maybeSingle();if(r.error)return null;if(r.data&&!r.data.enabled)return'管理員帳號無管理權限';return null}
-async function login(e){
- e.preventDefault();
- const b=$('loginBtn'); b.disabled=true; b.textContent='登入中…'; $('loginMsg').textContent='';
- try{
-  const em=$('email').value.trim(), pw=$('password').value;
-  if(!em||!pw) throw new Error('請輸入管理員 Email 與密碼。');
-  const r=await db.auth.signInWithPassword({email:em,password:pw});
-  if(r.error) throw r.error;
-  const er=await access(r.data.user);
-  if(er){await db.auth.signOut();throw new Error(er);}
-  const keep={access_token:r.data.session.access_token,refresh_token:r.data.session.refresh_token,user:r.data.user};
-  __sessionUser=r.data.user;
-  localStorage.setItem('LAODIE_ADMIN_SESSION',JSON.stringify(keep));
-  sessionStorage.setItem('LAODIE_ADMIN_SESSION',JSON.stringify(keep));
-  openApp();
- }catch(x){
-  $('loginMsg').innerHTML='<div class="msg">登入失敗：'+esc(x.message||x)+'</div>';
- }finally{b.disabled=false;b.textContent='登入'}
-}
+async function access(u){const r=await db.from('admin_profiles').select('role,enabled,can_manage_products').eq('user_id',u.id).maybeSingle();if(r.error)return r.error.message;if(!r.data||!r.data.enabled)return'管理員帳號無管理權限';return null}
+async function login(e){e.preventDefault();$('loginBtn').disabled=true;$('loginBtn').textContent='登入中…';$('loginMsg').textContent='';try{const r=await db.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});if(r.error)throw r.error;const er=await access(r.data.user);if(er){await db.auth.signOut();throw new Error(er)}openApp()}catch(x){$('loginMsg').innerHTML='<div class="msg">登入失敗：'+esc(x.message)+'</div>'}finally{$('loginBtn').disabled=false;$('loginBtn').textContent='登入'}}
 function openApp(){$('login').classList.add('hidden');$('app').classList.remove('hidden');$('date').value=today();loadAll()}
 function classify(o){return o.type==='pickup'?'pickup':'home'}
 function statusClass(s){return s==='已付款'?'paid':s==='已寄放'?'stored':s==='待確認匯款'?'pending':'done'}
@@ -67,27 +31,7 @@ function renderCustomers(){const arr=pickup.map(o=>({id:o.customer_id,order:o}))
 function customerCard(o){return '<div class="order"><div><b>訂單編號　'+esc(o.order_number||'')+'</b><br>👤 '+esc(o.name||'')+'　'+esc(o.phone||'')+'<br>📍 '+esc(o.type==='pickup'?[o.convenience_store,o.store_name].filter(Boolean).join(' ')||'—':o.address||'—')+'</div><div class="actions"><button class="btn small" onclick="editCustomer(\''+esc(o.customer_id||o.id)+'\',\''+esc(o.type)+'\')">編輯</button><button class="btn red small" onclick="deleteCustomer(\''+esc(o.customer_id||'')+'\')">🗑 刪除</button></div></div>'}
 async function editCustomer(id,type){if(type==='home')return alert('送到府資料請從訂單查看；目前先提供超商客戶個資編輯。');const c=customers.get(id);if(!c)return;const name=prompt('修改姓名',c.name||'');if(name===null)return;const phone=prompt('修改電話',c.phone||'');if(phone===null)return;const r=await db.from('order_customers').update({name:name.trim(),phone:phone.trim()}).eq('id',id);if(r.error)alert('更新失敗：'+r.error.message);else await loadAll()}
 async function deleteCustomer(id){if(!id)return;if(!confirm('確定要刪除這筆個資嗎？訂單會保留。'))return;const r1=await db.from('cooling_pickup_orders').update({customer_id:null}).eq('customer_id',id);if(r1.error){alert('解除關聯失敗：'+r1.error.message);return}const r=await db.from('order_customers').delete().eq('id',id);if(r.error){alert('刪除個資失敗：'+r.error.message);return}await loadAll()}
-$('loginForm').addEventListener('submit',login);$('reload').onclick=loadAll;$('date').onchange=renderOrders;$('ps').oninput=renderOrders;$('hs').oninput=renderOrders;$('cps').oninput=renderCustomers;$('chs').oninput=renderCustomers;$('logout').onclick=()=>db.auth.signOut().then(()=>location.reload());document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active');['orders','customers','daily'].forEach(id=>$(id).classList.add('hidden'));$(b.dataset.page).classList.remove('hidden');if(b.dataset.page==='customers')renderCustomers()});(async()=>{
-  try{
-    const raw=localStorage.getItem('LAODIE_ADMIN_SESSION')||sessionStorage.getItem('LAODIE_ADMIN_SESSION');
-    if(raw){
-      const saved=JSON.parse(raw);
-      if(saved.access_token){
-        const sr=await db.auth.setSession(saved);
-        if(sr.error) throw sr.error;
-        const e=await access(saved.user||{});
-        if(!e){openApp();return;}
-        await db.auth.signOut();
-        localStorage.removeItem('LAODIE_ADMIN_SESSION');
-        sessionStorage.removeItem('LAODIE_ADMIN_SESSION');
-      }
-    }
-  }catch(e){
-    console.error('session restore failed',e);
-    localStorage.removeItem('LAODIE_ADMIN_SESSION');
-    sessionStorage.removeItem('LAODIE_ADMIN_SESSION');
-  }
-})();
+$('loginForm').addEventListener('submit',login);$('reload').onclick=loadAll;$('date').onchange=renderOrders;$('ps').oninput=renderOrders;$('hs').oninput=renderOrders;$('cps').oninput=renderCustomers;$('chs').oninput=renderCustomers;$('logout').onclick=()=>db.auth.signOut().then(()=>location.reload());document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active');['orders','customers','daily'].forEach(id=>$(id).classList.add('hidden'));$(b.dataset.page).classList.remove('hidden');if(b.dataset.page==='customers')renderCustomers()});db.auth.getSession().then(async r=>{if(r.data.session&&!await access(r.data.session.user))openApp()});
 </script><script>/* Inject reliable customer delete handler v2 */
 (function(){
   document.addEventListener('click', async function(e){
