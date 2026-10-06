@@ -35,7 +35,7 @@ html,body{margin:0;padding:0;background:#f8f0e3}
 .hero-news{top:34.5%;left:75%;width:25%;height:11%;z-index:2147483647;pointer-events:auto!important}
 .schedule-section{top:52%;left:0;width:100%;height:21%;z-index:1000!important;pointer-events:none!important}.schedule-card1,.schedule-card2,.schedule-card3{display:none!important}
 .flavor1{top:44%;left:2%;width:23.5%;height:8%;z-index:1001;pointer-events:auto!important}.flavor2{top:44%;left:26%;width:23.5%;height:8%;z-index:1001;pointer-events:auto!important}.flavor3{top:44%;left:50%;width:23.5%;height:8%;z-index:1001;pointer-events:auto!important}.flavor4{top:44%;left:75%;width:23%;height:8%;z-index:1001;pointer-events:auto!important}.more-flavors{top:40%;left:74%;width:24%;height:4%;z-index:1002;pointer-events:auto!important}
-.about{top:63.5%;left:0;width:31%;height:15.5%;z-index:2147483647!important;pointer-events:auto!important}
+.about{top:79%;left:2%;width:30%;height:6%;z-index:2147483647!important;pointer-events:auto!important;touch-action:manipulation}
 .bottom1{top:84.5%;left:2%;width:31%;height:7%;z-index:300;pointer-events:auto}
 .bottom2{top:88%;left:57%;width:41%;height:11%;z-index:2147483647!important;pointer-events:auto!important}
 .bottom3{top:88%;left:39%;width:8%;height:11%;z-index:2147483646!important;pointer-events:auto!important}.bottom-ig{top:88%;left:48%;width:8%;height:11%;z-index:2147483647!important;pointer-events:auto!important}.bottom-tt{top:88%;left:30%;width:8%;height:11%;z-index:2147483646!important;pointer-events:auto!important}
@@ -516,6 +516,20 @@ document.addEventListener('click',function(e){
   };
   el.addEventListener('click',go,true);
   el.addEventListener('touchend',go,{capture:true,passive:false});
+})();
+</script><script id="aboutMoreForce">
+(function(){
+  function goAbout(e){
+    var a=e.target&&e.target.closest?e.target.closest('#aboutMoreLink'):null;
+    if(a){e.preventDefault();e.stopImmediatePropagation();window.location.assign('/about.html?from=more');return;}
+    var page=document.querySelector('.page'); if(!page)return;
+    var r=page.getBoundingClientRect(), x=e.clientX-r.left, y=e.clientY-r.top;
+    if(x>=r.width*.02&&x<=r.width*.32&&y>=r.height*.79&&y<=r.height*.85){
+      e.preventDefault();e.stopImmediatePropagation();window.location.assign('/about.html?from=more');
+    }
+  }
+  document.addEventListener('click',goAbout,true);
+  document.addEventListener('touchend',goAbout,{capture:true,passive:false});
 })();
 </script></body>
 </html>
