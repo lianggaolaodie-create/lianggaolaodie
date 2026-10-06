@@ -8,7 +8,24 @@
 <section id="customers" class="hidden"><div class="head"><h2>個資管理</h2></div><p class="muted">可查看、編輯、刪除客戶個資。刪除個資不刪除訂單。</p><div class="section pickup"><div class="sectiontitle"><span>🏪 超商寄放客戶資料</span><span>共 <b id="cpc">0</b> 筆</span></div><input id="cps" class="search" placeholder="搜尋訂單編號／姓名／電話／門市"><div id="cpList"></div></div><div class="section home"><div class="sectiontitle"><span>🏠 送到府客戶資料</span><span>共 <b id="chc">0</b> 筆</span></div><input id="chs" class="search" placeholder="搜尋訂單編號／姓名／電話／地址"><div id="chList"></div></div></section>
 <section id="daily" class="hidden"><div class="card"><h2>每日開放設定</h2><p class="muted">這一版先保留後台入口，訂單／個資功能可直接操作。</p></div></section></div>
 <div id="modal" class="modal hidden"><div class="modalbox"><h3>編輯訂單狀態</h3><select id="statusSelect"></select><div class="modalactions"><button class="btn gray" id="cancelStatus">取消</button><button class="btn" id="saveStatus">儲存狀態</button></div></div></div>
-<script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script><script>
+<script>
+const SUPABASE_URL='https://yemzdwxtyosuaczsqwea.supabase.co';
+const SUPABASE_KEY='sb_publishable_7b4hgNL68yiYbec7fXToYQ_UxPE4sEB';
+let __accessToken='';
+const apiHeaders=()=>({'Content-Type':'application/json','apikey':SUPABASE_KEY,'Authorization':'Bearer '+__accessToken});
+function q(table){let path=SUPABASE_URL+'/rest/v1/'+table,params=[],method='GET',body=null,returning=false;
+ const x={select(cols='*'){params.push('select='+encodeURIComponent(cols));return x},eq(k,v){params.push(k+'=eq.'+encodeURIComponent(v));return x},in(k,vals){params.push(k+'=in.('+vals.map(v=>encodeURIComponent(v)).join(',')+')');return x},order(k,o={}){params.push('order='+encodeURIComponent(k)+(o.ascending===false?'.desc':''));return x},limit(n){params.push('limit='+n);return x},maybeSingle(){return run(x,true)},single(){return run(x,true)},update(v){method='PATCH';body=v;return x},delete(){method='DELETE';return x},insert(v){method='POST';body=v;return x}};
+ async function run(z,single){let u=path+(params.length?'?'+params.join('&'):'');let h=apiHeaders();if(method==='PATCH'||method==='POST'||method==='DELETE')h.Prefer='return=representation';let r=await fetch(u,{method,headers:h,body:body?JSON.stringify(body):undefined});let d={};try{d=await r.json()}catch(_){d=[]}if(!r.ok)return{data:null,error:{message:d.message||d.error||('HTTP '+r.status)}};return{data:single?(Array.isArray(d)?(d[0]||null):d):d,error:null}}
+ return x}
+const db={from:q};
+db.auth={
+ async signInWithPassword({email,password}){const r=await fetch(SUPABASE_URL+'/auth/v1/token?grant_type=password',{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY},body:JSON.stringify({email,password})});let d={};try{d=await r.json()}catch(_){};if(!r.ok)return{data:null,error:{message:d.error_description||d.msg||d.error||('登入失敗 HTTP '+r.status)}};__accessToken=d.access_token;return{data:{user:{id:d.user?.id,email:d.user?.email},session:d},error:null}},
+ async getSession(){return __accessToken?{data:{session:{access_token:__accessToken,user:{}}},error:null}:{data:{session:null},error:null}},
+ async setSession(s){__accessToken=s.access_token||'';return{data:{session:s},error:null}},
+ async signOut(){__accessToken='';return{error:null}}
+};
+window.db=db;
+</script><script>
 const db=supabase.createClient('https://yemzdwxtyosuaczsqwea.supabase.co','sb_publishable_7b4hgNL68yiYbec7fXToYQ_UxPE4sEB',{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
 window.db=db;
 const $=id=>document.getElementById(id);
