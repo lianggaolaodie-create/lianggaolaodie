@@ -3,6 +3,13 @@
 <body>
 <script>
 location.replace('admin-orders-stable.html?v=20261006-loginfix');
-</script>
+/* ADMIN_SESSION_RESTORE_20260930 */
+    db.auth.getSession().then(async r=>{
+      if(r.data && r.data.session){
+        const er=await access(r.data.session.user);
+        if(!er) open();
+      }
+    });
+    </script>
 <noscript>請開啟 JavaScript 後重新整理。</noscript>
 </body></html>
