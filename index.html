@@ -29,7 +29,7 @@ html,body{margin:0;padding:0;background:#f8f0e3}
 .social-tt{top:1.4%;left:76%;width:7%;height:4.5%;z-index:9999999}
 .search-open{top:1.4%;left:83%;width:7%;height:4.5%;z-index:9999999}
 
-.hero-flavor{top:44%;left:1%;width:24%;height:13%;z-index:2147483646;pointer-events:none!important}
+.hero-flavor{top:44%;left:1%;width:24%;height:13%;z-index:2147483647;pointer-events:auto!important}
 .hero-schedule{top:44%;left:25%;width:24%;height:13%;z-index:2147483646;pointer-events:none!important}
 .hero-order{top:44%;left:50%;width:25%;height:13%;z-index:2147483646;pointer-events:none!important}
 .hero-news{top:44%;left:75%;width:24%;height:13%;z-index:2147483646;pointer-events:none!important}
@@ -446,22 +446,6 @@ html,body{margin:0;padding:0;background:#f8f0e3}
   img.addEventListener('touchend',function(e){if(e.changedTouches&&e.changedTouches[0]){e.preventDefault();go(e.changedTouches[0]);}},{passive:false});
 })();
 </script>
-</script>
-<script>
-(function(){
-  const page=document.querySelector('.page');
-  if(!page)return;
-  page.addEventListener('click',function(e){
-    const r=page.getBoundingClientRect();
-    if(!r.height)return;
-    const y=(e.clientY-r.top)/r.height;
-    if(y>=0.56 && y<=0.625){
-      e.preventDefault();
-      e.stopImmediatePropagation();
-      window.location.href='schedule.html?from=home_schedule';
-    }
-  },true);
-})();
 </script>
 </body>
 </html>
