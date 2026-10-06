@@ -44,6 +44,7 @@ async function login(e){
   let d={};try{d=await r.json()}catch(_){}
   if(!r.ok||!d.access_token)throw new Error(d.error_description||d.msg||d.error||('登入失敗（HTTP '+r.status+'）'));
   const session={access_token:d.access_token,refresh_token:d.refresh_token};
+  sessionStorage.setItem('LAODIE_ADMIN_SESSION',JSON.stringify(session));
   if(window.supabase&&window.supabase.createClient){
     const client=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
     const sr=await client.auth.setSession(session);
