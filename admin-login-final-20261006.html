@@ -56,7 +56,7 @@ async function login(e){
     localStorage.setItem('sb-yemzdwxtyosuaczsqwea-auth-token',JSON.stringify({...d,expires_at:Math.floor(Date.now()/1000)+expiresIn}));
   }
   show('登入成功，正在進入訂單後台…');
-  location.replace('admin-orders-stable.html?v=20261006-'+Date.now());
+  location.replace('admin-orders-stable.html#access_token='+encodeURIComponent(session.access_token)+'&refresh_token='+encodeURIComponent(session.refresh_token)+'&v=20261006');
  }catch(err){show('登入失敗：'+(err&&err.message?err.message:'請確認 Email 與密碼。'),true);btn.disabled=false;btn.textContent='登入'}
 }
 form.addEventListener('submit',login);
