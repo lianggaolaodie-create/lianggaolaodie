@@ -35,8 +35,8 @@ html,body{margin:0;padding:0;background:#f8f0e3}
 .hero-news{top:34.5%;left:75%;width:25%;height:11%;z-index:2147483647;pointer-events:auto!important}
 .schedule-section{top:52%;left:0;width:100%;height:21%;z-index:1000!important;pointer-events:none!important}.schedule-card1,.schedule-card2,.schedule-card3{display:none!important}
 .flavor1{top:44%;left:2%;width:23.5%;height:8%;z-index:1001;pointer-events:auto!important}.flavor2{top:44%;left:26%;width:23.5%;height:8%;z-index:1001;pointer-events:auto!important}.flavor3{top:44%;left:50%;width:23.5%;height:8%;z-index:1001;pointer-events:auto!important}.flavor4{top:44%;left:75%;width:23%;height:8%;z-index:1001;pointer-events:auto!important}.more-flavors{top:40%;left:74%;width:24%;height:4%;z-index:1002;pointer-events:auto!important}
-.about{top:87%;left:7%;width:24%;height:4%;z-index:2147483647!important;pointer-events:auto!important;touch-action:manipulation}
-.bottom1{top:84.5%;left:2%;width:31%;height:7%;z-index:300;pointer-events:auto}
+.about{top:85.5%;left:6%;width:27%;height:5.5%;z-index:2147483647!important;pointer-events:auto!important;touch-action:manipulation;display:block!important}
+.bottom1{top:93%;left:2%;width:31%;height:5%;z-index:300;pointer-events:auto}
 .bottom2{top:88%;left:57%;width:41%;height:11%;z-index:2147483647!important;pointer-events:auto!important}
 .bottom3{top:88%;left:39%;width:8%;height:11%;z-index:2147483646!important;pointer-events:auto!important}.bottom-ig{top:88%;left:48%;width:8%;height:11%;z-index:2147483647!important;pointer-events:auto!important}.bottom-tt{top:88%;left:30%;width:8%;height:11%;z-index:2147483646!important;pointer-events:auto!important}
 .mobile-menu{position:fixed;inset:0;z-index:2147483646;pointer-events:none;display:none;background:rgba(0,0,0,.45);line-height:1.2}
@@ -524,7 +524,7 @@ document.addEventListener('click',function(e){
     if(a){e.preventDefault();e.stopImmediatePropagation();window.location.assign('/about.html?from=more');return;}
     var page=document.querySelector('.page'); if(!page)return;
     var r=page.getBoundingClientRect(), x=e.clientX-r.left, y=e.clientY-r.top;
-    if(x>=r.width*.07&&x<=r.width*.31&&y>=r.height*.87&&y<=r.height*.91){
+    if(x>=r.width*.06&&x<=r.width*.33&&y>=r.height*.855&&y<=r.height*.91){
       e.preventDefault();e.stopImmediatePropagation();window.location.assign('/about.html?from=more');
     }
   }
