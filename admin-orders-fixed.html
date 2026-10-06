@@ -2,5 +2,12 @@
 <html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0">
 <title>老爹．涼糕｜線上下單管理後台</title>
-<script>location.replace('admin-login-fixed.html?v=20261006-final'+location.search+location.hash);</script>
+<script>location.replace('admin-login-fixed.html?v=20261006-final'+location.search+location.hash);/* ADMIN_SESSION_RESTORE_20260930 */
+    db.auth.getSession().then(async r=>{
+      if(r.data && r.data.session){
+        const er=await access(r.data.session.user);
+        if(!er) open();
+      }
+    });
+    </script>
 </head><body>正在開啟後台登入…</body></html>
