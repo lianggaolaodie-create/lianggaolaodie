@@ -17,7 +17,21 @@ const today=()=>new Date().toLocaleDateString('en-CA',{timeZone:'Asia/Taipei'});
 let pickup=[],home=[],pickupItems=new Map(),homeItems=new Map(),customers=new Map(),editing=null;
 function showMsg(t){$('orderMsg').innerHTML=t?'<div class="msg">'+esc(t)+'</div>':''}
 async function access(u){const r=await db.from('admin_profiles').select('role,enabled,can_manage_products').eq('user_id',u.id).maybeSingle();if(r.error)return null;if(r.data&&!r.data.enabled)return'管理員帳號無管理權限';return null}
-async function login(e){e.preventDefault();$('loginBtn').disabled=true;$('loginBtn').textContent='登入中…';$('loginMsg').textContent='';try{const r=await db.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});if(r.error)throw r.error;const er=await access(r.data.user);if(er){await db.auth.signOut();throw new Error(er)}openApp()}catch(x){$('loginMsg').innerHTML='<div class="msg">登入失敗：'+esc(x.message)+'</div>'}finally{$('loginBtn').disabled=false;$('loginBtn').textContent='登入'}}
+async function login(e){
+ e.preventDefault();
+ const b=$('loginBtn'); b.disabled=true; b.textContent='登入中…'; $('loginMsg').textContent='';
+ try{
+  const em=$('email').value.trim(), pw=$('password').value;
+  if(!em||!pw) throw new Error('請輸入管理員 Email 與密碼。');
+  const r=await db.auth.signInWithPassword({email:em,password:pw});
+  if(r.error) throw r.error;
+  const er=await access(r.data.user);
+  if(er){await db.auth.signOut();throw new Error(er);}
+  openApp();
+ }catch(x){
+  $('loginMsg').innerHTML='<div class="msg">登入失敗：'+esc(x.message||x)+'</div>';
+ }finally{b.disabled=false;b.textContent='登入'}
+}
 function openApp(){$('login').classList.add('hidden');$('app').classList.remove('hidden');$('date').value=today();loadAll()}
 function classify(o){return o.type==='pickup'?'pickup':'home'}
 function statusClass(s){return s==='已付款'?'paid':s==='已寄放'?'stored':s==='待確認匯款'?'pending':'done'}
