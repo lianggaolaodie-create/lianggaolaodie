@@ -77,7 +77,7 @@ html,body{margin:0;padding:0;background:#f8f0e3}
 <a class="hot hero-flavor" href="products.html" aria-label="涼糕口味"></a>
 <a class="hot hero-schedule" href="schedule.html" aria-label="今日出攤"></a>
 <a class="hot hero-order" href="online-order.html" aria-label="線上訂購"></a>
-<a class="hot hero-news" href="https://laodielianggao.tw/about.html?story=1" aria-label="老爹的故事"></a>
+<a id="heroStoryLink" class="hot hero-news" href="about.html?story=1" aria-label="老爹的故事"></a>
 <a class="hot schedule-section" href="schedule.html" aria-label="餐車行程"></a><a class="hot schedule-more-overlay" href="schedule.html?v=20261006" aria-label="查看完整餐車行程"></a><div id="scheduleDynamic" class="schedule-dynamic" aria-label="最新餐車行程"></div>
 <a class="hot schedule-card1" href="online-order.html" aria-label="餐車行程" style="pointer-events:none"></a>
 <a class="hot schedule-card2" href="online-order.html" aria-label="餐車行程" style="pointer-events:none"></a>
@@ -490,9 +490,19 @@ document.addEventListener('click',function(e){
 },true);
 </script>
 <script>
-document.addEventListener('click',function(e){
-  const el=e.target.closest('.hero-news');
-  if(el){e.preventDefault();e.stopImmediatePropagation();window.location.replace('https://laodielianggao.tw/about.html?story=1');}
-},true);
+(function(){
+  const el=document.getElementById('heroStoryLink');
+  if(!el)return;
+  el.addEventListener('click',function(e){
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    window.location.assign('/about.html?story=1');
+  },true);
+  el.addEventListener('touchend',function(e){
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    window.location.assign('/about.html?story=1');
+  },{capture:true,passive:false});
+})();
 </script></body>
 </html>
