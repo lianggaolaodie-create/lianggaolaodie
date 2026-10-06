@@ -27,6 +27,9 @@ async function login(e){
   if(r.error) throw r.error;
   const er=await access(r.data.user);
   if(er){await db.auth.signOut();throw new Error(er);}
+  const keep={access_token:r.data.session.access_token,refresh_token:r.data.session.refresh_token};
+  sessionStorage.setItem('LAODIE_ADMIN_SESSION',JSON.stringify(keep));
+  localStorage.setItem('LAODIE_ADMIN_LOGIN_OK','1');
   openApp();
  }catch(x){
   $('loginMsg').innerHTML='<div class="msg">登入失敗：'+esc(x.message||x)+'</div>';
@@ -58,9 +61,9 @@ $('loginForm').addEventListener('submit',login);$('reload').onclick=loadAll;$('d
     const raw=sessionStorage.getItem('LAODIE_ADMIN_SESSION');
     if(raw){
       const s=JSON.parse(raw);
-      sessionStorage.removeItem('LAODIE_ADMIN_SESSION');
       const sr=await db.auth.setSession({access_token:s.access_token,refresh_token:s.refresh_token});
       if(sr.error) throw sr.error;
+      sessionStorage.removeItem('LAODIE_ADMIN_SESSION');
     }
     const r=await db.auth.getSession();
     if(r.data&&r.data.session){
