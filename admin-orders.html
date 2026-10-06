@@ -3,88 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
+<meta http-equiv="Cache-Control" content="no-cache,no-store,must-revalidate">
 <title>老爹．涼糕｜線上下單管理後台</title>
-<style>
-html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#f7f3ef}
-#adminFrame{display:block;width:100%;height:100%;border:0}
-#statusModal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.38);z-index:9999;padding:20px;font-family:-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC",sans-serif}
-#statusModal.show{display:flex}
-.statusBox{width:min(520px,100%);background:#fff;border-radius:20px;padding:20px;box-shadow:0 20px 60px rgba(0,0,0,.25)}
-.statusTitle{font-size:20px;font-weight:900;color:#30241d;margin-bottom:14px}
-.statusOptions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.statusOption{border:1px solid #ddd2ca;background:#faf7f4;color:#30241d;border-radius:12px;padding:14px 10px;font-size:16px;font-weight:900;cursor:pointer}
-.statusOption:active{transform:scale(.98)}
-.statusCancel{margin-top:12px;width:100%;border:0;border-radius:12px;padding:13px;background:#6d625b;color:#fff;font-size:16px;font-weight:900}
-@media(max-width:500px){.statusOptions{grid-template-columns:1fr}.statusBox{padding:16px}}
-</style>
 </head>
 <body>
-<iframe id="adminFrame" src="admin-orders-fixed-v3.html?v=20261004-status-picker"></iframe>
-<div id="statusModal" aria-hidden="true">
-  <div class="statusBox" role="dialog" aria-modal="true" aria-labelledby="statusTitle">
-    <div id="statusTitle" class="statusTitle">修改訂單狀態</div>
-    <div id="statusOptions" class="statusOptions"></div>
-    <button id="statusCancel" class="statusCancel">取消</button>
-  </div>
-</div>
 <script>
-(function(){
-  const frame=document.getElementById('adminFrame');
-  const modal=document.getElementById('statusModal');
-  const options=document.getElementById('statusOptions');
-  const cancel=document.getElementById('statusCancel');
-  let currentKey=null,currentOrder=null;
-  const pickupOptions=['待確認匯款','待付款','已付款','待配送','配送中','已寄放','已完成','已取消'];
-  const homeOptions=['待配送','配送中','已送達','已完成'];
-  function closeModal(){modal.classList.remove('show');modal.setAttribute('aria-hidden','true');currentKey=null;currentOrder=null;}
-  function showModal(o){
-    currentOrder=o; currentKey=o.key;
-    const list=o.source==='home'?homeOptions:pickupOptions;
-    options.innerHTML=list.map(s=>'<button type="button" class="statusOption" data-status="'+s.replace(/"/g,'&quot;')+'">'+s+'</button>').join('');
-    modal.classList.add('show');modal.setAttribute('aria-hidden','false');
-  }
-  async function saveStatus(status){
-    const o=currentOrder;if(!o)return;
-    const win=frame.contentWindow;
-    try{
-      let value=status;
-      if(o.source==='home'){
-        value=({待配送:'pending',配送中:'delivering',已送達:'delivered',已完成:'completed'})[status]||status;
-      }
-      const code='(async()=>{const r=await db.from('+JSON.stringify(o.source==='pickup'?'cooling_pickup_orders':'orders').replace(/</g,'\\u003c')+').update({status:'+JSON.stringify(value)+',updated_at:new Date().toISOString()}).eq(\'id\','+JSON.stringify(o.id)+'); if(r.error) throw r.error; return true;})()';
-      await win.eval(code);
-      closeModal();
-      if(typeof win.loadOrders==='function') await win.loadOrders();
-    }catch(err){alert('更新訂單狀態失敗：'+(err&&err.message?err.message:err));}
-  }
-  options.addEventListener('click',e=>{const b=e.target.closest('[data-status]');if(b)saveStatus(b.dataset.status);});
-  cancel.addEventListener('click',closeModal);
-  modal.addEventListener('click',e=>{if(e.target===modal)closeModal();});
-  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&modal.classList.contains('show'))closeModal();});
-  function hook(){
-    try{
-      const doc=frame.contentDocument;
-      if(!doc)return setTimeout(hook,200);
-      if(doc.documentElement.dataset.statusPickerHooked==='1')return;
-      doc.documentElement.dataset.statusPickerHooked='1';
-      doc.addEventListener('click',function(e){
-        const b=e.target.closest('button[data-action="edit"]');
-        if(!b)return;
-        e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();
-        try{
-          const key=b.dataset.key;
-          const o=frame.contentWindow.eval('orders.find(x=>x.key==='+JSON.stringify(key)+')');
-          if(o)showModal(o);
-        }catch(err){alert('無法開啟狀態選單：'+(err&&err.message?err.message:err));}
-      },true);
-    }catch(e){setTimeout(hook,300);}
-  }
-  frame.addEventListener('load',()=>setTimeout(hook,100));
-  setTimeout(hook,300);
-})();
+location.replace('admin-orders-stable.html?v=20261006-admin-login-final'+location.search+location.hash);
 </script>
+正在開啟後台…
 </body>
 </html>
