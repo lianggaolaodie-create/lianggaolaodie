@@ -12,6 +12,7 @@
 const SUPABASE_URL='https://yemzdwxtyosuaczsqwea.supabase.co';
 const SUPABASE_KEY='sb_publishable_7b4hgNL68yiYbec7fXToYQ_UxPE4sEB';
 let __accessToken='';
+let __sessionUser=null;
 const apiHeaders=()=>({'Content-Type':'application/json','apikey':SUPABASE_KEY,'Authorization':'Bearer '+__accessToken});
 function q(table){let path=SUPABASE_URL+'/rest/v1/'+table,params=[],method='GET',body=null,returning=false;
  const x={then(resolve,reject){return run(x,false).then(resolve,reject)},select(cols='*'){params.push('select='+encodeURIComponent(cols));return x},eq(k,v){params.push(k+'=eq.'+encodeURIComponent(v));return x},in(k,vals){params.push(k+'=in.('+vals.map(v=>encodeURIComponent(v)).join(',')+')');return x},order(k,o={}){params.push('order='+encodeURIComponent(k)+(o.ascending===false?'.desc':''));return x},limit(n){params.push('limit='+n);return x},maybeSingle(){return run(x,true)},single(){return run(x,true)},update(v){method='PATCH';body=v;return x},delete(){method='DELETE';return x},insert(v){method='POST';body=v;return x}};
@@ -20,9 +21,9 @@ function q(table){let path=SUPABASE_URL+'/rest/v1/'+table,params=[],method='GET'
 const db={from:q};
 db.auth={
  async signInWithPassword({email,password}){const r=await fetch(SUPABASE_URL+'/auth/v1/token?grant_type=password',{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY},body:JSON.stringify({email,password})});let d={};try{d=await r.json()}catch(_){};if(!r.ok)return{data:null,error:{message:d.error_description||d.msg||d.error||('登入失敗 HTTP '+r.status)}};__accessToken=d.access_token;return{data:{user:{id:d.user?.id,email:d.user?.email},session:d},error:null}},
- async getSession(){return __accessToken?{data:{session:{access_token:__accessToken,user:{}}},error:null}:{data:{session:null},error:null}},
- async setSession(s){__accessToken=s.access_token||'';return{data:{session:s},error:null}},
- async signOut(){__accessToken='';return{error:null}}
+ async getSession(){return __accessToken?{data:{session:{access_token:__accessToken,user:__sessionUser||{}}},error:null}:{data:{session:null},error:null}},
+ async setSession(s){__accessToken=s.access_token||'';__sessionUser=s.user||__sessionUser||null;return{data:{session:{...s,user:__sessionUser}},error:null}},
+ async signOut(){__accessToken='';__sessionUser=null;return{error:null}}
 };
 window.db=db;
 </script><script>
@@ -43,13 +44,11 @@ async function login(e){
   if(r.error) throw r.error;
   const er=await access(r.data.user);
   if(er){await db.auth.signOut();throw new Error(er);}
-  const keep={access_token:r.data.session.access_token,refresh_token:r.data.session.refresh_token};
+  const keep={access_token:r.data.session.access_token,refresh_token:r.data.session.refresh_token,user:r.data.user};
+  __sessionUser=r.data.user;
+  localStorage.setItem('LAODIE_ADMIN_SESSION',JSON.stringify(keep));
   sessionStorage.setItem('LAODIE_ADMIN_SESSION',JSON.stringify(keep));
-  localStorage.setItem('LAODIE_ADMIN_LOGIN_OK','1');
-  // 以 URL hash 重新載入本頁，避免 iOS Safari 在登入後丟失 JS session。
-  const s=r.data.session;
-  const next=location.pathname+location.search.split('&login=')[0]+'&login=ok#access_token='+encodeURIComponent(s.access_token)+'&refresh_token='+encodeURIComponent(s.refresh_token||'');
-  location.replace(next);
+  openApp();
  }catch(x){
   $('loginMsg').innerHTML='<div class="msg">登入失敗：'+esc(x.message||x)+'</div>';
  }finally{b.disabled=false;b.textContent='登入'}
@@ -70,26 +69,24 @@ async function editCustomer(id,type){if(type==='home')return alert('送到府資
 async function deleteCustomer(id){if(!id)return;if(!confirm('確定要刪除這筆個資嗎？訂單會保留。'))return;const r1=await db.from('cooling_pickup_orders').update({customer_id:null}).eq('customer_id',id);if(r1.error){alert('解除關聯失敗：'+r1.error.message);return}const r=await db.from('order_customers').delete().eq('id',id);if(r.error){alert('刪除個資失敗：'+r.error.message);return}await loadAll()}
 $('loginForm').addEventListener('submit',login);$('reload').onclick=loadAll;$('date').onchange=renderOrders;$('ps').oninput=renderOrders;$('hs').oninput=renderOrders;$('cps').oninput=renderCustomers;$('chs').oninput=renderCustomers;$('logout').onclick=()=>db.auth.signOut().then(()=>location.reload());document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active');['orders','customers','daily'].forEach(id=>$(id).classList.add('hidden'));$(b.dataset.page).classList.remove('hidden');if(b.dataset.page==='customers')renderCustomers()});(async()=>{
   try{
-    const hp=new URLSearchParams(location.hash.replace(/^#/,''));
-    const ha=hp.get('access_token'), hr=hp.get('refresh_token');
-    if(ha&&hr){
-      history.replaceState(null,'',location.pathname+location.search);
-      const sr=await db.auth.setSession({access_token:ha,refresh_token:hr});
-      if(sr.error) throw sr.error;
-    }
-    const raw=sessionStorage.getItem('LAODIE_ADMIN_SESSION');
+    const raw=localStorage.getItem('LAODIE_ADMIN_SESSION')||sessionStorage.getItem('LAODIE_ADMIN_SESSION');
     if(raw){
-      const s=JSON.parse(raw);
-      const sr=await db.auth.setSession({access_token:s.access_token,refresh_token:s.refresh_token});
-      if(sr.error) throw sr.error;
-      sessionStorage.removeItem('LAODIE_ADMIN_SESSION');
+      const saved=JSON.parse(raw);
+      if(saved.access_token){
+        const sr=await db.auth.setSession(saved);
+        if(sr.error) throw sr.error;
+        const e=await access(saved.user||{});
+        if(!e){openApp();return;}
+        await db.auth.signOut();
+        localStorage.removeItem('LAODIE_ADMIN_SESSION');
+        sessionStorage.removeItem('LAODIE_ADMIN_SESSION');
+      }
     }
-    const r=await db.auth.getSession();
-    if(r.data&&r.data.session){
-      const e=await access(r.data.session.user);
-      if(!e)openApp();else await db.auth.signOut();
-    }
-  }catch(e){console.error('session restore failed',e);}
+  }catch(e){
+    console.error('session restore failed',e);
+    localStorage.removeItem('LAODIE_ADMIN_SESSION');
+    sessionStorage.removeItem('LAODIE_ADMIN_SESSION');
+  }
 })();
 </script><script>/* Inject reliable customer delete handler v2 */
 (function(){
