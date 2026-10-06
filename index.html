@@ -54,7 +54,7 @@ html,body{margin:0;padding:0;background:#f8f0e3}
 </head>
 <body>
 <main class="page">
-<img src="https://yemzdwxtyosuaczsqwea.supabase.co/storage/v1/object/public/site-images/home/homepage-1790434111140.png" alt="老爹．涼糕官方首頁">
+<img id="homeHeroImage" src="https://yemzdwxtyosuaczsqwea.supabase.co/storage/v1/object/public/site-images/homepage/1791294447810.png?v=1791294447810" alt="老爹．涼糕官方首頁">
 
 <input id="menuToggle" class="menu-toggle" type="checkbox">
 <label class="hot menu menu-open" for="menuToggle" aria-label="選單"></label>
@@ -417,5 +417,15 @@ html,body{margin:0;padding:0;background:#f8f0e3}
 </script>
 
 
+<script>
+(function(){
+  const img=document.getElementById('homeHeroImage');
+  if(!img)return;
+  fetch('https://yemzdwxtyosuaczsqwea.supabase.co/rest/v1/site_admin_content?section_id=eq.home&select=data&_cb='+Date.now(),{cache:'no-store',headers:{apikey:'sb_publishable_7b4hgNL68yiYbec7fXToYQ_UxPE4sEB'}})
+  .then(r=>r.ok?r.json():[])
+  .then(rows=>{const d=rows&&rows[0]&&rows[0].data;const u=d&&(d.image_url||(d.heroImage&&d.heroImage.url));if(u)img.src=u;})
+  .catch(()=>{});
+})();
+</script>
 </body>
 </html>
