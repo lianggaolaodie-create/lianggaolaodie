@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>老爹．涼糕｜後台登入</title>
 <meta name="robots" content="noindex,nofollow">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <!-- admin-login-stable-20261002 -->
 <style>
 *{box-sizing:border-box}body{margin:0;background:#f7f3ef;color:#30241d;font-family:-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC",sans-serif}.shell{max-width:520px;margin:60px auto;padding:12px}.card{background:#fff;border:1px solid #e4dad3;border-radius:15px;padding:20px}.brand{font-size:21px;font-weight:900}.muted{color:#786e68;font-size:13px;line-height:1.6}.field{margin:14px 0}.field label{display:block;font-weight:800;margin-bottom:7px}.field input{width:100%;border:1px solid #ddd2ca;border-radius:10px;padding:13px 12px;font:inherit;background:#fff}.btn{width:100%;border:0;border-radius:10px;padding:12px 14px;background:#8d5939;color:#fff;font-weight:900;font-size:16px}.btn:disabled{opacity:.6}.notice{padding:10px;border-radius:10px;margin-top:10px;background:#edf8f1;color:#286c47}.err{background:#fff0ef;color:#a43b35}.reset{display:block;text-align:center;margin-top:14px;color:#2f78c9;text-decoration:none;font-weight:800;font-size:14px}@media(max-width:700px){.shell{margin:35px auto;padding:10px}.brand{font-size:19px}}
@@ -27,7 +30,7 @@
 (function(){
 'use strict';
 const db=window.supabase.createClient('https://yemzdwxtyosuaczsqwea.supabase.co','sb_publishable_7b4hgNL68yiYbec7fXToYQ_UxPE4sEB',{
-  auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false,storageKey:'laodie-admin-auth'}
+  auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}
 });
 const form=document.getElementById('loginForm');
 const email=document.getElementById('adminEmail');
@@ -38,7 +41,7 @@ function msg(t,error){message.className=t?'notice'+(error?' err':''):'';message.
 async function enter(){
   const s=await db.auth.getSession();
   if(s.data&&s.data.session){
-    location.replace('admin-orders-stable.html?v=20261006');
+    location.replace('admin-orders-stable.html?v=20261006-final');
   }
 }
 form.addEventListener('submit',async function(e){
