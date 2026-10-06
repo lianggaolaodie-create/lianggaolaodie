@@ -24,54 +24,44 @@
 </div></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
-(() => {
-  'use strict';
-  const SUPABASE_URL = 'https://yemzdwxtyosuaczsqwea.supabase.co';
-  const SUPABASE_KEY = 'sb_publishable_7b4hgNL68yiYbec7fXToYQ_UxPE4sEB';
-  const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
-    auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false }
-  });
-  const form = document.getElementById('loginForm');
-  const emailInput = document.getElementById('adminEmail');
-  const passwordInput = document.getElementById('adminPassword');
-  const loginButton = document.getElementById('loginButton');
-  const message = document.getElementById('loginMessage');
-  function showMessage(text, isError) { message.className = text ? 'notice' + (isError ? ' err' : '') : ''; message.textContent = text || ''; }
-  async function checkAccess(user) {
-    const result = await db.from('admin_profiles').select('role,enabled,can_manage_products').eq('user_id', user.id).maybeSingle();
-    if (result.error) return result.error.message;
-    if (!result.data || !result.data.enabled) return '管理員帳號無管理權限';
-    return null;
+(function(){
+'use strict';
+const db=window.supabase.createClient('https://yemzdwxtyosuaczsqwea.supabase.co','sb_publishable_7b4hgNL68yiYbec7fXToYQ_UxPE4sEB',{
+  auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false,storageKey:'laodie-admin-auth'}
+});
+const form=document.getElementById('loginForm');
+const email=document.getElementById('adminEmail');
+const password=document.getElementById('adminPassword');
+const button=document.getElementById('loginButton');
+const message=document.getElementById('loginMessage');
+function msg(t,error){message.className=t?'notice'+(error?' err':''):'';message.textContent=t||'';}
+async function enter(){
+  const s=await db.auth.getSession();
+  if(s.data&&s.data.session){
+    location.replace('admin-orders-stable.html?v=20261006');
   }
-  async function openIfAlreadySignedIn() {
-    const result = await db.auth.getSession();
-    if (!result.data.session) return;
-    const accessError = await checkAccess(result.data.session.user);
-    if (accessError) { await db.auth.signOut(); return; }
-    showMessage('已登入，正在進入後台…', false);
-    window.location.replace('admin-orders-fixed.html?v=20261002-stable');
+}
+form.addEventListener('submit',async function(e){
+  e.preventDefault();
+  e.stopPropagation();
+  if(button.disabled)return;
+  const em=email.value.trim(),pw=password.value;
+  if(!em||!pw){msg('請輸入管理員 Email 與密碼。',true);return;}
+  button.disabled=true;button.textContent='登入中…';msg('正在驗證登入資訊…',false);
+  try{
+    const r=await db.auth.signInWithPassword({email:em,password:pw});
+    if(r.error)throw r.error;
+    const s=await db.auth.getSession();
+    if(!s.data||!s.data.session)throw new Error('登入成功，但瀏覽器沒有保存登入狀態。');
+    msg('登入成功，正在進入訂單後台…',false);
+    setTimeout(()=>location.replace('admin-orders-stable.html?v=20261006'),120);
+  }catch(err){
+    console.error(err);
+    msg('登入失敗：'+(err&&err.message?err.message:'請確認 Email 與密碼。'),true);
+    button.disabled=false;button.textContent='登入';
   }
-  form.addEventListener('submit', async (event) => {
-    event.preventDefault(); event.stopPropagation();
-    if (loginButton.disabled) return;
-    const email = emailInput.value.trim(); const password = passwordInput.value;
-    if (!email || !password) { showMessage('請輸入管理員 Email 與密碼。', true); return; }
-    loginButton.disabled = true; loginButton.textContent = '登入中…'; showMessage('正在驗證登入資訊…', false);
-    try {
-      const result = await db.auth.signInWithPassword({ email, password });
-      if (result.error) throw new Error('登入失敗：' + result.error.message);
-      const accessError = await checkAccess(result.data.user);
-      if (accessError) { await db.auth.signOut(); throw new Error(accessError); }
-      const sessionCheck = await db.auth.getSession();
-      if (!sessionCheck.data.session) throw new Error('登入成功，但瀏覽器沒有保存登入狀態。');
-      showMessage('登入成功，正在進入後台…', false);
-      window.location.replace('admin-orders-fixed.html?v=20261002-stable');
-    } catch (error) {
-      console.error(error); showMessage(error?.message || '登入失敗，請稍後再試。', true); loginButton.disabled = false; loginButton.textContent = '登入';
-    }
-  });
-  openIfAlreadySignedIn().catch(error => console.error(error));
+});
+enter().catch(()=>{});
 })();
 </script>
-</body>
-</html>
+</body></html>
