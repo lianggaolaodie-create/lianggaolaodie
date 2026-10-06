@@ -447,5 +447,21 @@ html,body{margin:0;padding:0;background:#f8f0e3}
 })();
 </script>
 </script>
+<script>
+(function(){
+  const page=document.querySelector('.page');
+  if(!page)return;
+  page.addEventListener('click',function(e){
+    const r=page.getBoundingClientRect();
+    if(!r.height)return;
+    const y=(e.clientY-r.top)/r.height;
+    if(y>=0.56 && y<=0.625){
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      window.location.href='schedule.html?from=home_schedule';
+    }
+  },true);
+})();
+</script>
 </body>
 </html>
