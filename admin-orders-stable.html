@@ -8,7 +8,7 @@
 <section id="customers" class="hidden"><div class="head"><h2>個資管理</h2></div><p class="muted">可查看、編輯、刪除客戶個資。刪除個資不刪除訂單。</p><div class="section pickup"><div class="sectiontitle"><span>🏪 超商寄放客戶資料</span><span>共 <b id="cpc">0</b> 筆</span></div><input id="cps" class="search" placeholder="搜尋訂單編號／姓名／電話／門市"><div id="cpList"></div></div><div class="section home"><div class="sectiontitle"><span>🏠 送到府客戶資料</span><span>共 <b id="chc">0</b> 筆</span></div><input id="chs" class="search" placeholder="搜尋訂單編號／姓名／電話／地址"><div id="chList"></div></div></section>
 <section id="daily" class="hidden"><div class="card"><h2>每日開放設定</h2><p class="muted">這一版先保留後台入口，訂單／個資功能可直接操作。</p></div></section></div>
 <div id="modal" class="modal hidden"><div class="modalbox"><h3>編輯訂單狀態</h3><select id="statusSelect"></select><div class="modalactions"><button class="btn gray" id="cancelStatus">取消</button><button class="btn" id="saveStatus">儲存狀態</button></div></div></div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script><script>
+<script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script><script>
 const db=supabase.createClient('https://yemzdwxtyosuaczsqwea.supabase.co','sb_publishable_7b4hgNL68yiYbec7fXToYQ_UxPE4sEB',{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
 window.db=db;
 const $=id=>document.getElementById(id);
