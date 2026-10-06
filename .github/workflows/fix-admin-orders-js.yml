@@ -1,9 +1,8 @@
 name: Fix admin orders JavaScript
 
 on:
-  push:
-    branches: [main]
-    paths:
+  workflow_dispatch:
+  # paths disabled
       - 'admin-orders.html'
       - 'admin-orders-fixed.html'
       - 'admin-orders-fixed-v3.html'
