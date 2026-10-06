@@ -90,7 +90,7 @@ html,body{margin:0;padding:0;background:#f8f0e3}
 
 <a id="moreFlavorsLink" class="hot more-flavors" href="products.html" aria-label="查看更多口味"></a>
 <a class="hot bottom1" href="schedule.html" aria-label="出攤時間"></a>
-<a class="hot bottom2" href="online-order.html" aria-label="線上訂購"></a>
+<a class="hot bottom2" href="online-order.html?v=20261006" aria-label="線上訂購" onclick="window.location.href='online-order.html?v=20261006';return false;"></a>
 <a class="hot bottom3" href="https://www.facebook.com/laodielianggao" target="_blank" rel="noopener" aria-label="Facebook"></a>
 
 <div class="search-panel" style="display:none;position:fixed;inset:0;z-index:2147483005;background:rgba(0,0,0,.45);align-items:flex-start;justify-content:center;padding-top:90px;line-height:1.2">
@@ -477,5 +477,15 @@ html,body{margin:0;padding:0;background:#f8f0e3}
   load();
   setInterval(load,60000);
 })();
-</script></body>
+</script><script>
+document.addEventListener('click',function(e){
+  const el=e.target.closest('.bottom2');
+  if(el){
+    e.preventDefault();
+    e.stopPropagation();
+    window.location.href='online-order.html?v=20261006';
+  }
+},true);
+</script>
+</body>
 </html>
