@@ -75,10 +75,10 @@ html,body{margin:0;padding:0;background:#f8f0e3}
 <a id="marqueeLive" class="hot marquee-live" href="activity.html" aria-label="最新消息"><span class="marquee-track"><span id="marqueeLiveText">🍡 老爹．涼糕｜新口味陸續推出中 ✨｜每次出攤都有不同驚喜｜最新口味、出攤地點與時間請看官網｜歡迎提前預訂 ❤️</span><span id="marqueeLiveCopy" aria-hidden="true">🍡 老爹．涼糕｜新口味陸續推出中 ✨｜每次出攤都有不同驚喜｜最新口味、出攤地點與時間請看官網｜歡迎提前預訂 ❤️</span></span></a>
 
 <a class="hot hero-flavor" href="products.html" aria-label="涼糕口味"></a>
-<a class="hot hero-schedule" href="schedule.html?v=20261010" aria-label="今日出攤"></a>
+<a class="hot hero-schedule" href="schedule.html?v=20261010-2" aria-label="今日出攤"></a>
 <a class="hot hero-order" href="online-order.html" aria-label="線上訂購"></a>
 <a id="heroStoryLink" class="hot hero-news" href="about.html?story=1" aria-label="老爹的故事"></a>
-<a class="hot schedule-section" href="schedule.html?v=20261010" aria-label="餐車行程"></a><div id="scheduleDynamic" class="schedule-dynamic" aria-label="最新餐車行程"></div>
+<a class="hot schedule-section" href="schedule.html?v=20261010-2" aria-label="餐車行程"></a><div id="scheduleDynamic" class="schedule-dynamic" aria-label="最新餐車行程"></div>
 <a class="hot schedule-card1" href="online-order.html" aria-label="餐車行程" style="pointer-events:none"></a>
 <a class="hot schedule-card2" href="online-order.html" aria-label="餐車行程" style="pointer-events:none"></a>
 <a class="hot schedule-card3" href="online-order.html" aria-label="餐車行程" style="pointer-events:none"></a>
@@ -90,7 +90,7 @@ html,body{margin:0;padding:0;background:#f8f0e3}
 
 <a id="moreFlavorsLink" class="hot more-flavors" href="products.html" aria-label="查看更多口味"></a>
 <a id="aboutMoreLink" class="hot about" href="about.html?from=more" aria-label="了解更多"></a>
-<a class="hot bottom1" href="schedule.html?v=20261010" aria-label="出攤時間"></a>
+<a class="hot bottom1" href="schedule.html?v=20261010-2" aria-label="出攤時間"></a>
 <a class="hot bottom2" href="online-order.html?v=20261006" aria-label="線上訂購" onclick="window.location.href='online-order.html?v=20261006';return false;"></a>
 <a class="hot bottom3" href="https://www.facebook.com/laodielianggao" target="_blank" rel="noopener" aria-label="Facebook"></a>
 <a class="hot bottom-ig" href="https://www.instagram.com/b_dad_67687/" target="_blank" rel="noopener" aria-label="Instagram"></a>
@@ -121,7 +121,7 @@ html,body{margin:0;padding:0;background:#f8f0e3}
     <a href="https://www.instagram.com/b_dad_67687/" target="_blank" rel="noopener">Instagram</a>
     <a href="convenience.html">超商寄放取件方式</a>
     <a href="about.html">關於老爹</a>
-    <a href="schedule.html?v=20261010">出攤時間</a>
+    <a href="schedule.html?v=20261010-2">出攤時間</a>
     <a href="contact.html">聯絡我們</a>
   </div>
 </div>
@@ -442,8 +442,8 @@ html,body{margin:0;padding:0;background:#f8f0e3}
   const today=()=>new Date().toLocaleDateString('en-CA',{timeZone:'Asia/Taipei'});
   const time=s=>s?String(s).slice(0,5):'';
   function render(rows){
-    const cards=rows.slice(0,3).map(s=>{const img=s.image_url||'';const type=s.schedule_type==='stall'?'擺攤':'餐車';const cardHref=s.schedule_type==='stall'?'stall-schedule.html?v=20261006':'online-order.html?v=20261006';return '<a class="sd-card-link" href="'+cardHref+'"><div class="sd-card">'+(img?'<img class="sd-img" src="'+esc(img)+'" alt="'+esc(s.title||'涼糕餐車')+'">':'<div class="sd-img sd-img-fallback">🚚</div>')+'<div class="sd-date">'+type+'　📅 '+esc(s.schedule_date)+'</div><div class="sd-region">📍 '+esc(s.region||'地點待公布')+'</div><div class="sd-time">🕐 '+esc(time(s.start_time))+(s.end_time?' - '+esc(time(s.end_time)):'')+'</div><span class="sd-btn">'+(s.schedule_type==='stall'?'查看擺攤行程　›':'可預訂　›')+'</span></div></div></a>'}).join('');
-    box.innerHTML='<div class="sd-intro"><div class="sd-title">餐車行程 <i style="font-weight:400">Schedule</i></div><div class="sd-sub">跟著老爹涼糕餐車<br>把美味帶到更多地方！</div><a class="sd-more" href="schedule.html?v=20261010">查看完整餐車行程　›</a></div>'+(cards||'<div class="sd-empty">目前尚未公布新的餐車行程</div>');
+    const cards=rows.slice(0,3).map(s=>{const img=s.image_url||'';const type=s.schedule_type==='stall'?'擺攤':'餐車';const cardHref=s.schedule_type==='stall'?'stall-schedule.html?v=20261010-2-2':'online-order.html?v=20261006';return '<a class="sd-card-link" href="'+cardHref+'"><div class="sd-card">'+(img?'<img class="sd-img" src="'+esc(img)+'" alt="'+esc(s.title||'涼糕餐車')+'">':'<div class="sd-img sd-img-fallback">🚚</div>')+'<div class="sd-date">'+type+'　📅 '+esc(s.schedule_date)+'</div><div class="sd-region">📍 '+esc(s.region||'地點待公布')+'</div><div class="sd-time">🕐 '+esc(time(s.start_time))+(s.end_time?' - '+esc(time(s.end_time)):'')+'</div><span class="sd-btn">'+(s.schedule_type==='stall'?'查看擺攤行程　›':'可預訂　›')+'</span></div></div></a>'}).join('');
+    box.innerHTML='<div class="sd-intro"><div class="sd-title">餐車行程 <i style="font-weight:400">Schedule</i></div><div class="sd-sub">跟著老爹涼糕餐車<br>把美味帶到更多地方！</div><a class="sd-more" href="schedule.html?v=20261010-2">查看完整餐車行程　›</a></div>'+(cards||'<div class="sd-empty">目前尚未公布新的餐車行程</div>');
   }
   async function load(){
     try{
@@ -473,7 +473,7 @@ html,body{margin:0;padding:0;background:#f8f0e3}
       }
       render(rows);
     }catch(e){
-      box.innerHTML='<div class="sd-intro"><div class="sd-title">餐車行程 <i style="font-weight:400">Schedule</i></div><div class="sd-sub">跟著老爹涼糕餐車<br>把美味帶到更多地方！</div><a class="sd-more" href="schedule.html?v=20261010">查看完整行程　›</a></div><div class="sd-empty">目前無法讀取行程，請重新整理</div>';
+      box.innerHTML='<div class="sd-intro"><div class="sd-title">餐車行程 <i style="font-weight:400">Schedule</i></div><div class="sd-sub">跟著老爹涼糕餐車<br>把美味帶到更多地方！</div><a class="sd-more" href="schedule.html?v=20261010-2">查看完整行程　›</a></div><div class="sd-empty">目前無法讀取行程，請重新整理</div>';
       console.warn('首頁餐車行程讀取失敗',e);
     }
   }
