@@ -33,27 +33,11 @@ function render(rows,links,flavors){
   const tag=s.schedule_type==='stall'?'餐車':'擺攤';
   const time=[formatTime(s.start_time),formatTime(s.end_time)].filter(Boolean).join(' - ');
   const items=arr.map(x=>{const f=flavors.find(z=>z.id===x.flavor_id);if(!f)return null;return {name:f.name,price:s.schedule_type==='food_truck'?(x.price_per_box??f.price):null}}).filter(Boolean);
-  const flavorBlock=s.schedule_type==='food_truck'
-   ? '<div class="flavor-title">🍡 當日販售口味與價格</div><div class="flavor-list">'+(items.length?items.map(x=>'<div class="flavor-item"><span class="flavor-name">'+esc(x.name)+'</span><span class="price">
-  return '<article class="card"><div class="topline"><h2>🚚 '+esc(title)+'</h2><span class="tag">'+tag+'</span></div><div class="date">📅 '+esc(s.schedule_date)+'</div><div class="basic">'+(s.region?'<div class="basic-row"><span class="icon">📍</span><a href="'+maps(s.region)+'" target="_blank" rel="noopener">'+esc(s.region)+'</a></div>':'<div class="basic-row"><span class="icon">📍</span><span>未設定地區</span></div>')+(time?'<div class="basic-row"><span class="icon">🕐</span><span>'+esc(time)+'</span></div>':'')+'</div>'+flavorBlock+'<span class="status">'+(s.schedule_type==='stall'?'正常出車':'正常擺攤')+'</span></article>';
- }).join('');
- $('scheduleList').innerHTML=html||'<div class="notice">目前沒有已公布的出攤行程。</div>';
-}
-try{
- if(!window.supabase)throw new Error('網站資料元件載入失敗');
- const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
- const r=await sb.from('food_truck_schedules').select('id,schedule_date,schedule_type,title,region,start_time,end_time,enabled').eq('enabled',true).gte('schedule_date',today).order('schedule_date',{ascending:true});
- if(r.error)throw r.error;
- const rows=r.data||[];let links=[],flavors=[];
- if(rows.length){const ids=rows.map(x=>x.id);const q=await sb.from('food_truck_schedule_flavors').select('schedule_id,flavor_id,price_per_box').in('schedule_id',ids);if(q.error)throw q.error;links=q.data||[];const f=await sb.from('flavors').select('id,name,price').eq('enabled',true).order('id');if(f.error)throw f.error;flavors=f.data||[]}
- render(rows,links,flavors)
-}catch(e){$('scheduleList').innerHTML='<div class="notice">目前無法連線到最新出攤資料，請稍後重新整理。</div>'}
-})();
-</script>
-</body>
-</html>+esc(x.price??0)+'</span></div>').join(''):'<div class="empty-flavor">依後台設定</div>')+'</div>'
-   : '<div class="flavor-title">🍡 當日販售口味</div><div class="stall-flavors">'+(items.length?items.map(x=>'<span class="stall-flavor">'+esc(x.name)+'</span>').join(''):'<span class="empty-flavor">依後台設定</span>')+'</div>';
-  return '<article class="card"><div class="topline"><h2>🚚 '+esc(title)+'</h2><span class="tag">'+tag+'</span></div><div class="date">📅 '+esc(s.schedule_date)+'</div><div class="basic">'+(s.region?'<div class="basic-row"><span class="icon">📍</span><a href="'+maps(s.region)+'" target="_blank" rel="noopener">'+esc(s.region)+'</a></div>':'<div class="basic-row"><span class="icon">📍</span><span>未設定地區</span></div>')+(time?'<div class="basic-row"><span class="icon">🕐</span><span>'+esc(time)+'</span></div>':'')+'</div>'+flavorBlock+'<span class="status">'+(s.schedule_type==='stall'?'正常出車':'正常擺攤')+'</span></article>';
+  const flavorBlock = (s.schedule_type==='food_truck' ? "<div class='flavor-title'>🍡 當日販售口味與價格</div>" : "<div class='flavor-title'>🍡 當日販售口味</div>") +
+    (items.length ? (s.schedule_type==='food_truck' ? "<div class='flavor-list'>" : "<div class='stall-flavors'>") +
+      items.map(x => s.schedule_type==='food_truck' ? "<div class='flavor-item'><span class='flavor-name'>" + esc(x.name) + "</span><span class='price'>$" + esc(x.price??0) + "</span></div>" : "<span class='stall-flavor'>" + esc(x.name) + "</span>").join("") +
+      "</div>" : "<div class='empty-flavor'>依後台設定</div>");
+    return '<article class="card"><div class="topline"><h2>🚚 '+esc(title)+'</h2><span class="tag">'+tag+'</span></div><div class="date">📅 '+esc(s.schedule_date)+'</div><div class="basic">'+(s.region?'<div class="basic-row"><span class="icon">📍</span><a href="'+maps(s.region)+'" target="_blank" rel="noopener">'+esc(s.region)+'</a></div>':'<div class="basic-row"><span class="icon">📍</span><span>未設定地區</span></div>')+(time?'<div class="basic-row"><span class="icon">🕐</span><span>'+esc(time)+'</span></div>':'')+'</div>'+flavorBlock+'<span class="status">'+(s.schedule_type==='stall'?'正常出車':'正常擺攤')+'</span></article>';
  }).join('');
  $('scheduleList').innerHTML=html||'<div class="notice">目前沒有已公布的出攤行程。</div>';
 }
