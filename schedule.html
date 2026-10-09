@@ -43,31 +43,10 @@ function renderCards(){
   const links=bySchedule[s.id]||[],title=s.title||(s.schedule_type==='food_truck'?'涼糕餐車':'擺攤'),isTruck=s.schedule_type==='food_truck';
   const time=[formatTime(s.start_time),formatTime(s.end_time)].filter(Boolean).join(' - ');
   const items=links.map(x=>{const f=allFlavors.find(z=>z.id===x.flavor_id);return f?{name:f.name,price:x.price_per_box??x.price??x.unit_price??f.price}:null}).filter(Boolean);
-  const flavorBlock = '<div class="flavor-title">🍡 '+(isTruck?'當日販售口味與價格':'當日販售口味')+'</div>' + (items.length ? (isTruck ? '<div class="flavor-list">' : '<div class="stall-flavors">') + items.map(x => isTruck ? '<div class="flavor-item"><span class="flavor-name">'+esc(x.name)+'</span><span class="price">'+(x.price!==null&&x.price!==undefined?'
-  const mapUrl=!isTruck?maps(s.region):'',embed=!isTruck?mapEmbed(s.region):'';
-  return '<article class="card"><div class="topline"><h2>🚚 '+esc(title)+'</h2><span class="tag">'+(isTruck?'餐車':'擺攤')+'</span></div><div class="date">📅 '+esc(s.schedule_date||'日期待公布')+'</div><div class="basic">'+(s.region?'<div class="basic-row"><span class="icon">📍</span><span>'+esc(s.region)+'</span></div>':'<div class="basic-row"><span class="icon">📍</span><span>尚未設定地點</span></div>')+(time?'<div class="basic-row"><span class="icon">🕐</span><span>'+esc(time)+'</span></div>':'<div class="basic-row"><span class="icon">🕐</span><span>時間待公布</span></div>')+'</div>'+flavorBlock+(embed?'<iframe class="map-frame" title="'+esc(title)+'地圖" src="'+embed+'" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>':'')+'<div class="card-actions">'+(mapUrl?'<a class="action-link action-map" href="'+mapUrl+'" target="_blank" rel="noopener">🧭 Google 地圖導航</a>':'')+(isTruck?'<a class="action-link action-order" href="online-order.html">🛒 前往線上預訂</a>':'')+'</div><span class="status">'+(isTruck?'開放查看與預訂':'已公布出攤行程')+'</span></article>';
- }).join('');
- $('scheduleList').innerHTML=html||(activeCity==='all'?'<div class="notice">目前沒有已公布的出攤行程。</div>':'<div class="notice">這個縣市目前沒有已公布的行程。</div>');
-}
-try{
- if(!window.supabase)throw new Error('網站資料元件載入失敗');
- const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
- const result=await sb.from('food_truck_schedules').select('id,schedule_date,schedule_type,title,region,start_time,end_time,enabled').eq('enabled',true).gte('schedule_date',today).order('schedule_date',{ascending:true});
- if(result.error)throw result.error;
- allRows=result.data||[];
- if(allRows.length){
-  const ids=allRows.map(x=>x.id);
-  const lr=await sb.from('food_truck_schedule_flavors').select('schedule_id,flavor_id,price_per_box,price,unit_price').in('schedule_id',ids);
-  if(lr.error)throw lr.error;allLinks=lr.data||[];
-  const fr=await sb.from('flavors').select('id,name,price,enabled').order('id');
-  if(fr.error)throw fr.error;allFlavors=(fr.data||[]).filter(f=>f.enabled!==false);
- }
- renderFilters(allRows);renderCards();
-}catch(error){console.error('餐車行程載入失敗：',error);$('scheduleList').innerHTML='<div class="notice">目前無法連線到最新出攤資料，請稍後重新整理。</div>'}
-})();
-</script>
-</body>
-</html>+esc(x.price):'價格待公布')+'</span></div>' : '<span class="stall-flavor">'+esc(x.name)+'</span>').join('') + '</div>' : '<div class="empty-flavor">'+(isTruck?'當日口味與價格將依後台設定更新。':'當日口味將依後台設定更新。')+'</div>');
+  const flavorBlock = (isTruck ? "<div class='flavor-title'>🍡 當日販售口味與價格</div>" : "<div class='flavor-title'>🍡 當日販售口味</div>") +
+    (items.length ? (isTruck ? "<div class='flavor-list'>" : "<div class='stall-flavors'>") +
+      items.map(x => isTruck ? "<div class='flavor-item'><span class='flavor-name'>" + esc(x.name) + "</span><span class='price'>" + (x.price!==null && x.price!==undefined ? "$" + esc(x.price) : "價格待公布") + "</span></div>" : "<span class='stall-flavor'>" + esc(x.name) + "</span>").join("") +
+      "</div>" : "<div class='empty-flavor'>" + (isTruck ? "當日口味與價格將依後台設定更新。" : "當日口味將依後台設定更新。") + "</div>");
   const mapUrl=!isTruck?maps(s.region):'',embed=!isTruck?mapEmbed(s.region):'';
   return '<article class="card"><div class="topline"><h2>🚚 '+esc(title)+'</h2><span class="tag">'+(isTruck?'餐車':'擺攤')+'</span></div><div class="date">📅 '+esc(s.schedule_date||'日期待公布')+'</div><div class="basic">'+(s.region?'<div class="basic-row"><span class="icon">📍</span><span>'+esc(s.region)+'</span></div>':'<div class="basic-row"><span class="icon">📍</span><span>尚未設定地點</span></div>')+(time?'<div class="basic-row"><span class="icon">🕐</span><span>'+esc(time)+'</span></div>':'<div class="basic-row"><span class="icon">🕐</span><span>時間待公布</span></div>')+'</div>'+flavorBlock+(embed?'<iframe class="map-frame" title="'+esc(title)+'地圖" src="'+embed+'" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>':'')+'<div class="card-actions">'+(mapUrl?'<a class="action-link action-map" href="'+mapUrl+'" target="_blank" rel="noopener">🧭 Google 地圖導航</a>':'')+(isTruck?'<a class="action-link action-order" href="online-order.html">🛒 前往線上預訂</a>':'')+'</div><span class="status">'+(isTruck?'開放查看與預訂':'已公布出攤行程')+'</span></article>';
  }).join('');
