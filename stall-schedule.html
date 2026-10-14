@@ -29,15 +29,15 @@ function render(rows,links,flavors){
  const by={};links.forEach(x=>(by[x.schedule_id]??=[]).push(x));
  const html=rows.map(s=>{
   const arr=by[s.id]||[];
-  const title=s.title||(s.schedule_type==='stall'?'涼糕餐車':'擺攤');
-  const tag=s.schedule_type==='stall'?'餐車':'擺攤';
+  const title=s.title||(s.schedule_type==='stall'?'擺攤':'涼糕餐車');
+  const tag=s.schedule_type==='stall'?'擺攤':'餐車';
   const time=[formatTime(s.start_time),formatTime(s.end_time)].filter(Boolean).join(' - ');
    const items=arr.map(x=>{const f=flavors.find(z=>z.id===x.flavor_id);if(!f)return null;return {name:f.name}}).filter(Boolean);
    const flavorBlock = "<div class='flavor-title'>🍡 當日販售口味</div>" +
      (items.length ? "<div class='stall-flavors'>" +
        items.map(x => "<div class='stall-flavor'>" + esc(x.name) + "</div>").join("") +
        "</div>" : "<div class='empty-flavor'>依後台設定</div>");
-    return '<article class="card"><div class="topline"><h2>🚚 '+esc(title)+'</h2><span class="tag">'+tag+'</span></div><div class="date">📅 '+esc(s.schedule_date)+'</div><div class="basic">'+(s.region?'<div class="basic-row"><span class="icon">📍</span><a href="'+maps(s.region)+'" target="_blank" rel="noopener">'+esc(s.region)+'</a></div>':'<div class="basic-row"><span class="icon">📍</span><span>未設定地區</span></div>')+(time?'<div class="basic-row"><span class="icon">🕐</span><span>'+esc(time)+'</span></div>':'')+'</div>'+flavorBlock+'<span class="status">'+(s.schedule_type==='stall'?'正常出車':'正常擺攤')+'</span></article>';
+    return '<article class="card"><div class="topline"><h2>🚚 '+esc(title)+'</h2><span class="tag">'+tag+'</span></div><div class="date">📅 '+esc(s.schedule_date)+'</div><div class="basic">'+(s.region?'<div class="basic-row"><span class="icon">📍</span><a href="'+maps(s.region)+'" target="_blank" rel="noopener">'+esc(s.region)+'</a></div>':'<div class="basic-row"><span class="icon">📍</span><span>未設定地區</span></div>')+(time?'<div class="basic-row"><span class="icon">🕐</span><span>'+esc(time)+'</span></div>':'')+'</div>'+flavorBlock+'<span class="status">'+(s.schedule_type==='stall'?'正常擺攤':'正常出車')+'</span></article>';
  }).join('');
  $('scheduleList').innerHTML=html||'<div class="notice">目前沒有已公布的出攤行程。</div>';
 }
