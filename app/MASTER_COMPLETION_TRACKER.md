@@ -1789,7 +1789,7 @@ Phase 33：將 App 所需 API 的 request／response、狀態、錯誤碼、權�
 | 結帳不信任客戶端金額 | 已新增 | 僅授權模型、不建單 |
 | 會員／訪客訂單存取 | 已新增 | 本人驗證、claim 期限與撤銷 |
 | 後台角色／出貨付款閘門 | 已新增 | 個資角色拒絕履約；未付款不得出貨 |
-| GitHub Actions | 已加入測試步驟 | 等待 runner 結果 |
+| GitHub Actions | 已通過 | Phase 66 全套測試成功（9 項新測試） |
 | 正式 Supabase／API | 未連接 | 合成測試，無正式資料寫入 |
 
 新增檔案：
@@ -1814,7 +1814,7 @@ Phase 33：將 App 所需 API 的 request／response、狀態、錯誤碼、權�
 | 會員／訪客查詢 API | 已新增 | owner check／guest claim |
 | 後台履約 API | 已新增 | 角色、版本、冪等檢查 |
 | 標準錯誤與 request ID | 已新增 | v1 envelope |
-| HTTP 整合測試 | 已新增 | 等待 GitHub Actions 驗收 |
+| HTTP 整合測試 | 已通過 | Phase 67 HTTP 9 項測試全數成功 |
 | 正式 Supabase／Auth／金流 | 未連接 | 無正式資料寫入 |
 
 新增檔案：
@@ -1828,3 +1828,9 @@ Phase 33：將 App 所需 API 的 request／response、狀態、錯誤碼、權�
 
 ### 下一階段（Phase 68）
 整理 staging readiness、正式 API hosting／Auth 架構、環境隔離、RLS 修補驗收與回滾清單；不直接修改正式環境。
+
+
+### Phase 66／67 CI 驗收補記（2026-11-08）
+- Phase 66 commit `dcb1b5666c788f993421c0742dc16882a15656c2`：Pure Node safety tests 與 App public read API mock tests 均成功。
+- Phase 67 commit `3b3efb9b2ab8a9de88ca2cdcdc330b924248e00a`：Pure Node safety tests 成功；workflow HTTP contract tests 9/9 通過。
+- 此 CI 僅驗證合成資料與本機 mock server，不代表 production API、Auth、Supabase 或金流已部署。
