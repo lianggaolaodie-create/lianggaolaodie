@@ -2079,7 +2079,7 @@ CI 更新：`.github/workflows/pure-node-safety-tests.yml`
 | 私人資料無條件 policy 偵測 | 已建立 | 訂單、明細、匯款證明 |
 | anon／PUBLIC 寫入 grant 偵測 | 已建立 | critical finding |
 | authenticated 寫入 grant 核對提示 | 已建立 | warning，需對照 RLS |
-| 合成快照測試 | 已加入 | GitHub Actions 待驗收 |
+| 合成快照測試 | 已通過 | GitHub Actions 成功 |
 | 真實 staging snapshot 比對 | 未執行 | 尚未取得 staging metadata |
 | production 變更 | 未執行 | 正式環境維持唯讀 |
 
@@ -2094,3 +2094,10 @@ CI 更新：`.github/workflows/pure-node-safety-tests.yml`
 - 比對器只檢查輸入的 metadata snapshot，不連線資料庫、不解析任意 SQL predicate 的完整語意。
 - 真實角色 predicate、function grants、Storage policies 仍須 staging 人工審查與 JWT 測試。
 - 未讀取 production 資料，未執行 SQL／GRANT／policy／function／Secrets／billing 變更。
+
+
+### Phase 76 CI 驗收補記
+- GitHub Actions：Pure Node safety tests 成功。
+- Run：https://github.com/lianggaolaodie-create/lianggaolaodie/actions/runs/42411230640
+- Phase 76 metadata snapshot comparator test step：success。
+- 只驗證合成 metadata；尚無真實 staging snapshot。
