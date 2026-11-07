@@ -2132,3 +2132,29 @@ CI 更新：`.github/workflows/pure-node-safety-tests.yml`
 - Run：https://github.com/lianggaolaodie-create/lianggaolaodie/actions/runs/42411324196
 - Phase 77 security risk report test step：success。
 - 本結果只驗證合成 snapshot 報告產生器。
+
+
+## Phase 78｜安全修補工作清單與驗收責任分工（2026-11-08）
+
+| 交付 | 狀態 | 備註 |
+|---|---|---|
+| P0 商品／分類政策修補工作 | 已列管 | 等待獨立 staging |
+| P1 訂單／明細 ownership 驗收 | 已列管 | 顧客 A／B 負向測試 |
+| P1 匯款證明／Storage 驗收 | 已列管 | 匿名與跨使用者存取拒絕 |
+| P1 SECURITY DEFINER 審查 | 已列管 | 逐函式審查，不批次撤權 |
+| P2 其他 RLS 缺漏／角色分離 | 已列管 | 待 staging metadata |
+| 負責職能、依賴、驗收及 rollback | 已建立 | 尚未指定實際員工 |
+| 合成 backlog 測試 | 已加入 | GitHub Actions 待驗收 |
+| 真實 staging 修補 | 未執行 | 尚未建立／確認 staging |
+| production 修補 | 未執行 | 需另行明確核准 |
+
+新增檔案：
+- `app/security/security-remediation-backlog.js`
+- `app/security/security-remediation-backlog.test.js`
+- `app/PHASE_78_SECURITY_REMEDIATION_BACKLOG.md`
+
+CI 更新：`.github/workflows/pure-node-safety-tests.yml`
+
+### Phase 78 限制
+- 所有修補工作預設 blocked；責任欄是職能角色，不代表已建立實際帳號。
+- 本階段不建立 staging、不執行 SQL／policy／GRANT／function，不更動 production 或 secrets。
