@@ -415,3 +415,30 @@ GitHub 分支：app/phase-1-planning
 
 ### 下一步
 只讀核對 RLS policies、table grants、RPC EXECUTE grants 與 SECURITY DEFINER；完成後才整理正式安全修正草案。正式環境維持不變。
+
+
+## 15. 2026-11-08 Phase 12 RLS／Grants／RPC 安全唯讀稽核
+
+| 交付 | 狀態 | 備註 |
+|---|---|---|
+| 核心資料表 RLS policies | 已唯讀盤點 | 包含 orders、order_items、order_private、冷藏寄放、蘿蔔糕、商品、每日開單、管理設定 |
+| 核心資料表 grants | 已唯讀盤點 | 聚焦 anon／authenticated／service_role 的資料操作權限 |
+| 指定 RPC EXECUTE ACL | 已唯讀盤點 | 包含 SECURITY DEFINER、search_path 與函式原始碼 |
+| Supabase Security Advisor | 已檢查 | 多支 SECURITY DEFINER 函式提醒；Auth leaked password protection disabled |
+| 高風險修正清單 | 已建立提案 | 未執行任何修正 |
+| 正式環境變更 | 未執行 | 維持唯讀，未建立付費 branch |
+
+詳細文件：`app/PHASE_12_RLS_GRANTS_RPC_SECURITY_AUDIT.md`
+
+### Phase 12 優先發現
+- P0：兩支 LINE 訂單 payload SECURITY DEFINER RPC 有 PUBLIC／anon／authenticated EXECUTE，函式未見 caller／訂單授權，可能回傳顧客個資與匯款末五碼。
+- P0：`submit_customer_payment` 允許 anon／authenticated 執行，依傳入 order_id 更新付款資料，未見會員 ownership 或訪客短效驗證。
+- P0：`mark_line_payment_notification_sent` 允許 PUBLIC／anon／authenticated 執行，未見 caller authorization。
+- P1：冷藏寄放訂單與明細允許 anon direct INSERT，需先確保 RPC／官網相容再收斂。
+- P1：`merch_backend_sync` RLS disabled；目前 grants 輸出未見 anon／authenticated 資料操作權限，但仍須確認 schema exposure、views、functions 與 service-role 依賴。
+- P1：`order_items`、蘿蔔糕訂單與明細目前沒有會員本人讀取政策，會員訂單中心需安全查詢方式。
+- P1：LINE 綁定函式需確認一次性驗證或可信 webhook caller，不可只以電話比對作身份證明。
+- P2：Auth leaked password protection disabled，需評估相容性後再提出設定變更。
+
+### 下一階段
+建立 RPC／Edge Function 呼叫來源矩陣，逐支確認前端、trigger、LINE webhook、service-role caller、排程與外部依賴；產出 P0 修正 SQL／Function patch 草案、相容測試與回復計畫。仍不部署、不修改正式 Supabase、不切換官網、不建立付費 branch。
