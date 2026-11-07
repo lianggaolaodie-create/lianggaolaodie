@@ -59,3 +59,5 @@ jobs:
         run: node --test app/security/database-prechange-inventory.test.js
       - name: Run Phase 75 read-only SQL guard tests
         run: node --test app/security/readonly-sql-guard.test.js
+      - name: Run Phase 76 metadata snapshot comparator tests
+        run: node --test app/security/metadata-snapshot-comparator.test.js
