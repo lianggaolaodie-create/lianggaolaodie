@@ -1802,3 +1802,29 @@ Phase 33：將 App 所需 API 的 request／response、狀態、錯誤碼、權�
 
 ### 下一階段（Phase 67）
 建立 HTTP mock contract layer，驗證 endpoint、status code、標準錯誤格式與角色權限，使用合成資料，不連正式環境。
+
+
+## Phase 67｜HTTP 工作流程契約模擬服務
+
+| 交付 | 狀態 | 備註 |
+|---|---|---|
+| HTTP server | 已新增 | 合成資料、記憶體模型 |
+| Quote API | 已新增 | 使用可信測試商品與費率 |
+| Checkout authorization | 已新增 | 不建立訂單、不付款 |
+| 會員／訪客查詢 API | 已新增 | owner check／guest claim |
+| 後台履約 API | 已新增 | 角色、版本、冪等檢查 |
+| 標準錯誤與 request ID | 已新增 | v1 envelope |
+| HTTP 整合測試 | 已新增 | 等待 GitHub Actions 驗收 |
+| 正式 Supabase／Auth／金流 | 未連接 | 無正式資料寫入 |
+
+新增檔案：
+- `app/mock-api/workflow-http-server.js`
+- `app/mock-api/workflow-http-server.test.js`
+- `app/PHASE_67_WORKFLOW_HTTP_CONTRACT.md`
+
+### Phase 67 限制
+- 測試用身份 resolver 不是真正登入；此 mock server 不可直接公開部署。
+- 無正式訂單建立、金流扣款、物流、資料庫寫入或 production API。
+
+### 下一階段（Phase 68）
+整理 staging readiness、正式 API hosting／Auth 架構、環境隔離、RLS 修補驗收與回滾清單；不直接修改正式環境。
