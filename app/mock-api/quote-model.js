@@ -45,7 +45,7 @@ function recipientFingerprint(recipient) {
   for (const key of keys) {
     const value = recipient[key] === undefined ? '' : recipient[key];
     if (typeof value !== 'string') return null;
-    normalized[key] = value.trim().replace(/\\s+/g, ' ');
+    normalized[key] = value.trim().replace(/\s+/g, ' ');
   }
   return createHash('sha256').update(JSON.stringify(normalized)).digest('hex');
 }
