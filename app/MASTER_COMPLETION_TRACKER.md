@@ -1578,3 +1578,34 @@ Phase 33：將 App 所需 API 的 request／response、狀態、錯誤碼、權�
 - Run： https://github.com/lianggaolaodie-create/lianggaolaodie/actions/runs/42406365357
 - 測試涵蓋 Phase 50 對帳案例修正，以及 Phase 52 訂單／付款／履約／通知模型。
 - 此為 mock-api 自動化測試，不代表正式 Supabase、金流、物流或通知整合測試。
+
+
+## 56. 2026-11-08 Phase 53 商品／口味／餐車擺攤發布模型
+
+| 交付 | 狀態 | 備註 |
+|---|---|---|
+| 商品管理 reference model | 已建立 | owner/admin 權限、版本衝突、價格與上架狀態 |
+| 涼糕／蘿蔔糕分開管理 | 已建立 | 商品 type 與口味 productType 分離 |
+| 口味管理 | 已建立 | 啟用狀態、所屬商品類型與版本 |
+| 價格／上架／停售／開單 | 已建立參考模型 | 商品 state 與 onlineEnabled 分離；正式開單 API 未接 |
+| 餐車／擺攤管理 | 已建立參考模型 | food_truck／stall 獨立；日期、地區、地點、時間、口味 |
+| 餐車場次價格／擺攤不顯示價格 | 已建立 | 公開 snapshot 對 stall 價格欄位採白名單排除 |
+| 官網／App 共用發布資料 | 已建立參考模型 | 同一 snapshot revision 與相同物件 |
+| 管理操作稽核 | 已建立參考模型 | audit trail 不輸出到公開資料 |
+| 自動化測試 | 已加入 CI | 等待 GitHub Actions 結果 |
+| 正式 Supabase／官網串接 | 未完成 | 正式環境維持唯讀 |
+
+新增檔案：
+- `app/mock-api/product-admin-model.js`
+- `app/mock-api/product-admin-model.test.js`
+- `app/PHASE_53_PRODUCT_FLAVOR_AND_PUBLISHING_MODEL.md`
+
+### Phase 53 限制
+- 本階段是純 Node in-memory reference model 與合成測試，不是正式後台 UI 或可安裝 App。
+- 尚未對照並映射現有 Supabase schema、RPC、RLS 與官網實際讀寫路徑。
+- 沒有執行正式 migration、DML、RLS、Edge Function、Secrets 或官網部署。
+- 商品圖片上傳、真實後台 API、正式發布同步及即時推播仍未完成。
+- 正式版需以資料庫交易、後端角色授權、版本衝突檢查及稽核紀錄實作。
+
+### 下一階段（Phase 54）
+只讀盤點現有商品／口味／每日開單／餐車排程資料表、RPC 與官網讀寫呼叫，建立 schema/API adapter 對照與公開 payload 白名單；不執行正式 migration。
