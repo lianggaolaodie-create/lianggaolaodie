@@ -57,3 +57,5 @@ jobs:
         run: node --test app/security/rls-remediation-plan.test.js
       - name: Run Phase 74 database inventory tests
         run: node --test app/security/database-prechange-inventory.test.js
+      - name: Run Phase 75 read-only SQL guard tests
+        run: node --test app/security/readonly-sql-guard.test.js
