@@ -153,7 +153,10 @@ test('terminal payment state cannot be overwritten by later event', () => {
 test('webhook after intent expiry is rejected', () => {
   const { store, intent } = setup();
   const payload = webhook(intent);
-  assert.equal(applyVerifiedWebhook({ store, ...payload, now: intent.expiresAt }).reason, 'PAYMENT_INTENT_EXPIRED');
+  const timestamp = intent.expiresAt - 1;
+  const rawBody = payload.rawBody;
+  assert.equal(applyVerifiedWebhook({ store, ...payload, timestamp,
+    signature: signWebhook(rawBody, secret, timestamp), now: intent.expiresAt }).reason, 'PAYMENT_INTENT_EXPIRED');
 });
 
 test('pending intent can expire only at or after expiry time', () => {
