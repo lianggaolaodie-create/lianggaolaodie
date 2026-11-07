@@ -935,3 +935,31 @@ Phase 30：檢查 repo 現有 package scripts、GitHub Actions 與測試檔依�
 
 ### 下一階段（整批工作包）
 Phase 32：盤點目前 repo 中可重用的官網頁面、Supabase RPC、資料表及後台元件，建立「現有程式 → App 功能 → 所需 API／資料權限」對照表；標示可直接重用、需包裝、需重寫及不可安全重用的項目。
+
+
+## 35. 2026-11-08 Phase 32 既有官網／Supabase 至 App 重用對照
+
+| 交付 | 狀態 | 備註 |
+|---|---|---|
+| 涼糕商品／口味來源 | 已辨識 | `flavors`、`products.html` |
+| 涼糕冷藏寄放建單入口 | 已辨識 | `create_cooling_pickup_order` |
+| 涼糕送到府資料來源 | 已辨識 | `orders`、`order_items`、`order_private` |
+| 蘿蔔糕商品及建單入口 | 已辨識 | `site_admin_content.radish_products`、`create_radish_delivery_order` |
+| 餐車／擺攤排程來源 | 已辨識 | `food_truck_schedules`、`food_truck_schedule_flavors` |
+| 老闆後台入口及模組 | 已辨識 | `admin-dashboard.html` 與相關管理頁 |
+| App API endpoint | 尚未建立 | Phase 32 提供建議契約，不代表 API 已存在 |
+| 正式 schema／RPC／RLS 完整驗證 | 尚未完成 | 需要隔離測試環境 |
+| 正式環境變更 | 未執行 | 維持唯讀 |
+
+詳細文件：`app/PHASE_32_EXISTING_SITE_TO_APP_REUSE_MATRIX.md`
+
+### Phase 32 結論
+- 涼糕冷藏寄放與蘿蔔糕冷凍物流有各自的建單 RPC，不應在 App 前端把兩種訂單合併成一種付款／物流狀態。
+- 餐車與擺攤共用排程資料來源，但公開呈現規則不同：餐車可顯示價格，擺攤不顯示價格。
+- 蘿蔔糕商品目前可見的官網管理方式使用 `site_admin_content` JSON；需注意併發覆寫、圖片 Storage 政策及商品主資料正規化。
+- 現有前端的最低訂購量、運費、價格檢查不能取代 RPC 伺服器端重新驗證；蘿蔔糕頁面可見固定運費顯示值，不應直接當作 App 最終報價來源。
+- 舊管理頁直接更新／刪除訂單與狀態的模式不可直接複製到 App；需由安全管理 API、狀態機及稽核機制承接。
+- 本階段只有程式與資料來源對照，未建立 API、未修改正式服務。
+
+### 下一階段（整批工作包）
+Phase 33：將 App 所需 API 的 request／response、狀態、錯誤碼、權限與資料映射整理成可實作契約，涵蓋公開商品／行程／內容、訪客報價與建單、會員／訪客訂單查詢及老闆管理操作。
