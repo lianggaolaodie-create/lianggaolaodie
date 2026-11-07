@@ -23,4 +23,4 @@ jobs:
         with:
           node-version: "22"
       - name: Run public read API tests
-        run: node --test app/mock-api/public-read-api.test.js
+        run: node --test app/mock-api/*.test.js
