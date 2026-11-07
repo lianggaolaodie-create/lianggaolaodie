@@ -154,3 +154,26 @@ P1（後台整合前）：
 - [ ] 需先製作 migration／Function patch 草案、相容性測試、備份與回復計畫，列明每一項影響，再交由使用者核准。
 
 **本文件僅為開發分支的唯讀安全盤點，不代表正式環境已修復或已上線。**
+
+
+## 10. 補充：資料表實際權限與測試函式
+
+本輪另以 `has_table_privilege` 檢查實際角色權限，確認：
+- `cooling_pickup_orders` 與 `cooling_pickup_order_items`：anon 具 INSERT privilege，RLS 亦有公開 INSERT policy；這確認了直接公開 INSERT 不只是 policy 設定文字，而是角色具備可嘗試寫入的資料庫權限。需評估移除直接寫入路徑並保留受控 RPC。
+- `orders`、`order_items`、`order_private`：anon 沒有 SELECT／INSERT／UPDATE／DELETE table privilege；authenticated 有部分 table privilege，但實際仍受 RLS policy 限制。
+- `radish_orders`：authenticated 有 SELECT／UPDATE table privilege，RLS 限定管理員讀取／更新；匿名角色沒有 CRUD privilege。
+- `radish_order_items`：authenticated 有 SELECT，管理員讀取 policy；未授予 authenticated INSERT／UPDATE／DELETE。
+
+注意：table privilege 與 RLS 是兩層檢查；有 privilege 不代表能讀寫任意資料，仍須檢查 policy。反之，撤除 privilege 也可能影響既有前端及管理後台，須先做相容性驗證。
+
+### Active 測試 Edge Functions
+
+目前 Supabase Edge Function 清單有多支名稱為 `line-order-test`、`line-order-test-2` 至 `line-order-test-7` 的 Active 函式，均設定 `verify_jwt=false`，抽查內容為簡單回傳 OK／JSON 的測試端點。
+
+另有 `tiktok-live-room-test`，會接受 query string 的 user 名稱並呼叫外部服務取得直播房間／串流資訊；`tiktok-live-chat` 是未見登入驗證的 WebSocket 入口，`tiktok-live-proxy` 是公開代理用途。這些不屬於本階段顧客 App 核心功能，需確認是否仍有實際使用者或網站依賴；未經盤點不可直接停用。
+
+建議：
+1. 逐一標記每個 Active Function 的正式用途、呼叫端、負責人及是否必要。
+2. 無使用中的測試 Function 移至獨立測試專案或停用；停用前先查網頁／自動化／LINE webhook 呼叫紀錄。
+3. TikTok 相關功能若不屬於目前 App 上線範圍，先從新 App API 清單排除，但不要直接停掉現有直播功能。
+4. 對所有公開 proxy／WebSocket 加入合理的速率限制、輸入限制與成本監控。
