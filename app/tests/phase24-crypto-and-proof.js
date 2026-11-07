@@ -47,7 +47,7 @@ function isAllowedMerchShipmentStatus(status) {
   return MERCH_SHIPMENT_STATES.includes(status);
 }
 function normalizeLegacyMerchAdminPayment(status) {
-  const map = { pending: 'unpaid', paid: 'confirmed', unpaid: 'unpaid', confirmed: 'confirmed' };
+  const map = { pending: 'unpaid', paid: 'confirmed', unpaid: 'unpaid', proof_submitted: 'proof_submitted', rejected: 'rejected', confirmed: 'confirmed' };
   if (status === 'refunded') return { status: 'unsupported_refund', needsReview: true, source: status };
   if (Object.prototype.hasOwnProperty.call(map, status)) return { status: map[status], needsReview: false, source: status };
   return { status: 'unknown', needsReview: true, source: status ?? null };
