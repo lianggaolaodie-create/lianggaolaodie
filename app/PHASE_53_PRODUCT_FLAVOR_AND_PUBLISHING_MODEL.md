@@ -27,6 +27,11 @@
 8. 發布快照有 revision，官網與 App 讀取同版資料。
 9. 稽核紀錄不出現在公開 payload。
 
+## 自動化測試結果
+- GitHub Actions：9 tests passed，0 failed。
+- Run： https://github.com/lianggaolaodie-create/lianggaolaodie/actions/runs/42406974617
+- 僅驗證 Phase 53 純 Node 合成資料模型，不代表正式資料庫或官網串接完成。
+
 ## 限制與未完成
 - 純 Node in-memory reference model 與合成測試，不是正式後台 UI 或正式資料庫。
 - 尚未核對並映射既有 Supabase 欄位、RPC、RLS 與官網實際讀取路徑。
