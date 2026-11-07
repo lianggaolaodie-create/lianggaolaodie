@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#11100e">
+  <meta name="description" content="老爹．涼糕 App 示範版">
+  <title>老爹．涼糕｜App</title>
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#home" aria-label="老爹涼糕首頁"><span class="brand-mark">老</span><span><b>老爹．涼糕</b><small>LAO DIE LIANG GAO</small></span></a>
+    <span class="demo-tag">APP 示範版</span>
+  </header>
+  <main id="app" class="shell">
+    <section class="hero">
+      <p class="eyebrow">A LITTLE SWEETNESS, EVERY DAY</p>
+      <h1>一口涼糕，<em>一份想念。</em></h1>
+      <p class="hero-copy">老爹的招牌好味道，正在準備與你見面。</p>
+      <div class="hero-actions"><button class="gold-button" data-go="products">看看商品 <span>→</span></button><button class="text-button" data-go="schedule">查看出攤資訊</button></div>
+      <div class="hero-stamp">老爹<br>出品</div>
+    </section>
+    <section class="section">
+      <div class="section-heading"><div><p class="eyebrow">EXPLORE</p><h2>快速選單</h2></div><span class="section-note">為你準備的入口</span></div>
+      <div class="quick-grid">
+        <button class="quick-card" data-go="products"><span class="quick-icon">▧</span><b>商品專區</b><small>涼糕・蘿蔔糕</small></button>
+        <button class="quick-card" data-go="cart"><span class="quick-icon">⌑</span><b>購物車</b><small>查看選購內容</small></button>
+        <button class="quick-card" data-go="schedule"><span class="quick-icon">⌖</span><b>餐車／擺攤</b><small>出攤資訊</small></button>
+        <button class="quick-card" data-go="member"><span class="quick-icon">♙</span><b>會員中心</b><small>登入功能準備中</small></button>
+      </div>
+    </section>
+    <section class="feature">
+      <div><p class="eyebrow">MADE WITH CARE</p><h2>每一份新鮮，<br>都值得好好期待。</h2><p>商品口味、價格與供應日期，正式版將以後台即時資料為準。</p></div>
+      <div class="feature-seal">老爹<br><span>LIANG GAO</span></div>
+    </section>
+    <section id="view" class="view" aria-live="polite"></section>
+  </main>
+  <nav class="bottom-nav" aria-label="主要導覽">
+    <button class="nav-item active" data-go="home"><span>⌂</span>首頁</button>
+    <button class="nav-item" data-go="products"><span>▧</span>商品</button>
+    <button class="nav-item" data-go="cart"><span>⌑</span>購物車 <i id="cart-count">0</i></button>
+    <button class="nav-item" data-go="member"><span>♙</span>會員</button>
+  </nav>
+  <script src="./core.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>
