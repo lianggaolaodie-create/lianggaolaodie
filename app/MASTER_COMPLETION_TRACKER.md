@@ -577,3 +577,31 @@ Phase 17：追查所有 RPC function definitions、pg_net／cron／webhook／Sto
 
 ### 下一階段
 Phase 18：追查 Storage bucket／付款證明上傳流程、Dashboard Webhook 與外部物流 callback 的可見設定；比對 create_customer_order／物流 RPC 是否產生或輪替 token；補上出貨通知事件與冪等設計。正式環境維持唯讀。
+
+
+## 21. 2026-11-08 Phase 18 Storage／付款證明／通知來源稽核
+
+| 交付 | 狀態 | 備註 |
+|---|---|---|
+| Storage bucket inventory | 已唯讀盤點 | 5 buckets；transfer-proofs 為 private |
+| Storage RLS policies | 已唯讀盤點 | transfer-proofs 匿名與登入使用者可 INSERT，只限制 proof/ prefix |
+| transfer-proofs bucket limits | 未設定 | file_size_limit、allowed_mime_types 均為 NULL |
+| transfer-proofs objects | 查詢時 0 筆 | 未讀取檔案內容 |
+| 涼糕付款證明流程 | 部分追查 | orders 欄位與 submit_customer_payment RPC 存在；主要客戶下單頁未找到上傳 caller |
+| 周邊商品付款證明流程 | 未確認 | payment_proof_url 欄位存在，已檢查頁面未找到客戶上傳 caller |
+| 周邊商品 LINE 通知 Functions | 已讀取 source | line-payment-notify v4、merch-payment-sync v3 均 verify_jwt=false，caller 未確認 |
+| Storage Webhook／外部自動化 | 未完成 | 尚需 Dashboard／第三方控制台核對 |
+| 正式環境變更 | 未執行 | 全程唯讀，未讀付款證明或客戶資料 |
+
+詳細文件：`app/PHASE_18_STORAGE_PAYMENT_PROOF_AUDIT.md`
+
+### Phase 18 重要發現
+- transfer-proofs bucket 雖為 private，但匿名 INSERT policy 只檢查物件名稱以 proof/ 開頭，沒有訂單授權／所有權／短效 token 綁定。
+- transfer-proofs 未設定 bucket 層檔案大小與 MIME 限制；本輪查詢時物件數為 0。
+- `submit_customer_payment` 會更新付款狀態與證明路徑，但 source 未見檔案存在、訂單綁定或上傳授權驗證。
+- 目前檢查的主要客戶下單頁未找到 transfer-proofs 或周邊商品付款證明上傳 caller；外部／未列頁面來源尚未排除。
+- line-payment-notify 與 merch-payment-sync 都是 verify_jwt=false，未見 request authentication；均能以 request order_id 觸發管理員通知。caller 未確認前不得停用。
+- 周邊商品與涼糕通知訊息將 proof_submitted／匯款末五碼稱作付款完成，必須改成「待核對」，真正核款後才可標示已付款。
+
+### 下一階段
+Phase 19：整理付款／通知／出貨安全修補的精確 patch diff 與測試矩陣；把 caller 未知項目列為上線阻擋條件。正式環境仍維持唯讀，變更需逐項明確核准。
