@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#11100e">
+<title>老爹．涼糕｜會員介面原型</title>
+<style>
+:root{color-scheme:dark;--bg:#11100e;--panel:#1b1915;--line:#51432b;--gold:#d7b56d;--text:#f5f0e6;--muted:#aaa08e}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#2b2418 0,#11100e 52%);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC",sans-serif;min-height:100vh}
+.wrap{width:min(100%,460px);margin:auto;padding:28px 20px 40px}.brand{text-align:center;padding:34px 0 28px}.mark{width:64px;height:64px;border:1px solid var(--gold);border-radius:50%;display:grid;place-items:center;margin:0 auto 14px;color:var(--gold);font-size:24px}.brand h1{font-size:29px;letter-spacing:5px;margin:0}.brand p{font-size:10px;letter-spacing:4px;color:var(--gold);margin:9px 0 0}
+.card{background:linear-gradient(145deg,#211e18,#171512);border:1px solid var(--line);border-radius:22px;padding:23px;box-shadow:0 18px 55px #0008}.tabs{display:flex;background:#100f0d;border-radius:12px;padding:4px;margin-bottom:24px}.tabs button{flex:1;background:none;border:0;color:var(--muted);padding:11px;border-radius:9px;font-size:14px;font-weight:700}.tabs button.active{background:#3a3020;color:var(--gold)}
+h2{font-size:21px;margin:0 0 7px}.sub{color:var(--muted);font-size:13px;line-height:1.7;margin:0 0 22px}.field{margin:15px 0}.field label{display:block;font-size:12px;color:var(--gold);margin-bottom:8px}.field input{width:100%;border:1px solid #514733;border-radius:11px;background:#100f0d;color:var(--text);padding:14px;font-size:15px;outline:none}.field input:focus{border-color:var(--gold)}.primary{width:100%;border:0;border-radius:12px;background:linear-gradient(100deg,#b58b42,#e4ca8b);color:#17130c;font-weight:900;font-size:15px;padding:15px;margin-top:13px}.linkrow{display:flex;justify-content:space-between;margin-top:17px;font-size:12px;color:var(--muted)}.linkrow button{background:none;border:0;color:var(--gold);font:inherit}.notice{border:1px solid #514733;background:#17140f;border-radius:12px;padding:12px;color:var(--muted);font-size:11px;line-height:1.7;margin-top:20px}.hidden{display:none}.foot{text-align:center;color:#746b5c;font-size:11px;margin-top:22px;letter-spacing:1px}
+</style>
+</head>
+<body><main class="wrap">
+<header class="brand"><div class="mark">老</div><h1>老爹．涼糕</h1><p>LAO DIE DESSERT</p></header>
+<section class="card">
+<div class="tabs"><button id="loginTab" class="active" type="button">會員登入</button><button id="signupTab" type="button">加入會員</button></div>
+<form id="loginForm"><h2>歡迎回來</h2><p class="sub">登入老爹會員，查看訂單與專屬優惠。</p>
+<div class="field"><label for="loginEmail">電子郵件</label><input id="loginEmail" type="email" placeholder="請輸入 Email" autocomplete="email"></div>
+<div class="field"><label for="loginPassword">密碼</label><input id="loginPassword" type="password" placeholder="請輸入密碼" autocomplete="current-password"></div>
+<button class="primary" type="submit">登入會員</button><div class="linkrow"><span>還沒有帳號？</span><button id="toSignup" type="button">立即註冊</button><button id="forgot" type="button">忘記密碼</button></div>
+</form>
+<form id="signupForm" class="hidden"><h2>建立老爹會員</h2><p class="sub">註冊一次，即可在官網與 App 使用同一帳號。</p>
+<div class="field"><label for="name">姓名</label><input id="name" placeholder="請輸入姓名" autocomplete="name"></div>
+<div class="field"><label for="signupEmail">電子郵件</label><input id="signupEmail" type="email" placeholder="作為登入帳號" autocomplete="email"></div>
+<div class="field"><label for="phone">手機號碼</label><input id="phone" type="tel" placeholder="請輸入手機號碼" autocomplete="tel"></div>
+<div class="field"><label for="signupPassword">設定密碼</label><input id="signupPassword" type="password" placeholder="至少 8 個字元" autocomplete="new-password"></div>
+<button class="primary" type="submit">建立會員帳號</button><div class="linkrow"><span>已經是會員？</span><button id="toLogin" type="button">返回登入</button></div>
+</form>
+<div class="notice">介面設計預覽｜目前尚未連接正式會員資料庫。註冊、登入及忘記密碼功能須待會員驗證方式與安全權限確認後開發。</div>
+</section><footer class="foot">BLACK · CHAMPAGNE GOLD · OFFICIAL MEMBER</footer>
+</main>
+<script>
+const loginTab=document.getElementById('loginTab'),signupTab=document.getElementById('signupTab'),loginForm=document.getElementById('loginForm'),signupForm=document.getElementById('signupForm');
+function show(which){const login=which==='login';loginForm.classList.toggle('hidden',!login);signupForm.classList.toggle('hidden',login);loginTab.classList.toggle('active',login);signupTab.classList.toggle('active',!login)}
+loginTab.onclick=()=>show('login');signupTab.onclick=()=>show('signup');document.getElementById('toSignup').onclick=()=>show('signup');document.getElementById('toLogin').onclick=()=>show('login');
+loginForm.onsubmit=e=>{e.preventDefault();alert('這是介面預覽，尚未連接正式登入服務。')};signupForm.onsubmit=e=>{e.preventDefault();alert('這是介面預覽，尚未建立正式會員帳號。')};document.getElementById('forgot').onclick=()=>alert('正式版將提供安全的密碼重設流程。');
+</script></body></html>
