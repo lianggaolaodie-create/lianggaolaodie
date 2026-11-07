@@ -51,3 +51,5 @@ jobs:
         run: node --test app/mock-api/staging-seed.test.js
       - name: Run Phase 71 role authorization tests
         run: node --test app/mock-api/role-authorization-model.test.js
+      - name: Run Phase 72 RLS policy model tests
+        run: node --test app/mock-api/rls-policy-test-model.test.js
