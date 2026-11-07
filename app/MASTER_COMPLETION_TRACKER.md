@@ -2045,7 +2045,7 @@ CI 更新：`.github/workflows/pure-node-safety-tests.yml`
 | function security metadata | 已建立 | SECURITY DEFINER／EXECUTE 權限盤點 |
 | foreign key／Storage policy metadata | 已建立 | 不讀取 Storage object 或業務資料列 |
 | SQL 靜態 guard | 已建立 | 阻擋明顯 DDL／DML／GRANT／REVOKE |
-| 自動化測試 | 已加入 | GitHub Actions 待驗收 |
+| 自動化測試 | 已通過 | GitHub Actions 成功 |
 | 真實 staging SQL 執行 | 未執行 | 尚未確認 staging project ref |
 | production 查詢／修改 | 未執行 | production 維持不動 |
 
@@ -2061,3 +2061,10 @@ CI 更新：`.github/workflows/pure-node-safety-tests.yml`
 - SQL 尚未在任何資料庫執行；CI 只驗證靜態安全結構。
 - SQL guard 非完整 PostgreSQL parser，執行前仍須人工確認環境與內容。
 - 未讀取會員、訂單或付款資料；未做 production SQL、GRANT、policy、function、Storage、Secrets 或 billing 變更。
+
+
+### Phase 75 CI 驗收補記
+- GitHub Actions：Pure Node safety tests 成功。
+- Run：https://github.com/lianggaolaodie-create/lianggaolaodie/actions/runs/42411120017
+- Phase 75 read-only SQL guard test step：success。
+- SQL 本身仍未在資料庫執行；CI 僅驗證靜態規則。
