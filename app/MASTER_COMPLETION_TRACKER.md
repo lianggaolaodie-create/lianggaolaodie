@@ -1469,7 +1469,7 @@ Phase 33：將 App 所需 API 的 request／response、狀態、錯誤碼、權�
 | Webhook event 去重 | 已建立參考模型 | 相同事件重播不重複處理 |
 | 金額／幣別／provider／intent 核對 | 已建立參考模型 | 不一致拒絕 |
 | 正式金流、退款與資料庫交易 | 未完成 | 未選定／串接供應商；沒有扣款 |
-| 自動化測試 | 已建立 | 等待 GitHub Actions 結果 |
+| 自動化測試 | 已通過 | GitHub Actions：197／197 通過，0 失敗；Run 42405507575 |
 
 新增檔案：
 - `app/mock-api/payment-model.js`
@@ -1488,3 +1488,10 @@ Phase 33：將 App 所需 API 的 request／response、狀態、錯誤碼、權�
 
 ### 下一階段（Phase 50）
 建立退款與付款對帳 reference model：退款申請、核准、處理中、成功／失敗、部分退款上限、重複退款請求冪等性，以及每日交易對帳差異；只使用合成資料，不呼叫金流或修改正式資料。
+
+
+### Phase 49 測試證據
+- GitHub Actions：197 項測試通過，0 項失敗。
+- Run：42405507575
+- https://github.com/lianggaolaodie-create/lianggaolaodie/actions/runs/42405507575
+- 修正測試 fixture 的 webhook timestamp，使逾時情境先通過簽章時間窗，再驗證付款意圖逾時。
