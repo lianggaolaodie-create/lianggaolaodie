@@ -767,3 +767,32 @@ Phase 24：確認兩個周邊商品後台的實際使用入口；補齊出貨 to
 
 ### 下一階段
 Phase 25：追查正式網站導覽及管理員入口；整理 merch-admin.html canonical status 修正 diff；規劃隔離 Supabase 專案整合測試。仍不對正式環境做寫入或部署。
+
+
+## 28. 2026-11-08 Phase 25 後台入口／狀態修正 Diff／隔離測試規劃
+
+| 交付 | 狀態 | 備註 |
+|---|---|---|
+| 官網公開導覽入口 | 已唯讀檢查 | 公開選單指向 merch.html；未見兩個管理後台的公開連結 |
+| merch-admin.html 與 v2 差異 | 已確認 | 前者可直接更新訂單狀態；v2 訂單區以檢視為主，兩者不等價 |
+| 正式部署／實際使用後台 | 未確認 | active branch 不足以證明正式主機部署版本或實際管理入口 |
+| payment/shipment canonical status Diff | 已建立草案 | 使用 DB CHECK 允許值；未知值需人工核對 |
+| refunded 退款語意 | 待需求定義 | 不可映射成 rejected／confirmed 等付款審核狀態 |
+| updateOrder 白名單與失敗回復 | 已建立參考草案 | 尚未修改 merch-admin.html |
+| 統計卡片 canonical 化 | 已列入草案 | 不可保留舊 UI status 判斷 |
+| shipment token caller | 未確認 | DB default 會產生 token；未找到可信任讀取／傳遞端 |
+| 免費隔離 Supabase 測試計畫 | 已建立 | 本機 Supabase／synthetic fixtures／假 Secrets／LINE mock |
+| 正式環境變更 | 未執行 | 無 DB／Storage／Function／Secrets／LINE／官網寫入 |
+
+詳細文件：`app/PHASE_25_ADMIN_ENTRY_STATUS_PATCH_AND_ISOLATED_TEST_PLAN.md`
+
+### Phase 25 結論
+- 官網公開選單連到周邊商品顧客頁 `merch.html`，未發現管理後台公開入口；但正式主機部署版本及實際管理者入口仍待主機／CI 控制台確認。
+- `merch-admin.html` 與 `merch-admin-v2.html` 功能不等價；未確認實際使用者前不合併、不刪除。
+- 舊後台付款／出貨選項與 DB CHECK 不一致，已整理 canonical select、欄位白名單、錯誤回復、未知值處理及統計卡片修正草案。
+- `refunded` 不可映射為 `rejected` 或其他付款狀態，需另行定義退款紀錄與稽核流程。
+- shipment token 發出端 caller 仍未知；不得把未找到視為不存在。
+- 已建立不使用付費 Supabase Branch 的隔離整合測試計畫，以本機 stack、合成假資料、假 Secrets 與 LINE mock 為原則。
+
+### 下一階段
+Phase 26：在使用者開發環境確認 Docker／Supabase CLI 可用性，建立本機隔離 stack 與 synthetic fixtures；先驗證 schema／migration 可重建，再將 merch 狀態修正與 token／付款證明流程移入本機整合測試。正式環境持續唯讀，所有正式變更仍需逐項核准。
