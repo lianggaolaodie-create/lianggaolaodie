@@ -2240,3 +2240,21 @@ CI 更新：`.github/workflows/pure-node-safety-tests.yml`
 - Phase 81 release acceptance matrix tests：success。
 - Run：https://github.com/lianggaolaodie-create/lianggaolaodie/actions/runs/42411921404
 - 此結果只驗證靜態驗收矩陣，不代表正式 App／付款／production 已驗收。
+
+
+## Phase 82｜App 功能缺漏盤點（2026-11-08）
+
+| 交付 | 狀態 | 備註 |
+|---|---|---|
+| GitHub repository evidence audit | 已完成 | 檢查根目錄、app、mock、security、release、tests、migrations、workflows |
+| 20 項功能狀態分類 | 已建立 | 缺少證據／原型／規格／Mock／模型／已存在網站 |
+| P0／P1／P2 缺口排序 | 已建立 | 以真實整合與可交付 App 為主 |
+| 自動化測試 | 已加入 | GitHub Actions 待驗收 |
+| production／staging 修改 | 未執行 | 僅讀取 repository，不連資料庫 |
+
+新增檔案：
+- `app/release/gap-inventory.js`
+- `app/release/gap-inventory.test.js`
+- `app/PHASE_82_APP_GAP_INVENTORY.md`
+
+CI 更新：`.github/workflows/pure-node-safety-tests.yml`
