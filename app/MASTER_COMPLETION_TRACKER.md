@@ -2034,3 +2034,30 @@ CI 更新：`.github/workflows/pure-node-safety-tests.yml`
 - 本階段使用先前已知 schema 摘要建立清單；未重新查詢 production metadata，也未讀取任何會員／訂單資料。
 - 所有未確認欄位與 policy 均明確列為待查，不可視為已驗證現況。
 - 未執行 SQL、GRANT、policy、function、Storage、Secrets 或 billing 變更。
+
+
+## Phase 75｜Staging 唯讀 Metadata Inventory（2026-11-08）
+
+| 交付 | 狀態 | 備註 |
+|---|---|---|
+| staging metadata-only SQL | 已建立 | READ ONLY transaction；最後 ROLLBACK |
+| RLS policy／table grants 查詢 | 已建立 | 僅讀 metadata |
+| function security metadata | 已建立 | SECURITY DEFINER／EXECUTE 權限盤點 |
+| foreign key／Storage policy metadata | 已建立 | 不讀取 Storage object 或業務資料列 |
+| SQL 靜態 guard | 已建立 | 阻擋明顯 DDL／DML／GRANT／REVOKE |
+| 自動化測試 | 已加入 | GitHub Actions 待驗收 |
+| 真實 staging SQL 執行 | 未執行 | 尚未確認 staging project ref |
+| production 查詢／修改 | 未執行 | production 維持不動 |
+
+新增檔案：
+- `app/security/phase-75-staging-metadata-inventory.sql`
+- `app/security/readonly-sql-guard.js`
+- `app/security/readonly-sql-guard.test.js`
+- `app/PHASE_75_STAGING_READONLY_METADATA_INVENTORY.md`
+
+CI 更新：`.github/workflows/pure-node-safety-tests.yml`
+
+### Phase 75 限制
+- SQL 尚未在任何資料庫執行；CI 只驗證靜態安全結構。
+- SQL guard 非完整 PostgreSQL parser，執行前仍須人工確認環境與內容。
+- 未讀取會員、訂單或付款資料；未做 production SQL、GRANT、policy、function、Storage、Secrets 或 billing 變更。
