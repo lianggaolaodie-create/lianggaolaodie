@@ -495,3 +495,28 @@ GitHub 分支：app/phase-1-planning
 
 ### 下一階段
 完成正式修補前的精確差異清單：每一支 RPC／Function／trigger 的修改前後、caller 遷移、密鑰輪替順序、官網相容性、備份與回復計畫。仍須取得針對該變更清單的明確核准才可碰正式環境。
+
+
+## 18. 2026-11-08 Phase 15 正式修補差異清單與回復計畫
+
+| 交付 | 狀態 | 備註 |
+|---|---|---|
+| RPC／trigger 修補物件清單 | 已整理 | 包含 payload RPC、付款提交、通知旗標、LINE 綁定及通知 trigger |
+| Edge Function 修補清單 | 已整理 | 包含 caller authentication、Secrets、payload 最小化、付款狀態與冪等 |
+| LINE 管理員綁定風險 | 列為 P0 必查 | LINE HMAC 只驗證平台來源，不代表訊息使用者具管理員身份；需核對 allowlist／邀請授權 |
+| caller 遷移與相容順序 | 已制定 | 先遷移 caller，再收斂 RPC grants；冷藏寄放 anon INSERT 需舊官網相容 |
+| 備份與回復原則 | 已制定 | 不可回復到重新暴露個資的舊權限狀態 |
+| 免費驗收矩陣 | 已建立 | 真實 HMAC、Supabase／LINE 整合測試尚未執行 |
+| 最終可部署 SQL／Function diff | 未完成 | caller inventory 仍不完整，不可直接套用 |
+| 正式 Supabase／官網變更 | 未執行 | 維持正式環境唯讀；未部署、未改 Secrets、未修改權限 |
+
+詳細文件：`app/PHASE_15_PRODUCTION_PATCH_INVENTORY_AND_ROLLBACK_PLAN.md`
+
+### Phase 15 重要提醒
+- 不可先撤銷 payload RPC 權限再追查 caller，否則可能中斷現有 LINE 通知。
+- 匯款末五碼／付款證明提交不等於已付款，核款成功才可發送付款確認。
+- LINE「綁定管理員」必須有獨立管理員授權，不能只憑 LINE 訊息文字。
+- 所有正式變更仍須逐批提供精確 diff、caller、影響、備份、回復與測試證據，並取得對該批變更的明確核准。
+
+### 下一階段
+Phase 16：補齊所有通知 Functions、網站與 trigger 的 caller inventory，特別追查 line-order-notify、line-payment-order-notify、line-payment-notify、line-customer-notify 及 test Functions；再產出逐支 Function patch diff 與測試 fixtures。正式環境維持唯讀。
