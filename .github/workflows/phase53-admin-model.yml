@@ -1,4 +1,5 @@
 name: Phase 53 catalog administration tests
+# Isolated regression suite for synthetic admin model only
 
 on:
   push:
