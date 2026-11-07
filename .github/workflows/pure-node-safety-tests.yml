@@ -35,3 +35,5 @@ jobs:
         run: node --test app/mock-api/production-read-adapters.test.js
       - name: Run Phase 56 admin transaction mock tests
         run: node --test app/mock-api/admin-transaction-mock-service.test.js
+      - name: Run Phase 57 customer checkout integration contract tests
+        run: node --test app/mock-api/customer-checkout-integration.test.js
