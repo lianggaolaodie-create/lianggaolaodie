@@ -1239,3 +1239,33 @@ Phase 33：將 App 所需 API 的 request／response、狀態、錯誤碼、權�
 
 ### 下一階段（Phase 42）
 建立顧客首頁／商品目錄／餐車與擺攤列表的 screen controller 組合層，串接 Phase 39 repository、Phase 40 view models、Phase 41 screen state，提供 load／refresh／cancel，並以 mock fixtures 驗證擺攤資料不會帶出價格。
+
+## 45. 2026-11-08 Phase 42 顧客端畫面資料整合控制器
+
+| 交付 | 狀態 | 備註 |
+|---|---|---|
+| 首頁已發布內容載入 | 已建立 | 使用公開 repository 與內容 view model |
+| 涼糕／蘿蔔糕商品目錄載入 | 已建立 | 使用完整分頁 repository 方法 |
+| 餐車行程載入 | 已建立 | 僅查詢 food_truck |
+| 擺攤行程載入 | 已建立 | 僅查詢 stall，view model 不輸出價格 |
+| 畫面狀態／重新整理 | 已整合 | 使用 Phase 41 reducer |
+| 取消／過期請求保護 | 已建立 | 每畫面獨立 AbortController 與 requestId |
+| 狀態訂閱／dispose | 已建立 | 供未來 UI 綁定 |
+| Mock 自動化測試 | 已建立 | 覆蓋首頁、目錄、行程、空狀態、錯誤、取消、過期回應 |
+| 正式原生 UI／真機測試 | 未完成 | 尚無可安裝 App |
+| 正式 API／Supabase 串接 | 未完成 | 僅 mock／隔離測試 |
+
+新增檔案：
+- `app/mock-api/customer-screen-controller.js`
+- `app/mock-api/customer-screen-controller.test.js`
+- `app/PHASE_42_CUSTOMER_SCREEN_CONTROLLER.md`
+
+### Phase 42 結論
+- 已將 Phase 39 repository、Phase 40 view models、Phase 41 screen state 組合成顧客端四個畫面資料控制器。
+- 首頁、商品目錄、餐車與擺攤各自獨立載入、取消及重新整理。
+- 擺攤資料輸出不含價格欄位。
+- 重新整理失敗保留最後成功資料；舊請求回應不覆蓋新資料。
+- 本階段不涉及正式環境或額外費用。
+
+### 下一階段（Phase 43）
+建立首頁資訊架構與導覽頁面模型：Banner／公告、商品分類、餐車／擺攤入口、載入／空／錯誤狀態與互動驗收測試；維持框架無關，不誤報成正式可安裝 App。
