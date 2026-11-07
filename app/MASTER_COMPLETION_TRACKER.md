@@ -390,3 +390,28 @@ GitHub 分支：app/phase-1-planning
 2. 建立舊狀態到新狀態機的純函式 mapping。
 3. 加入 fixture 測試，涵蓋未知狀態、非法跳轉、付款與物流分離、重複事件。
 4. 執行免費靜態測試並提交結果；不連正式寫入、不建立付費 Supabase branch。
+
+
+## 14. 2026-11-08 Phase 11 免費狀態映射測試
+
+| 交付 | 狀態 | 備註 |
+|---|---|---|
+| 舊訂單狀態映射 helper | 已建立 | `app/tests/status-mapping.js` |
+| Fixture 測試 | 已建立 | `app/tests/status-mapping.test.js` |
+| 本機 Node.js 測試 | 已執行，8／8 通過 | 純函式與固定測試資料，未連 Supabase |
+| 正式資料庫／API 整合測試 | 未執行 | 需隔離環境；不建立付費 branch |
+
+### 已通過的測試情境
+- 舊 orders.status=paid 不會被當成付款已完成。
+- proof_submitted 不會被當成 paid。
+- 冷藏寄放「已寄放」只映射為到店，不會誤判顧客已取貨。
+- 冷藏寄放「已取貨」可映射交付完成，但付款狀態未知時會標記人工複核。
+- 蘿蔔糕付款方式不會被誤當成付款狀態。
+- 未知舊狀態會保留來源值並標記 exception／needsReview。
+- 禁止取消後重新製作、完成後回到製作等非法訂單轉換。
+- 重複事件 ID 只保留第一次。
+
+**測試限制：**這是免費本機 Node.js fixture 測試，不證明正式 RPC、RLS、Edge Function、併發交易或 webhook 已安全。舊資料的業務語意仍有部分待老闆確認，mapping helper 只作為相容層草案，尚不可部署。
+
+### 下一步
+只讀核對 RLS policies、table grants、RPC EXECUTE grants 與 SECURITY DEFINER；完成後才整理正式安全修正草案。正式環境維持不變。
