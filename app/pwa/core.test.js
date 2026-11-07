@@ -7,3 +7,5 @@ test('checkout stays disabled until real services are integrated',()=>assert.equ
 test('cart quantity can increase and decrease but never fall below one',()=>{const cart=[{id:'x',name:'X',quantity:1}];assert.equal(core.updateItem(cart,'x','plus')[0].quantity,2);assert.equal(core.updateItem(cart,'x','minus')[0].quantity,1);});
 test('cart item can be removed without mutating source',()=>{const cart=[{id:'x',name:'X',quantity:1}];assert.deepEqual(core.updateItem(cart,'x','remove'),[]);assert.equal(cart.length,1);});
 test('unknown cart item action leaves cart unchanged',()=>assert.equal(core.updateItem([{id:'x',quantity:1}],'x','noop')[0].quantity,1));
+test('order filter returns matching copied sample rows',()=>{const rows=[{id:'a',status:'待確認'},{id:'b',status:'已完成'}];const result=core.filterOrders(rows,'待確認');assert.deepEqual(result,[{id:'a',status:'待確認'}]);assert.notEqual(result[0],rows[0]);});
+test('all order filter preserves every row',()=>assert.equal(core.filterOrders([{status:'待確認'},{status:'已完成'}],'all').length,2));
