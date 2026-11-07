@@ -1986,7 +1986,7 @@ CI 更新：`.github/workflows/pure-node-safety-tests.yml`
 | orders／transfer_proofs P1 權限目標 | 已建立 | 私有資料要求 owner scope |
 | 修補前 policy／grant snapshot 流程 | 已建立 | staging 先驗證 |
 | rollback 與停止發布條件 | 已建立 | 每個 migration 必須配對回復方案 |
-| 靜態規格驗證 | 已加入 | Node tests；GitHub Actions |
+| 靜態規格驗證 | 已通過 | Node tests；GitHub Actions 成功 |
 | staging 真實 SQL／JWT 驗收 | 未完成 | 未建立 staging、未執行 SQL |
 | production 修補 | 未執行 | 正式環境保持不變，等待獨立 staging 與明確核准 |
 
@@ -2001,3 +2001,10 @@ CI 更新：`.github/workflows/pure-node-safety-tests.yml`
 - 目前只建立宣告式修補藍圖與靜態測試，不是 SQL migration，也不會連線資料庫。
 - 不可將 Phase 72／73 的 mock 通過視為 production RLS 已安全。
 - 未做任何 production DDL、DML、GRANT、policy、function、secret 或 billing 變更。
+
+
+### Phase 73 CI 驗收補記
+- GitHub Actions：Pure Node safety tests 成功。
+- Run：https://github.com/lianggaolaodie-create/lianggaolaodie/actions/runs/42410555031
+- Phase 73 RLS remediation plan test step：success。
+- 只代表修補規格靜態檢查通過，非真實資料庫安全驗證。
