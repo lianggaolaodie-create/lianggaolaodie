@@ -742,3 +742,28 @@ Phase 23：整理管理者外部 caller 確認表；核對 merch_orders 現有�
 
 ### 下一階段
 Phase 24：確認兩個周邊商品後台的實際使用入口；補齊出貨 token 發出端 caller 證據；增加 Node crypto HMAC 真實測試與付款證明上傳狀態 fixtures；整理逐檔 diff、部署前備份與回滾清單。仍維持正式環境唯讀。
+
+
+## 27. 2026-11-08 Phase 24 HMAC／付款證明 fixtures 與 Caller 追查
+
+| 交付 | 狀態 | 備註 |
+|---|---|---|
+| Node crypto HMAC-SHA256 helper | 已建立 | canonical envelope、constant-time compare、timestamp skew |
+| HMAC 單元測試 | 已完成 | 15 個 Phase 24 測試全數通過 |
+| 付款證明 capability／finalize fixtures | 已建立 | order binding、expiry、single-use、MIME／size、object existence、idempotency |
+| merch-admin.html 實際功能 | 已檢視 | 直接寫入舊 UI status，尚無付款證明上傳 |
+| merch-admin-v2.html 實際功能 | 已檢視 | 訂單查詢／商品管理，沒有付款／出貨狀態更新及付款證明上傳 |
+| Token DB 驗證 RPC | 已檢視 | 只比對 order id 與明文 token |
+| Token 發送端 caller | 未確認 | DB 欄位 default 會產生 token；未找到可信任讀取／傳送 caller |
+| 正式環境整合測試／修補 | 未執行 | 無 DB 寫入、Function 部署、Storage 上傳或 LINE 推播 |
+
+詳細文件：`app/PHASE_24_HMAC_PROOF_FIXTURES_AND_CALLER_REVIEW.md`
+
+### Phase 24 重要限制
+- 15/15 測試是在本機 Node runtime 對 fixture 執行，不代表正式 Edge Function／DB／Storage／LINE 整合測試通過。
+- merch-admin.html 與 merch-admin-v2.html 功能不等價，正式使用入口待管理者確認。
+- shipment_notify_token default 會產生隨機值，但未找到可信 caller 將 token 傳給 line-customer-notify；不可推定 caller 不存在。
+- radish-order.html 使用 create_radish_delivery_order RPC，與 merch_orders 建單流程分開。
+
+### 下一階段
+Phase 25：追查正式網站導覽及管理員入口；整理 merch-admin.html canonical status 修正 diff；規劃隔離 Supabase 專案整合測試。仍不對正式環境做寫入或部署。
