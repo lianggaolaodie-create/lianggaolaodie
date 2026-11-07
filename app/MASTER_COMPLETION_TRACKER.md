@@ -520,3 +520,30 @@ GitHub 分支：app/phase-1-planning
 
 ### 下一階段
 Phase 16：補齊所有通知 Functions、網站與 trigger 的 caller inventory，特別追查 line-order-notify、line-payment-order-notify、line-payment-notify、line-customer-notify 及 test Functions；再產出逐支 Function patch diff 與測試 fixtures。正式環境維持唯讀。
+
+
+## 19. 2026-11-08 Phase 16 通知 Function／官網／DB Caller Inventory
+
+| 交付 | 狀態 | 備註 |
+|---|---|---|
+| 三條 DB trigger LINE 通知鏈 | 已唯讀確認 | orders 新單、orders 付款欄位更新、冷藏寄放付款末五碼 |
+| 主要官網結帳 RPC caller | 已確認一輪 | create_cooling_pickup_order、create_customer_order、create_radish_delivery_order |
+| 已檢查官網頁面直接呼叫 LINE Function | 未發現 | 只代表已檢查頁面，外部 caller 尚未排除 |
+| line-order-notify／line-payment-order-notify | source 已檢查 | 目前 DB trigger／已檢查官網未找到 caller；不可直接停用 |
+| line-payment-notify／merch-payment-sync | source 已檢查 | 兩支周邊商品付款通知 Function 功能重疊，實際 caller 未知 |
+| line-customer-notify | source 已檢查 | token 驗證後仍信任 body recipient／顯示欄位；token lifecycle caller 未完成追查 |
+| line-webhook 管理員綁定 | P0 風險已確認 | 固定文字分支未見 allowlist／邀請授權，需安全替換 |
+| line-order-test-* | source 已檢查 | 目前是簡單 stub；外部依賴未知，不停用 |
+| 正式環境變更 | 未執行 | 未呼叫通知端點、未發 LINE、未部署、未修改 DB／Secrets／官網 |
+
+詳細文件：`app/PHASE_16_NOTIFICATION_CALLER_INVENTORY.md`
+
+### Phase 16 重要發現
+- P0：LINE「綁定管理員」目前 source 路徑未見管理員身份驗證；LINE HMAC 不等於管理員授權。
+- P1：line-payment-notify 與 merch-payment-sync 都能以 order_id 查周邊商品付款資料並通知，實際 caller 尚未確認，存在重複推播與未授權入口風險。
+- 已檢查的舊官網結帳頁使用 Supabase RPC 建立訂單，未發現直接呼叫 LINE 通知 Function；通知主要由 DB trigger 驅動。
+- admin-orders-fixed-v3 有直接資料表更新／刪除及每日開單設定寫入流程，後續權限收斂必須先保留相容管理流程。
+- line-order-test-* 目前為 stub，但不可僅因名稱含 test 就停用。
+
+### 下一階段
+Phase 17：追查所有 RPC function definitions、pg_net／cron／webhook／Storage／外部呼叫紀錄，補齊出貨通知 token 生命週期及周邊商品付款通知 caller；完成後才產生逐支可審核 patch diff。正式環境維持唯讀。
