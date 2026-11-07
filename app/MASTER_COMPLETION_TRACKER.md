@@ -1834,3 +1834,27 @@ Phase 33：將 App 所需 API 的 request／response、狀態、錯誤碼、權�
 - Phase 66 commit `dcb1b5666c788f993421c0742dc16882a15656c2`：Pure Node safety tests 與 App public read API mock tests 均成功。
 - Phase 67 commit `3b3efb9b2ab8a9de88ca2cdcdc330b924248e00a`：Pure Node safety tests 成功；workflow HTTP contract tests 9/9 通過。
 - 此 CI 僅驗證合成資料與本機 mock server，不代表 production API、Auth、Supabase 或金流已部署。
+
+
+## Phase 68｜Staging Readiness、Auth／API 架構與正式上線閘門（2026-11-08）
+
+| 交付 | 狀態 | 備註 |
+|---|---|---|
+| Local／CI／Staging／Production 隔離拓樸 | 已建立草案 | staging 須為獨立 project，不含正式個資 |
+| 環境變數與 Secrets 清單 | 已建立 | 只列名稱與管理規則，沒有建立或修改 secrets |
+| 顧客 Auth／訪客訂單策略 | 已建立草案 | Supabase Auth；Email OTP／magic link 待決定；guest claim 維持獨立驗證 |
+| 管理員 Auth／MFA／角色策略 | 已建立草案 | 最小權限、MFA、重要操作重新驗證 |
+| API hosting 建議 | 已建立草案 | 優先評估 Supabase Edge Functions；需 staging 驗證 |
+| RLS／Function 修補順序 | 已建立 | P0／P1／P2 風險清單；沒有執行 SQL 或部署 |
+| Staging 合成資料與測試矩陣 | 已建立 | Auth、RLS、checkout、付款、通知、Storage、官網相容 |
+| 回復方案與 Go／No-Go 閘門 | 已建立 | 含停止條件、備份與事故處理 |
+| 實際 staging project／整合測試 | 未開始 | 先確認費用並取得核准 |
+| 正式 Supabase／官網／金流變更 | 未執行 | 正式環境維持唯讀 |
+
+新增文件：`app/PHASE_68_STAGING_READINESS_AND_RELEASE_GATES.md`
+
+### Phase 68 限制與結論
+- 本階段完成架構及上線準備文件，不代表 staging 已建立、Auth 已啟用、Edge Functions 已部署或 RLS 已修補。
+- 未建立任何額外服務、未產生新費用、未變更 Supabase secrets。
+- Phase 67 mock HTTP server 仍僅供合成測試，不可公開部署。
+- 下一階段應先整理 staging 建置所需的最小資源與費用確認清單；取得明確核准後，才建立隔離環境並進行真實整合驗證。
