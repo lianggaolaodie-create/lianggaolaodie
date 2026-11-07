@@ -2265,3 +2265,35 @@ CI 更新：`.github/workflows/pure-node-safety-tests.yml`
 - Phase 82 app gap inventory tests：success。
 - Run：https://github.com/lianggaolaodie-create/lianggaolaodie/actions/runs/42412077654
 - 驗證的是盤點資料分類與缺口規則，不是正式 App 的端到端測試。
+
+
+## Phase 83｜黑金 PWA App 前端外殼（2026-11-08）
+
+| 交付 | 狀態 | 備註 |
+|---|---|---|
+| 黑金品牌首頁與響應式版面 | 已建立 | iPhone／桌面自適應；仍可依實際觀感調整 |
+| 顧客導覽與商品展示入口 | 已建立 | 示範資料，不代表正式商品／價格 |
+| 示範購物車 | 已建立 | 僅前端記憶體狀態，不建立真實訂單 |
+| 餐車／擺攤、會員、老闆入口 | 已建立 | 入口與狀態提示；未串正式資料與登入 |
+| PWA manifest／靜態 Service Worker | 已建立 | 只快取靜態外殼，不快取 API／私人資料 |
+| 自動化測試 | 已新增 | 5 項純函式測試，納入 Pure Node workflow |
+| 正式 Auth／商品 API／訂單／付款／物流 | 未完成 | 尚未串接 |
+| iOS IPA／Android APK 簽章與商店上架 | 未完成 | 需要後續建置環境與簽章流程 |
+| 正式官網／Supabase／部署 | 未變更 | 僅功能分支，未合併、未部署 |
+
+新增檔案：
+- `app/pwa/index.html`
+- `app/pwa/styles.css`
+- `app/pwa/app.js`
+- `app/pwa/core.js`
+- `app/pwa/manifest.webmanifest`
+- `app/pwa/sw.js`
+- `app/pwa/README.md`
+- `app/pwa/core.test.js`
+- `app/PHASE_83_PWA_APP_SHELL.md`
+
+### Phase 83 限制
+- 此交付是可互動的 PWA 前端外殼，不是已簽章的原生 iOS／Android App。
+- 商品及購物車內容均為示範；正式結帳刻意停用，不會建立訂單或收取款項。
+- 尚未連線 Supabase，不讀寫正式會員／訂單資料。
+- 後續先由使用者檢視黑金頁面，再依意見調整視覺；未經另行核准不合併或部署。
