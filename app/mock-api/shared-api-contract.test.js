@@ -75,14 +75,14 @@ test('food truck exposes only price_per_box and excludes legacy price fields', (
 
 test('checkout authorization rejects client-invented totals by using only registered server quote', () => {
   const store = checkout.createCheckoutGateStore();
-  const cart = [{ itemId: 'flavor-1', quantity: 2 }];
+  const cart = { items: [{ productId: 'flavor-1', quantity: 2 }] };
   const fulfillmentMethod = 'home_delivery';
   const recipient = { name: '測試', phone: '0900000000', address: '測試地址' };
   const { fingerprint } = require('./quote-model');
   const recipientHash = checkout.recipientFingerprint(recipient);
   assert.equal(checkout.registerServerQuote(store, {
     quoteId: 'quote-phase66', totalMinor: 24000, currency: 'TWD', expiresAt: 2000,
-    fulfillmentMethod, cartFingerprint: fingerprint(cart, fulfillmentMethod),
+    fulfillmentMethod, cartFingerprint: fingerprint(cart.items, fulfillmentMethod),
     recipientFingerprint: recipientHash
   }).ok, true);
   const result = checkout.authorizeCheckout({
