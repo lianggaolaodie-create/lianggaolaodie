@@ -2185,3 +2185,22 @@ CI 更新：`.github/workflows/pure-node-safety-tests.yml`
 - `app/PHASE_79_STAGING_APPROVAL_GATE.md`
 
 CI 更新：`.github/workflows/pure-node-safety-tests.yml`
+
+
+## Phase 80｜Staging 安全修補套件（2026-11-08）
+
+| 交付 | 狀態 | 備註 |
+|---|---|---|
+| 商品／分類／訂單／匯款證明獨立草稿 | 已建立 | 使用 placeholder，非可執行 SQL |
+| Migration 與 rollback 草稿 | 已建立 | 分開產生並要求人工審查 |
+| 角色權限測試方向 | 已建立 | 匿名、顧客 A／B、擁有者、管理員 |
+| 不可執行安全標記 | 已建立 | executable=false |
+| 自動化測試 | 已加入 | GitHub Actions 待驗收 |
+| 任何資料庫修補 | 未執行 | 沒有資料庫連線或寫入 |
+
+新增檔案：
+- `app/security/security-review-package.js`
+- `app/security/security-review-package.test.js`
+- `app/PHASE_80_SECURITY_REVIEW_PACKAGE.md`
+
+CI 更新：`.github/workflows/pure-node-safety-tests.yml`
