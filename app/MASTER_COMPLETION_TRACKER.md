@@ -361,3 +361,32 @@ GitHub 分支：app/phase-1-planning
 2. 建立免費、無外部連線的狀態轉換測試程式與固定測試資料。
 3. 執行靜態檢查與 Mock 測試，回報通過／失敗項目。
 4. 依測試結果產生安全修正草案；不部署、不修改正式 Supabase、不更動正式官網。
+
+
+## 13. 2026-11-08 Phase 10 唯讀 Schema／RPC 對照交付
+
+| 交付 | 狀態 | 備註 |
+|---|---|---|
+| 核心資料表欄位／主外鍵／RLS metadata | 已唯讀盤點 | 僅 metadata，未讀顧客個資 |
+| 三種訂單表 status CHECK | 已確認 | orders、cooling_pickup_orders、radish_orders |
+| RPC TypeScript signatures | 已取得 | 參數摘要，不等於重新審查函式內部 |
+| ACTIVE Edge Function 清單 | 已確認 | 名稱、狀態、verify_jwt；沒有部署或修改 |
+| 舊欄位與新狀態機差異 | 已整理 | 需相容 adapter，不直接改寫歷史狀態 |
+| RLS policy／table grants 逐條核對 | 未完成 | 下一階段只讀審查 |
+| 狀態 mapping 純函式與 fixture 測試 | 未完成 | 下一階段免費實作 |
+| 正式 Supabase 變更 | 未執行 | 維持正式環境唯讀 |
+
+詳細文件：`app/PHASE_10_SCHEMA_RPC_STATE_MAPPING.md`
+
+### Phase 10 重要發現
+- 涼糕 orders.status 同時包含付款、物流及訂單狀態語意，payment_status 也只涵蓋部分付款流程。
+- 冷藏寄放主表 status 混合付款、製作、出貨、寄放與取貨。
+- 蘿蔔糕主表只有單一 status，payment_method 不是付款狀態，亦未見通用物流追蹤欄位。
+- 餐車排程表目前未見地址／座標欄位；排程口味關聯表有三個價格欄位，需要確立唯一權威來源。
+- 目前不可直接改名舊 status 或移除 RPC overload，需先建立 adapter 與官網回歸方案。
+
+### 下一個實際交付
+1. 只讀核對相關 RLS policies、table grants、RPC EXECUTE grants 與 SECURITY DEFINER。
+2. 建立舊狀態到新狀態機的純函式 mapping。
+3. 加入 fixture 測試，涵蓋未知狀態、非法跳轉、付款與物流分離、重複事件。
+4. 執行免費靜態測試並提交結果；不連正式寫入、不建立付費 Supabase branch。
