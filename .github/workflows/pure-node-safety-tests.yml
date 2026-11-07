@@ -61,3 +61,5 @@ jobs:
         run: node --test app/security/readonly-sql-guard.test.js
       - name: Run Phase 76 metadata snapshot comparator tests
         run: node --test app/security/metadata-snapshot-comparator.test.js
+      - name: Run Phase 77 security risk report tests
+        run: node --test app/security/security-risk-report.test.js
