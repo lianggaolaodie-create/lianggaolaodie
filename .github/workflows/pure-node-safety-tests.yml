@@ -1,0 +1,31 @@
+name: Pure Node safety tests
+
+on:
+  push:
+    branches:
+      - app/phase-1-planning
+  pull_request:
+    branches:
+      - app/phase-1-planning
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  pure-node-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Run isolated pure-function tests
+        run: >-
+          node --test
+          app/tests/phase22-security.test.js
+          app/tests/phase24-crypto-and-proof.test.js
+          app/tests/phase29-cross-module.test.js
