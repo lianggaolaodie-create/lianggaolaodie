@@ -55,3 +55,5 @@ jobs:
         run: node --test app/mock-api/rls-policy-test-model.test.js
       - name: Run Phase 73 RLS remediation plan tests
         run: node --test app/security/rls-remediation-plan.test.js
+      - name: Run Phase 74 database inventory tests
+        run: node --test app/security/database-prechange-inventory.test.js
