@@ -1890,7 +1890,7 @@ Phase 33：將 App 所需 API 的 request／response、狀態、錯誤碼、權�
 | 訂單／訪客 claim／冪等 fixtures | 已建立 | 包含過期與撤銷案例；不含有效真實 token |
 | Seed validator | 已建立 | 驗證唯一 ID、測試環境、資料關聯及價格輸出規則 |
 | Phase 70 Node tests | 已新增 | 6 項測試，已加入 Pure Node safety workflow |
-| GitHub Actions 驗收 | 等待執行 | 尚未把測試標為通過 |
+| GitHub Actions 驗收 | 已通過 | Phase 70 seed tests 成功；整套 Pure Node safety workflow 成功 |
 | 真實 RLS／JWT／Function 整合 | 未完成 | 需要獨立 staging project；本階段不連線 |
 
 新增檔案：
@@ -1904,3 +1904,10 @@ CI 更新：`.github/workflows/pure-node-safety-tests.yml`
 - Seed 是純 JS 合成資料，不會連線 Supabase，也沒有資料庫寫入程式。
 - 測試只能驗證本地 fixture 與公開 payload helper；不能替代真實 RLS、JWT、Storage 或 Edge Function 權限測試。
 - 正式環境、Secrets、官網及會員／訂單資料均未修改。
+
+
+### Phase 70 CI 驗收補記
+- GitHub Actions：Pure Node safety tests 成功。
+- Run：https://github.com/lianggaolaodie-create/lianggaolaodie/actions/runs/42410140190
+- Phase 70 synthetic staging seed test step：success；6 個測試案例通過。
+- 本結果只代表純 JS 合成 fixtures／helper 測試通過，不代表真實 staging、Supabase Auth、RLS 或 Edge Functions 已整合。
