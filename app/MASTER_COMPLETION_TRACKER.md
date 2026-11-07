@@ -1944,3 +1944,28 @@ CI 更新：`.github/workflows/pure-node-safety-tests.yml`
 - Run：https://github.com/lianggaolaodie-create/lianggaolaodie/actions/runs/42410324304
 - Phase 71 role authorization test step：success。
 - 此結果只驗證純 JS 角色授權模型；不代表正式 Supabase Auth、RLS 或 API 已部署。
+
+
+## Phase 72｜RLS 權限測試案例與合成 policy 模型（2026-11-08）
+
+| 交付 | 狀態 | 備註 |
+|---|---|---|
+| RLS policy reference model | 已建立 | 純 JS，未知角色／資料表 fail-closed |
+| 會員本人訂單隔離 | 已建立測試 | 跨會員讀取拒絕 |
+| 商品／分類寫入限制 | 已建立測試 | 一般會員不可寫入 |
+| 管理角色資料表範圍 | 已建立測試 | 商品、訂單、付款、個資分離 |
+| 匿名私人資料隔離 | 已建立測試 | 匿名不可讀匯款證明 |
+| 公開讀取與寫入權分離 | 已建立測試 | SELECT 不代表 DML |
+| 自動化測試 | 已新增 | 10 個 Node 測試，加入 GitHub Actions |
+| 真實 Supabase RLS 驗收 | 未完成 | 必須在獨立 staging 以真實 JWT／policy 驗證 |
+
+新增檔案：
+- `app/mock-api/rls-policy-test-model.js`
+- `app/mock-api/rls-policy-test-model.test.js`
+- `app/PHASE_72_RLS_POLICY_TEST_CASES.md`
+
+CI 更新：`.github/workflows/pure-node-safety-tests.yml`
+
+### Phase 72 限制
+- 本階段建立預期政策行為與合成測試，不會執行 SQL 或連線 production。
+- 已知 production merchandise permissive policy 風險仍未修補；不能因 mock 測試通過而宣稱正式 RLS 安全。
