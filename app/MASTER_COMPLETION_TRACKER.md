@@ -1911,3 +1911,29 @@ CI 更新：`.github/workflows/pure-node-safety-tests.yml`
 - Run：https://github.com/lianggaolaodie-create/lianggaolaodie/actions/runs/42410140190
 - Phase 70 synthetic staging seed test step：success；6 個測試案例通過。
 - 本結果只代表純 JS 合成 fixtures／helper 測試通過，不代表真實 staging、Supabase Auth、RLS 或 Edge Functions 已整合。
+
+
+## Phase 71｜角色權限自動測試（2026-11-08）
+
+| 交付 | 狀態 | 備註 |
+|---|---|---|
+| 角色權限 reference model | 已建立 | fail-closed 純 JS 合成模型 |
+| 顧客本人資料／訂單隔離 | 已測試 | owner mismatch 與跨會員讀取拒絕 |
+| 商品管理員 | 已測試 | 商品／每日開單可用；付款／履約拒絕 |
+| 訂單管理員 | 已測試 | 訂單／履約可用；付款／個資拒絕 |
+| 付款管理員 | 已測試 | 付款審核可用；履約拒絕 |
+| 個資管理員 | 已測試 | 個資檢視可用；商品／付款／履約拒絕 |
+| Super admin／訪客 claim | 已測試 | 角色管理限制、有效 claim 閘門 |
+| 自動化測試 | 已新增 | 9 個 Node 測試，加入 GitHub Actions |
+| 真實 Supabase Auth／RLS | 未完成 | mock 模型不能代替 staging JWT／RLS 驗收 |
+
+新增檔案：
+- `app/mock-api/role-authorization-model.js`
+- `app/mock-api/role-authorization-model.test.js`
+- `app/PHASE_71_ROLE_AUTHORIZATION_TESTS.md`
+
+CI 更新：`.github/workflows/pure-node-safety-tests.yml`
+
+### Phase 71 限制
+- 角色名稱與權限為待正式核對的目標矩陣，不會直接套用到 production。
+- 正式 API 與 RLS 必須雙層授權；本階段未執行任何正式 SQL／GRANT／Function 修改。
