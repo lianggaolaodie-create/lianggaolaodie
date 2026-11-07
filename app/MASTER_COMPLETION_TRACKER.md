@@ -469,3 +469,29 @@ GitHub 分支：app/phase-1-planning
 
 ### 下一階段
 製作免費本機靜態測試與安全 patch 草案：包含 caller authentication、payload 最小化、付款狀態正確顯示、通知冪等與 LINE 綁定驗證。同步建立舊官網相容測試；仍不部署、不修改正式 Supabase、不更改官網、不建立付費 branch。
+
+
+## 17. 2026-11-08 Phase 14 通知安全免費 Mock 測試
+
+| 交付 | 狀態 | 備註 |
+|---|---|---|
+| 通知授權／時間戳／事件 ID helper | 已建立 | `app/tests/notification-security.js` |
+| 通知安全 fixture tests | 已建立 | `app/tests/notification-security.test.js` |
+| 本機 Node.js 測試 | 已執行，9／9 通過 | 無 Supabase／LINE 外部連線 |
+| 正式 Edge Function／DB 整合測試 | 未執行 | 未部署，正式環境維持唯讀 |
+
+### 通過情境
+- 未帶內部驗證密鑰的請求會被拒絕。
+- 過期時間戳會被拒絕。
+- 合法內部通知 envelope 可通過。
+- 訂單 ID 格式驗證可在查 DB 前執行。
+- proof_submitted 不會顯示為已付款。
+- 付款通知需有真實付款證明事件及有效付款狀態。
+- 出貨通知只採用已驗證服務端的收件人及訂單欄位。
+- 缺少已驗證收件人時拒絕通知。
+- 重複 event ID 可被識別。
+
+**測試限制：**這些是純函式／Mock 測試，沒有測試真實 HMAC 密碼學實作、Supabase RLS／RPC、LINE API、DB trigger、Edge Function runtime、併發或重試佇列；不可視為正式安全修補已完成。
+
+### 下一階段
+完成正式修補前的精確差異清單：每一支 RPC／Function／trigger 的修改前後、caller 遷移、密鑰輪替順序、官網相容性、備份與回復計畫。仍須取得針對該變更清單的明確核准才可碰正式環境。
