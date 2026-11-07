@@ -31,3 +31,9 @@
 
 ## 下一階段（Phase 68）
 建立正式整合前的 staging readiness 清單與部署拓樸草案：身份驗證接點、Edge Function／API hosting 選擇、環境變數隔離、資料庫交易邊界、RLS 修補驗收、測試資料與回滾程序；仍不動正式環境。
+
+
+## CI 驗收結果
+- GitHub Actions Pure Node safety tests：成功。
+- Phase 67 HTTP workflow tests：9/9 通過。
+- 測試資料全為 synthetic fixtures；不代表正式 API 已部署。
