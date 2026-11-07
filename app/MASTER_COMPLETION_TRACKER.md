@@ -2101,3 +2101,27 @@ CI 更新：`.github/workflows/pure-node-safety-tests.yml`
 - Run：https://github.com/lianggaolaodie-create/lianggaolaodie/actions/runs/42411230640
 - Phase 76 metadata snapshot comparator test step：success。
 - 只驗證合成 metadata；尚無真實 staging snapshot。
+
+
+## Phase 77｜資料庫安全風險報告產生器（2026-11-08）
+
+| 交付 | 狀態 | 備註 |
+|---|---|---|
+| 風險編號／嚴重度／資料表 | 已建立 | critical／warning 分級 |
+| 問題原因與修補建議 | 已建立 | 對應各類 metadata finding |
+| 修補後驗收標準 | 已建立 | 每項風險提供驗收條件 |
+| NO-GO／REVIEW／PASS 閘門 | 已建立 | critical 阻擋 release |
+| 合成風險報告測試 | 已加入 | GitHub Actions 待驗收 |
+| 真實 staging 報告 | 未產生 | 尚未取得真實 staging snapshot |
+| production 修補 | 未執行 | 正式環境維持唯讀 |
+
+新增檔案：
+- `app/security/security-risk-report.js`
+- `app/security/security-risk-report.test.js`
+- `app/PHASE_77_SECURITY_RISK_REPORT.md`
+
+CI 更新：`.github/workflows/pure-node-safety-tests.yml`
+
+### Phase 77 限制
+- 報告只根據輸入 metadata snapshot，不是即時資料庫掃描。
+- 未連線 Supabase、未讀取會員／訂單資料、未執行 SQL／GRANT／policy／function／Secrets／billing 變更。
