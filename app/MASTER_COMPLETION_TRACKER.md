@@ -2211,3 +2211,25 @@ CI 更新：`.github/workflows/pure-node-safety-tests.yml`
 - Phase 80 security review package tests：success。
 - Run：https://github.com/lianggaolaodie-create/lianggaolaodie/actions/runs/42411794278
 - 僅驗證草稿產生器與安全限制；未執行資料庫修補。
+
+
+## Phase 81｜App 上線前最終驗收矩陣（2026-11-08）
+
+| 交付 | 狀態 | 備註 |
+|---|---|---|
+| 顧客商品與價格 | 已建立 | 含擺攤價格不公開檢查 |
+| 購物車／訂單 | 已建立 | 唯一編號、重複送單、會員隔離 |
+| 付款／匯款證明 | 已建立 | 伺服器驗證與私有存取 |
+| 會員／通知 | 已建立 | Session、個資、收件權限 |
+| 管理後台 | 已建立 | 角色、菜單、訂單、庫存稽核 |
+| 餐車／擺攤／PDA | 已建立 | 獨立管理及掃碼流程 |
+| iPhone／網站／上線 | 已建立 | UX、錯誤、備份及回復 |
+| 自動化測試 | 已加入 | GitHub Actions 待驗收 |
+| 真實 staging／production 驗收 | 未執行 | 矩陣初始皆 NOT_TESTED |
+
+新增檔案：
+- `app/release/release-acceptance-matrix.js`
+- `app/release/release-acceptance-matrix.test.js`
+- `app/PHASE_81_RELEASE_ACCEPTANCE_MATRIX.md`
+
+CI 更新：`.github/workflows/pure-node-safety-tests.yml`
