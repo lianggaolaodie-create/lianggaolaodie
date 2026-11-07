@@ -1924,7 +1924,7 @@ CI 更新：`.github/workflows/pure-node-safety-tests.yml`
 | 付款管理員 | 已測試 | 付款審核可用；履約拒絕 |
 | 個資管理員 | 已測試 | 個資檢視可用；商品／付款／履約拒絕 |
 | Super admin／訪客 claim | 已測試 | 角色管理限制、有效 claim 閘門 |
-| 自動化測試 | 已新增 | 9 個 Node 測試，加入 GitHub Actions |
+| 自動化測試 | 已通過 | 9 個 Node 測試；GitHub Actions 成功 |
 | 真實 Supabase Auth／RLS | 未完成 | mock 模型不能代替 staging JWT／RLS 驗收 |
 
 新增檔案：
@@ -1937,3 +1937,10 @@ CI 更新：`.github/workflows/pure-node-safety-tests.yml`
 ### Phase 71 限制
 - 角色名稱與權限為待正式核對的目標矩陣，不會直接套用到 production。
 - 正式 API 與 RLS 必須雙層授權；本階段未執行任何正式 SQL／GRANT／Function 修改。
+
+
+### Phase 71 CI 驗收補記
+- GitHub Actions：Pure Node safety tests 成功。
+- Run：https://github.com/lianggaolaodie-create/lianggaolaodie/actions/runs/42410324304
+- Phase 71 role authorization test step：success。
+- 此結果只驗證純 JS 角色授權模型；不代表正式 Supabase Auth、RLS 或 API 已部署。
