@@ -2008,3 +2008,29 @@ CI 更新：`.github/workflows/pure-node-safety-tests.yml`
 - Run：https://github.com/lianggaolaodie-create/lianggaolaodie/actions/runs/42410555031
 - Phase 73 RLS remediation plan test step：success。
 - 只代表修補規格靜態檢查通過，非真實資料庫安全驗證。
+
+
+## Phase 74｜正式資料庫修補前逐表盤點清單（2026-11-08）
+
+| 交付 | 狀態 | 備註 |
+|---|---|---|
+| P0 商品／分類 policy 風險清單 | 已建立 | 標示 authenticated permissive ALL 風險 |
+| 每日開單／餐車排程資料表盤點 | 已建立 | 欄位與 policy 待 staging 核對 |
+| 訂單／明細 ownership 檢查 | 已建立 | owner key、訪客 claim、狀態寫入者 |
+| 匯款證明與 Storage 檢查 | 已建立 | object path ownership 與審核紀錄 |
+| policy／GRANT／RLS metadata snapshot 流程 | 已建立 | 唯讀 staging metadata |
+| 靜態盤點驗證 | 已加入 | Node tests；GitHub Actions 待驗收 |
+| 真實 staging 逐表盤點 | 未完成 | 本階段未連線 Supabase |
+| production 修補 | 未執行 | 正式環境維持不變 |
+
+新增檔案：
+- `app/security/database-prechange-inventory.js`
+- `app/security/database-prechange-inventory.test.js`
+- `app/PHASE_74_DATABASE_PRECHANGE_INVENTORY.md`
+
+CI 更新：`.github/workflows/pure-node-safety-tests.yml`
+
+### Phase 74 限制
+- 本階段使用先前已知 schema 摘要建立清單；未重新查詢 production metadata，也未讀取任何會員／訂單資料。
+- 所有未確認欄位與 policy 均明確列為待查，不可視為已驗證現況。
+- 未執行 SQL、GRANT、policy、function、Storage、Secrets 或 billing 變更。
