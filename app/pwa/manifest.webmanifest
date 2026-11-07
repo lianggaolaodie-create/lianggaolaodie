@@ -1,0 +1,11 @@
+{
+  "name": "老爹．涼糕",
+  "short_name": "老爹涼糕",
+  "lang": "zh-TW",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#11100e",
+  "theme_color": "#11100e",
+  "description": "老爹．涼糕 App 示範版"
+}
