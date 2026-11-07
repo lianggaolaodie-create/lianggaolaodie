@@ -86,6 +86,7 @@ function mapPublicContent(sections = {}) {
   for (const [key, value] of Object.entries(sections)) {
     if (!PUBLIC_CONTENT_SECTIONS.has(key)) continue;
     if (value == null || typeof value !== 'object' || Array.isArray(value)) continue;
+    if (value.published !== true) continue;
     output[key] = {
       title: cleanText(value.title, 200),
       content: cleanText(value.content, 5000),
