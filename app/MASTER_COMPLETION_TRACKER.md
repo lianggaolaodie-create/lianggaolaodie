@@ -442,3 +442,30 @@ GitHub 分支：app/phase-1-planning
 
 ### 下一階段
 建立 RPC／Edge Function 呼叫來源矩陣，逐支確認前端、trigger、LINE webhook、service-role caller、排程與外部依賴；產出 P0 修正 SQL／Function patch 草案、相容測試與回復計畫。仍不部署、不修改正式 Supabase、不切換官網、不建立付費 branch。
+
+
+## 16. 2026-11-08 Phase 13 RPC／Edge Function 呼叫來源矩陣
+
+| 交付 | 狀態 | 備註 |
+|---|---|---|
+| LINE 通知 DB trigger 呼叫鏈 | 已唯讀確認 | orders 新單、付款證明、冷藏寄放付款末五碼 |
+| 主要 LINE Edge Function 原始碼 | 已唯讀檢查 | line-order-send-v2、line-order-payment-send-v2、cooling-order-line-notify、line-customer-notify、line-webhook 等 |
+| RPC payload 呼叫關係 | 已確認一輪 | 兩支 LINE payload RPC 被多個 Function 呼叫 |
+| caller authentication 風險 | 已確認 | line-order-send-v2 verify_jwt=false 且沒有自訂 caller 驗證 |
+| 付款狀態通知文字錯誤 | 已確認 | 提交匯款末五碼不等於已付款 |
+| 硬編碼密鑰風險 | 已確認 | Function source 與 DB trigger definition 有明文密鑰，未於報告重印 |
+| 修補與 Mock 測試計畫 | 已建立 | 尚未執行部署或正式端到端測試 |
+| 正式環境變更 | 未執行 | 維持唯讀 |
+
+詳細文件：`app/PHASE_13_RPC_EDGE_FUNCTION_CALLER_MATRIX_AND_PATCH_PLAN.md`
+
+### Phase 13 重要發現
+- P0：`line-order-send-v2` ACTIVE、verify_jwt=false，且沒有 JWT／secret／HMAC caller 驗證；可用任意 order_id 觸發查詢 payload 並推播管理員 LINE。
+- P0：兩支 payload RPC 仍對 PUBLIC／anon／authenticated 開放，且未驗證呼叫者或訂單所有權。
+- P0：付款通知 Function 將「已提交匯款末五碼」誤顯示成「已付款」，應與管理員核款狀態分離。
+- P1：通知 Function 與 DB trigger 中存在硬編碼驗證密鑰，需先設計 Secrets 遷移與雙 key 輪替，避免通知中斷。
+- P1：line-customer-notify 驗證 token 後仍信任 request body 的 recipient／訂單顯示欄位，應由後端依 token 查詢資料。
+- P1：LINE 手機綁定未有 OTP／一次性驗證，電話字串不足以證明本人身份。
+
+### 下一階段
+製作免費本機靜態測試與安全 patch 草案：包含 caller authentication、payload 最小化、付款狀態正確顯示、通知冪等與 LINE 綁定驗證。同步建立舊官網相容測試；仍不部署、不修改正式 Supabase、不更改官網、不建立付費 branch。
