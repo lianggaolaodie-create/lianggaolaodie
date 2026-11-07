@@ -867,3 +867,29 @@ Phase 28：建立合成測試資料字典與完整測試案例清單，涵蓋涼
 
 ### 下一階段（整批工作包）
 Phase 29：把現有純函式安全測試、狀態機規格與 Phase 28 矩陣合併為一致的可執行測試套件；先進行無外部連線的靜態／純函式檢查，將可在目前工具環境執行的部分一次跑完，並將 DB／Storage／Edge Function／真機測試列為明確阻擋項，不虛報通過。
+
+
+## 32. 2026-11-08 Phase 29 跨模組純函式測試整合
+
+| 交付 | 狀態 | 備註 |
+|---|---|---|
+| 跨模組測試入口 | 已建立 | `app/tests/phase29-cross-module.test.js` |
+| 通用付款與 merch_orders 狀態邊界 | 已建立測試 | 明確區分通用流程與資料表 CHECK 值 |
+| 退款獨立語意 | 已建立測試 | refunded 不可直接寫入 merch_orders.payment_status |
+| proof_submitted 與 confirmed 分離 | 已建立測試 | 付款證明提交不等於核款 |
+| Shipment 通知資料來源 | 已建立測試 | 以已驗證訂單資料為準，不信任 request body |
+| HMAC 訂單／事件綁定 | 已建立測試 | 使用虛構 secret 與資料 |
+| 測試實際執行 | 尚未執行 | 目前未在 repo checkout 的 Node runtime 執行新測試檔 |
+| DB／RLS／Storage／Edge Function 整合測試 | 未執行 | 缺少 Docker／Supabase CLI／Deno |
+| 正式環境變更 | 未執行 | 維持唯讀 |
+
+詳細文件：`app/PHASE_29_CROSS_MODULE_TEST_SUITE.md`
+
+### Phase 29 結論
+- 已新增跨模組測試檔，將 Phase 22 通用付款 helper 與 Phase 24 merch_orders canonical 狀態 helper 的語意差異明確測試。
+- 覆蓋退款獨立處理、付款證明不等於核款、出貨狀態白名單、通知 payload 信任邊界與 HMAC 綁定。
+- 測試程式已提交 GitHub，但本階段未聲稱已執行或通過；必須在取得 repo 的 Node.js 環境後執行指定命令。
+- 本階段沒有正式資料庫、Storage、Edge Function、Secrets、LINE 或官網變更。
+
+### 下一階段（整批工作包）
+Phase 30：檢查 repo 現有 package scripts、GitHub Actions 與測試檔依賴，建立單一測試入口與 CI 執行設定；在不觸碰正式服務的前提下，盡可能讓純函式測試可由 GitHub 自動執行，並確認目前分支的 CI 狀態。
