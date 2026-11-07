@@ -248,7 +248,6 @@ GitHub 分支：app/phase-1-planning
 - [ ] 功能旗標控制新舊流程逐步切換。
 - [ ] 新功能故障時可回復舊官網流程。
 - [ ] 官網、App 顯示相同已發布資料。
-
 ## 6. 資安、資料與通知（上線阻擋項）
 - [ ] P0：限制匿名／一般會員讀取 LINE 訂單個資 payload RPC。
 - [ ] P0：限制付款通知旗標 RPC 僅可信服務端使用。
@@ -498,7 +497,6 @@ GitHub 分支：app/phase-1-planning
 
 
 ## 18. 2026-11-08 Phase 15 正式修補差異清單與回復計畫
-
 | 交付 | 狀態 | 備註 |
 |---|---|---|
 | RPC／trigger 修補物件清單 | 已整理 | 包含 payload RPC、付款提交、通知旗標、LINE 綁定及通知 trigger |
@@ -747,8 +745,7 @@ Phase 24：確認兩個周邊商品後台的實際使用入口；補齊出貨 to
 ## 27. 2026-11-08 Phase 24 HMAC／付款證明 fixtures 與 Caller 追查
 
 | 交付 | 狀態 | 備註 |
-|---|---|---|
-| Node crypto HMAC-SHA256 helper | 已建立 | canonical envelope、constant-time compare、timestamp skew |
+|---|---|---|| Node crypto HMAC-SHA256 helper | 已建立 | canonical envelope、constant-time compare、timestamp skew |
 | HMAC 單元測試 | 已完成 | 15 個 Phase 24 測試全數通過 |
 | 付款證明 capability／finalize fixtures | 已建立 | order binding、expiry、single-use、MIME／size、object existence、idempotency |
 | merch-admin.html 實際功能 | 已檢視 | 直接寫入舊 UI status，尚無付款證明上傳 |
@@ -821,3 +818,25 @@ Phase 26：在使用者開發環境確認 Docker／Supabase CLI 可用性，建�
 
 ### 下一階段
 Phase 27：在具備 Docker 的開發電腦取得 repo 後，審閱 Supabase config／migration／Edge Functions，確認本機連線隔離，再建立 synthetic fixtures 並啟動本機 stack。若使用者目前只有 iPhone，先安排可行的開發電腦環境，不在手機上執行 Docker。
+
+
+## 30. 2026-11-08 Phase 27 iPhone-only 免電腦前置工作
+
+| 交付 | 狀態 | 備註 |
+|---|---|---|
+| 使用者設備限制 | 已確認 | 目前只有 iPhone，沒有 Windows／Mac／Linux 開發電腦 |
+| iPhone-only 安全工作計畫 | 已建立 | `app/PHASE_27_IPHONE_ONLY_SAFE_PREPARATION_PLAN.md` |
+| 測試矩陣／合成資料字典 | 待建立 | 僅使用虛構資料，不使用正式顧客資料 |
+| Docker／本機 Supabase stack | 未建立 | iPhone 不作為 Docker 執行環境 |
+| DB／RLS／Storage／Edge Function 整合測試 | 未執行 | 不以文件或 mock 規格代替 |
+| 新增付費環境 | 未執行 | 未建立雲端專案或付費 Branch |
+| 正式環境變更 | 未執行 | 正式 DB／Storage／Functions／Secrets／LINE／官網維持唯讀 |
+
+### Phase 27 結論
+- 使用者確認目前只有 iPhone，因此本階段不要求在手機安裝或執行 Docker、Supabase CLI、Deno。
+- 已建立免電腦前置工作計畫，先整理測試範圍、合成資料、狀態轉換案例及未來本機啟動順序。
+- 本階段不新增付費雲端服務、不使用正式資料、不執行正式環境變更。
+- 本機 Supabase stack 與 DB／Storage／Edge Function 整合測試仍未執行；不得標示為通過。
+
+### 下一階段
+Phase 28：建立合成測試資料字典與完整測試案例清單，涵蓋涼糕及蘿蔔糕各物流、訪客／會員隔離、付款證明、核款／退款／COD、shipment token lifecycle、通知冪等與 LINE mock。所有資料均為虛構內容；正式環境維持唯讀。
