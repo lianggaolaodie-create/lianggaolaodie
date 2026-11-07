@@ -1686,3 +1686,24 @@ Phase 33：將 App 所需 API 的 request／response、狀態、錯誤碼、權�
 
 ### Phase 56 下一步
 擴充跨模組權限／資料快照整合測試，並執行 GitHub Actions；若 runner 未回報成功，不得將測試標為通過。
+
+## Phase 57｜顧客結帳跨模組整合驗證（合成資料／非正式環境）
+
+狀態：已建立整合契約測試；等待 CI 實際執行結果。
+
+新增：
+- `app/mock-api/customer-checkout-integration.test.js`
+- CI 納入 Phase 57 測試：`.github/workflows/pure-node-safety-tests.yml`
+
+驗證情境：
+1. 可信商品價格與配送費進入報價，再由結帳授權閘門核對總額。
+2. 同一結帳請求重送時具備冪等回放，不重複保留報價。
+3. 相同冪等鍵搭配不同購物車內容會拒絕。
+4. 報價逾期後拒絕結帳授權。
+5. 客戶端自行附加價格／總額不會成為報價依據。
+6. 擺攤公開資料不輸出價格欄位。
+
+重要限制：
+- 全部使用合成資料及記憶體模型，未連接 Supabase、正式會員、金流或物流。
+- 結帳授權仍明確回傳 `orderCreationEnabled=false`、`paymentExecutionEnabled=false`；本階段沒有建立正式訂單或扣款。
+- 此測試只驗證跨模組契約，不代表 App 已可安裝或上架。
