@@ -1858,3 +1858,24 @@ Phase 33：將 App 所需 API 的 request／response、狀態、錯誤碼、權�
 - 未建立任何額外服務、未產生新費用、未變更 Supabase secrets。
 - Phase 67 mock HTTP server 仍僅供合成測試，不可公開部署。
 - 下一階段應先整理 staging 建置所需的最小資源與費用確認清單；取得明確核准後，才建立隔離環境並進行真實整合驗證。
+
+
+## Phase 69｜最低成本 Staging 建置方案與費用確認（2026-11-08）
+
+| 交付 | 狀態 | 備註 |
+|---|---|---|
+| $0 mock-only 方案 | 已整理 | 目前建議先採用，不新增服務費 |
+| Supabase Free staging | 已整理 | 需確認 Free project 額度；閒置可能暫停、無自動備份 |
+| Supabase Pro staging | 已整理 | 官方標價 $25/月起；額外 project compute 可能另計 |
+| 最小 staging 資源清單 | 已整理 | DB、Auth、Storage、Edge Functions、測試通知與 sandbox |
+| 費用與核准閘門 | 已建立 | 未核准不得建 project、升級、綁卡或啟用付費服務 |
+| 帳戶目前方案／Free 額度查核 | 未完成 | 需唯讀檢視帳戶 billing／project 狀態 |
+| 實際 staging project | 未建立 | 目前維持 $0 方案 A |
+
+新增文件：`app/PHASE_69_STAGING_MINIMUM_COST_PLAN.md`
+
+### Phase 69 結論
+- 以 Supabase 官方 2026-11-08 公開價格頁與 Billing FAQ 建立成本比較；費用以實際帳單為準。
+- 目前不需要為了繼續開發而先付費；GitHub Actions、合成 fixtures 與 mock 測試可繼續推進。
+- 真實 Auth／RLS／Edge Function 整合需獨立 staging；建立前先確認帳戶額度及所有可能費用，並取得明確核准。
+- 本階段未建立新 project、未升級方案、未更動 Secrets、未產生新增費用。
