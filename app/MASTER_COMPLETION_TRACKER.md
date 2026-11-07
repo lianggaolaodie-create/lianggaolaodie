@@ -1180,3 +1180,32 @@ Phase 33：將 App 所需 API 的 request／response、狀態、錯誤碼、權�
 
 ### 下一階段（Phase 40）
 建立公開資料 View Model／Presenter，將 catalog、content、food_truck、stall DTO 轉換成顧客 App／官網可直接顯示的安全資料模型，對缺圖、缺時間、缺地區及無價格採明確處理，並以合成資料測試。
+
+## 43. 2026-11-08 Phase 40 Public View Models
+
+| 交付 | 狀態 | 備註 |
+|---|---|---|
+| 商品列表 View Model | 已建立 | 涼糕／蘿蔔糕、規格、圖片 fallback、價格／可售狀態 |
+| 公開內容 View Model | 已建立 | 僅 published=true，安全圖片 URL |
+| 餐車行程 View Model | 已建立 | 可顯示有效 TWD 價格 |
+| 擺攤行程 View Model | 已建立 | 強制移除 price／currency，畫面不會取得價格欄位 |
+| 缺漏資料 fallback | 已建立 | 缺圖、日期、時間、地區、名稱 |
+| URL 安全檢查 | 已建立 | 僅 HTTP／HTTPS 圖片 URL |
+| View Model tests | 已建立 | 商品、內容、行程、價格、缺漏資料、安全 URL |
+| 正式 App UI 串接 | 未完成 | 尚未選定／建立正式 UI framework 與 build |
+| 正式資料來源 | 未完成 | 使用 mock DTO，沒有 Supabase／官網正式串接 |
+
+新增檔案：
+- `app/mock-api/public-view-models.js`
+- `app/mock-api/public-view-models.test.js`
+- `app/PHASE_40_PUBLIC_VIEW_MODELS.md`
+
+### Phase 40 結論
+- 建立顧客 App／官網可共用的顯示資料轉換層。
+- 商品缺價不顯示成 0 元；不可訂購商品明確標示。
+- 不安全圖片 URL 不會進入 View Model。
+- 餐車可顯示有效價格；擺攤 View Model 完全不輸出價格欄位。
+- 尚未接入正式 App 畫面或正式 API，沒有任何正式環境變更。
+
+### 下一階段（Phase 41）
+建立 Screen State model，統一首頁、商品列表、行程列表的 loading／success／empty／error／retry／refresh 狀態，並使用 mock repository 測試逾時、取消、重試及資料為空的畫面狀態。
