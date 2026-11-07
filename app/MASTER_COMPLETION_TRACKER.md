@@ -796,3 +796,28 @@ Phase 25：追查正式網站導覽及管理員入口；整理 merch-admin.html 
 
 ### 下一階段
 Phase 26：在使用者開發環境確認 Docker／Supabase CLI 可用性，建立本機隔離 stack 與 synthetic fixtures；先驗證 schema／migration 可重建，再將 merch 狀態修正與 token／付款證明流程移入本機整合測試。正式環境持續唯讀，所有正式變更仍需逐項核准。
+
+
+## 29. 2026-11-08 Phase 26 本機隔離環境可用性檢查
+
+| 交付 | 狀態 | 備註 |
+|---|---|---|
+| Node.js | 可用 | v22.16.0 |
+| Docker CLI | 不可用 | 目前工作容器找不到執行檔 |
+| Supabase CLI | 不可用 | 目前工作容器找不到執行檔 |
+| Deno | 不可用 | 目前工作容器找不到執行檔 |
+| 本機 Supabase stack | 未建立 | 缺少 Docker／Supabase CLI |
+| migration／RPC／RLS 整合驗收 | 未執行 | 不可用純函式測試代替 |
+| Storage／Edge Function runtime 整合驗收 | 未執行 | 缺少本機 runtime |
+| 正式環境變更 | 未執行 | 無正式 DB／Function／Secrets／LINE／官網寫入 |
+
+詳細文件：`app/PHASE_26_LOCAL_ENVIRONMENT_READINESS_AND_BLOCKERS.md`
+
+### Phase 26 結論
+- 已確認目前 ChatGPT 工作容器有 Node.js v22.16.0，但沒有 Docker CLI、Supabase CLI、Deno。
+- 本機 Supabase stack 尚未啟動；DB／Storage／Edge Function 整合測試尚未執行。
+- 既有 HMAC／fixture 單元測試仍只屬純函式測試，不代表整合驗收。
+- 下一步需在使用者自己的 Mac／Windows／Linux 開發電腦確認 Docker、Supabase CLI、Deno，再安全地啟動本機 stack。不得使用正式 Supabase 專案代替隔離測試，不建立付費雲端專案。
+
+### 下一階段
+Phase 27：在具備 Docker 的開發電腦取得 repo 後，審閱 Supabase config／migration／Edge Functions，確認本機連線隔離，再建立 synthetic fixtures 並啟動本機 stack。若使用者目前只有 iPhone，先安排可行的開發電腦環境，不在手機上執行 Docker。
