@@ -1,5 +1,6 @@
 /**
  * Phase 53 catalog, flavor, schedule publishing and shared snapshot tests.
+ * CI entrypoint: .github/workflows/phase53-admin-model.yml
  */
 'use strict';
 const test = require('node:test');
