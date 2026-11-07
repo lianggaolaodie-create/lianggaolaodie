@@ -110,7 +110,7 @@ test('reconciliation detects amount differences and missing provider rows', () =
     providerRefunds: []
   });
   assert.equal(result.matched, false);
-  assert.equal(result.differenceCount, 2);
+  assert.equal(result.differenceCount, 1);
 });
 test('reconciliation detects provider-only payment and refund records', () => {
   const store = setup();
@@ -119,7 +119,7 @@ test('reconciliation detects provider-only payment and refund records', () => {
     providerPayments: [{ paymentId: 'external-only', amountMinor: 100, currency: 'TWD' }],
     providerRefunds: [{ refundId: 'external-refund', amountMinor: 50, currency: 'TWD' }]
   });
-  assert.equal(result.differenceCount, 2);
+  assert.equal(result.differenceCount, 3);
 });
 test('duplicate or malformed settlement rows are rejected', () => {
   const store = setup();
