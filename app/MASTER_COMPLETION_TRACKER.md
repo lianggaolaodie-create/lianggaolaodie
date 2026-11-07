@@ -1615,3 +1615,32 @@ Phase 33：將 App 所需 API 的 request／response、狀態、錯誤碼、權�
 - 獨立 GitHub Actions：9 tests passed，0 failed。
 - Run：https://github.com/lianggaolaodie-create/lianggaolaodie/actions/runs/42406974617
 - 此結果僅代表 Phase 53 合成資料 reference model 測試通過，不代表正式 Supabase／官網整合完成。
+
+
+## 57. 2026-11-08 Phase 54 正式 Schema／API Adapter 唯讀盤點
+
+| 交付 | 狀態 | 備註 |
+|---|---|---|
+| 涼糕 flavors 主檔欄位 | 已盤點 | 36 筆；口味主檔，不是通用商品 SKU |
+| 每日開單 settings／regions／flavors | 已盤點 | 每日價格與庫存快照；前端多步非交易式寫入 |
+| 餐車／擺攤 schedule schema | 已盤點 | schedule_type 區分；12 餐車、5 擺攤 |
+| schedule flavor 價格欄位 | 已盤點 | 64 餐車關聯 price_per_box 有值；14 擺攤關聯為 NULL；price／unit_price 未使用 |
+| 蘿蔔糕商品 JSON | 已盤點 | site_admin_content.radish_products，非 relational products table |
+| 周邊商品與 PDA 商品分離 | 已盤點 | merch_products、merchandise_products、food_truck_products 各自用途不同 |
+| 官網／管理端讀寫路徑 | 已盤點 | products、daily order、schedules、radish JSON、merch |
+| 公開 payload 白名單 | 已草擬 | 涼糕、每日開單、餐車、擺攤、蘿蔔糕、周邊商品 |
+| RLS／GRANT／RPC／Storage | 已唯讀盤點 | 發現寬鬆 PERMISSIVE policy 與 SECURITY DEFINER grants 風險 |
+| 正式資料庫變更 | 未執行 | 僅 SELECT／metadata read；無 DDL／DML／migration |
+
+新增文件：
+- `app/PHASE_54_READONLY_SCHEMA_API_ADAPTER_MAP.md`
+
+### Phase 54 重要安全發現（未修補）
+- `merch_products` 與 `merch_categories` 存在 authenticated ALL 的 USING true／WITH CHECK true PERMISSIVE policies；會與較嚴格 admin policy 以 OR 合併，造成非管理員寫入風險。
+- Supabase Security Advisor 回報 24 個 anon 可執行 SECURITY DEFINER 函式、38 個 authenticated 可執行 SECURITY DEFINER 函式、11 個 mutable search_path 函式；需逐支審查，不可批次撤權。
+- admin-products 前端角色准入與 flavors／daily tables 的 RLS 權限條件不一致。
+- 每日開單多步刪除／重建沒有單一 transaction；排程前端直接 CRUD 與既有 RPC 語意不一致。
+- 以上均只記錄風險，正式環境沒有被修改。
+
+### 下一階段（Phase 55）
+先產生安全 policy 修補草案與 rollback，定義單一管理權限矩陣，並建立五類既有資料模型的唯讀 adapter prototypes 與 fixture tests；不部署、不執行正式 SQL，除非另行明確核准。
