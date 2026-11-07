@@ -1,0 +1,31 @@
+name: Phase 53 catalog administration tests
+
+on:
+  push:
+    branches:
+      - app/phase-1-planning
+    paths:
+      - 'app/mock-api/product-admin-model.js'
+      - 'app/mock-api/product-admin-model.test.js'
+      - '.github/workflows/phase53-admin-model.yml'
+  pull_request:
+    branches:
+      - app/phase-1-planning
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  phase53-catalog-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Run Phase 53 catalog and publishing tests
+        run: node --test app/mock-api/product-admin-model.test.js
