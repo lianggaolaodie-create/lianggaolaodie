@@ -993,3 +993,31 @@ Phase 33：將 App 所需 API 的 request／response、狀態、錯誤碼、權�
 
 ### 下一階段（Phase 34）
 建立逐 endpoint 的 schema／RPC／RLS 權限對照與實作分解清單：先確認商品、內容、行程公開讀取所需欄位及安全來源，再逐一核對兩個建單 RPC 的 server-side 計價、冪等、狀態與私密資料邊界。優惠券／刮刮樂先查現有 schema，未知項目維持待確認；不部署、不修改正式環境。
+
+## 37. 2026-11-08 Phase 34 API／Schema／權限逐項對照
+
+| 交付 | 狀態 | 備註 |
+|---|---|---|
+| 商品／內容／行程現有前端呼叫對照 | 已完成第一輪 | 依可讀 GitHub 預設分支程式碼；非正式部署證明 |
+| 冷藏寄放 RPC 呼叫參數 | 已確認前端呼叫 | `create_cooling_pickup_order`；完整 SQL 定義與 ACL 尚待取得 |
+| 蘿蔔糕 RPC 呼叫參數 | 已確認前端呼叫 | `create_radish_delivery_order`；overload／完整 SQL／ACL 尚待取得 |
+| 餐車／擺攤欄位與隱價規則 | 已確認頁面讀取欄位 | API 必須伺服器端省略擺攤價格 |
+| 蘿蔔糕 JSON 商品管理 | 已確認前端模式 | `site_admin_content.radish_products` 整份 JSON upsert；有併發覆寫風險 |
+| 舊訂單後台寫入風險 | 已確認前端模式 | 直接更新／刪除訂單及個資，不可複製到新 API |
+| Auth／RLS／Storage／GRANT 完整核對 | 未完成 | 本階段沒有查詢正式 Supabase metadata |
+| 優惠券／刮刮樂 schema | 未確認 | 僅有契約提案，不推定現有資料表 |
+| 正式 API／Edge Function 實作 | 未開始 | 未建立 endpoint、未部署 |
+| 正式環境變更 | 未執行 | Supabase／官網／LINE／Secrets 維持唯讀 |
+
+詳細文件：`app/PHASE_34_API_SCHEMA_PERMISSION_IMPLEMENTATION_MAP.md`
+
+### Phase 34 結論
+- 公開商品、內容與行程可先開發唯讀 DTO 原型，但正式公開讀取仍須確認 schema、RLS 與 Storage。
+- 冷藏寄放與蘿蔔糕前端確實呼叫各自 RPC；目前可見冷藏寄放前端會傳入小計、寄放費與總額，蘿蔔糕前端自行顯示固定運費。兩者都必須證明 RPC 伺服器端重新計價，否則不可安全上線。
+- 餐車可顯示價格、擺攤不得顯示價格，必須在 API 回應層落實。
+- 蘿蔔糕商品目前以 `site_admin_content` JSON array 管理，整份 upsert 有併發覆寫風險。
+- 舊訂單後台可直接更新／刪除訂單與個資，不可複製到新 App 管理 API。
+- 本階段只檢視程式碼，沒有讀取正式顧客資料、修改正式 Supabase／官網／LINE 或部署。
+
+### 下一階段（Phase 35）
+建立不連外的 Node mock reference implementation：公開 catalog、content、food-truck schedule、stall schedule DTO、擺攤隱價、欄位白名單、cursor 分頁與錯誤處理，並加入合成資料自動測試。此為可執行原型，不連正式 Supabase、不視為正式 API。
