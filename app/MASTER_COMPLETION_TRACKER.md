@@ -1052,3 +1052,38 @@ Phase 33：將 App 所需 API 的 request／response、狀態、錯誤碼、權�
 
 ### 下一階段（Phase 36）
 建立 Node.js built-in HTTP mock server 與標準 response envelope，讓 App 前端可先對接固定路徑；補 request_id、query validation、錯誤 envelope 與 HTTP integration tests。繼續使用合成 fixtures，不連正式 Supabase。
+
+## 39. 2026-11-08 Phase 36 HTTP Mock Server 與 Integration Tests
+
+| 交付 | 狀態 | 備註 |
+|---|---|---|
+| GET /api/v1/catalog | 已建立 mock route | 商品列表、cursor／limit |
+| GET /api/v1/content | 已建立 mock route | 公開發布內容 |
+| GET /api/v1/schedules | 已建立 mock route | 餐車／擺攤、type／cursor／limit |
+| 共通成功／錯誤 envelope | 已建立 | request_id、api_version、error code |
+| Query allowlist／重複參數檢查 | 已建立 | 非法輸入 400 |
+| 未知路徑／非 GET 防護 | 已建立 | 404／405，無寫入 endpoint |
+| HTTP integration tests | 已建立 | Node fetch + localhost ephemeral port + synthetic fixtures |
+| GitHub Actions | 已更新 | 執行 app/mock-api/*.test.js；CI run 尚待確認 |
+| 正式 API／Supabase 串接 | 未完成 | 無正式 DB、Auth、HTTP hosting |
+| 正式環境變更 | 未執行 | 官網／Supabase／LINE／Secrets 維持唯讀 |
+
+新增檔案：
+- `app/mock-api/http-server.js`
+- `app/mock-api/http-server.test.js`
+- `app/PHASE_36_HTTP_MOCK_SERVER_AND_INTEGRATION_TESTS.md`
+
+更新檔案：
+- `.github/workflows/app-public-read-api.yml`
+
+### Phase 36 結論
+- 已建立三個 GET mock routes：catalog、content、schedules。
+- 所有成功／錯誤回應有 request_id 與 api_version；錯誤使用標準 envelope。
+- 僅允許各 endpoint 白名單 query keys，拒絕重複參數與無效值。
+- 沒有任何寫入路由；非 GET 回傳 405。
+- HTTP tests 使用 localhost ephemeral port 與合成 fixtures，不讀正式資料。
+- GitHub Actions 已涵蓋所有 mock API tests，但尚未取得本階段 workflow run 結果，不能標記測試通過。
+- 本階段沒有部署正式服務或修改任何正式環境。
+
+### 下一階段（Phase 37）
+建立可供 App 前端移植的 API client reference：fetch wrapper、endpoint contract examples、timeout／abort、錯誤解析、cursor pagination helper，並透過 Phase 36 HTTP mock server 測試。維持合成資料，不連正式 Supabase。
