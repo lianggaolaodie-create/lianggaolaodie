@@ -911,3 +911,27 @@ Phase 30：檢查 repo 現有 package scripts、GitHub Actions 與測試檔依�
 - workflow 不設定 Supabase URL／key，不讀寫正式服務，不呼叫 LINE。
 - 尚未取得 GitHub Actions run 結果前，不標示 CI 通過；須待 workflow 回報。
 - DB／Storage／Edge Function／真機驗收仍是獨立阻擋項。
+
+
+## 34. 2026-11-08 Phase 31 App 工程現況與可交付缺口盤點
+
+| 交付 | 狀態 | 備註 |
+|---|---|---|
+| App 規格／架構文件盤點 | 已完成一輪 | 以 app README、系統架構、tracker 為依據 |
+| 可安裝 iOS／Android 工程 | 未證實存在 | 目前可確認交付以規格／原型／測試 helper 為主 |
+| App 真實 Auth／商品／訂單 API | 未完成 | 不可把既有官網頁面當成 App 串接 |
+| 新老闆後台完整功能 | 未完成 | 既有兩個 merch admin 頁面不等於完整營運後台 |
+| 優惠／刮刮樂後端 | 未完成 | 尚無完整後端防重複兌換驗收證據 |
+| App Store／Google Play build | 未建立 | 未有可提交簽章 build／商店審核證據 |
+| 正式環境變更 | 未執行 | 維持唯讀 |
+
+詳細文件：`app/PHASE_31_APP_ENGINEERING_GAP_AUDIT.md`
+
+### Phase 31 結論
+- 目前分支可確認的 App 交付以規格、盤點、原型與純函式安全測試為主，不能宣稱已有可安裝 App。
+- 新會員、App API、顧客購物結帳、共用官網資料、完整老闆後台、行銷後端及商店 build 仍是工程工作，不是單靠補文件即可完成。
+- 已將真實工程缺口與外部建置限制列明；員工 PDA／員工作業仍依本階段範圍暫緩。
+- 正式 Supabase、官網、LINE 與商店均未變更。
+
+### 下一階段（整批工作包）
+Phase 32：盤點目前 repo 中可重用的官網頁面、Supabase RPC、資料表及後台元件，建立「現有程式 → App 功能 → 所需 API／資料權限」對照表；標示可直接重用、需包裝、需重寫及不可安全重用的項目。
