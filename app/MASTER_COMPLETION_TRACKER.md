@@ -716,3 +716,29 @@ Phase 22：補齊周邊商品所有頁面與外部 caller matrix、列出 Dashbo
 
 ### 下一階段
 Phase 23：整理管理者外部 caller 確認表；核對 merch_orders 現有付款狀態字典與相容規則；產出 token lifecycle SQL／RPC／Edge Function 及付款證明上傳的逐檔 Patch Diff 草案。僅提交設計與程式草案，不部署、不修改正式環境。
+
+
+## 26. 2026-11-08 Phase 23 正式切換前確認表／Patch 草案
+
+| 交付 | 狀態 | 備註 |
+|---|---|---|
+| merch_orders 欄位與 CHECK constraints | 已唯讀確認 | payment_status、shipment_status 的實際允許值已整理 |
+| 舊後台與 DB 狀態不一致 | 已確認 | payment UI pending／paid／refunded 與 DB CHECK 不一致；shipment UI pending／processing／completed 亦不一致 |
+| 現有狀態資料分布 | 未能確認 | distinct 聚合查詢回傳空集合；不推定資料列數或狀態分布 |
+| 外部 Caller 管理者確認表 | 已建立 | Supabase Dashboard、LINE Developers、第三方主機／自動化 |
+| 出貨 Token lifecycle Patch | 已建立草案 | 新增欄位、private RPC、HMAC envelope、原子消耗與相容回滾 |
+| 周邊商品付款證明 Patch | 已建立草案 | private bucket、order-bound capability、finalize、proof_submitted、admin signed URL |
+| Supabase Storage 文件核對 | 已完成 | private bucket 與 signed upload URL 2 小時有效期已納入設計限制 |
+| 正式環境變更 | 未執行 | 無 DDL／DML／GRANT／RLS／Function／Secrets／LINE／官網變更 |
+
+詳細文件：`app/PHASE_23_PREDEPLOY_CHECKLIST_AND_PATCH_DRAFTS.md`
+
+### Phase 23 重要發現
+- merch_orders.payment_status CHECK 只允許 unpaid／proof_submitted／confirmed／rejected；舊後台選單的 pending／paid／refunded 不可直接寫入。
+- merch_orders.shipment_status CHECK 只允許 unprepared／preparing／shipped／delivered；舊後台選單的 pending／processing／completed 不可直接寫入。
+- UI 狀態必須透過明確 adapter 對應 DB canonical values；退款語意須另行定義，不能直接以字串代替退款稽核。
+- 出貨 token 與付款證明安全修補已整理為可審閱 patch package，但沒有套用。
+- 外部 caller 尚待管理者逐一確認，未知 caller 不可視為不存在。
+
+### 下一階段
+Phase 24：確認兩個周邊商品後台的實際使用入口；補齊出貨 token 發出端 caller 證據；增加 Node crypto HMAC 真實測試與付款證明上傳狀態 fixtures；整理逐檔 diff、部署前備份與回滾清單。仍維持正式環境唯讀。
