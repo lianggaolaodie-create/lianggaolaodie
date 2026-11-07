@@ -71,3 +71,5 @@ jobs:
         run: node --test app/security/security-review-package.test.js
       - name: Run Phase 81 release acceptance matrix tests
         run: node --test app/release/release-acceptance-matrix.test.js
+      - name: Run Phase 82 app gap inventory tests
+        run: node --test app/release/gap-inventory.test.js
