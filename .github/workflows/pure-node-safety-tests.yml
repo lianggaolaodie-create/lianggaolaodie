@@ -29,3 +29,5 @@ jobs:
           app/tests/phase22-security.test.js
           app/tests/phase24-crypto-and-proof.test.js
           app/tests/phase29-cross-module.test.js
+      - name: Run Phase 53 catalog administration tests
+        run: node --test app/mock-api/product-admin-model.test.js
