@@ -37,7 +37,7 @@ function buildProductCard(product = {}) {
   return Object.freeze({
     id: normalizeText(product.id) || 'unknown',
     name: normalizeText(product.name) || '商品名稱待更新',
-    category: normalizeText(product.category) || '商品',
+    category: product.category === 'lianggao' ? '涼糕' : product.category === 'radish_cake' ? '蘿蔔糕' : (normalizeText(product.category) || '商品'),
     description: normalizeText(product.description),
     spec: normalizeText(product.spec),
     imageUrl: typeof product.imageUrl === 'string' ? product.imageUrl : null,
