@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>老爹．涼糕｜顧客 App 流程原型 v2</title>
+<style>
+:root{--bg:#0e0e0e;--panel:#191919;--panel2:#22201b;--gold:#c9a45c;--cream:#f7f2e8;--muted:#b6aa96;--line:#3b3327;--ok:#83b89b}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--cream);font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif}
+header{position:sticky;top:0;z-index:4;background:#101010ed;border-bottom:1px solid var(--line);padding:13px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.logo{font-weight:950;letter-spacing:2px}.logo b{color:var(--gold)}.hint{font-size:11px;color:var(--muted)}
+nav{display:flex;gap:6px;overflow:auto;padding:10px 14px;border-bottom:1px solid var(--line);background:#141414}
+nav button,.btn{border:1px solid var(--line);background:#211e18;color:var(--cream);border-radius:10px;padding:9px 12px;font:inherit;white-space:nowrap}
+nav button.active,.btn.primary{background:var(--gold);border-color:var(--gold);color:#17130c;font-weight:850}
+main{max-width:850px;margin:0 auto;padding:18px 14px 90px}.screen{display:none}.screen.active{display:block}
+h1{font-size:26px;margin:7px 0 10px}h2{font-size:18px;margin:0 0 12px}.eyebrow{color:var(--gold);font-size:11px;letter-spacing:2px}.muted,.small{color:var(--muted)}.small{font-size:12px}
+.hero{padding:25px 20px;border:1px solid #66502c;border-radius:18px;background:linear-gradient(130deg,#292116,#151515 70%);margin-bottom:16px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:16px;margin:12px 0}
+.row{display:flex;justify-content:space-between;align-items:center;gap:12px}.product{display:flex;gap:13px;align-items:center}.thumb{width:82px;height:82px;flex:none;border-radius:12px;background:linear-gradient(145deg,#4b3824,#201b15);display:grid;place-items:center;color:#e2c58c;font-size:26px}
+.price{color:var(--gold);font-weight:900}.tag{display:inline-block;border:1px solid var(--line);border-radius:99px;padding:4px 8px;color:var(--muted);font-size:11px}
+input,select{width:100%;background:#101010;color:var(--cream);border:1px solid var(--line);border-radius:9px;padding:12px;margin:6px 0 12px;font:inherit}
+label{font-size:12px;color:var(--muted)}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.itemline{display:flex;justify-content:space-between;padding:11px 0;border-bottom:1px solid #302a21;gap:10px}.itemline:last-child{border:0}
+.notice{padding:11px;border-left:3px solid var(--gold);background:#211d17;border-radius:5px;font-size:13px;line-height:1.6}
+.bottom{position:fixed;bottom:0;left:0;right:0;background:#111e;border-top:1px solid var(--line);padding:10px;display:flex;justify-content:center;gap:8px;z-index:5}
+.bottom button{flex:1;max-width:170px;border:0;background:transparent;color:var(--muted);padding:8px}.bottom button.active{color:var(--gold)}
+.hidden{display:none!important}
+@media(min-width:700px){main{padding-top:26px}.hero{padding:34px}.thumb{width:100px;height:100px}}
+</style></head>
+<body>
+<header><div><div class="logo">老爹<b>．</b>涼糕</div><div class="hint">顧客 App · 操作流程示意</div></div><button class="btn" onclick="show('member')">會員登入</button></header>
+<nav>
+<button class="active" data-screen="home">首頁</button><button data-screen="products">商品</button><button data-screen="market">擺攤行程</button><button data-screen="cart">購物車</button><button data-screen="orders">我的訂單</button><button data-screen="member">會員中心</button>
+</nav>
+<main>
+<section id="home" class="screen active">
+ <div class="hero"><div class="eyebrow">MADE FRESH · LAODIE</div><h1>老爹的好味道，<br>今天也想念。</h1><p class="muted">新鮮製作・當日供應・市場行程一手掌握</p><div class="actions"><button class="btn primary" onclick="show('products')">開始選購</button><button class="btn" onclick="show('market')">查看今日出攤</button></div></div>
+ <div class="card"><div class="eyebrow">LATEST NEWS</div><h2>最新公告</h2><p class="muted">正式版將顯示老闆後台發布的公告、臨時異動與活動資訊。</p></div>
+ <div class="card"><div class="eyebrow">MEMBER BENEFITS</div><h2>免費加入老爹會員</h2><p class="muted">會員優惠依活動、商品與適用場次由老闆設定。沒有會員也可以直接購物。</p><button class="btn primary" onclick="show('member')">免費註冊／登入</button></div>
+</section>
+<section id="products" class="screen">
+ <div class="eyebrow">SHOP</div><h1>商品選購</h1><p class="muted">以下為介面示意；正式商品名稱、圖片、供應狀態及價格以官網核准資料為準。</p>
+ <div class="card product"><div class="thumb">糕</div><div style="flex:1"><b>水果綜合涼糕</b><div class="small">依當期供應口味搭配</div><div class="price">正式售價由商品資料提供</div><button class="btn primary" onclick="addCart('水果綜合涼糕')">加入購物車</button></div></div>
+ <div class="card product"><div class="thumb">芋</div><div style="flex:1"><b>芋頭夾心涼糕</b><div class="small">口味依當期公告</div><div class="price">正式售價由商品資料提供</div><button class="btn primary" onclick="addCart('芋頭夾心涼糕')">加入購物車</button></div></div>
+ <div class="card product"><div class="thumb">米</div><div style="flex:1"><b>純米蘿蔔糕</b><div class="small">獨立配送與訂單流程</div><div class="price">正式售價由商品資料提供</div><button class="btn primary" onclick="addCart('純米蘿蔔糕')">加入購物車</button></div></div>
+</section>
+<section id="market" class="screen">
+ <div class="eyebrow">WHERE TO FIND US</div><h1>餐車／市場行程</h1><p class="muted">查詢已發布的場次；臨時異動以最新公告為準。</p>
+ <div class="card"><label>縣市</label><select id="city"><option value="">全部縣市</option><option>台北市</option><option>新北市</option><option>桃園市</option><option>台中市</option><option>高雄市</option></select><label>日期</label><input type="date" id="day"><button class="btn primary" onclick="document.getElementById('market-result').classList.remove('hidden')">搜尋行程</button></div>
+ <div id="market-result" class="card hidden"><span class="tag">示意資料</span><h2>尚未載入正式行程</h2><p class="muted">正式版會顯示市場名稱、完整地址、出攤日期、時間、當日口味與價格、導航及收藏提醒。</p><div class="notice">目前不顯示虛構的出攤地點或庫存。</div></div>
+</section>
+<section id="cart" class="screen">
+ <div class="eyebrow">YOUR CART</div><h1>購物車</h1><div class="card"><div id="cart-items"><p class="muted">購物車目前是空的。</p></div><div class="itemline"><b>商品小計</b><b id="cart-count">0 件</b></div><p class="small">運費與可選配送方式會依商品類型及正式後台規則計算，結帳前清楚顯示。</p><button class="btn primary" onclick="show('checkout')">前往結帳</button></div>
+</section>
+<section id="checkout" class="screen">
+ <div class="eyebrow">CHECKOUT</div><h1>結帳資料</h1><div class="card"><div class="notice">訪客可免註冊下單；會員登入後可查看本人訂單。蘿蔔糕、宅配及超商寄放依各自可用配送規則分開處理。</div><label>收件人</label><input placeholder="請輸入姓名"><label>聯絡電話</label><input placeholder="請輸入手機號碼" inputmode="tel"><label>配送方式</label><select><option>請先選擇商品後顯示可用方式</option><option>依商品規則提供的宅配方式</option><option>依商品規則提供的超商寄放／取貨方式</option></select><label>備註</label><input placeholder="選填"><button class="btn primary" onclick="alert('此原型不會建立真實訂單；正式版需先完成後端驗證與運費規則串接。')">確認訂單（示意）</button></div>
+</section>
+<section id="orders" class="screen">
+ <div class="eyebrow">ORDER HISTORY</div><h1>我的訂單</h1><div class="card"><h2>宅配訂單</h2><p class="muted">登入會員後查看本人宅配訂單；訪客依訂單編號及必要驗證查詢。</p></div><div class="card"><h2>超商寄放訂單</h2><p class="muted">獨立呈現寄放門市、寄放費、取貨資訊及訂單狀態，不與宅配訂單混為一談。</p></div></section>
+<section id="member" class="screen">
+ <div class="eyebrow">MY ACCOUNT</div><h1>會員中心</h1><div class="card"><h2>登入老爹會員</h2><label>Email</label><input type="email" placeholder="請輸入電子郵件"><label>密碼</label><input type="password" placeholder="請輸入密碼"><div class="actions"><button class="btn primary" onclick="alert('登入功能待接 Supabase Auth，這裡不會收集或儲存資料。')">登入（介面示意）</button><button class="btn" onclick="alert('正式版將提供 Email 註冊與驗證。')">免費註冊</button><button class="btn" onclick="alert('正式版將提供安全的密碼重設流程。')">忘記密碼</button></div></div><div class="card"><h2>會員權益</h2><p class="muted">會員 QR Code、消費紀錄、活動優惠及市場優惠資格，待完成會員驗證與後端權限後啟用。</p></div></section>
+</main>
+<div class="bottom"><button class="active" onclick="show('home')">⌂ 首頁</button><button onclick="show('market')">⌖ 出攤</button><button onclick="show('cart')">▣ 購物車</button><button onclick="show('member')">◉ 會員</button></div>
+<script>
+let cart=[];
+function show(id){document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active',b.dataset.screen===id));window.scrollTo({top:0,behavior:'smooth'});}
+function addCart(name){cart.push(name);renderCart();show('cart');}
+function renderCart(){const box=document.getElementById('cart-items');document.getElementById('cart-count').textContent=cart.length+' 件';box.innerHTML=cart.length?cart.map((n,i)=>'<div class="itemline"><span>'+n+'</span><button class="btn" onclick="removeCart('+i+')">移除</button></div>').join(''):'<p class="muted">購物車目前是空的。</p>';}
+function removeCart(i){cart.splice(i,1);renderCart();}
+document.querySelectorAll('nav button').forEach(b=>b.addEventListener('click',()=>show(b.dataset.screen)));
+</script></body></html>
