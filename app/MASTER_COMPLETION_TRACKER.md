@@ -1457,3 +1457,34 @@ Phase 33：將 App 所需 API 的 request／response、狀態、錯誤碼、權�
 
 ### 下一階段（Phase 49）
 建立付款狀態與付款通知驗證 reference model：區分建立付款意圖、待付款、付款成功／失敗／逾時、重複 webhook 與簽章驗證；只做合成資料模型與測試，不呼叫金流、不更新正式訂單。
+
+## 52. 2026-11-08 Phase 49 付款意圖與 Webhook 驗證模型
+
+| 交付 | 狀態 | 備註 |
+|---|---|---|
+| 付款意圖／訂單金額綁定 | 已建立參考模型 | TWD minor units、訂單 ID、金額與期限 |
+| 付款冪等 key | 已建立參考模型 | 相同請求重用意圖，不同 payload 衝突 |
+| 付款狀態 | 已建立參考模型 | pending／succeeded／failed／expired |
+| HMAC 簽章與 timestamp 驗證 | 已建立通用範例 | 必須依實際金流商規格調整 |
+| Webhook event 去重 | 已建立參考模型 | 相同事件重播不重複處理 |
+| 金額／幣別／provider／intent 核對 | 已建立參考模型 | 不一致拒絕 |
+| 正式金流、退款與資料庫交易 | 未完成 | 未選定／串接供應商；沒有扣款 |
+| 自動化測試 | 已建立 | 等待 GitHub Actions 結果 |
+
+新增檔案：
+- `app/mock-api/payment-model.js`
+- `app/mock-api/payment-model.test.js`
+- `app/PHASE_49_PAYMENT_INTENT_AND_WEBHOOK_MODEL.md`
+
+### Phase 49 結論
+- 建立付款意圖與付款狀態的純 Node reference model。
+- 以 session-scoped idempotency key 防止重複建立付款意圖。
+- 驗證 HMAC 簽章、時間窗、事件 ID、intent、金額、幣別及 provider。
+- 重複 webhook 事件不重複處理；終態不得回退或被晚到事件覆蓋。
+- 付款成功／失敗／逾時只在模型內反映，沒有呼叫金流、扣款或更新正式訂單。
+- 正式金流簽章格式必須依實際供應商官方規格實作，不能直接照搬通用示範。
+- 正式系統需在 DB transaction 中鎖定 intent、唯一事件 ID、核對訂單快照並寫稽核紀錄。
+- 沒有修改正式 Supabase、官網、Edge Functions、Secrets 或訂單資料。
+
+### 下一階段（Phase 50）
+建立退款與付款對帳 reference model：退款申請、核准、處理中、成功／失敗、部分退款上限、重複退款請求冪等性，以及每日交易對帳差異；只使用合成資料，不呼叫金流或修改正式資料。
