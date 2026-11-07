@@ -51,6 +51,9 @@ function validateCatalogItem(item, path = 'item') {
   for (const key of DTO_SCHEMA.catalogItem.required) {
     if (!(key in item)) errors.push(`${path} 缺少 ${key}`);
   }
+  for (const key of Object.keys(item)) {
+    if (![...DTO_SCHEMA.catalogItem.required, ...DTO_SCHEMA.catalogItem.optional].includes(key)) errors.push(`${path} 不支援欄位 ${key}`);
+  }
   for (const key of ['product_id', 'name', 'currency']) {
     if (key in item && !isString(item[key])) errors.push(`${path}.${key} 必須是字串`);
   }
@@ -74,6 +77,9 @@ function validateContent(data) {
     for (const key of DTO_SCHEMA.contentSection.required) {
       if (!(key in value)) errors.push(`content.${section} 缺少 ${key}`);
     }
+    for (const key of Object.keys(value)) {
+      if (!DTO_SCHEMA.contentSection.required.includes(key)) errors.push(`content.${section} 不支援欄位 ${key}`);
+    }
     for (const key of ['title', 'content', 'image_url']) {
       if (key in value && !isString(value[key])) errors.push(`content.${section}.${key} 必須是字串`);
     }
@@ -87,6 +93,9 @@ function validateSchedule(schedule, path = 'schedule') {
   if (!isObject(schedule)) return [`${path} 必須是物件`];
   for (const key of DTO_SCHEMA.schedule.required) {
     if (!(key in schedule)) errors.push(`${path} 缺少 ${key}`);
+  }
+  for (const key of Object.keys(schedule)) {
+    if (!DTO_SCHEMA.schedule.required.includes(key)) errors.push(`${path} 不支援欄位 ${key}`);
   }
   if (!SCHEDULE_TYPES.includes(schedule.type)) errors.push(`${path}.type 不合法`);
   for (const key of ['schedule_id', 'service_date', 'title', 'region', 'start_time', 'end_time']) {
@@ -103,6 +112,12 @@ function validateSchedule(schedule, path = 'schedule') {
       }
       for (const key of DTO_SCHEMA.schedule.flavorRequired) {
         if (!(key in flavor)) errors.push(`${flavorPath} 缺少 ${key}`);
+      }
+      const allowedFlavorKeys = schedule.type === 'stall'
+        ? DTO_SCHEMA.schedule.flavorRequired
+        : [...DTO_SCHEMA.schedule.flavorRequired, ...DTO_SCHEMA.schedule.foodTruckFlavorOptional];
+      for (const key of Object.keys(flavor)) {
+        if (!allowedFlavorKeys.includes(key)) errors.push(`${flavorPath} 不支援欄位 ${key}`);
       }
       for (const key of DTO_SCHEMA.schedule.flavorRequired) {
         if (key in flavor && !isString(flavor[key])) errors.push(`${flavorPath}.${key} 必須是字串`);
