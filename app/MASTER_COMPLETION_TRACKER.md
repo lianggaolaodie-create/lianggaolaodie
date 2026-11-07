@@ -1548,3 +1548,27 @@ Phase 33：將 App 所需 API 的 request／response、狀態、錯誤碼、權�
 - 已部分出貨／已出貨不可使用整單取消；處理中訂單轉人工覆核。
 - 本階段只做記憶體參考模型及合成測試，不連正式訂單、金流、退款、庫存或 Supabase。
 - 正式環境未修改。
+
+## 55. 2026-11-08 Phase 52 訂單／付款／履約／通知協調模型
+
+| 交付 | 狀態 | 備註 |
+|---|---|---|
+| 訂單、付款、履約分離狀態 | 已建立參考模型 | 三套狀態獨立 |
+| 付款前不可出貨 | 已建立參考模型 | 模型內有轉換檢查 |
+| 事件 ID 冪等與版本衝突保護 | 已建立參考模型 | 防重送及舊版本覆蓋 |
+| 通知 outbox | 已建立參考模型 | 排隊、重試、成功、永久失敗 |
+| LINE／Email／SMS／Push 真實發送 | 未完成 | 未串接供應商 |
+| 自動化測試 | 已建立 | 等待 GitHub Actions 結果 |
+
+新增檔案：
+- `app/mock-api/order-flow-model.js`
+- `app/mock-api/order-flow-model.test.js`
+- `app/PHASE_52_ORDER_PAYMENT_FULFILLMENT_NOTIFICATION_MODEL.md`
+
+### Phase 52 結論
+- 訂單、付款、履約狀態分開，避免狀態互相推測或覆蓋。
+- 未付款不可出貨；已取消不可再標記付款成功。
+- 事件以 event ID 去重、以版本欄位概念防止舊狀態覆蓋。
+- 通知採 outbox 概念，僅建立佇列模型，不實際發送。
+- 本階段仍是合成資料與記憶體參考模型；正式資料庫、RPC、RLS、供應商與狀態映射尚待核對。
+- 正式 Supabase、官網、Edge Functions、Secrets 未修改。
