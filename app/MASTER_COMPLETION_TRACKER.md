@@ -605,3 +605,32 @@ Phase 18：追查 Storage bucket／付款證明上傳流程、Dashboard Webhook 
 
 ### 下一階段
 Phase 19：整理付款／通知／出貨安全修補的精確 patch diff 與測試矩陣；把 caller 未知項目列為上線阻擋條件。正式環境仍維持唯讀，變更需逐項明確核准。
+
+
+## 22. 2026-11-08 Phase 19 安全修補方案與驗收矩陣
+
+| 交付 | 狀態 | 備註 |
+|---|---|---|
+| transfer-proofs 上傳授權目標流程 | 已設計 | 訂單綁定、短效 capability、private bucket、MIME／size 限制 |
+| 周邊商品付款通知修補設計 | 已設計 | 內部事件簽章、proof_submitted／payment_confirmed 分流、冪等 |
+| 涼糕／冷藏寄放通知修補設計 | 已設計 | trigger caller 遷移、移除固定 secret、最小化 LINE payload |
+| 顧客出貨通知修補設計 | 已設計 | token 驗證後由 DB 讀 recipient／物流欄位 |
+| RPC／trigger 權限收斂順序 | 已設計 | 先 caller 遷移與驗收，再收斂 EXECUTE／Storage policy |
+| Storage／付款／通知測試矩陣 | 已列出 | 含匿名上傳、guest token、MIME／size、HMAC、重播、冪等及舊官網相容 |
+| 備份／回復方案 | 已列出 | caller dependency graph 成組回復，禁止回到已知公開漏洞 |
+| 最終可部署 SQL／Function diff | 未完成 | 真實上傳 caller、周邊商品通知 caller、shipment token lifecycle 尚未確認 |
+| 本機整合測試 | 未執行 | 尚未啟動本機 Supabase stack |
+| 正式環境變更 | 未執行 | 維持唯讀；未部署、未修改 Storage policy／Function／RPC |
+
+詳細文件：`app/PHASE_19_SECURITY_PATCH_DESIGN_AND_TEST_MATRIX.md`
+
+### Phase 19 上線阻擋條件
+- transfer-proofs 實際上傳端點及所有 caller 未確認。
+- merch_orders.payment_proof_url 寫入來源未確認。
+- line-payment-notify／merch-payment-sync 外部 caller 未確認。
+- line-customer-notify shipment token 產生與生命週期未確認。
+- 所有未知 caller 未排除前，不移除 Function、不 REVOKE RPC、不改 Storage policy。
+- 所有付款證明提交只能代表 proof_submitted；只有管理員實際核款後才可 confirmed／paid。
+
+### 下一階段
+Phase 20：唯讀追查 pg_net／pg_cron／Database Webhooks、所有 RPC 定義，以及 merch_orders／payment_proof_url 寫入路徑；caller 完整後才產生逐檔完整 patch diff 與本機測試 fixtures。
