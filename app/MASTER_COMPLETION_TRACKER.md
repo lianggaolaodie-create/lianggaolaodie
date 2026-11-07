@@ -893,3 +893,21 @@ Phase 29：把現有純函式安全測試、狀態機規格與 Phase 28 矩陣�
 
 ### 下一階段（整批工作包）
 Phase 30：檢查 repo 現有 package scripts、GitHub Actions 與測試檔依賴，建立單一測試入口與 CI 執行設定；在不觸碰正式服務的前提下，盡可能讓純函式測試可由 GitHub 自動執行，並確認目前分支的 CI 狀態。
+
+
+## 33. 2026-11-08 Phase 30 純函式測試 CI 自動入口
+
+| 交付 | 狀態 | 備註 |
+|---|---|---|
+| GitHub Actions workflow | 已建立 | `.github/workflows/pure-node-safety-tests.yml` |
+| Node.js runtime | CI 指定 | Node.js 22 |
+| Phase 22／24／29 測試入口 | 已接入 workflow | 僅執行純函式安全測試 |
+| workflow 執行結果 | 待 GitHub Actions 回報 | 建立 workflow 不等於已通過 |
+| DB／RLS／Storage／Edge Function | 不在此 CI 範圍 | 仍需隔離 Supabase stack |
+| 正式環境變更 | 未執行 | 維持唯讀 |
+
+### Phase 30 結論
+- 已新增 GitHub Actions workflow，當 `app/phase-1-planning` 分支 push、PR 或手動觸發時，以 Node.js 22 執行 Phase 22、24、29 純函式測試。
+- workflow 不設定 Supabase URL／key，不讀寫正式服務，不呼叫 LINE。
+- 尚未取得 GitHub Actions run 結果前，不標示 CI 通過；須待 workflow 回報。
+- DB／Storage／Edge Function／真機驗收仍是獨立阻擋項。
