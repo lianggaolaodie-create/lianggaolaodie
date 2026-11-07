@@ -1495,3 +1495,32 @@ Phase 33：將 App 所需 API 的 request／response、狀態、錯誤碼、權�
 - Run：42405507575
 - https://github.com/lianggaolaodie-create/lianggaolaodie/actions/runs/42405507575
 - 修正測試 fixture 的 webhook timestamp，使逾時情境先通過簽章時間窗，再驗證付款意圖逾時。
+
+## 53. 2026-11-08 Phase 50 退款與付款對帳參考模型
+
+| 交付 | 狀態 | 備註 |
+|---|---|---|
+| 已付款快照登記 | 已建立參考模型 | 僅合成付款資料 |
+| 退款申請／核准／拒絕／處理／成功／失敗 | 已建立參考模型 | 明確限制狀態轉換 |
+| 部分退款與累計上限 | 已建立參考模型 | 保留未完成退款額度，防止超退 |
+| 退款冪等 key | 已建立參考模型 | 相同請求重用，異 payload 衝突 |
+| 付款／退款對帳 | 已建立參考模型 | 比較本地與供應商明細並列差異 |
+| 真實金流退款／銀行對帳匯入 | 未完成 | 無供應商串接、無真實資料 |
+| 自動化測試 | 已建立 | 等待 GitHub Actions 結果 |
+
+新增檔案：
+- `app/mock-api/refund-model.js`
+- `app/mock-api/refund-model.test.js`
+- `app/PHASE_50_REFUND_AND_RECONCILIATION_MODEL.md`
+
+### Phase 50 結論
+- 退款可分次申請，但累計保留金額不得超過已登記的已付款金額。
+- requested／approved／processing／succeeded 狀態占用退款額度；rejected／failed 釋放額度。
+- 退款請求具冪等 key；同 key 不同內容拒絕。
+- 對帳模型會標示本地與外部付款／退款資料缺漏、金額幣別不一致、外部多出紀錄。
+- 此模型不會呼叫金流、退款、匯入真實銀行資料或更新正式訂單。
+- 正式後端仍需 DB transaction／row lock、供應商 idempotency、可信 webhook、對帳檔來源驗證及稽核軌跡。
+- 正式 Supabase、官網、Edge Functions、Secrets 未修改。
+
+### 下一階段（Phase 51）
+建立訂單取消與付款／退款／庫存回補協調模型：取消條件、付款前取消、付款後退款、部分出貨限制、取消冪等、退款與訂單狀態不可互相覆蓋，以及庫存回補只發生一次；仍只用合成資料，不執行正式訂單操作。
