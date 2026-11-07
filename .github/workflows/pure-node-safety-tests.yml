@@ -63,3 +63,5 @@ jobs:
         run: node --test app/security/metadata-snapshot-comparator.test.js
       - name: Run Phase 77 security risk report tests
         run: node --test app/security/security-risk-report.test.js
+      - name: Run Phase 78 security remediation backlog tests
+        run: node --test app/security/security-remediation-backlog.test.js
