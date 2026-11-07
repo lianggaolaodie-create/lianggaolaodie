@@ -43,6 +43,7 @@ function authorize(actor, permission) {
   if (!actor || actor.verified !== true || typeof actor.subject !== 'string' || !actor.subject.trim()) return fail('ACTOR_NOT_VERIFIED');
   if (!ROLES.has(actor.role)) return fail('ROLE_FORBIDDEN');
   if (permission === 'payment_review' && !['super_admin', 'order_admin'].includes(actor.role)) return fail('PERMISSION_FORBIDDEN');
+  if (permission === 'manage_fulfillment' && !['super_admin', 'order_admin'].includes(actor.role)) return fail('PERMISSION_FORBIDDEN');
   if (permission === 'view_personal_data' && !['super_admin', 'personal_data_admin'].includes(actor.role)) return fail('PERMISSION_FORBIDDEN');
   return { ok: true };
 }
@@ -119,21 +120,27 @@ function updateOwnerFulfillment({ store, actor, orderId, nextStatus, expectedVer
 function cancelOwnerOrder({ store, actor, orderId, expectedVersion, now, idempotencyKey, reason = '' } = {}) {
   const auth = authorize(actor, 'manage_fulfillment');
   if (!auth.ok) return auth;
-  const order = store?.orders?.get(orderId);
+  if (!store || !(store.orders instanceof Map) || !Array.isArray(store.audit) || !(store.idempotency instanceof Map)) return fail('STORE_INVALID');
+  if (typeof idempotencyKey !== 'string' || !/^[A-Za-z0-9._:-]{16,128}$/.test(idempotencyKey)) return fail('IDEMPOTENCY_KEY_INVALID');
+  if (!Number.isSafeInteger(now)) return fail('TIME_INVALID');
+  const fingerprint = digest({ orderId, expectedVersion, reason });
+  const replay = store.idempotency.get(idempotencyKey);
+  if (replay) return replay.fingerprint === fingerprint ? Object.freeze({ ...replay.result, duplicate: true }) : fail('IDEMPOTENCY_CONFLICT');
+  const order = store.orders.get(orderId);
   if (!order) return fail('ORDER_NOT_FOUND');
   if (order.version !== expectedVersion) return fail('VERSION_CONFLICT');
   if (['shipped','delivered'].includes(order.orderStatus) || ['shipped','delivered'].includes(order.fulfillmentStatus)) return fail('ALREADY_SHIPPED');
   if (order.paymentStatus === 'confirmed') return fail('REFUND_REQUIRED_BEFORE_CANCEL');
   if (!['awaiting_payment','confirmed','preparing','ready_to_ship'].includes(order.orderStatus)) return fail('ORDER_NOT_CANCELLABLE');
-  if (typeof idempotencyKey !== 'string' || !/^[A-Za-z0-9._:-]{16,128}$/.test(idempotencyKey)) return fail('IDEMPOTENCY_KEY_INVALID');
-  if (!Number.isSafeInteger(now)) return fail('TIME_INVALID');
   const next = Object.freeze({ ...order, orderStatus:'cancelled', fulfillmentStatus:'cancelled',
     version:order.version+1, updatedAt:now });
   store.orders.set(orderId,next);
   const audit = Object.freeze({ actor:actor.subject, action:'order_cancelled', orderId,
     from:order.orderStatus, to:'cancelled', reason:String(reason).slice(0,200), at:now, version:next.version });
   store.audit.push(audit);
-  return Object.freeze({ok:true,order:next,audit});
+  const result = Object.freeze({ok:true,duplicate:false,order:next,audit});
+  store.idempotency.set(idempotencyKey, { fingerprint, result });
+  return result;
 }
 function getOwnerOrderDetail({ store, actor, orderId } = {}) {
   const auth = authorize(actor, 'list_orders');
