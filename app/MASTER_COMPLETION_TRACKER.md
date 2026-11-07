@@ -1956,7 +1956,7 @@ CI 更新：`.github/workflows/pure-node-safety-tests.yml`
 | 管理角色資料表範圍 | 已建立測試 | 商品、訂單、付款、個資分離 |
 | 匿名私人資料隔離 | 已建立測試 | 匿名不可讀匯款證明 |
 | 公開讀取與寫入權分離 | 已建立測試 | SELECT 不代表 DML |
-| 自動化測試 | 已新增 | 10 個 Node 測試，加入 GitHub Actions |
+| 自動化測試 | 已通過 | 10 個 Node 測試；GitHub Actions 成功 |
 | 真實 Supabase RLS 驗收 | 未完成 | 必須在獨立 staging 以真實 JWT／policy 驗證 |
 
 新增檔案：
@@ -1969,3 +1969,10 @@ CI 更新：`.github/workflows/pure-node-safety-tests.yml`
 ### Phase 72 限制
 - 本階段建立預期政策行為與合成測試，不會執行 SQL 或連線 production。
 - 已知 production merchandise permissive policy 風險仍未修補；不能因 mock 測試通過而宣稱正式 RLS 安全。
+
+
+### Phase 72 CI 驗收補記
+- GitHub Actions：Pure Node safety tests 成功。
+- Run：https://github.com/lianggaolaodie-create/lianggaolaodie/actions/runs/42410416734
+- Phase 72 RLS policy model test step：success。
+- 此結果只驗證合成 policy evaluator；真實 Supabase RLS 尚未測試或修補。
