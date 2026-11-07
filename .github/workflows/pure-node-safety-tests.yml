@@ -67,3 +67,5 @@ jobs:
         run: node --test app/security/security-remediation-backlog.test.js
       - name: Run Phase 79 staging approval gate tests
         run: node --test app/security/staging-approval-gate.test.js
+      - name: Run Phase 80 security review package tests
+        run: node --test app/security/security-review-package.test.js
