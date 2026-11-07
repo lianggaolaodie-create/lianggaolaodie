@@ -78,19 +78,27 @@ test('checkout authorization rejects client-invented totals by using only regist
   const cart = { items: [{ productId: 'flavor-1', variantId: '', quantity: 2 }] };
   const fulfillmentMethod = 'lianggao_home_delivery';
   const recipient = { name: '測試', phone: '0900000000', address: '測試地址' };
-  const { fingerprint } = require('./quote-model');
-  const recipientHash = checkout.recipientFingerprint(recipient);
-  assert.equal(checkout.registerServerQuote(store, {
-    quoteId: 'quote-phase66', totalMinor: 24000, currency: 'TWD', expiresAt: 2000,
-    fulfillmentMethod, cartFingerprint: fingerprint(cart.items, fulfillmentMethod),
-    recipientFingerprint: recipientHash
-  }).ok, true);
+  const quoteModel = require('./quote-model');
+  const quoteResult = quoteModel.issueQuote({
+    cart,
+    fulfillmentMethod,
+    recipient,
+    trustedCatalog: {
+      'flavor-1': { enabled: true, onlineEnabled: true, category: 'lianggao', unitPriceMinor: 10000, name: '黑糖' }
+    },
+    trustedRates: { [fulfillmentMethod]: { enabled: true, feeMinor: 4000 } },
+    quoteId: 'quote-phase66',
+    issuedAt: 500,
+    expiresAt: 2000
+  });
+  assert.equal(quoteResult.ok, true);
+  assert.equal(checkout.registerServerQuote(store, quoteResult.quote).ok, true);
   const result = checkout.authorizeCheckout({
     store, quoteId: 'quote-phase66', cart, fulfillmentMethod, recipient,
     serverNow: 1000, sessionId: 'session-phase66', idempotencyKey: 'phase66-key-000001',
     clientTotal: 1, paymentStatus: 'confirmed'
   });
-  assert.equal(result.ok, true);
+  assert.equal(result.ok, true, result.reason);
   assert.equal(result.totalMinor, 24000);
   assert.equal(result.orderCreationEnabled, false);
   assert.equal(result.paymentExecutionEnabled, false);
