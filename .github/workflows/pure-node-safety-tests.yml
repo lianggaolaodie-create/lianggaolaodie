@@ -73,3 +73,5 @@ jobs:
         run: node --test app/release/release-acceptance-matrix.test.js
       - name: Run Phase 82 app gap inventory tests
         run: node --test app/release/gap-inventory.test.js
+      - name: Run Phase 83 PWA app shell tests
+        run: node --test app/pwa/core.test.js
