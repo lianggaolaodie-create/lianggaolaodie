@@ -1209,3 +1209,33 @@ Phase 33：將 App 所需 API 的 request／response、狀態、錯誤碼、權�
 
 ### 下一階段（Phase 41）
 建立 Screen State model，統一首頁、商品列表、行程列表的 loading／success／empty／error／retry／refresh 狀態，並使用 mock repository 測試逾時、取消、重試及資料為空的畫面狀態。
+
+## 44. 2026-11-08 Phase 41 Screen State／載入錯誤與重試模型
+
+| 交付 | 狀態 | 備註 |
+|---|---|---|
+| 首次載入／成功／空資料狀態 | 已建立 | framework-independent reducer |
+| 逾時／網路錯誤狀態 | 已建立 | 依 ApiClientError.retryable 判斷 |
+| 重試能力 | 已建立 | 僅提供 canRetry 狀態，不自動重試 |
+| 重新整理保留舊資料 | 已建立 | 更新中及更新失敗都保留舊資料 |
+| 請求取消 | 已建立 | 支援 AbortController signal 的 loader |
+| 舊請求回應保護 | 已建立 | requestId 不符的回應忽略 |
+| 自動化測試 | 已建立 | 首次載入、空資料、錯誤、重試、取消、過期回應 |
+| 正式 App UI 串接 | 未完成 | 尚未接入正式畫面與真機測試 |
+| 正式 API／Supabase 串接 | 未完成 | 仍使用 mock repository |
+
+新增檔案：
+- `app/mock-api/screen-state.js`
+- `app/mock-api/screen-state.test.js`
+- `app/PHASE_41_SCREEN_STATE_AND_RETRY_MODEL.md`
+
+### Phase 41 結論
+- 首次載入、空資料、成功、錯誤、重新整理等狀態已統一。
+- 可重試錯誤與不可重試錯誤分開處理；沒有自動重試或輪詢。
+- 更新失敗保留舊資料，避免畫面突然清空。
+- 舊請求回應不會覆蓋新請求。
+- loader 支援取消請求；尚未整合正式 App lifecycle。
+- 本階段不涉及正式環境、資料庫、官網或付費服務。
+
+### 下一階段（Phase 42）
+建立顧客首頁／商品目錄／餐車與擺攤列表的 screen controller 組合層，串接 Phase 39 repository、Phase 40 view models、Phase 41 screen state，提供 load／refresh／cancel，並以 mock fixtures 驗證擺攤資料不會帶出價格。
