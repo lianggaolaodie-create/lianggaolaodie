@@ -662,3 +662,29 @@ Phase 20：唯讀追查 pg_net／pg_cron／Database Webhooks、所有 RPC 定義
 
 ### 下一階段
 Phase 21：建立 shipment token lifecycle 相容遷移設計；逐頁檢查 active branch 周邊商品結帳／後台付款欄位寫入端點；整理需由專案管理者在 Dashboard／第三方控制台確認的外部 caller 清單。正式環境維持唯讀。
+
+
+## 24. 2026-11-08 Phase 21 周邊商品付款流程／出貨 Token 相容遷移設計
+
+| 交付 | 狀態 | 備註 |
+|---|---|---|
+| merch.html 客戶結帳完整流程 | 已唯讀檢查 | 建立 merch_orders 與 items；只寫匯款後五碼，沒有付款證明 upload |
+| merch-admin.html | 已唯讀檢查 | 可更新付款／出貨狀態；個資清除時清空 proof URL；無 proof upload |
+| merch-admin-v2.html | 已唯讀檢查 | 可讀取商品訂單；商品圖上傳與付款證明無關 |
+| 周邊商品付款證明新流程 | 已完成設計稿 | 私有 bucket、短效 capability、server finalize、proof_submitted 與 paid 分離 |
+| 出貨 Token lifecycle | 已完成設計稿 | token hash、expiry、consume、event_id、DB 派生 recipient／物流欄位 |
+| Patch package／相容遷移 | 已完成設計稿 | 尚未產生或套用正式 migration／Function patch |
+| 單元測試規格 | 已完成測試案例 | 下一階段建立本機純函式 fixtures |
+| 正式環境變更 | 未執行 | 無 DDL／DML、Function deploy、Secrets 或官網變更 |
+
+詳細文件：`app/PHASE_21_MERCH_PAYMENT_AND_SHIPMENT_TOKEN_DESIGN.md`
+
+### Phase 21 新確認
+- active branch `merch.html` 完整 submit handler 建立訂單、寫入 unpaid 及匯款後五碼，沒有付款證明檔案欄位、Storage upload 或付款證明 URL 寫入。
+- `merch-admin.html` 可直接更新付款／出貨狀態，但沒有付款證明 upload；`merch-admin-v2.html` 的 Storage upload 是商品圖片。
+- merch 前台初始付款狀態使用 unpaid，舊後台下拉選單使用 pending／paid／refunded，存在狀態字典不一致，遷移前必須先做相容轉換表。
+- 因此周邊商品付款證明流程在 active branch 尚未完成，兩支匿名通知 Function 不應被視為已串接的有效客戶付款流程。
+- 已產出 token lifecycle 與 merch proof upload 的 patch package、測試規格及相容策略；均為設計稿，未套用。
+
+### 下一階段
+Phase 22：補齊周邊商品所有頁面與外部 caller matrix、列出 Dashboard／第三方 caller 人工確認清單，建立本機純函式 token lifecycle／payment state fixtures 並執行測試。正式環境維持唯讀。
