@@ -1976,3 +1976,28 @@ CI 更新：`.github/workflows/pure-node-safety-tests.yml`
 - Run：https://github.com/lianggaolaodie-create/lianggaolaodie/actions/runs/42410416734
 - Phase 72 RLS policy model test step：success。
 - 此結果只驗證合成 policy evaluator；真實 Supabase RLS 尚未測試或修補。
+
+
+## Phase 73｜RLS 修補藍圖與靜態驗收（2026-11-08）
+
+| 交付 | 狀態 | 備註 |
+|---|---|---|
+| merch_products／merch_categories P0 修補目標 | 已建立 | 明確禁止寬鬆 authenticated ALL |
+| orders／transfer_proofs P1 權限目標 | 已建立 | 私有資料要求 owner scope |
+| 修補前 policy／grant snapshot 流程 | 已建立 | staging 先驗證 |
+| rollback 與停止發布條件 | 已建立 | 每個 migration 必須配對回復方案 |
+| 靜態規格驗證 | 已加入 | Node tests；GitHub Actions |
+| staging 真實 SQL／JWT 驗收 | 未完成 | 未建立 staging、未執行 SQL |
+| production 修補 | 未執行 | 正式環境保持不變，等待獨立 staging 與明確核准 |
+
+新增檔案：
+- `app/security/rls-remediation-plan.js`
+- `app/security/rls-remediation-plan.test.js`
+- `app/PHASE_73_RLS_REMEDIATION_PLAN.md`
+
+CI 更新：`.github/workflows/pure-node-safety-tests.yml`
+
+### Phase 73 限制
+- 目前只建立宣告式修補藍圖與靜態測試，不是 SQL migration，也不會連線資料庫。
+- 不可將 Phase 72／73 的 mock 通過視為 production RLS 已安全。
+- 未做任何 production DDL、DML、GRANT、policy、function、secret 或 billing 變更。
