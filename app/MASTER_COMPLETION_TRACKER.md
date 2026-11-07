@@ -1644,3 +1644,24 @@ Phase 33：將 App 所需 API 的 request／response、狀態、錯誤碼、權�
 
 ### 下一階段（Phase 55）
 先產生安全 policy 修補草案與 rollback，定義單一管理權限矩陣，並建立五類既有資料模型的唯讀 adapter prototypes 與 fixture tests；不部署、不執行正式 SQL，除非另行明確核准。
+
+---
+
+## Phase 55｜安全修補草案、權限矩陣與唯讀 Adapter（2026-11-08）
+
+| 交付 | 狀態 | 驗收／限制 |
+|---|---|---|
+| 五類 production read-only adapter prototype | 已建立 | 純函式；不連 Supabase；明確 allowlist |
+| stall 價格欄位負向測試 | 已建立 | 測試 JSON 不含 price／pricePerBox／unitPrice |
+| flavors／daily menu／schedule／radish／merch fixture tests | 已建立 | Node test；不讀正式資料 |
+| merchandise RLS 修補 SQL 草案 | 已建立 | placeholder predicate；不可直接執行 |
+| rollback／事故處理原則 | 已建立 | 不回復寬鬆 USING true policy |
+| admin role matrix | 已建立 | 目標規格；尚未套用正式 DB |
+| daily order transaction RPC 設計 | 已建立 | 未部署、未執行 |
+| radish JSON optimistic version API 設計 | 已建立 | 未部署、未執行 |
+| 正式 Supabase／官網變更 | 未執行 | 維持正式環境唯讀 |
+
+詳細文件：`app/PHASE_55_SECURITY_ROLE_ADAPTERS.md`
+
+### Phase 55 下一步
+在本分支擴充每日開單／蘿蔔糕版本控制 mock service，加入 rollback、競爭更新、角色拒絕與 payload contract 測試；仍不連正式環境。
