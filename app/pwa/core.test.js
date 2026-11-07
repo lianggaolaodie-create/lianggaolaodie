@@ -9,3 +9,6 @@ test('cart item can be removed without mutating source',()=>{const cart=[{id:'x'
 test('unknown cart item action leaves cart unchanged',()=>assert.equal(core.updateItem([{id:'x',quantity:1}],'x','noop')[0].quantity,1));
 test('order filter returns matching copied sample rows',()=>{const rows=[{id:'a',status:'待確認'},{id:'b',status:'已完成'}];const result=core.filterOrders(rows,'待確認');assert.deepEqual(result,[{id:'a',status:'待確認'}]);assert.notEqual(result[0],rows[0]);});
 test('all order filter preserves every row',()=>assert.equal(core.filterOrders([{status:'待確認'},{status:'已完成'}],'all').length,2));
+
+test('tracking lookup finds only exact normalized demo order id',()=>{const orders=[{id:'DEMO-1001',status:'待確認'}];assert.equal(core.findOrder(orders,' demo-1001 ').status,'待確認');assert.equal(core.findOrder(orders,'REAL-1001'),null);});
+test('tracking lookup does not mutate order list',()=>{const orders=[{id:'DEMO-1001',status:'待確認'}];assert.equal(core.findOrder(orders,'DEMO-1001').id,'DEMO-1001');assert.equal(orders.length,1);});
