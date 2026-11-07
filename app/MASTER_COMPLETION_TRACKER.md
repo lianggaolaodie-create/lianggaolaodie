@@ -1151,3 +1151,32 @@ Phase 33：將 App 所需 API 的 request／response、狀態、錯誤碼、權�
 
 ### 下一階段（Phase 39）
 建立 App／官網可共用的 repository／adapter 入口與 mock implementation，統一公開讀取呼叫；將 public read 與未來需驗證身份的會員／訂單寫入 API 明確隔離。繼續只使用合成資料。
+
+## 42. 2026-11-08 Phase 39 Public Data Repository
+
+| 交付 | 狀態 | 備註 |
+|---|---|---|
+| 共用公開 Repository 介面 | 已建立 | catalog／content／schedules |
+| HTTP API adapter | 已建立 | 委派 Phase 37 client，保留 envelope/meta |
+| Synthetic mock adapter | 已建立 | 使用 Phase 35 mock API，無外部連線 |
+| 商品／行程完整分頁 | 已建立 | 含 maxPages 安全上限 |
+| 餐車／擺攤資料規則 | 已保留 | 餐車可有價格；擺攤完全無 price／currency |
+| 公開與寫入 API 隔離 | 已建立原型邊界 | repository 無訂單／付款／會員寫入方法 |
+| Repository tests | 已建立 | adapter 委派、mock 資料、分頁、錯誤 envelope |
+| 正式 App／官網串接 | 未完成 | 尚未選定正式 App bundler／部署方式 |
+| 正式 API／Supabase 串接 | 未完成 | 不連正式服務、不讀真實顧客資料 |
+
+新增檔案：
+- `app/mock-api/public-repository.js`
+- `app/mock-api/public-repository.test.js`
+- `app/PHASE_39_PUBLIC_DATA_REPOSITORY.md`
+
+### Phase 39 結論
+- 建立 App／官網未來共用的公開資料 repository 介面。
+- 正式 HTTP client 與 mock adapter 共用同一組方法。
+- 公開讀取與訂單、付款、會員等寫入／個資操作保持分離。
+- 保留餐車可顯示價格、擺攤完全不含價格欄位的規則。
+- 沒有正式環境變更；CI 最新結果需依本階段提交後的 workflow run 核實。
+
+### 下一階段（Phase 40）
+建立公開資料 View Model／Presenter，將 catalog、content、food_truck、stall DTO 轉換成顧客 App／官網可直接顯示的安全資料模型，對缺圖、缺時間、缺地區及無價格採明確處理，並以合成資料測試。
