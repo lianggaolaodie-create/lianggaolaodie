@@ -2224,7 +2224,7 @@ CI 更新：`.github/workflows/pure-node-safety-tests.yml`
 | 管理後台 | 已建立 | 角色、菜單、訂單、庫存稽核 |
 | 餐車／擺攤／PDA | 已建立 | 獨立管理及掃碼流程 |
 | iPhone／網站／上線 | 已建立 | UX、錯誤、備份及回復 |
-| 自動化測試 | 已加入 | GitHub Actions 待驗收 |
+| 自動化測試 | 已通過 | GitHub Actions 成功 |
 | 真實 staging／production 驗收 | 未執行 | 矩陣初始皆 NOT_TESTED |
 
 新增檔案：
@@ -2233,3 +2233,10 @@ CI 更新：`.github/workflows/pure-node-safety-tests.yml`
 - `app/PHASE_81_RELEASE_ACCEPTANCE_MATRIX.md`
 
 CI 更新：`.github/workflows/pure-node-safety-tests.yml`
+
+
+### Phase 81 CI 驗收補記
+- Pure Node safety tests：completed / success。
+- Phase 81 release acceptance matrix tests：success。
+- Run：https://github.com/lianggaolaodie-create/lianggaolaodie/actions/runs/42411921404
+- 此結果只驗證靜態驗收矩陣，不代表正式 App／付款／production 已驗收。
