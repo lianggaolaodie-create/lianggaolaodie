@@ -116,10 +116,10 @@ function saveSchedule({ store, actor, schedule, expectedVersion, now } = {}) {
   if (!previous && expectedVersion !== undefined) return fail('VERSION_CONFLICT');
   const fields = [];
   if (!SCHEDULE_TYPES.includes(schedule.type)) fields.push('type');
-  if (!/^\\d{4}-\\d{2}-\\d{2}$/.test(text(schedule.serviceDate))) fields.push('serviceDate');
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(text(schedule.serviceDate))) fields.push('serviceDate');
   if (!text(schedule.region) || !text(schedule.location)) fields.push('location');
-  if (!/^([01]\\d|2[0-3]):[0-5]\\d$/.test(text(schedule.startTime))) fields.push('startTime');
-  if (!/^([01]\\d|2[0-3]):[0-5]\\d$/.test(text(schedule.endTime))) fields.push('endTime');
+  if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(text(schedule.startTime))) fields.push('startTime');
+  if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(text(schedule.endTime))) fields.push('endTime');
   if (schedule.startTime >= schedule.endTime) fields.push('timeRange');
   const flavorIds = Array.isArray(schedule.flavorIds) ? [...new Set(schedule.flavorIds.map(text).filter(Boolean))] : [];
   if (flavorIds.some(flavorId => {
