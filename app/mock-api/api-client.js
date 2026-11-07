@@ -107,33 +107,39 @@ function createPublicApiClient({ baseUrl, fetchImpl = globalThis.fetch, timeoutM
     }
   }
 
+  async function getCatalog({ cursor, limit, signal, headers } = {}) {
+    const result = await request('/api/v1/catalog', { cursor, limit }, { signal, headers });
+    if (!result.data || !Array.isArray(result.data.items)) {
+      throw new ApiClientError({ message: '商品目錄格式不正確。', code: 'INVALID_DATA', requestId: result.meta.request_id });
+    }
+    return result;
+  }
+
+  async function getContent({ signal, headers } = {}) {
+    const result = await request('/api/v1/content', {}, { signal, headers });
+    if (!result.data || typeof result.data !== 'object' || Array.isArray(result.data)) {
+      throw new ApiClientError({ message: '公開內容格式不正確。', code: 'INVALID_DATA', requestId: result.meta.request_id });
+    }
+    return result;
+  }
+
+  async function getSchedules({ type, cursor, limit, signal, headers } = {}) {
+    const result = await request('/api/v1/schedules', { type, cursor, limit }, { signal, headers });
+    if (!result.data || !Array.isArray(result.data.items)) {
+      throw new ApiClientError({ message: '行程資料格式不正確。', code: 'INVALID_DATA', requestId: result.meta.request_id });
+    }
+    return result;
+  }
+
   return Object.freeze({
-    async getCatalog({ cursor, limit, signal, headers } = {}) {
-      const result = await request('/api/v1/catalog', { cursor, limit }, { signal, headers });
-      if (!result.data || !Array.isArray(result.data.items)) {
-        throw new ApiClientError({ message: '商品目錄格式不正確。', code: 'INVALID_DATA', requestId: result.meta.request_id });
-      }
-      return result;
-    },
-    async getContent({ signal, headers } = {}) {
-      const result = await request('/api/v1/content', {}, { signal, headers });
-      if (!result.data || typeof result.data !== 'object' || Array.isArray(result.data)) {
-        throw new ApiClientError({ message: '公開內容格式不正確。', code: 'INVALID_DATA', requestId: result.meta.request_id });
-      }
-      return result;
-    },
-    async getSchedules({ type, cursor, limit, signal, headers } = {}) {
-      const result = await request('/api/v1/schedules', { type, cursor, limit }, { signal, headers });
-      if (!result.data || !Array.isArray(result.data.items)) {
-        throw new ApiClientError({ message: '行程資料格式不正確。', code: 'INVALID_DATA', requestId: result.meta.request_id });
-      }
-      return result;
-    },
+    getCatalog,
+    getContent,
+    getSchedules,
     async getAllCatalog({ limit = 100, maxPages = 100, signal } = {}) {
-      return collectPages((options) => this.getCatalog(options), { limit, maxPages, signal });
+      return collectPages(getCatalog, { limit, maxPages, signal });
     },
     async getAllSchedules({ type, limit = 100, maxPages = 100, signal } = {}) {
-      return collectPages((options) => this.getSchedules(options), { type, limit, maxPages, signal });
+      return collectPages(getSchedules, { type, limit, maxPages, signal });
     }
   });
 }
