@@ -31,3 +31,5 @@ jobs:
           app/tests/phase29-cross-module.test.js
       - name: Run Phase 53 catalog administration tests
         run: node --test app/mock-api/product-admin-model.test.js
+      - name: Run Phase 55 production read-adapter contract tests
+        run: node --test app/mock-api/production-read-adapters.test.js
