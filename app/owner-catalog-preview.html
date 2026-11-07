@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>老爹．涼糕｜商品與每日開單管理原型</title>
+<style>
+:root{--ink:#191919;--gold:#c6a15a;--bg:#f5f3ee;--line:#e8e3d9;--muted:#777;--green:#28734e;--red:#ad5148}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 -apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif}
+header{background:#191919;color:white;padding:17px 24px;display:flex;justify-content:space-between;gap:12px;align-items:center;position:sticky;top:0;z-index:5}.brand{font-weight:800;letter-spacing:2px}.brand b{color:var(--gold)}header small{color:#bbb}
+.layout{display:grid;grid-template-columns:220px minmax(0,1fr);min-height:calc(100vh - 60px)}aside{background:#242424;padding:18px 12px;color:white}nav button{display:block;width:100%;border:0;background:transparent;color:#ddd;text-align:left;padding:12px;border-radius:8px;font:inherit;cursor:pointer}nav button.active,nav button:hover{background:#403827;color:#f5d99e}
+main{max-width:1300px;width:100%;padding:28px;margin:auto}.page{display:none}.page.active{display:block}.heading{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:18px}h1{font-size:25px;margin:0}h2{font-size:18px;margin:0 0 14px}.muted{color:var(--muted);font-size:13px}.notice{background:#f7efdF;border:1px solid #eadcbf;border-radius:10px;padding:12px 14px;margin:12px 0 18px;font-size:13px}
+.panel{background:white;border:1px solid var(--line);border-radius:12px;padding:18px;margin-bottom:16px}.toolbar{display:flex;gap:9px;flex-wrap:wrap;margin:12px 0}input,select{padding:10px;border:1px solid var(--line);border-radius:8px;background:white;font:inherit;min-width:130px;max-width:100%}button{cursor:pointer}.primary{background:#1c1c1c;color:#f2d99f;border:0;border-radius:8px;padding:10px 14px;font-weight:700}.secondary{background:white;border:1px solid var(--line);border-radius:8px;padding:9px 13px}.danger{color:var(--red)}.tablewrap{overflow:auto;border:1px solid var(--line);border-radius:10px;background:white}table{width:100%;border-collapse:collapse;font-size:14px}th,td{text-align:left;padding:12px;border-bottom:1px solid #eee;white-space:nowrap}th{background:#faf9f6;color:#777}.pill{display:inline-block;padding:3px 9px;border-radius:20px;background:#eee8dc;color:#70552a;font-size:12px}.pill.green{background:#e6f2ea;color:var(--green)}.form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.field{display:flex;flex-direction:column;gap:5px}.field label{font-size:13px;color:#666}.flavors{display:flex;flex-wrap:wrap;gap:8px}.flavors label{border:1px solid var(--line);padding:7px 10px;border-radius:8px;background:#fff}
+@media(max-width:850px){.layout{grid-template-columns:1fr}aside{position:sticky;top:57px;z-index:4;padding:7px}nav{display:flex;overflow:auto}nav button{white-space:nowrap;width:auto}main{padding:16px}.heading{align-items:flex-start;flex-direction:column}}
+@media(max-width:520px){header{padding:13px}.form{grid-template-columns:1fr}h1{font-size:22px}}
+</style></head><body>
+<header><div class="brand">老爹<b>．</b>涼糕 <small>商品營運管理</small></div><small>示意管理員｜僅本機頁面示範，不連正式資料</small></header>
+<div class="layout"><aside><nav>
+<button class="active" data-page="catalog">◈ 商品與口味</button>
+<button data-page="daily">▤ 每日開單設定</button>
+<button data-page="schedule">⌖ 餐車／擺攤排程</button>
+</nav></aside><main>
+<section id="catalog" class="page active">
+<div class="heading"><div><h1>商品與口味</h1><div class="muted">分開管理涼糕與蘿蔔糕；上架資料供官網與 App 共用</div></div><button class="primary" id="addFlavor">＋ 新增口味</button></div>
+<div class="notice">此為可操作原型，新增、啟用與停售只存在目前頁面記憶體；尚未寫入正式 Supabase。</div>
+<div class="toolbar"><select id="productFilter"><option value="all">全部商品</option><option value="lianggao">涼糕</option><option value="radish_cake">蘿蔔糕</option></select><input id="flavorSearch" placeholder="搜尋口味名稱"></div>
+<div class="tablewrap"><table><thead><tr><th>口味名稱</th><th>商品分類</th><th>類型</th><th>狀態</th><th>操作</th></tr></thead><tbody id="flavorRows"></tbody></table></div>
+</section>
+<section id="daily" class="page">
+<div class="heading"><div><h1>每日開單設定</h1><div class="muted">設定開單日期、服務地區、販售口味、每日價格及數量</div></div><button class="primary" id="saveDaily">儲存本機示意設定</button></div>
+<div class="notice">每日價格是當日快照，不會因修改口味主檔價格而自動改寫。正式版將以單一資料庫交易儲存。</div>
+<div class="panel"><div class="form"><div class="field"><label>開單日期</label><input id="orderDate" type="date" value="2026-11-09"></div><div class="field"><label>是否開放線上訂購</label><select id="orderEnabled"><option value="yes">開放</option><option value="no">暫停</option></select></div><div class="field"><label>服務地區（逗號分隔）</label><input id="regions" value="台北市,新北市,桃園市"></div><div class="field"><label>備註</label><input id="dailyNote" placeholder="填寫當日公告"></div></div></div>
+<div class="panel"><h2>選擇當日販售口味</h2><div class="flavors" id="dailyFlavorChoices"></div><div class="tablewrap" style="margin-top:14px"><table><thead><tr><th>口味</th><th>當日價格（元／盒）</th><th>數量（空白代表不限）</th></tr></thead><tbody id="dailyRows"></tbody></table></div></div>
+</section>
+<section id="schedule" class="page">
+<div class="heading"><div><h1>餐車／擺攤排程</h1><div class="muted">餐車場次可顯示價格；擺攤場次絕不輸出價格欄位</div></div><button class="primary" id="addSchedule">＋ 新增示意場次</button></div>
+<div class="notice">擺攤公開資訊不顯示價格；餐車場次依每個口味設定單價。地址與時間仍需在正式版串接排程資料表。</div>
+<div class="tablewrap"><table><thead><tr><th>日期</th><th>類型</th><th>地區／地點</th><th>口味</th><th>公開價格</th><th>狀態</th></tr></thead><tbody id="scheduleRows"></tbody></table></div>
+</section>
+</main></div>
+<script>
+const flavors=[
+{id:'f1',name:'水果綜合',product:'lianggao',type:'mixed',enabled:true},
+{id:'f2',name:'布丁芋頭',product:'lianggao',type:'filled',enabled:true},
+{id:'f3',name:'伯爵芋頭',product:'lianggao',type:'filled',enabled:true},
+{id:'f4',name:'純杏仁',product:'lianggao',type:'single',enabled:true},
+{id:'f5',name:'純米蘿蔔糕',product:'radish_cake',type:'single',enabled:true}
+];
+const schedules=[
+{date:'2026-11-09',type:'food_truck',place:'新北市｜板橋區',flavors:['水果綜合','布丁芋頭'],prices:[100,150],state:'草稿'},
+{date:'2026-11-10',type:'stall',place:'桃園市｜中壢區',flavors:['水果綜合','純杏仁'],prices:[],state:'草稿'}
+];
+const selected=new Set(['f1','f2','f3']);const prices={f1:100,f2:150,f3:150};const quantities={};
+function showPage(id){document.querySelectorAll('.page').forEach(x=>x.classList.toggle('active',x.id===id));document.querySelectorAll('nav button').forEach(x=>x.classList.toggle('active',x.dataset.page===id));}
+document.querySelectorAll('nav button').forEach(x=>x.onclick=()=>showPage(x.dataset.page));
+function renderFlavors(){const filter=document.querySelector('#productFilter').value,term=document.querySelector('#flavorSearch').value.trim();document.querySelector('#flavorRows').innerHTML=flavors.filter(f=>(filter==='all'||f.product===filter)&&f.name.includes(term)).map(f=>'<tr><td>'+f.name+'</td><td>'+(f.product==='lianggao'?'涼糕':'蘿蔔糕')+'</td><td>'+({mixed:'綜合',filled:'夾心',single:'單一'}[f.type]||'單一')+'</td><td><span class="pill '+(f.enabled?'green':'')+'">'+(f.enabled?'啟用':'停售')+'</span></td><td><button class="secondary" data-toggle="'+f.id+'">'+(f.enabled?'停售':'重新啟用')+'</button></td></tr>').join('');document.querySelectorAll('[data-toggle]').forEach(b=>b.onclick=()=>{const f=flavors.find(x=>x.id===b.dataset.toggle);f.enabled=!f.enabled;renderAll();});}
+function renderDaily(){document.querySelector('#dailyFlavorChoices').innerHTML=flavors.filter(f=>f.product==='lianggao'&&f.enabled).map(f=>'<label><input type="checkbox" data-flavor="'+f.id+'" '+(selected.has(f.id)?'checked':'')+'> '+f.name+'</label>').join('');document.querySelectorAll('[data-flavor]').forEach(c=>c.onchange=()=>{c.checked?selected.add(c.dataset.flavor):selected.delete(c.dataset.flavor);renderDailyRows();});renderDailyRows();}
+function renderDailyRows(){document.querySelector('#dailyRows').innerHTML=[...selected].map(id=>{const f=flavors.find(x=>x.id===id);return '<tr><td>'+f.name+'</td><td><input type="number" min="0" data-price="'+id+'" value="'+(prices[id]??100)+'"></td><td><input type="number" min="0" placeholder="不限" data-qty="'+id+'" value="'+(quantities[id]??'')+'"></td></tr>';}).join('');document.querySelectorAll('[data-price]').forEach(x=>x.onchange=()=>prices[x.dataset.price]=Number(x.value));document.querySelectorAll('[data-qty]').forEach(x=>x.onchange=()=>quantities[x.dataset.qty]=x.value===''?null:Number(x.value));}
+function renderSchedules(){document.querySelector('#scheduleRows').innerHTML=schedules.map(s=>'<tr><td>'+s.date+'</td><td>'+(s.type==='stall'?'擺攤':'餐車')+'</td><td>'+s.place+'</td><td>'+s.flavors.join('、')+'</td><td>'+(s.type==='stall'?'— 不公開':s.prices.map(p=>'$'+p).join('／'))+'</td><td><span class="pill">'+s.state+'</span></td></tr>').join('');}
+function renderAll(){renderFlavors();renderDaily();renderSchedules();}
+document.querySelector('#productFilter').onchange=renderFlavors;document.querySelector('#flavorSearch').oninput=renderFlavors;
+document.querySelector('#addFlavor').onclick=()=>{const name=prompt('請輸入口味名稱');if(!name||!name.trim())return;flavors.push({id:'f'+(Date.now()),name:name.trim(),product:'lianggao',type:'single',enabled:true});renderAll();};
+document.querySelector('#saveDaily').onclick=()=>{const snapshot={date:document.querySelector('#orderDate').value,enabled:document.querySelector('#orderEnabled').value==='yes',regions:document.querySelector('#regions').value.split(',').map(x=>x.trim()).filter(Boolean),note:document.querySelector('#dailyNote').value,items:[...selected].map(id=>({flavor:flavors.find(f=>f.id===id).name,price:prices[id]??100,quantity:quantities[id]??null}))};alert('本機示意設定已整理：'+snapshot.date+'，'+snapshot.items.length+' 種口味。正式資料尚未儲存。');};
+document.querySelector('#addSchedule').onclick=()=>{const type=prompt('輸入場次類型：food_truck 或 stall','food_truck');if(!['food_truck','stall'].includes(type))return;const place=prompt('輸入地區／地點','新北市｜板橋區');if(!place)return;schedules.push({date:'2026-11-11',type,place,flavors:['水果綜合'],prices:type==='food_truck'?[100]:[],state:'草稿'});renderSchedules();};
+renderAll();
+</script></body></html>
