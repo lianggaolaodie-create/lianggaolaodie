@@ -110,3 +110,15 @@ test('schema declarations expose required and optional field inventory', () => {
   assert.ok(DTO_SCHEMA.schedule.stallFlavorForbidden.includes('price'));
   assert.ok(DTO_SCHEMA.schedule.foodTruckFlavorOptional.includes('price'));
 });
+test('strict DTO allowlists reject unexpected fields', () => {
+  const catalogErrors = validateCatalogItem({
+    product_id: 'p1', name: '商品', category: 'lianggao',
+    price: 100, currency: 'TWD', available: true, private_note: 'leak'
+  });
+  assert.ok(catalogErrors.some(x => x.includes('不支援欄位 private_note')));
+
+  const contentErrors = validateContent({
+    home_banner: { title: '', content: '', image_url: '', published: true, secret: 'leak' }
+  });
+  assert.ok(contentErrors.some(x => x.includes('不支援欄位 secret')));
+});
