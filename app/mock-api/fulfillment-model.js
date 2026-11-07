@@ -17,7 +17,7 @@ const METHODS = Object.freeze({
 
 function categoriesInCart(cart) {
   const items = cart && Array.isArray(cart.items) ? cart.items : [];
-  return [...new Set(items.map(item => item.category).filter(category => category === 'lianggao' || category === 'radish_cake'))];
+  return [...new Set(items.map(item => item.categorySnapshot || item.category).filter(category => category === 'lianggao' || category === 'radish_cake'))];
 }
 
 function buildFulfillmentOptions(cart) {
