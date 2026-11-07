@@ -1572,3 +1572,9 @@ Phase 33：將 App 所需 API 的 request／response、狀態、錯誤碼、權�
 - 通知採 outbox 概念，僅建立佇列模型，不實際發送。
 - 本階段仍是合成資料與記憶體參考模型；正式資料庫、RPC、RLS、供應商與狀態映射尚待核對。
 - 正式 Supabase、官網、Edge Functions、Secrets 未修改。
+
+### Phase 52 自動化測試驗收補記
+- GitHub Actions：成功，234 tests passed，0 failed。
+- Run： https://github.com/lianggaolaodie-create/lianggaolaodie/actions/runs/42406365357
+- 測試涵蓋 Phase 50 對帳案例修正，以及 Phase 52 訂單／付款／履約／通知模型。
+- 此為 mock-api 自動化測試，不代表正式 Supabase、金流、物流或通知整合測試。
