@@ -45,3 +45,5 @@ jobs:
         run: node --test app/mock-api/owner-order-admin-model.test.js
       - name: Run Phase 66 shared API contract regression tests
         run: node --test app/mock-api/shared-api-contract.test.js
+      - name: Run Phase 67 workflow HTTP contract tests
+        run: node --test app/mock-api/workflow-http-server.test.js
