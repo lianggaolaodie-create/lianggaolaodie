@@ -688,3 +688,31 @@ Phase 21：建立 shipment token lifecycle 相容遷移設計；逐頁檢查 act
 
 ### 下一階段
 Phase 22：補齊周邊商品所有頁面與外部 caller matrix、列出 Dashboard／第三方 caller 人工確認清單，建立本機純函式 token lifecycle／payment state fixtures 並執行測試。正式環境維持唯讀。
+
+
+## 25. 2026-11-08 Phase 22 Caller Matrix／本機安全測試
+
+| 交付 | 狀態 | 備註 |
+|---|---|---|
+| 周邊商品客戶結帳入口 | 已唯讀確認 | merch.html 直接建立 merch_orders／items，無付款證明 upload |
+| 周邊商品後台入口 | 已唯讀確認 | merch-admin.html 更新付款／物流狀態；merch-admin-v2.html 只讀訂單、商品圖 upload |
+| 涼糕冷藏寄放 caller | 已確認 | convenience-order.html／v2 透過 create_cooling_pickup_order |
+| 蘿蔔糕訂單 caller | 部分確認 | radish-order.html 前端頁面已找到；完整 RPC 參數／後續呼叫仍待補查 |
+| 通知 Function caller matrix | 已整理 | 三條已知 DB trigger caller；多支 Function 外部 caller 未確認 |
+| Dashboard／LINE／第三方外部 caller 清單 | 已建立 | 需專案管理者在各控制台人工核對；不可將未知當作不存在 |
+| 本機安全 helper | 已建立 | app/tests/phase22-security.js |
+| 本機安全 fixture tests | 已建立並通過 | app/tests/phase22-security.test.js，10／10 passed |
+| HMAC 真實密碼學整合測試 | 未完成 | 目前只測純函式授權／token 條件，不代表正式加密實作 |
+| 正式環境變更 | 未執行 | 無 DB／Storage／Function／LINE／Secrets／官網寫入 |
+
+詳細文件：`app/PHASE_22_CALLER_MATRIX_AND_LOCAL_SECURITY_TESTS.md`
+
+### Phase 22 結論
+- 已讀取 active branch 的周邊商品結帳完整 submit handler：只建立訂單、寫匯款後五碼，沒有付款證明檔案上傳。
+- 已確認冷藏寄放兩個前端頁面透過 create_cooling_pickup_order RPC 建單。
+- 已整理通知 Function 已知 DB caller 與未知外部 caller；未知 caller 仍需由專案管理者核對 Supabase Dashboard、LINE Developers、CI、主機與第三方自動化。
+- 新增 shipment token lifecycle／merch payment state 本機純函式 helper 與測試，10／10 通過。
+- 測試未連 Supabase、未呼叫 LINE，不能視為 DB／Edge Function 整合驗收。
+
+### 下一階段
+Phase 23：整理管理者外部 caller 確認表；核對 merch_orders 現有付款狀態字典與相容規則；產出 token lifecycle SQL／RPC／Edge Function 及付款證明上傳的逐檔 Patch Diff 草案。僅提交設計與程式草案，不部署、不修改正式環境。
