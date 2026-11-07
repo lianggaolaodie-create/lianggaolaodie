@@ -126,6 +126,7 @@ function issueQuote({ cart, fulfillmentMethod, recipient = {}, trustedCatalog, t
       issuedAt,
       expiresAt,
       cartFingerprint: itemFingerprint,
+      recipientFingerprint: recipientFingerprint(recipient),
       pricingSource: 'server-trusted-snapshot',
       orderCreationEnabled: false
     })
