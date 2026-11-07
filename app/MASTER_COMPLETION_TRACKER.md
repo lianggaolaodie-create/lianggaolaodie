@@ -2144,7 +2144,7 @@ CI 更新：`.github/workflows/pure-node-safety-tests.yml`
 | P1 SECURITY DEFINER 審查 | 已列管 | 逐函式審查，不批次撤權 |
 | P2 其他 RLS 缺漏／角色分離 | 已列管 | 待 staging metadata |
 | 負責職能、依賴、驗收及 rollback | 已建立 | 尚未指定實際員工 |
-| 合成 backlog 測試 | 已加入 | GitHub Actions 待驗收 |
+| 合成 backlog 測試 | 已通過 | GitHub Actions 成功 |
 | 真實 staging 修補 | 未執行 | 尚未建立／確認 staging |
 | production 修補 | 未執行 | 需另行明確核准 |
 
@@ -2158,3 +2158,10 @@ CI 更新：`.github/workflows/pure-node-safety-tests.yml`
 ### Phase 78 限制
 - 所有修補工作預設 blocked；責任欄是職能角色，不代表已建立實際帳號。
 - 本階段不建立 staging、不執行 SQL／policy／GRANT／function，不更動 production 或 secrets。
+
+
+### Phase 78 CI 驗收補記
+- GitHub Actions：Pure Node safety tests 成功。
+- Run：https://github.com/lianggaolaodie-create/lianggaolaodie/actions/runs/42411418023
+- Phase 78 security remediation backlog test step：success。
+- 僅驗證合成工作清單；尚未執行任何真實修補。
