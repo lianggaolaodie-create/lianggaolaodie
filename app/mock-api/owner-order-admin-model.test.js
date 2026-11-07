@@ -18,3 +18,21 @@ test('fulfillment cannot ship before payment is confirmed',()=>{const store=setu
 test('confirmed payment cancellation requires refund first; shipped order cannot cancel',()=>{const store=setup({paymentStatus:'confirmed',orderStatus:'confirmed'});assert.equal(cancelOwnerOrder({store,actor:admin,orderId:'LG-ADMIN-1',expectedVersion:1,now:200,idempotencyKey:'cancel-key-000001'}).reason,'REFUND_REQUIRED_BEFORE_CANCEL');const other=setup({paymentStatus:'unpaid'});other.orders.set('LG-ADMIN-1',Object.freeze({...other.orders.get('LG-ADMIN-1'),orderStatus:'shipped',fulfillmentStatus:'shipped'}));assert.equal(cancelOwnerOrder({store:other,actor:admin,orderId:'LG-ADMIN-1',expectedVersion:1,now:200,idempotencyKey:'cancel-key-000002'}).reason,'ALREADY_SHIPPED');});
 test('stall order list has no price fields; detail masks recipient by role',()=>{const store=setup();const list=listOwnerOrders({store,actor:orderAdmin});assert.equal(Object.hasOwn(list.orders[0],'items'),false);assert.equal(list.orders[0].scheduleType,'stall');const detail=getOwnerOrderDetail({store,actor:orderAdmin,orderId:'LG-ADMIN-1'});assert.equal(detail.order.recipientMasked,'••••');assert.equal(getOwnerOrderDetail({store,actor:admin,orderId:'LG-ADMIN-1'}).order.recipientMasked,'09**1234');});
 test('idempotency key cannot be replayed with changed payment decision',()=>{const store=setup();const base={store,actor:orderAdmin,orderId:'LG-ADMIN-1',expectedVersion:1,now:200,idempotencyKey:'same-review-key-0001'};reviewOrderPayment({...base,decision:'confirmed'});assert.equal(reviewOrderPayment({...base,decision:'rejected'}).reason,'IDEMPOTENCY_CONFLICT');});
+
+test('personal data admin cannot change fulfillment state',()=>{
+ const store=setup();
+ const result=updateOwnerFulfillment({store,actor:{...admin,role:'personal_data_admin'},orderId:'LG-ADMIN-1',nextStatus:'preparing',expectedVersion:1,now:200,idempotencyKey:'personal-fulfill-0001'});
+ assert.equal(result.reason,'PERMISSION_FORBIDDEN');
+ assert.equal(store.orders.get('LG-ADMIN-1').fulfillmentStatus,'unprepared');
+});
+test('cancellation uses idempotency replay and rejects key reuse',()=>{
+ const store=setup({paymentStatus:'unpaid'});
+ const args={store,actor:admin,orderId:'LG-ADMIN-1',expectedVersion:1,now:200,idempotencyKey:'cancel-replay-key-001',reason:'customer_request'};
+ const first=cancelOwnerOrder(args);
+ assert.equal(first.ok,true);
+ assert.equal(first.duplicate,false);
+ assert.equal(store.audit.length,1);
+ assert.equal(cancelOwnerOrder(args).duplicate,true);
+ assert.equal(store.audit.length,1);
+ assert.equal(cancelOwnerOrder({...args,reason:'other'}).reason,'IDEMPOTENCY_CONFLICT');
+});
