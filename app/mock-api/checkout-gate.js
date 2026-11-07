@@ -19,7 +19,7 @@ function canonicalRecipient(recipient) {
   for (const key of keys) {
     if (recipient[key] !== undefined) {
       if (typeof recipient[key] !== 'string') return null;
-      normalized[key] = recipient[key].trim().replace(/\\s+/g, ' ');
+      normalized[key] = recipient[key].trim().replace(/\s+/g, ' ');
     } else {
       normalized[key] = '';
     }
