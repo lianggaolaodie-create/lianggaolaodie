@@ -1423,3 +1423,37 @@ Phase 33：將 App 所需 API 的 request／response、狀態、錯誤碼、權�
 
 ### 下一階段（Phase 48）
 建立訂單建立前的 server-side checkout gate／冪等契約模型，驗證報價有效、未使用、購物車與收件資料一致，定義 request idempotency key；仍以 mock 與合成測試為主，不寫入正式訂單。
+
+## 51. 2026-11-08 Phase 48 Checkout Gate／冪等性模型
+
+| 交付 | 狀態 | 備註 |
+|---|---|---|
+| Server-held quote registry reference | 已建立 | 僅以 quote ID 查找，不信任 client quote body |
+| 報價有效期限／購物車／配送方式驗證 | 已建立 | 逾期或內容變更拒絕 |
+| 收件資料 fingerprint | 已建立 | 報價綁定姓名、電話、地址／門市資料 |
+| Session-scoped idempotency key | 已建立 | 相同 key／相同 payload 回傳既有決策 |
+| 同 key 不同 payload | 已建立 | 回傳 conflict |
+| Quote replay／reservation | 已建立模型 | 同一 quote 不可被不同 key／session 重複使用 |
+| 訂單／付款實際執行 | 未完成 | 僅授權決策，不建單、不扣款 |
+| DB 原子交易／唯一索引／鎖 | 未完成 | 必須正式後端實作，不可依賴記憶體 Map |
+| 自動化測試 | 已建立 | 等待本次 GitHub Actions 結果 |
+
+新增檔案：
+- `app/mock-api/checkout-gate.js`
+- `app/mock-api/checkout-gate.test.js`
+- `app/PHASE_48_CHECKOUT_GATE_AND_IDEMPOTENCY.md`
+
+更新檔案：
+- `app/mock-api/quote-model.js`：報價增加收件資料 fingerprint。
+
+### Phase 48 結論
+- 建立訂單建立前的授權 gate reference model。
+- 僅接受伺服器保存的 quote ID，並驗證報價期限、購物車、配送方式與收件資料。
+- 同一 session 的相同 idempotency key／相同 payload 會回傳既有決策；同 key 不同 payload 拒絕。
+- 同一報價不能透過不同 key 或 session 重複預約。
+- 此模型不建立正式訂單、不執行付款；記憶體 Map 不具真正併發安全或跨程序持久性。
+- 正式系統必須在資料庫單一交易內完成 quote 鎖定、冪等紀錄、訂單建立與 quote 消耗，並以唯一索引防止競態。
+- 沒有修改正式 Supabase、官網、物流、付款或訂單資料。
+
+### 下一階段（Phase 49）
+建立付款狀態與付款通知驗證 reference model：區分建立付款意圖、待付款、付款成功／失敗／逾時、重複 webhook 與簽章驗證；只做合成資料模型與測試，不呼叫金流、不更新正式訂單。
