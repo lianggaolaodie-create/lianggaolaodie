@@ -1728,3 +1728,4 @@ Phase 33：將 App 所需 API 的 request／response、狀態、錯誤碼、權�
 - 合成訂單編號不是正式訂單編號規則。
 - 沒有建立正式訂單、扣款、物流託運單或實際推播。
 - 正式會員登入、顧客訂單查詢 API、後台 UI 及資料庫交易仍未完成。
+\n\n## Phase 59｜會員資料與顧客訂單查詢參考模型\n\n| 交付 | 狀態 | 備註 |\n|---|---|---|\n| 外部驗證身份同步會員資料 | 已建立參考模型 | 不收密碼、不簽發 session |\n| 會員個人資料白名單 | 已建立 | 不接受任意欄位寫入 |\n| 會員本人訂單查詢 | 已建立參考模型 | 驗證 subject 與訂單 owner 綁定 |\n| 訪客訂單 claim | 已建立參考模型 | 隨機 token、期限、撤銷；正式版僅保存 hash |\n| 訂單查詢回應去除個資 | 已建立 | 不回傳完整電話、地址、內部備註 |\n| 自動化測試 | 已建立 | 納入 GitHub Actions，等待 runner 結果 |\n| 正式 Supabase Auth／API／RLS | 未完成 | Mock-only，正式環境未修改 |\n\n新增檔案：\n- `app/mock-api/member-order-model.js`\n- `app/mock-api/member-order-model.test.js`\n- `app/PHASE_59_MEMBER_AND_ORDER_LOOKUP.md`\n\n限制：會員登入必須由正式 Auth provider 驗證；正式訂單查詢必須由 server-side RLS／RPC 驗證擁有權。此模型不建立真實會員、不查詢或更動正式訂單。\n
