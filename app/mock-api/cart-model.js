@@ -51,6 +51,7 @@ function addCartItem(cart, product, quantity = 1, variantId = '') {
   } else {
     items.push({
       productId: id,
+      categorySnapshot: product.category === 'lianggao' || product.category === 'radish_cake' ? product.category : 'unknown',
       variantId: variant,
       nameSnapshot: typeof product.name === 'string' && product.name.trim() ? product.name.trim() : '商品名稱待更新',
       specSnapshot: typeof product.spec === 'string' ? product.spec.trim() : '',
@@ -87,6 +88,7 @@ function buildCartView(cart) {
   return Object.freeze({
     items: Object.freeze(items.map(item => Object.freeze({
       productId: item.productId,
+      category: item.categorySnapshot || 'unknown',
       variantId: item.variantId,
       name: item.nameSnapshot,
       spec: item.specSnapshot,
