@@ -1087,3 +1087,32 @@ Phase 33：將 App 所需 API 的 request／response、狀態、錯誤碼、權�
 
 ### 下一階段（Phase 37）
 建立可供 App 前端移植的 API client reference：fetch wrapper、endpoint contract examples、timeout／abort、錯誤解析、cursor pagination helper，並透過 Phase 36 HTTP mock server 測試。維持合成資料，不連正式 Supabase。
+
+## 40. 2026-11-08 Phase 37 App API Client 與測試
+
+| 交付 | 狀態 | 備註 |
+|---|---|---|
+| 可移植 fetch API client | 已建立 | 無框架依賴，可供 Web／App 前端移植 |
+| catalog／content／schedules methods | 已建立 | 僅對應 Phase 36 三個 GET mock routes |
+| Timeout／AbortSignal | 已建立 | 區分逾時與呼叫端取消 |
+| 統一錯誤解析 | 已建立 | ApiClientError、requestId、fieldErrors、retryable |
+| 全頁分頁 helper | 已建立 | maxPages 上限防止無限分頁 |
+| API client integration tests | 已建立 | 合成 fixtures + localhost mock server |
+| GitHub Actions | 已涵蓋 | workflow 執行全部 app/mock-api/*.test.js；CI run 結果未確認 |
+| 正式 App 串接／正式 HTTPS API | 未完成 | 尚無 production API host |
+| Supabase／Auth／下單／付款串接 | 未完成 | 本階段不連正式資料 |
+
+新增檔案：
+- `app/mock-api/api-client.js`
+- `app/mock-api/api-client.test.js`
+- `app/PHASE_37_APP_API_CLIENT_AND_TESTS.md`
+
+### Phase 37 結論
+- 已建立商品目錄、公開內容、餐車／擺攤行程三組 client methods。
+- 已建立 timeout、AbortSignal cancellation、錯誤 envelope 解析與分頁 helper。
+- 使用合成資料和本機 HTTP mock server 撰寫測試。
+- 尚未取得 GitHub Actions 執行結果，不標記測試通過。
+- 沒有正式 App 串接、正式 API 部署或 Supabase／官網變更。
+
+### 下一階段（Phase 38）
+建立前端 API contract／DTO schema，明確列出欄位型別、必填／選填、分頁、錯誤碼及餐車／擺攤價格差異，新增 contract validation tests，檢查 mock server、client 與文件一致；不連正式 Supabase。
