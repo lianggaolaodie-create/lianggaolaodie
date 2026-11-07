@@ -2111,7 +2111,7 @@ CI 更新：`.github/workflows/pure-node-safety-tests.yml`
 | 問題原因與修補建議 | 已建立 | 對應各類 metadata finding |
 | 修補後驗收標準 | 已建立 | 每項風險提供驗收條件 |
 | NO-GO／REVIEW／PASS 閘門 | 已建立 | critical 阻擋 release |
-| 合成風險報告測試 | 已加入 | GitHub Actions 待驗收 |
+| 合成風險報告測試 | 已通過 | GitHub Actions 成功 |
 | 真實 staging 報告 | 未產生 | 尚未取得真實 staging snapshot |
 | production 修補 | 未執行 | 正式環境維持唯讀 |
 
@@ -2125,3 +2125,10 @@ CI 更新：`.github/workflows/pure-node-safety-tests.yml`
 ### Phase 77 限制
 - 報告只根據輸入 metadata snapshot，不是即時資料庫掃描。
 - 未連線 Supabase、未讀取會員／訂單資料、未執行 SQL／GRANT／policy／function／Secrets／billing 變更。
+
+
+### Phase 77 CI 驗收補記
+- GitHub Actions：Pure Node safety tests 成功。
+- Run：https://github.com/lianggaolaodie-create/lianggaolaodie/actions/runs/42411324196
+- Phase 77 security risk report test step：success。
+- 本結果只驗證合成 snapshot 報告產生器。
