@@ -2165,3 +2165,23 @@ CI 更新：`.github/workflows/pure-node-safety-tests.yml`
 - Run：https://github.com/lianggaolaodie-create/lianggaolaodie/actions/runs/42411418023
 - Phase 78 security remediation backlog test step：success。
 - 僅驗證合成工作清單；尚未執行任何真實修補。
+
+
+## Phase 79｜Staging 修補前核准閘門（2026-11-08）
+
+| 交付 | 狀態 | 備註 |
+|---|---|---|
+| 必備環境與隔離證據 | 已建立 | staging／production 身分確認 |
+| 備份及還原演練條件 | 已建立 | 未實際執行 |
+| Migration／rollback 審查條件 | 已建立 | 未執行 SQL |
+| 合成角色測試與回歸條件 | 已建立 | 僅列核准門檻 |
+| 費用、負責人、明確核准 | 已列入 | 尚未取得核准 |
+| Fail-closed gate 程式與測試 | 已建立 | 需 CI 驗收 |
+| 建立 staging／production 變更 | 未執行 | 無任何資料庫寫入 |
+
+新增檔案：
+- `app/security/staging-approval-gate.js`
+- `app/security/staging-approval-gate.test.js`
+- `app/PHASE_79_STAGING_APPROVAL_GATE.md`
+
+CI 更新：`.github/workflows/pure-node-safety-tests.yml`
