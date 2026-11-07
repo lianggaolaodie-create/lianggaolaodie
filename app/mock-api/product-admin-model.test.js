@@ -18,11 +18,11 @@ function setup() {
 test('only owner/admin can manage product catalog', () => {
   const store = setup();
   assert.equal(model.saveProduct({ store, actor: staff, product: baseProduct, now: 2 }).reason, 'ADMIN_FORBIDDEN');
-  assert.equal(model.saveProduct({ store, actor: owner, product: baseProduct, now: 2 }).ok, true);
+  const lianggao = model.saveProduct({ store, actor: owner, product: baseProduct, now: 2 });\n  assert.equal(lianggao.ok, true, JSON.stringify(lianggao));
 });
 test('lianggao and radish cake remain distinct product types', () => {
   const store = setup();
-  assert.equal(model.saveProduct({ store, actor: owner, product: { ...baseProduct, id: 'r-1', type: 'radish_cake' }, now: 2 }).ok, true);
+  const radish = model.saveProduct({ store, actor: owner, product: { ...baseProduct, id: 'r-1', type: 'radish_cake' }, now: 2 });\n  assert.equal(radish.ok, true, JSON.stringify(radish));
   assert.equal(store.products.get('lg-1').type, 'lianggao');
   assert.equal(store.products.get('r-1').type, 'radish_cake');
 });
@@ -53,7 +53,7 @@ test('food truck may publish menu prices; stall never exposes price', () => {
   const store = setup();
   const truck = model.saveSchedule({ store, actor: owner, schedule: { id: 'truck-1', type: 'food_truck', serviceDate: '2026-11-09', region: '台北市', location: '測試地點', startTime: '10:00', endTime: '12:00', flavorIds: ['f-1'], prices: { 'f-1': 10000 } }, now: 2 });
   const stall = model.saveSchedule({ store, actor: owner, schedule: { id: 'stall-1', type: 'stall', serviceDate: '2026-11-09', region: '台北市', location: '測試市集', startTime: '13:00', endTime: '15:00', flavorIds: ['f-1'], prices: { 'f-1': 10000 } }, now: 2 });
-  assert.equal(truck.ok, true);
+  assert.equal(truck.ok, true, JSON.stringify(truck));
   assert.deepEqual(stall.schedule.prices, {});
   model.setScheduleState({ store, actor: owner, scheduleId: 'truck-1', state: 'published', expectedVersion: truck.schedule.version, now: 3 });
   model.setScheduleState({ store, actor: owner, scheduleId: 'stall-1', state: 'published', expectedVersion: stall.schedule.version, now: 3 });
@@ -66,7 +66,7 @@ test('food truck may publish menu prices; stall never exposes price', () => {
 test('cancelled and draft schedules are excluded from public app and website', () => {
   const store = setup();
   const draft = model.saveSchedule({ store, actor: owner, schedule: { id: 's-draft', type: 'stall', serviceDate: '2026-11-09', region: '台北市', location: '市集', startTime: '10:00', endTime: '12:00', flavorIds: ['f-1'] }, now: 2 });
-  assert.equal(draft.ok, true);
+  assert.equal(draft.ok, true, JSON.stringify(draft));
   const snapshot = model.buildPublicSnapshot(store);
   assert.equal(snapshot.app.schedules.length, 0);
 });
