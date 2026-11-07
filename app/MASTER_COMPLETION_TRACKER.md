@@ -2068,3 +2068,29 @@ CI 更新：`.github/workflows/pure-node-safety-tests.yml`
 - Run：https://github.com/lianggaolaodie-create/lianggaolaodie/actions/runs/42411120017
 - Phase 75 read-only SQL guard test step：success。
 - SQL 本身仍未在資料庫執行；CI 僅驗證靜態規則。
+
+
+## Phase 76｜資料庫 Metadata 快照自動比對（2026-11-08）
+
+| 交付 | 狀態 | 備註 |
+|---|---|---|
+| RLS 未啟用／policy 缺漏偵測 | 已建立 | 缺 metadata 不視為安全 |
+| authenticated permissive ALL 偵測 | 已建立 | 優先識別商品／分類風險 |
+| 私人資料無條件 policy 偵測 | 已建立 | 訂單、明細、匯款證明 |
+| anon／PUBLIC 寫入 grant 偵測 | 已建立 | critical finding |
+| authenticated 寫入 grant 核對提示 | 已建立 | warning，需對照 RLS |
+| 合成快照測試 | 已加入 | GitHub Actions 待驗收 |
+| 真實 staging snapshot 比對 | 未執行 | 尚未取得 staging metadata |
+| production 變更 | 未執行 | 正式環境維持唯讀 |
+
+新增檔案：
+- `app/security/metadata-snapshot-comparator.js`
+- `app/security/metadata-snapshot-comparator.test.js`
+- `app/PHASE_76_METADATA_SNAPSHOT_COMPARISON.md`
+
+CI 更新：`.github/workflows/pure-node-safety-tests.yml`
+
+### Phase 76 限制
+- 比對器只檢查輸入的 metadata snapshot，不連線資料庫、不解析任意 SQL predicate 的完整語意。
+- 真實角色 predicate、function grants、Storage policies 仍須 staging 人工審查與 JWT 測試。
+- 未讀取 production 資料，未執行 SQL／GRANT／policy／function／Secrets／billing 變更。
