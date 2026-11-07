@@ -38,6 +38,18 @@ function normalizeCart(cart) {
   return { ok: true, items };
 }
 
+function recipientFingerprint(recipient) {
+  if (!recipient || typeof recipient !== 'object' || Array.isArray(recipient)) return null;
+  const keys = ['name', 'phone', 'address', 'storeProvider', 'storeName', 'storeAddress'];
+  const normalized = {};
+  for (const key of keys) {
+    const value = recipient[key] === undefined ? '' : recipient[key];
+    if (typeof value !== 'string') return null;
+    normalized[key] = value.trim().replace(/\\s+/g, ' ');
+  }
+  return createHash('sha256').update(JSON.stringify(normalized)).digest('hex');
+}
+
 function fingerprint(items, fulfillmentMethod) {
   const canonical = JSON.stringify({ currency: CURRENCY, fulfillmentMethod, items });
   return createHash('sha256').update(canonical).digest('hex');
@@ -135,4 +147,4 @@ function validateQuoteForCheckout({ quote, cart, fulfillmentMethod, serverNow } 
   return Object.freeze({ ok: true, quoteId: quote.quoteId, totalMinor: quote.totalMinor, currency: quote.currency, orderCreationEnabled: false });
 }
 
-module.exports = { CURRENCY, fingerprint, issueQuote, normalizeCart, validateQuoteForCheckout };
+module.exports = { CURRENCY, fingerprint, issueQuote, normalizeCart, recipientFingerprint, validateQuoteForCheckout };
