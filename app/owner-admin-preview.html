@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>老爹．涼糕｜老闆管理後台原型</title>
+<style>
+:root{--ink:#171717;--gold:#c8a45d;--cream:#f7f5f0;--muted:#777;--line:#e8e3d9;--green:#47785d;--red:#b65a50}
+*{box-sizing:border-box}body{margin:0;background:var(--cream);color:var(--ink);font:15px/1.5 -apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif}
+header{height:66px;background:#171717;color:white;display:flex;align-items:center;justify-content:space-between;padding:0 26px;position:sticky;top:0;z-index:5}
+.brand{font-weight:800;letter-spacing:2px}.brand span{color:var(--gold)}.user{color:#ddd;font-size:13px}
+.layout{display:grid;grid-template-columns:225px 1fr;min-height:calc(100vh - 66px)}
+aside{background:#222;color:#eee;padding:22px 14px}.navlabel{font-size:11px;color:#999;letter-spacing:2px;padding:14px 12px 7px}
+nav button{width:100%;border:0;background:transparent;color:#ddd;text-align:left;padding:12px;border-radius:9px;cursor:pointer;font:inherit}
+nav button.active,nav button:hover{background:#3a3428;color:#f1d49a}
+main{padding:28px;max-width:1450px;width:100%;margin:auto}.topline{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:22px}
+h1{font-size:25px;margin:0 0 4px}h2{font-size:18px;margin:0 0 16px}.sub{color:var(--muted);font-size:13px}
+button,.btn{cursor:pointer}.primary{background:#1c1c1c;color:#f3d99e;border:0;border-radius:8px;padding:10px 15px;font-weight:700}.secondary{background:white;border:1px solid var(--line);border-radius:8px;padding:9px 13px;color:#333}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}.card,.panel{background:white;border:1px solid var(--line);border-radius:13px;padding:18px}
+.metric{font-size:27px;font-weight:800;margin:7px 0}.metric-note{font-size:12px;color:var(--muted)}
+.grid2{display:grid;grid-template-columns:1.2fr .8fr;gap:16px}.rowline{display:flex;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid #f0ede7}.rowline:last-child{border:0}
+.tag{display:inline-block;border-radius:20px;padding:3px 9px;background:#f4efe3;color:#765b2d;font-size:12px}.tag.green{background:#eaf3ed;color:var(--green)}.tag.red{background:#faecea;color:var(--red)}
+.page{display:none}.page.active{display:block}.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 16px}
+input,select{padding:10px 11px;border:1px solid var(--line);border-radius:8px;background:white;font:inherit;min-width:130px}
+table{width:100%;border-collapse:collapse;background:white;font-size:14px}th,td{text-align:left;padding:13px 12px;border-bottom:1px solid #eee;white-space:nowrap}th{color:#777;font-weight:600;background:#faf9f6}
+.tablewrap{overflow:auto;border:1px solid var(--line);border-radius:12px}.actions{color:#86672e;text-decoration:underline;cursor:pointer}
+.notice{padding:12px 14px;border-radius:9px;background:#f8f2e5;color:#765b2d;font-size:13px;margin-bottom:16px}
+.formgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.field{display:flex;flex-direction:column;gap:6px}.field label{font-size:13px;color:#666}
+.small{font-size:12px;color:var(--muted)}.chips{display:flex;gap:7px;flex-wrap:wrap}.chip{padding:7px 10px;border:1px solid var(--line);border-radius:20px;background:white;font-size:13px}
+@media(max-width:900px){.layout{grid-template-columns:1fr}aside{padding:8px;position:sticky;top:66px;z-index:4}nav{display:flex;overflow:auto}nav button{white-space:nowrap;width:auto}.navlabel{display:none}main{padding:18px}.cards{grid-template-columns:repeat(2,1fr)}.grid2{grid-template-columns:1fr}}
+@media(max-width:520px){header{padding:0 14px}.user{display:none}.cards{gap:8px}.card{padding:13px}.metric{font-size:22px}.formgrid{grid-template-columns:1fr}.topline{align-items:flex-start;flex-direction:column}}
+</style>
+</head>
+<body>
+<header><div class="brand">老爹<span>．</span>涼糕 <span style="color:#aaa;font-weight:400;font-size:12px">OWNER CONSOLE</span></div><div class="user">示意管理員　｜　原型展示・未連接正式資料</div></header>
+<div class="layout">
+<aside><div class="navlabel">營運管理</div><nav>
+<button class="active" data-page="dashboard">▦　營運總覽</button><button data-page="orders">▤　訂單管理</button><button data-page="products">◈　商品與口味</button><button data-page="schedule">⌖　擺攤／餐車排程</button>
+<div class="navlabel">顧客與設定</div><button data-page="members">♙　會員管理</button><button data-page="offers">◇　會員優惠設定</button><button data-page="staff">⚙　員工與權限</button>
+</nav></aside>
+<main>
+<section id="dashboard" class="page active">
+<div class="topline"><div><h1>營運總覽</h1><div class="sub">掌握訂單、商品與今日出攤狀況</div></div><button class="primary" onclick="showPage('orders')">查看待處理訂單 →</button></div>
+<div class="cards">
+<div class="card"><div class="sub">今日訂單（示意）</div><div class="metric">28</div><div class="metric-note">線上訂購與現場訂單</div></div>
+<div class="card"><div class="sub">待處理訂單</div><div class="metric">6</div><div class="metric-note"><span class="tag red">需要處理</span></div></div>
+<div class="card"><div class="sub">今日出攤行程</div><div class="metric">3</div><div class="metric-note">排程可同步官網與 App</div></div>
+<div class="card"><div class="sub">會員總數</div><div class="metric">1,286</div><div class="metric-note">示意數字，非正式資料</div></div>
+</div>
+<div class="grid2"><div class="panel"><h2>訂單處理提醒</h2><div class="rowline"><span>待確認付款</span><b>2 筆 <span class="tag red">待處理</span></b></div><div class="rowline"><span>待備貨／出貨</span><b>3 筆</b></div><div class="rowline"><span>待門市寄放核對</span><b>1 筆</b></div><div class="rowline"><span>付款狀態</span><span class="small">正式版以可信付款回呼更新</span></div></div>
+<div class="panel"><h2>今日出攤摘要</h2><div class="rowline"><span>桃園｜中壢夜市</span><span class="tag green">已排程</span></div><div class="rowline"><span>台北｜南港活動場</span><span class="tag green">已排程</span></div><div class="rowline"><span>新北｜板橋快閃</span><span class="tag">待確認</span></div><p class="small">正式資料需包含地址、時間、當日口味與價格。</p></div></div>
+</section>
+<section id="orders" class="page">
+<div class="topline"><div><h1>訂單管理</h1><div class="sub">集中查看官網訂單；宅配、超商寄放等原有流程分開保留</div></div><button class="secondary" onclick="alert('原型展示：正式版將依現有訂單流程串接。')">匯出報表</button></div>
+<div class="notice">付款狀態不得由管理畫面任意改成已付款；正式版由金流回呼或後端查證更新。</div>
+<div class="toolbar"><input placeholder="搜尋訂單編號／姓名／電話"><select><option>全部訂單狀態</option><option>待付款</option><option>待備貨</option><option>處理中</option><option>已完成</option></select><select><option>全部配送方式</option><option>宅配</option><option>超商冷藏寄放</option><option>自取</option></select><button class="primary">搜尋</button></div>
+<div class="tablewrap"><table><thead><tr><th>訂單編號</th><th>顧客</th><th>訂單來源</th><th>配送方式</th><th>金額</th><th>狀態</th><th>操作</th></tr></thead><tbody>
+<tr><td>LD20261108021</td><td>陳小姐</td><td>官網</td><td>冷凍宅配</td><td>$680</td><td><span class="tag red">待付款</span></td><td><a class="actions" onclick="alert('原型：開啟訂單明細')">查看明細</a></td></tr>
+<tr><td>LD20261108020</td><td>林先生</td><td>App（示意）</td><td>超商冷藏寄放</td><td>$450</td><td><span class="tag">備貨中</span></td><td><a class="actions" onclick="alert('原型：開啟訂單明細')">查看明細</a></td></tr>
+<tr><td>LD20261108019</td><td>王小姐</td><td>官網</td><td>自取</td><td>$300</td><td><span class="tag green">已完成</span></td><td><a class="actions" onclick="alert('原型：開啟訂單明細')">查看明細</a></td></tr>
+</tbody></table></div>
+</section>
+<section id="products" class="page">
+<div class="topline"><div><h1>商品與口味管理</h1><div class="sub">維護商品、口味、價格與上架狀態；官網和 App 共用商品資料</div></div><button class="primary" onclick="alert('原型：正式版新增商品／口味表單')">＋ 新增商品／口味</button></div>
+<div class="notice">商品資料更新後，可選擇同步至官網與 App；擺攤當日菜單及價格仍以各場次排程設定為準。</div>
+<div class="toolbar"><input placeholder="搜尋商品或口味"><select><option>全部分類</option><option>涼糕</option><option>純米蘿蔔糕</option><option>其他商品</option></select><select><option>全部狀態</option><option>上架</option><option>下架</option></select></div>
+<div class="tablewrap"><table><thead><tr><th>商品／口味</th><th>分類</th><th>官網顯示</th><th>App 顯示</th><th>價格設定</th><th>狀態</th><th>操作</th></tr></thead><tbody>
+<tr><td>水果綜合涼糕</td><td>涼糕</td><td>同步</td><td>同步</td><td>依商品設定</td><td><span class="tag green">上架</span></td><td><a class="actions" onclick="alert('原型：編輯商品')">編輯</a></td></tr>
+<tr><td>布丁芋頭涼糕</td><td>夾心系列</td><td>同步</td><td>同步</td><td>依商品設定</td><td><span class="tag green">上架</span></td><td><a class="actions" onclick="alert('原型：編輯商品')">編輯</a></td></tr>
+<tr><td>純米蘿蔔糕</td><td>蘿蔔糕</td><td>依上架設定</td><td>依上架設定</td><td>依規格設定</td><td><span class="tag green">上架</span></td><td><a class="actions" onclick="alert('原型：編輯商品')">編輯</a></td></tr>
+</tbody></table></div>
+</section>
+<section id="schedule" class="page">
+<div class="topline"><div><h1>擺攤／餐車排程</h1><div class="sub">分開管理餐車與擺攤，再同步發布到官網及 App</div></div><button class="primary" onclick="alert('原型：新增場次表單')">＋ 新增場次</button></div>
+<div class="toolbar"><select><option>全部類型</option><option>餐車</option><option>擺攤</option></select><select><option>全部縣市</option><option>台北市</option><option>新北市</option><option>桃園市</option><option>台中市</option><option>高雄市</option></select><input type="date"><select><option>全部狀態</option><option>已發布</option><option>草稿</option><option>異動／取消</option></select></div>
+<div class="tablewrap"><table><thead><tr><th>日期／時間</th><th>類型</th><th>地區／地點</th><th>當日口味</th><th>價格</th><th>發布狀態</th><th>操作</th></tr></thead><tbody>
+<tr><td>11/08 16:00–21:00</td><td>擺攤</td><td>桃園市｜中壢夜市</td><td>水果綜合、布丁芋頭</td><td>依場次設定</td><td><span class="tag green">已發布</span></td><td><a class="actions" onclick="alert('原型：編輯場次／地址／口味')">編輯</a></td></tr>
+<tr><td>11/09 14:00–20:00</td><td>餐車</td><td>新北市｜板橋區</td><td>依場次菜單</td><td>依場次設定</td><td><span class="tag">草稿</span></td><td><a class="actions" onclick="alert('原型：編輯場次／地址／口味')">編輯</a></td></tr>
+</tbody></table></div>
+<p class="small">正式版場次需支援完整地址／座標、導航連結、臨時異動通知、收藏提醒，以及是否同步發布。</p>
+</section>
+<section id="members" class="page">
+<div class="topline"><div><h1>會員管理</h1><div class="sub">會員身份與訂單聯絡人資料分開管理</div></div></div>
+<div class="notice">舊訂單不會只憑姓名或電話自動綁定會員；須由顧客驗證或客服核對認領。</div>
+<div class="toolbar"><input placeholder="搜尋會員姓名／驗證聯絡方式"><select><option>全部會員</option><option>正常</option><option>停用</option></select></div>
+<div class="tablewrap"><table><thead><tr><th>會員編號</th><th>顯示名稱</th><th>註冊方式</th><th>會員狀態</th><th>加入日期</th><th>操作</th></tr></thead><tbody><tr><td>M-0001286</td><td>老爹顧客（示意）</td><td>Email／手機驗證</td><td><span class="tag green">正常</span></td><td>2026/10/20</td><td><a class="actions" onclick="alert('原型：會員資料與訂單紀錄')">查看</a></td></tr></tbody></table></div>
+</section>
+<section id="offers" class="page">
+<div class="topline"><div><h1>會員優惠設定</h1><div class="sub">由老闆決定優惠內容、適用商品、地點與有效期間</div></div><button class="primary" onclick="alert('原型：新增優惠規則')">＋ 新增優惠</button></div>
+<div class="notice">此頁不預設固定折扣。正式版需設定優惠名稱、折扣／門檻、適用商品、適用縣市或場次、起訖時間、使用次數及啟用狀態。</div>
+<div class="panel"><h2>優惠規則設定欄位</h2><div class="formgrid">
+<div class="field"><label>優惠名稱</label><input placeholder="例如：會員限定活動"></div>
+<div class="field"><label>優惠方式</label><select><option>請選擇優惠方式</option><option>折抵金額</option><option>百分比折扣</option><option>滿額優惠</option><option>指定商品優惠</option></select></div>
+<div class="field"><label>適用商品</label><select><option>全部商品／指定商品</option></select></div>
+<div class="field"><label>適用地區／場次</label><select><option>全部地區／指定場次</option></select></div>
+<div class="field"><label>開始日期</label><input type="date"></div>
+<div class="field"><label>結束日期</label><input type="date"></div>
+</div><p><button class="secondary" onclick="alert('示意欄位尚未儲存；正式版需經權限及規則驗證。')">預覽規則（示意）</button></p></div>
+</section>
+<section id="staff" class="page">
+<div class="topline"><div><h1>員工與權限</h1><div class="sub">依工作職責分配最小必要權限</div></div><button class="primary" onclick="alert('原型：邀請員工帳號')">＋ 新增員工</button></div>
+<div class="notice">員工權限由伺服器端驗證；不能只靠前端隱藏按鈕或可自行修改的個人資料判斷管理權限。</div>
+<div class="tablewrap"><table><thead><tr><th>角色</th><th>可使用功能</th><th>限制</th></tr></thead><tbody>
+<tr><td>老闆／系統管理員</td><td>全站營運、設定、報表、權限</td><td>需額外保護高風險操作</td></tr>
+<tr><td>訂單客服</td><td>查詢訂單、聯絡顧客、處理客服備註</td><td>不可修改付款驗證結果</td></tr>
+<tr><td>倉庫／出貨</td><td>備貨、掃碼、出貨核對、庫存作業</td><td>限指定倉庫作業</td></tr>
+<tr><td>餐車／擺攤員工</td><td>指定場次、現場訂單、銷售日結</td><td>限本人或指定場次</td></tr>
+</tbody></table></div>
+</section>
+<p class="small" style="margin-top:24px">原型版本：Phase 1｜目前為示意資料與介面操作，不會寫入正式訂單、會員、商品或 Supabase 資料庫。</p>
+</main></div>
+<script>
+function showPage(id){document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id===id));document.querySelectorAll('nav button[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===id));window.scrollTo({top:0,behavior:'smooth'})}
+document.querySelectorAll('nav button[data-page]').forEach(b=>b.addEventListener('click',()=>showPage(b.dataset.page)));
+</script>
+</body></html>
