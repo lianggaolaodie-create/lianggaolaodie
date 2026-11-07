@@ -1116,3 +1116,38 @@ Phase 33：將 App 所需 API 的 request／response、狀態、錯誤碼、權�
 
 ### 下一階段（Phase 38）
 建立前端 API contract／DTO schema，明確列出欄位型別、必填／選填、分頁、錯誤碼及餐車／擺攤價格差異，新增 contract validation tests，檢查 mock server、client 與文件一致；不連正式 Supabase。
+
+## 41. 2026-11-08 Phase 38 Public API Contract／DTO Validation
+
+| 交付 | 狀態 | 備註 |
+|---|---|---|
+| Catalog DTO 規格 | 已建立 | 涼糕／蘿蔔糕類型、價格、幣別、可售狀態 |
+| Content DTO 規格 | 已建立 | 已發布 allowlist section，未知欄位拒絕 |
+| Schedule DTO 規格 | 已建立 | food_truck／stall 分流 |
+| 餐車價格欄位 | 已定義 | price／currency 可選 |
+| 擺攤價格欄位 | 已定義 | price／currency 欄位禁止出現 |
+| Pagination／Error envelope | 已定義 | cursor、limit、request_id、api_version、錯誤欄位 |
+| DTO validators | 已建立 | 無第三方依賴，嚴格 allowlist |
+| Contract tests | 已建立 | mapper DTO、成功／錯誤 envelope、價格洩漏與未知欄位 |
+| 未定價商品處理 | 已修正 mock | null／undefined／空字串不再轉成 0 元 |
+| CI 結果 | 待確認 | 已發現先前 run 有 1 項既有測試失敗，Phase 38 修正後需看新 run |
+| 正式 schema／API／App 串接 | 未完成 | 尚未連正式 Supabase 或部署 |
+
+新增檔案：
+- `app/mock-api/api-contract.js`
+- `app/mock-api/api-contract.test.js`
+- `app/PHASE_38_PUBLIC_API_CONTRACT_AND_DTO_VALIDATION.md`
+
+更新檔案：
+- `app/mock-api/public-read-api.js`（null price handling 修正）
+
+### Phase 38 結論
+- 明確定義 catalog、content、schedule 的 DTO 必填與選填欄位。
+- 餐車可包含價格；擺攤 DTO 嚴格禁止 price／currency key。
+- DTO validators 拒絕未知欄位，避免內部欄位被意外暴露。
+- 發現並修正 null price 被 JavaScript Number(null) 轉成 0 的缺陷。
+- 已新增 contract tests；CI 最新 run 結果尚待確認。
+- 無正式資料庫、官網、Edge Function、RLS、GRANT、Storage 或 Secrets 變更。
+
+### 下一階段（Phase 39）
+建立 App／官網可共用的 repository／adapter 入口與 mock implementation，統一公開讀取呼叫；將 public read 與未來需驗證身份的會員／訂單寫入 API 明確隔離。繼續只使用合成資料。
