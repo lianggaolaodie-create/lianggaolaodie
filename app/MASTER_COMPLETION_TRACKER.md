@@ -1777,3 +1777,28 @@ Phase 33：將 App 所需 API 的 request／response、狀態、錯誤碼、權�
 
 ### 下一階段（Phase 66）
 建立合成 API contract tests，納入 GitHub Actions，驗證 DTO 白名單、擺攤不輸出價格、結帳不信任客戶端金額、訂單權限及管理角色拒絕案例。
+
+
+## Phase 66｜共用 API Contract 自動化測試
+
+| 交付 | 狀態 | 備註 |
+|---|---|---|
+| 公開 DTO allowlist 測試 | 已新增 | 合成 fixtures |
+| 每日價格快照／庫存隱藏 | 已新增 | 不輸出精確庫存 |
+| 餐車／擺攤價格規則 | 已新增 | 擺攤零價格 key |
+| 結帳不信任客戶端金額 | 已新增 | 僅授權模型、不建單 |
+| 會員／訪客訂單存取 | 已新增 | 本人驗證、claim 期限與撤銷 |
+| 後台角色／出貨付款閘門 | 已新增 | 個資角色拒絕履約；未付款不得出貨 |
+| GitHub Actions | 已加入測試步驟 | 等待 runner 結果 |
+| 正式 Supabase／API | 未連接 | 合成測試，無正式資料寫入 |
+
+新增檔案：
+- `app/mock-api/shared-api-contract.test.js`
+- `app/PHASE_66_SHARED_API_CONTRACT_TESTS.md`
+
+### Phase 66 限制
+- 自動化測試只驗證本地 reference model，不代表正式 API 已建立或正式 DB 已修補。
+- 沒有接觸真實會員、訂單、付款、物流或正式 Supabase。
+
+### 下一階段（Phase 67）
+建立 HTTP mock contract layer，驗證 endpoint、status code、標準錯誤格式與角色權限，使用合成資料，不連正式環境。
