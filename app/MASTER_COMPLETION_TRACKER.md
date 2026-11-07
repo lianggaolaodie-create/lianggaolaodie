@@ -2195,7 +2195,7 @@ CI 更新：`.github/workflows/pure-node-safety-tests.yml`
 | Migration 與 rollback 草稿 | 已建立 | 分開產生並要求人工審查 |
 | 角色權限測試方向 | 已建立 | 匿名、顧客 A／B、擁有者、管理員 |
 | 不可執行安全標記 | 已建立 | executable=false |
-| 自動化測試 | 已加入 | GitHub Actions 待驗收 |
+| 自動化測試 | 已通過 | GitHub Actions 成功 |
 | 任何資料庫修補 | 未執行 | 沒有資料庫連線或寫入 |
 
 新增檔案：
@@ -2204,3 +2204,10 @@ CI 更新：`.github/workflows/pure-node-safety-tests.yml`
 - `app/PHASE_80_SECURITY_REVIEW_PACKAGE.md`
 
 CI 更新：`.github/workflows/pure-node-safety-tests.yml`
+
+
+### Phase 80 CI 驗收補記
+- Pure Node safety tests：completed / success。
+- Phase 80 security review package tests：success。
+- Run：https://github.com/lianggaolaodie-create/lianggaolaodie/actions/runs/42411794278
+- 僅驗證草稿產生器與安全限制；未執行資料庫修補。
