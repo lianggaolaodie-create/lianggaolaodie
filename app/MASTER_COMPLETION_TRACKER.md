@@ -1879,3 +1879,28 @@ Phase 33：將 App 所需 API 的 request／response、狀態、錯誤碼、權�
 - 目前不需要為了繼續開發而先付費；GitHub Actions、合成 fixtures 與 mock 測試可繼續推進。
 - 真實 Auth／RLS／Edge Function 整合需獨立 staging；建立前先確認帳戶額度及所有可能費用，並取得明確核准。
 - 本階段未建立新 project、未升級方案、未更動 Secrets、未產生新增費用。
+
+
+## Phase 70｜合成 Staging Seed 與免費安全測試基礎（2026-11-08）
+
+| 交付 | 狀態 | 備註 |
+|---|---|---|
+| 合成會員／管理角色 fixtures | 已建立 | 兩位顧客與分離管理角色；僅 `.test` email |
+| 商品／口味／餐車／擺攤 fixtures | 已建立 | 餐車公開價格；擺攤內部價格不得輸出 |
+| 訂單／訪客 claim／冪等 fixtures | 已建立 | 包含過期與撤銷案例；不含有效真實 token |
+| Seed validator | 已建立 | 驗證唯一 ID、測試環境、資料關聯及價格輸出規則 |
+| Phase 70 Node tests | 已新增 | 6 項測試，已加入 Pure Node safety workflow |
+| GitHub Actions 驗收 | 等待執行 | 尚未把測試標為通過 |
+| 真實 RLS／JWT／Function 整合 | 未完成 | 需要獨立 staging project；本階段不連線 |
+
+新增檔案：
+- `app/mock-api/staging-seed.js`
+- `app/mock-api/staging-seed.test.js`
+- `app/PHASE_70_STAGING_SEED_AND_SAFETY_TESTS.md`
+
+CI 更新：`.github/workflows/pure-node-safety-tests.yml`
+
+### Phase 70 限制
+- Seed 是純 JS 合成資料，不會連線 Supabase，也沒有資料庫寫入程式。
+- 測試只能驗證本地 fixture 與公開 payload helper；不能替代真實 RLS、JWT、Storage 或 Edge Function 權限測試。
+- 正式環境、Secrets、官網及會員／訂單資料均未修改。
