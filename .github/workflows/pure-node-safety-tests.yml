@@ -33,3 +33,5 @@ jobs:
         run: node --test app/mock-api/product-admin-model.test.js
       - name: Run Phase 55 production read-adapter contract tests
         run: node --test app/mock-api/production-read-adapters.test.js
+      - name: Run Phase 56 admin transaction mock tests
+        run: node --test app/mock-api/admin-transaction-mock-service.test.js
