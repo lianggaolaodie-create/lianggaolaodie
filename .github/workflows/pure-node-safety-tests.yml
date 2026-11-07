@@ -39,4 +39,5 @@ jobs:
         run: node --test app/mock-api/customer-checkout-integration.test.js
       - name: Run Phase 58 order lifecycle integration contract tests
         run: node --test app/mock-api/order-lifecycle-integration.test.js
-\n      - name: Run Phase 59 member and order lookup contract tests\n        run: node --test app/mock-api/member-order-model.test.js\n
+      - name: Run Phase 59 member and order lookup contract tests
+        run: node --test app/mock-api/member-order-model.test.js
