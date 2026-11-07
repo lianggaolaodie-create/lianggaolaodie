@@ -634,3 +634,31 @@ Phase 19：整理付款／通知／出貨安全修補的精確 patch diff 與測
 
 ### 下一階段
 Phase 20：唯讀追查 pg_net／pg_cron／Database Webhooks、所有 RPC 定義，以及 merch_orders／payment_proof_url 寫入路徑；caller 完整後才產生逐檔完整 patch diff 與本機測試 fixtures。
+
+
+## 23. 2026-11-08 Phase 20 未知 Caller／pg_net／付款欄位／出貨 Token 稽核
+
+| 交付 | 狀態 | 備註 |
+|---|---|---|
+| pg_cron／DB webhook metadata | 已唯讀盤點 | 未安裝 pg_cron；可見 webhook trigger／catalog 未找到 |
+| pg_net caller inventory | 已唯讀盤點 | 找到 3 條已知 LINE trigger caller |
+| pg_net queue／response summary | 已唯讀盤點 | 查詢時 queue 0 筆；近 30 日 response metadata 1 筆 HTTP 200 |
+| merch_orders.payment_proof_url | 部分追查 | 欄位存在；DB function writer／trigger／客戶 upload caller 尚未找到 |
+| shipment_notify_token lifecycle | 已唯讀盤點 | 預設 24-byte random token；明文欄位、無 expiry／consumed metadata |
+| verify_shipment_notify_token ACL | 已唯讀盤點 | SECURITY DEFINER；anon／authenticated 可執行 |
+| line-customer-notify v5 | 已讀取 source | token 驗證後仍信任 body recipient、order number、pickup type、store；未見 consume／expiry |
+| 24h notification Function logs | 已聚合查詢 | 指定 8 支 Function 無結果；不代表無外部 caller |
+| 正式環境變更 | 未執行 | 維持唯讀，未呼叫通知端點或 LINE |
+
+詳細文件：`app/PHASE_20_CALLER_TOKEN_LIFECYCLE_AUDIT.md`
+
+### Phase 20 重要發現
+- pg_cron 未安裝，cron catalog 不存在；本次可見 DB trigger 未發現 webhook/http trigger，但 Dashboard／第三方外部自動化仍需專案管理者確認。
+- pg_net function definitions 找到 3 條現有通知 trigger caller；周邊商品兩支通知 Function 未找到 DB pg_net caller。
+- `merch_orders.payment_proof_url` 寫入端點仍未知；目前搜尋到後台個資清除欄位與通知 Function 讀取欄位，未找到客戶上傳流程。
+- shipment token 雖使用 24-byte 隨機值，仍以明文保存；沒有 expiry／consumed 欄位，驗證 RPC 允許 anon／authenticated 執行。
+- `line-customer-notify` v5 驗證 token 後仍使用 body 中 recipient、訂單號、物流方式與門市資料，必須改由 DB 驗證欄位。
+- 未知 caller 未排除前，不刪除 Function、不 REVOKE RPC、不修改 Storage policy。
+
+### 下一階段
+Phase 21：建立 shipment token lifecycle 相容遷移設計；逐頁檢查 active branch 周邊商品結帳／後台付款欄位寫入端點；整理需由專案管理者在 Dashboard／第三方控制台確認的外部 caller 清單。正式環境維持唯讀。
