@@ -6,7 +6,7 @@
 'use strict';
 
 const text = value => typeof value === 'string' ? value.trim() : '';
-const finiteMoney = value => Number.isFinite(Number(value)) && Number(value) >= 0;
+const finiteMoney = value => value !== null && value !== undefined && value !== '' && Number.isFinite(Number(value)) && Number(value) >= 0;
 const dateText = value => /^\d{4}-\d{2}-\d{2}$/.test(text(value));
 
 function mapFlavorCatalog(rows = []) {
@@ -91,7 +91,7 @@ function mapRadishProducts(section) {
 function mapMerchandise({ products = [], categories = [] } = {}) {
   const activeCategories = new Set(categories.filter(item => item && item.enabled === true)
     .map(item => String(item.id)));
-  return products.filter(item => item && item.enabled === true &&
+  return products.filter(item => item && item.enabled !== false &&
     activeCategories.has(String(item.category_id)) && finiteMoney(item.price)).map(item => ({
       id: item.id,
       categoryId: item.category_id,
