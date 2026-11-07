@@ -1021,3 +1021,34 @@ Phase 33：將 App 所需 API 的 request／response、狀態、錯誤碼、權�
 
 ### 下一階段（Phase 35）
 建立不連外的 Node mock reference implementation：公開 catalog、content、food-truck schedule、stall schedule DTO、擺攤隱價、欄位白名單、cursor 分頁與錯誤處理，並加入合成資料自動測試。此為可執行原型，不連正式 Supabase、不視為正式 API。
+
+## 38. 2026-11-08 Phase 35 公開讀取 API Mock 原型
+
+| 交付 | 狀態 | 備註 |
+|---|---|---|
+| 公開 catalog DTO adapter | 已建立 | 合成資料；涼糕／蘿蔔糕啟用規則分離 |
+| 公開 content DTO adapter | 已建立 | section allowlist、published=true fail closed |
+| 餐車／擺攤 schedule DTO | 已建立 | 擺攤不回傳 price／currency 欄位 |
+| DTO 欄位白名單 | 已建立 | 不複製內部欄位 |
+| Cursor mock pagination | 已建立 | offset cursor 僅供原型，正式版需穩定排序／綁定條件 |
+| 結構化輸入錯誤 | 已建立 | ApiError、limit／cursor／type 驗證 |
+| 合成資料 Node tests | 已建立 | 尚未取得本次 CI 執行結果，不標示測試通過 |
+| GitHub Actions workflow | 已建立 | Node.js 22，相關檔案變更時執行 |
+| Supabase／HTTP 正式串接 | 未完成 | 無資料庫連線、無正式 endpoint |
+| 正式環境變更 | 未執行 | Supabase／官網／LINE／Secrets 維持唯讀 |
+
+新增檔案：
+- `app/mock-api/public-read-api.js`
+- `app/mock-api/public-read-api.test.js`
+- `.github/workflows/app-public-read-api.yml`
+- `app/PHASE_35_PUBLIC_READ_API_MOCK_AND_TESTS.md`
+
+### Phase 35 結論
+- 已建立純 Node.js 公開讀取 adapter 原型，涵蓋商品、公開內容、餐車／擺攤行程、欄位白名單、隱價、分頁與錯誤驗證。
+- 擺攤 DTO 結構完全不含價格欄位；未發布內容 fail closed。
+- 測試資料全部為合成資料，不連正式 Supabase。
+- GitHub Actions workflow 已提交，但尚未取得本次 CI run 結果，不能宣稱測試通過。
+- 本階段沒有建立 HTTP server、沒有正式 API／Edge Function、沒有資料庫串接，也沒有修改正式環境。
+
+### 下一階段（Phase 36）
+建立 Node.js built-in HTTP mock server 與標準 response envelope，讓 App 前端可先對接固定路徑；補 request_id、query validation、錯誤 envelope 與 HTTP integration tests。繼續使用合成 fixtures，不連正式 Supabase。
