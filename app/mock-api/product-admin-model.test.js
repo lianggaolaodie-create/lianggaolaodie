@@ -1,6 +1,5 @@
 /**
  * Phase 53 catalog, flavor, schedule publishing and shared snapshot tests.
- * CI entrypoint: .github/workflows/phase53-admin-model.yml
  */
 'use strict';
 const test = require('node:test');
@@ -18,13 +17,14 @@ function setup() {
 test('only owner/admin can manage product catalog', () => {
   const store = setup();
   assert.equal(model.saveProduct({ store, actor: staff, product: baseProduct, now: 2 }).reason, 'ADMIN_FORBIDDEN');
-  const lianggao = model.saveProduct({ store, actor: owner, product: baseProduct, now: 2 });\n  assert.equal(lianggao.ok, true, JSON.stringify(lianggao));
+  assert.equal(model.saveProduct({ store, actor: owner, product: baseProduct, now: 2 }).ok, true);
 });
 test('lianggao and radish cake remain distinct product types', () => {
   const store = setup();
   const lianggao = model.saveProduct({ store, actor: owner, product: baseProduct, now: 2 });
-  assert.equal(lianggao.ok, true, JSON.stringify(lianggao));
-  const radish = model.saveProduct({ store, actor: owner, product: { ...baseProduct, id: 'r-1', type: 'radish_cake' }, now: 2 });\n  assert.equal(radish.ok, true, JSON.stringify(radish));
+  const radish = model.saveProduct({ store, actor: owner, product: { ...baseProduct, id: 'r-1', type: 'radish_cake' }, now: 2 });
+  assert.equal(lianggao.ok, true);
+  assert.equal(radish.ok, true);
   assert.equal(store.products.get('lg-1').type, 'lianggao');
   assert.equal(store.products.get('r-1').type, 'radish_cake');
 });
@@ -38,7 +38,7 @@ test('draft products stay private; published online products enter shared snapsh
   assert.equal(snapshot.website, snapshot.app);
   assert.equal(snapshot.website.products[0].name, '綜合水果涼糕');
 });
-test('product publish requires online switch and valid price; stale version is rejected', () => {
+test('product publish requires online switch and stale version is rejected', () => {
   const store = setup();
   const saved = model.saveProduct({ store, actor: owner, product: { ...baseProduct, onlineEnabled: false }, now: 2 });
   assert.equal(model.setProductState({ store, actor: owner, productId: 'lg-1', state: 'published', expectedVersion: saved.product.version, now: 3 }).reason, 'PRODUCT_NOT_READY_TO_PUBLISH');
@@ -56,6 +56,7 @@ test('food truck may publish menu prices; stall never exposes price', () => {
   const truck = model.saveSchedule({ store, actor: owner, schedule: { id: 'truck-1', type: 'food_truck', serviceDate: '2026-11-09', region: '台北市', location: '測試地點', startTime: '10:00', endTime: '12:00', flavorIds: ['f-1'], prices: { 'f-1': 10000 } }, now: 2 });
   const stall = model.saveSchedule({ store, actor: owner, schedule: { id: 'stall-1', type: 'stall', serviceDate: '2026-11-09', region: '台北市', location: '測試市集', startTime: '13:00', endTime: '15:00', flavorIds: ['f-1'], prices: { 'f-1': 10000 } }, now: 2 });
   assert.equal(truck.ok, true, JSON.stringify(truck));
+  assert.equal(stall.ok, true, JSON.stringify(stall));
   assert.deepEqual(stall.schedule.prices, {});
   model.setScheduleState({ store, actor: owner, scheduleId: 'truck-1', state: 'published', expectedVersion: truck.schedule.version, now: 3 });
   model.setScheduleState({ store, actor: owner, scheduleId: 'stall-1', state: 'published', expectedVersion: stall.schedule.version, now: 3 });
