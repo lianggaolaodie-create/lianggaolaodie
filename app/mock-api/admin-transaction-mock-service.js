@@ -74,8 +74,6 @@ function saveDailyOrder({ store, actor, payload, expectedVersion, now, idempoten
   if (fields.length) return fail('DAILY_ORDER_INVALID', fields);
   const date = payload.orderDate;
   const current = store.dailyOrders.get(date);
-  if (current && current.version !== expectedVersion) return fail('VERSION_CONFLICT');
-  if (!current && expectedVersion !== undefined && expectedVersion !== 0) return fail('VERSION_CONFLICT');
   const idemKey = isText(idempotencyKey) ? idempotencyKey.trim() : null;
   if (idemKey && store.idempotency.has(idemKey)) {
     const prior = store.idempotency.get(idemKey);
@@ -83,6 +81,8 @@ function saveDailyOrder({ store, actor, payload, expectedVersion, now, idempoten
       ? Object.freeze({ ok: true, replayed: true, record: prior.result })
       : fail('IDEMPOTENCY_CONFLICT');
   }
+  if (current && current.version !== expectedVersion) return fail('VERSION_CONFLICT');
+  if (!current && expectedVersion !== undefined && expectedVersion !== 0) return fail('VERSION_CONFLICT');
 
   // Build the complete replacement off-store. Any injected failure leaves all maps unchanged.
   const staged = freeze({
