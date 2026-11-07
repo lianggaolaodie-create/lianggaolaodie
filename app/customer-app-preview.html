@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#11100e"><title>老爹．涼糕｜App 顧客端原型</title>
+<style>
+:root{--bg:#11100e;--panel:#1b1916;--panel2:#24211c;--gold:#d6b46b;--gold2:#f0d99d;--ink:#f7f1e5;--muted:#a9a092;--line:#40382b;--red:#d77b69}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 -apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif}
+button{font:inherit;cursor:pointer}.app{max-width:520px;min-height:100vh;margin:auto;background:linear-gradient(180deg,#171511,#100f0d);padding-bottom:88px}
+header{padding:22px 20px 14px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);position:sticky;top:0;background:#15130ff2;backdrop-filter:blur(12px);z-index:3}
+.brand{font-weight:800;letter-spacing:2px;color:var(--gold2);font-size:20px}.brand small{display:block;font-size:10px;letter-spacing:3px;color:var(--muted);font-weight:500}
+.pill{border:1px solid var(--line);border-radius:99px;padding:6px 11px;color:var(--gold2);font-size:12px}
+main{padding:18px 16px}.hero{border:1px solid #665332;border-radius:18px;padding:24px 20px;background:radial-gradient(ellipse at 90% 10%,#554222 0%,#282117 40%,#1b1916 78%);min-height:190px;display:flex;flex-direction:column;justify-content:space-between}
+.eyebrow{font-size:11px;letter-spacing:3px;color:var(--gold)}h1{font-size:27px;line-height:1.3;margin:8px 0;font-weight:750}.hero p{margin:0;color:#d0c4ae;font-size:13px}.goldbtn{border:0;background:linear-gradient(110deg,#b68b42,#f0d99d);color:#20190e;font-weight:800;border-radius:10px;padding:11px 16px;margin-top:16px}
+.sectionhead{display:flex;justify-content:space-between;align-items:center;margin:24px 2px 12px}.sectionhead h2{font-size:17px;margin:0}.sub{font-size:11px;color:var(--muted)}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:11px}.product{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden}.foodpic{height:116px;display:grid;place-items:center;background:linear-gradient(135deg,#3b3020,#211c15);font-size:36px}.productbody{padding:11px}.product h3{margin:0 0 3px;font-size:14px}.product p{margin:0;color:var(--muted);font-size:11px;min-height:34px}.price{color:var(--gold2);font-weight:800;margin-top:8px}.add{width:100%;border:1px solid #79613a;background:#292319;color:var(--gold2);border-radius:8px;padding:7px;margin-top:8px}
+.rowcard{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:13px;margin:9px 0}.rowcard strong{display:block}.rowcard span{font-size:12px;color:var(--muted)}
+nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(520px,100%);display:grid;grid-template-columns:repeat(5,1fr);background:#171511f5;border-top:1px solid var(--line);padding:9px 4px calc(9px + env(safe-area-inset-bottom));z-index:5}
+nav button{border:0;background:none;color:var(--muted);font-size:10px;padding:4px 0}nav button b{display:block;font-size:19px;font-weight:500}nav button.active{color:var(--gold2)}
+.page{display:none}.page.active{display:block}.notice{font-size:11px;color:#c3a66d;border:1px dashed #665332;border-radius:10px;padding:10px;margin-top:14px}
+.cartline{display:flex;justify-content:space-between;gap:10px;align-items:center}.qty{display:flex;align-items:center;gap:10px}.qty button{border:1px solid var(--line);background:var(--panel2);color:var(--gold2);border-radius:7px;width:28px;height:28px}
+input{background:#211e19;border:1px solid var(--line);border-radius:9px;padding:12px;color:var(--ink);width:100%;margin:7px 0 12px}label{font-size:12px;color:var(--muted)}
+.total{display:flex;justify-content:space-between;border-top:1px solid var(--line);padding-top:13px;margin-top:14px;font-weight:800}
+.empty{text-align:center;color:var(--muted);padding:30px 10px}
+footer{text-align:center;color:#777064;font-size:10px;padding:25px}
+</style>
+</head>
+<body><div class="app">
+<header><div class="brand">老爹．涼糕<small>LAO DIE LIANG GAO</small></div><div class="pill">顧客 App 示意版</div></header>
+<main>
+<section id="home" class="page active">
+<div class="hero"><div><div class="eyebrow">HANDMADE · FRESH DAILY</div><h1>一口涼糕，<br>一份老爹的用心。</h1><p>新鮮製作・口味依每日開單公告為準</p></div><button class="goldbtn" onclick="go('products')">立即選購　→</button></div>
+<div class="sectionhead"><h2>本週人氣商品</h2><span class="sub">示意商品・非即時庫存</span></div>
+<div class="cards" id="homeProducts"></div>
+<div class="sectionhead"><h2>最新消息</h2><span class="sub">品牌公告</span></div>
+<div class="rowcard"><strong>老爹 App 即將上線</strong><span>線上選購、訂單查詢與餐車資訊，敬請期待。</span></div>
+<div class="rowcard"><strong>預訂提醒</strong><span>團購及大量預訂請提前聯繫，實際供應依公告為準。</span></div>
+</section>
+<section id="products" class="page"><div class="sectionhead"><h2>商品選購</h2><span class="sub">示意資料</span></div><div class="notice">以下商品與價格僅供介面操作測試；正式上線會讀取核准的每日菜單，不會以此示意資料接單。</div><div class="cards" id="productList"></div></section>
+<section id="cart" class="page"><div class="sectionhead"><h2>購物車</h2><span class="sub">確認商品與數量</span></div><div id="cartItems"></div><div id="checkoutArea"></div></section>
+<section id="orders" class="page"><div class="sectionhead"><h2>訂單查詢</h2><span class="sub">正式版支援會員／訪客查詢</span></div><div class="rowcard"><label>輸入訂單編號</label><input id="orderNo" placeholder="例如：LD202611080001"><button class="goldbtn" onclick="lookup()">查詢訂單</button><div id="orderResult"></div></div><div class="notice">此原型不連接真實訂單；查詢只展示示意流程。</div></section>
+<section id="schedule" class="page"><div class="sectionhead"><h2>餐車・擺攤資訊</h2><span class="sub">行程公告</span></div><div class="rowcard"><strong>餐車行程</strong><span>正式版將顯示日期、服務地區、時間及當日口味；餐車價格可依設定顯示。</span></div><div class="rowcard"><strong>市集／擺攤行程</strong><span>正式版顯示日期、地點、時間與販售口味；依既有規則不顯示擺攤價格。</span></div><div class="notice">目前沒有讀取即時排程，請以官方公告為準。</div></section>
+<section id="member" class="page"><div class="sectionhead"><h2>會員中心</h2><span class="sub">共用會員規劃</span></div><div class="rowcard"><strong>老爹會員</strong><span>登入後管理個人資料、查看本人訂單與會員優惠。</span><button class="goldbtn" onclick="alert('正式版將接上 Supabase Auth；目前尚未建立真實會員登入。')">會員登入／註冊</button></div><div class="rowcard"><strong>會員功能規劃</strong><span>基本資料・歷史訂單・優惠活動・通知設定</span></div><div class="notice">登入與註冊尚未接通正式身份服務，請勿輸入真實密碼。</div></section>
+<footer>老爹．涼糕｜顧客 App 互動原型<br>非正式訂購系統・不會建立真實訂單</footer>
+</main>
+<nav>
+<button class="active" data-page="home" onclick="go('home')"><b>⌂</b>首頁</button>
+<button data-page="products" onclick="go('products')"><b>◇</b>商品</button>
+<button data-page="cart" onclick="go('cart')"><b>▢</b>購物車 <span id="cartCount"></span></button>
+<button data-page="orders" onclick="go('orders')"><b>≡</b>訂單</button>
+<button data-page="member" onclick="go('member')"><b>◎</b>會員</button>
+</nav></div>
+<script>
+const products=[
+{id:'p1',name:'水果綜合涼糕',desc:'多種風味搭配，口味依每日供應',price:100,emoji:'🍡'},
+{id:'p2',name:'純仙草涼糕',desc:'清爽仙草風味',price:100,emoji:'🟤'},
+{id:'p3',name:'伯爵芋頭夾心',desc:'茶香外皮搭配芋頭內餡',price:150,emoji:'🍠'},
+{id:'p4',name:'黑糖地瓜夾心',desc:'黑糖風味與地瓜內餡',price:150,emoji:'🍮'}];
+let cart={};
+function productCard(p){return '<article class="product"><div class="foodpic">'+p.emoji+'</div><div class="productbody"><h3>'+p.name+'</h3><p>'+p.desc+'</p><div class="price">NT$ '+p.price+'／盒</div><button class="add" onclick="add(\''+p.id+'\')">＋ 加入購物車</button></div></article>'}
+document.getElementById('homeProducts').innerHTML=products.slice(0,2).map(productCard).join('');
+document.getElementById('productList').innerHTML=products.map(productCard).join('');
+function go(id){document.querySelectorAll('.page').forEach(x=>x.classList.toggle('active',x.id===id));document.querySelectorAll('nav button').forEach(x=>x.classList.toggle('active',x.dataset.page===id));if(id==='cart')renderCart();window.scrollTo(0,0)}
+function add(id){cart[id]=(cart[id]||0)+1;count();alert('已加入購物車（示意）')}
+function count(){let n=Object.values(cart).reduce((a,b)=>a+b,0);document.getElementById('cartCount').textContent=n?'('+n+')':''}
+function change(id,d){cart[id]=(cart[id]||0)+d;if(cart[id]<=0)delete cart[id];count();renderCart()}
+function renderCart(){let el=document.getElementById('cartItems'),area=document.getElementById('checkoutArea'),ids=Object.keys(cart);if(!ids.length){el.innerHTML='<div class="empty">購物車目前是空的<br>去挑選喜歡的涼糕吧。</div>';area.innerHTML='';return}
+el.innerHTML=ids.map(id=>{let p=products.find(x=>x.id===id);return '<div class="rowcard cartline"><div><strong>'+p.name+'</strong><span>NT$ '+p.price+'／盒</span></div><div class="qty"><button onclick="change(\''+id+'\',-1)">−</button>'+cart[id]+'<button onclick="change(\''+id+'\',1)">＋</button></div></div>'}).join('');
+let total=ids.reduce((s,id)=>s+products.find(p=>p.id===id).price*cart[id],0);
+area.innerHTML='<div class="total"><span>商品小計（未含運費）</span><span>NT$ '+total+'</span></div><button class="goldbtn" style="width:100%" onclick="alert(\'目前為操作原型，尚未串接正式結帳、付款與訂單建立。\')">前往結帳（尚未開放）</button>'}
+function lookup(){let v=document.getElementById('orderNo').value.trim();document.getElementById('orderResult').innerHTML=v?'<p style="color:var(--gold2)">示意查詢：正式版將驗證訂單本人或訪客查詢憑證。</p>':'<p style="color:var(--red)">請先輸入訂單編號。</p>'}
+</script></body></html>
