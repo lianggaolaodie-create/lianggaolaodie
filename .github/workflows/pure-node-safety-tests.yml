@@ -49,3 +49,5 @@ jobs:
         run: node --test app/mock-api/workflow-http-server.test.js
       - name: Run Phase 70 synthetic staging seed tests
         run: node --test app/mock-api/staging-seed.test.js
+      - name: Run Phase 71 role authorization tests
+        run: node --test app/mock-api/role-authorization-model.test.js
