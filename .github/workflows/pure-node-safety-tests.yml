@@ -41,3 +41,5 @@ jobs:
         run: node --test app/mock-api/order-lifecycle-integration.test.js
       - name: Run Phase 59 member and order lookup contract tests
         run: node --test app/mock-api/member-order-model.test.js
+      - name: Run Phase 60 owner order administration contract tests
+        run: node --test app/mock-api/owner-order-admin-model.test.js
