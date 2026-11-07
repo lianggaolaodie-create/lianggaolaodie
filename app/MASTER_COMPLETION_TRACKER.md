@@ -547,3 +547,33 @@ Phase 16：補齊所有通知 Functions、網站與 trigger 的 caller inventory
 
 ### 下一階段
 Phase 17：追查所有 RPC function definitions、pg_net／cron／webhook／Storage／外部呼叫紀錄，補齊出貨通知 token 生命週期及周邊商品付款通知 caller；完成後才產生逐支可審核 patch diff。正式環境維持唯讀。
+
+
+## 20. 2026-11-08 Phase 17 RPC／排程／出貨通知 Token Lifecycle Audit
+
+| 交付 | 狀態 | 備註 |
+|---|---|---|
+| public schema RPC HTTP caller | 已唯讀盤點 | 目前找到三支 net.http_post caller，對應三條既有 DB trigger |
+| DB Webhook trigger | 未發現 | information_schema.triggers 無 http／webhook action statement |
+| pg_cron | 未見 cron schema | 本輪無法列出 cron.job |
+| pg_net request queue | 查詢時為空 | 未讀取 request body／headers |
+| shipment_notify_token 欄位 | 已確認 | 24-byte random default、text、nullable |
+| shipment token verify RPC | 已確認 | SECURITY DEFINER，anon/authenticated 可 EXECUTE，只回傳 boolean |
+| token mint／rotate／revoke／expiry | 未找到完整流程 | 需繼續追查下單 RPC、舊訂單與外部物流 callback |
+| line-customer-notify caller | 未確認 | Function 驗證 token 後仍信任 request body recipient／顯示欄位 |
+| 近 24 小時 Function Edge Logs | 已唯讀查詢 | 可見 line-webhook、TikTok chat/proxy；未見其他 LINE 通知端點呼叫 |
+| Dashboard／Storage／外部自動化 | 未完成 | 尚須控制台設定核對 |
+| 正式環境變更 | 未執行 | 全程唯讀，未讀訂單／客戶資料列、未發通知、未部署 |
+
+詳細文件：`app/PHASE_17_RPC_SCHEDULE_TOKEN_LIFECYCLE_AUDIT.md`
+
+### Phase 17 重要發現
+- public DB function definitions 中目前只找到三支 `net.http_post` 通知 caller，均對應已知 orders／cooling_pickup_orders triggers。
+- `orders.shipment_notify_token` 使用 24-byte 隨機值預設，但欄位允許 NULL；資料庫只找到 verify function，沒有專用 mint／rotate／revoke／expiry function。
+- verify_shipment_notify_token 為 SECURITY DEFINER，anon／authenticated 可執行；只回傳 boolean，但應考慮移至非 exposed schema 或由 Edge Function 內部 service_role 驗證。
+- line-customer-notify 驗證 token 後仍信任 request body 的 recipient 與部分通知欄位，需改成由後端依 order_id 讀取已驗證資料。
+- 近 24 小時 log 沒有其他 LINE 通知端點請求，但不可把單一時間窗無紀錄解讀為無外部 caller。
+- 沒有 cron schema、沒有 DB Webhook trigger；Supabase Dashboard Storage／外部自動化仍待核對。
+
+### 下一階段
+Phase 18：追查 Storage bucket／付款證明上傳流程、Dashboard Webhook 與外部物流 callback 的可見設定；比對 create_customer_order／物流 RPC 是否產生或輪替 token；補上出貨通知事件與冪等設計。正式環境維持唯讀。
