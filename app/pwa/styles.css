@@ -20,3 +20,5 @@ button:disabled{opacity:.58;cursor:not-allowed}
 .order-gate-status{margin-top:12px;padding:11px 12px;border-radius:10px;background:#242019;color:#e5c98f;font-size:13px;line-height:1.6}
 .catalog-bottom button:disabled{opacity:.48;cursor:not-allowed;border-color:#665b48;color:#c4bba9}
 @media(max-width:520px){.order-gate-fields{grid-template-columns:1fr}}
+
+.minimum-order{margin:12px 0;padding:12px 14px;border:1px solid rgba(205,166,82,.45);border-radius:12px;color:#e8d7ad;background:rgba(205,166,82,.08);font-size:14px;line-height:1.6}.minimum-order.ready{border-color:rgba(93,170,119,.55);color:#b9e2c5;background:rgba(93,170,119,.08)}
