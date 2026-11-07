@@ -37,6 +37,7 @@ function cleanText(value, max = 500) {
 }
 
 function integerAmount(value) {
+  if (value === null || value === undefined || value === '') return null;
   const n = Number(value);
   return Number.isSafeInteger(n) && n >= 0 ? n : null;
 }
