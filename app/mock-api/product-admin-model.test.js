@@ -22,6 +22,8 @@ test('only owner/admin can manage product catalog', () => {
 });
 test('lianggao and radish cake remain distinct product types', () => {
   const store = setup();
+  const lianggao = model.saveProduct({ store, actor: owner, product: baseProduct, now: 2 });
+  assert.equal(lianggao.ok, true, JSON.stringify(lianggao));
   const radish = model.saveProduct({ store, actor: owner, product: { ...baseProduct, id: 'r-1', type: 'radish_cake' }, now: 2 });\n  assert.equal(radish.ok, true, JSON.stringify(radish));
   assert.equal(store.products.get('lg-1').type, 'lianggao');
   assert.equal(store.products.get('r-1').type, 'radish_cake');
