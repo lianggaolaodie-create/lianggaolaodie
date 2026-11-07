@@ -1665,3 +1665,24 @@ Phase 33：將 App 所需 API 的 request／response、狀態、錯誤碼、權�
 
 ### Phase 55 下一步
 在本分支擴充每日開單／蘿蔔糕版本控制 mock service，加入 rollback、競爭更新、角色拒絕與 payload contract 測試；仍不連正式環境。
+---
+
+## Phase 56｜每日開單與蘿蔔糕商品交易 Mock 服務（2026-11-08）
+
+| 交付 | 狀態 | 備註 |
+|---|---|---|
+| 每日開單原子替換 Mock | 已建立 | 設定／地區／口味／每日價格快照一次提交 |
+| 每日開單樂觀版本控制 | 已建立 | 舊版本寫入拒絕，避免覆蓋新資料 |
+| 交易中止回復測試 | 已建立 | 中止時資料、audit、idempotency 不變 |
+| 每日開單冪等 key | 已建立 | 相同 payload 重播；不同 payload 衝突 |
+| 蘿蔔糕 JSON optimistic version | 已建立 | 僅更新 radish_products section |
+| 角色拒絕與資料驗證 | 已建立 | order_admin／一般會員不可寫商品設定 |
+| 正式 Supabase RPC／RLS 部署 | 未執行 | Mock-only；正式環境維持唯讀 |
+
+新增檔案：
+- `app/mock-api/admin-transaction-mock-service.js`
+- `app/mock-api/admin-transaction-mock-service.test.js`
+- `app/PHASE_56_ADMIN_TRANSACTION_MOCK.md`
+
+### Phase 56 下一步
+擴充跨模組權限／資料快照整合測試，並執行 GitHub Actions；若 runner 未回報成功，不得將測試標為通過。
