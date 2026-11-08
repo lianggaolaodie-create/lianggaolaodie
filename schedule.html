@@ -25,7 +25,7 @@ const SUPABASE_URL='https://yemzdwxtyosuaczsqwea.supabase.co';
 const SUPABASE_KEY='sb_publishable_7b4hgNL68yiYbec7fXToYQ_UxPE4sEB';
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-const today=new Date().toLocaleDateString('en-CA',{timeZone:'Asia/Taipei'});
+const taipeiParts=new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Taipei',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());const today=taipeiParts.find(p=>p.type==='year').value+'-'+taipeiParts.find(p=>p.type==='month').value+'-'+taipeiParts.find(p=>p.type==='day').value;
 function maps(region){return region?'https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(region):''}
 function mapEmbed(region){return region?'https://maps.google.com/maps?q='+encodeURIComponent(region)+'&output=embed':''}
 function cityOf(region){const m=String(region||'').match(/(臺北市|台北市|新北市|桃園市|臺中市|台中市|臺南市|台南市|高雄市|基隆市|新竹市|嘉義市|新竹縣|苗栗縣|彰化縣|南投縣|雲林縣|嘉義縣|屏東縣|宜蘭縣|花蓮縣|臺東縣|台東縣|澎湖縣|金門縣|連江縣)/);return m?m[0].replace(/臺/g,'台'):'其他地區'}
