@@ -1,6 +1,6 @@
 'use strict';
 const CACHE_PREFIX = 'laodie-pwa-shell-';
-const CACHE = 'laodie-pwa-shell-v31';
+const CACHE = 'laodie-pwa-shell-v32';
 const ASSETS = ['./', './index.html', './styles.css', './core.js', './app.js', './manifest.webmanifest'];
 const scopePath = new URL(self.registration.scope).pathname;
 
