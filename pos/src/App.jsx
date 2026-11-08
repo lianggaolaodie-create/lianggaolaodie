@@ -25,6 +25,10 @@ export default function App() {
   const [onlineLoading, setOnlineLoading] = useState(false)
   const [dailyStats, setDailyStats] = useState({ cashier: { boxes: 0, amount: 0 }, stall: { boxes: 0, amount: 0 }, online: { boxes: 0, amount: 0, storage: 0 } })
   const [statsLoading, setStatsLoading] = useState(false)
+  const [truckSession, setTruckSession] = useState(null)
+  const [truckSessions, setTruckSessions] = useState([])
+  const [truckStartAt, setTruckStartAt] = useState(() => { const d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0,16) })
+  const [truckLocation, setTruckLocation] = useState('')
   const scanRef = useRef(null)
   const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0)
 
@@ -35,9 +39,57 @@ export default function App() {
     return () => listener.subscription.unsubscribe()
   }, [])
 
-  useEffect(() => { if (user) { loadProducts(); loadStallSchedules(); loadDailyStats() } }, [user])
+  useEffect(() => { if (user) { loadProducts(); loadStallSchedules(); loadDailyStats(); loadTruckSessions() } }, [user])
   useEffect(() => { if (user && selectedSchedule) { loadStallFlavors(selectedSchedule); loadStallSales(selectedSchedule); setStallCart([]) } }, [user, selectedSchedule])
   useEffect(() => { if (user && mode === 'online') loadOnlineOrders() }, [user, mode])
+
+  async function loadTruckSessions() {
+    const { data, error } = await supabase.from('food_truck_sessions').select('id,session_date,title,location,started_at,ended_at,status').order('started_at',{ascending:false}).limit(30)
+    if (error) { setNotice('餐車營業場次讀取失敗：' + error.message); return }
+    const rows = data || []
+    setTruckSessions(rows)
+    setTruckSession(rows.find(row => row.status === 'open') || null)
+  }
+  async function startTruckSession() {
+    if (truckSession || busy) return
+    const started = new Date(truckStartAt)
+    if (!Number.isFinite(started.getTime())) { setNotice('請設定正確的開始營業日期及時間'); return }
+    setBusy(true)
+    const { data, error } = await supabase.from('food_truck_sessions').insert({
+      session_date: truckStartAt.slice(0,10), title: '餐車營業場次', location: truckLocation.trim() || null,
+      started_at: started.toISOString(), created_by: user.id
+    }).select('id,session_date,title,location,started_at,ended_at,status').single()
+    setBusy(false)
+    if (error) { setNotice('建立餐車場次失敗：' + error.message); return }
+    setTruckSession(data); setTruckSessions(current => [data,...current])
+    setNotice('餐車營業場次已開始。跨日仍會歸屬 ' + data.session_date)
+  }
+  async function closeTruckSession() {
+    if (!truckSession || busy) return
+    const { data: sales, error: salesError } = await supabase.from('food_truck_sales').select('quantity,total_amount').eq('business_session_id',truckSession.id)
+    if (salesError) { setNotice('讀取場次銷售失敗：' + salesError.message); return }
+    const boxes = (sales||[]).reduce((n,row)=>n+Number(row.quantity||0),0)
+    const amount = (sales||[]).reduce((n,row)=>n+Number(row.total_amount||0),0)
+    setBusy(true)
+    const { error } = await supabase.from('food_truck_sessions').update({status:'closed',ended_at:new Date().toISOString()}).eq('id',truckSession.id).eq('status','open')
+    setBusy(false)
+    if (error) { setNotice('結束營業失敗：' + error.message); return }
+    setNotice('本場餐車已結束｜' + boxes + ' 盒｜' + money(amount))
+    await loadTruckSessions()
+    printTruckSessionReport(truckSession,{boxes,amount})
+  }
+  async function printTruckSessionReport(session, totals = null) {
+    const w=window.open('about:blank','_blank')
+    if(!w){setNotice('請允許彈出視窗後重新列印');return}
+    const {data,error}=await supabase.from('food_truck_sales').select('product_name,quantity,unit_price,total_amount,sold_at').eq('business_session_id',session.id).order('sold_at')
+    if(error){w.close();setNotice('場次報表讀取失敗：'+error.message);return}
+    const map=new Map()
+    ;(data||[]).forEach(row=>{const k=row.product_name||'未命名商品',v=map.get(k)||{name:k,boxes:0,amount:0};v.boxes+=Number(row.quantity||0);v.amount+=Number(row.total_amount||0);map.set(k,v)})
+    const rows=[...map.values()]
+    const boxes=totals?.boxes??rows.reduce((n,x)=>n+x.boxes,0),amount=totals?.amount??rows.reduce((n,x)=>n+x.amount,0)
+    w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>餐車場次結帳</title><style>@page{size:58mm auto;margin:2mm}body{width:54mm;margin:0;font:11px monospace}h2,p{text-align:center}table{width:100%}td{padding:4px 0;border-bottom:1px dashed #aaa}td:last-child{text-align:right}.total{font-weight:bold;text-align:right;margin-top:8px}</style></head><body><h2>老爹．涼糕</h2><p>餐車場次結帳報表</p><p>'+escapeHtml(session.session_date)+'｜'+escapeHtml(session.location||'')+'</p><hr><table>'+rows.map(x=>'<tr><td>'+escapeHtml(x.name)+' × '+x.boxes+'盒</td><td>'+money(x.amount)+'</td></tr>').join('')+'</table><hr><p>總盒數：'+boxes+' 盒</p><p class="total">商品總額：'+money(amount)+'</p><p>場次開始：'+new Date(session.started_at).toLocaleString('zh-TW')+'</p><p>老爹．涼糕</p><script>window.onload=()=>window.print()</script></body></html>')
+    w.document.close()
+  }
 
   async function loadStallSchedules() {
     const { data, error } = await supabase.from('food_truck_schedules')
@@ -235,7 +287,8 @@ export default function App() {
   async function checkout() {
     if (!cart.length || busy) return
     setBusy(true); setNotice('')
-    const rows = cart.map(item => ({ product_id: item.id, barcode: item.barcode, product_name: item.name, quantity: item.quantity, unit_price: item.price, total_amount: item.price * item.quantity }))
+    if (!truckSession || truckSession.status !== 'open') { setNotice('請先開始餐車營業場次，才能結帳'); setBusy(false); return }
+    const rows = cart.map(item => ({ product_id: item.id, barcode: item.barcode, product_name: item.name, quantity: item.quantity, unit_price: item.price, total_amount: item.price * item.quantity, business_session_id: truckSession.id }))
     const { error } = await supabase.from('food_truck_sales').insert(rows)
     setBusy(false)
     if (error) { setNotice('結帳未完成，資料未寫入：' + error.message); return }
@@ -274,6 +327,12 @@ export default function App() {
       {mode === 'cashier' ? <div className="statGrid"><article><small>餐車銷售盒數</small><strong>{dailyStats.cashier.boxes} 盒</strong></article><article><small>餐車銷售金額</small><strong>{money(dailyStats.cashier.amount)}</strong></article></div> : mode === 'stall' ? <div className="statGrid"><article><small>擺攤銷售盒數</small><strong>{dailyStats.stall.boxes} 盒</strong></article><article><small>擺攤銷售金額</small><strong>{money(dailyStats.stall.amount)}</strong></article></div> : <div className="statGrid"><article><small>線上已付款盒數</small><strong>{dailyStats.online.boxes} 盒</strong></article><article><small>線上商品銷售額（不含寄放）</small><strong>{money(dailyStats.online.amount)}</strong></article><article><small>寄放費（另計）</small><strong>{money(dailyStats.online.storage)}</strong></article></div>}
       <small className="statsFoot">統計日期：{new Date().toLocaleDateString('zh-TW')}｜線上統計只計已付款及後續處理中的訂單</small>
     </section>
+    {mode === 'cashier' && <section className="catalog">
+      <h2>餐車營業場次</h2>
+      {truckSession ? <><p className="muted">目前營業中｜出車日期：{truckSession.session_date}｜開始：{new Date(truckSession.started_at).toLocaleString('zh-TW')} {truckSession.location ? '｜'+truckSession.location : ''}</p><p className="muted">跨日不會自動切換日期；所有銷售都綁定本場次。</p><button className="checkout" disabled={busy} onClick={closeTruckSession}>結束本次營業並結帳列印</button></> :
+      <><label className="fieldLabel">開始營業日期及時間</label><input className="scheduleSelect" type="datetime-local" value={truckStartAt} onChange={e=>setTruckStartAt(e.target.value)}/><label className="fieldLabel">出車地點（選填）</label><input className="scheduleSelect" value={truckLocation} onChange={e=>setTruckLocation(e.target.value)} placeholder="輸入出車地點"/><button className="checkout" disabled={busy} onClick={startTruckSession}>開始餐車營業</button></>}
+      <div className="stallHistory"><h3>歷史餐車場次</h3>{truckSessions.map(session=><article className="onlineOrder" key={session.id}><b>{session.session_date}｜{session.location||'餐車場次'}</b><small>{new Date(session.started_at).toLocaleString('zh-TW')}｜{session.status==='open'?'營業中':'已結束'}</small><button className="ghost" onClick={()=>printTruckSessionReport(session)}>查詢／補印場次報表</button></article>)}</div>
+    </section>}
     {mode === 'online' ? <section className="catalog onlinePanel"><div className="orderTitle"><h2>冷藏店到店訂單</h2><button className="ghost" onClick={loadOnlineOrders} disabled={onlineLoading}>{onlineLoading ? '更新中…' : '重新整理'}</button></div><p className="muted">這裡只顯示冷藏店到店訂單，不包含宅配及餐車現場收銀。</p>{onlineLoading ? <p>讀取線上訂單中…</p> : onlineOrders.length ? onlineOrders.map(order => <article className="onlineOrder" key={order.id}><div className="orderTitle"><b>{order.order_number}</b><strong>{order.status || '待確認'}</strong></div><small>{order.order_date || new Date(order.created_at).toLocaleDateString('zh-TW')}｜{order.convenience_store || ''} {order.store_name || ''}</small>{(order.cooling_pickup_order_items || []).map(item => <div className="line" key={item.id}><span>{item.product_name || item.flavor_name} × {item.quantity}</span><b>{money(item.line_total ?? item.unit_price * item.quantity)}</b></div>)}<div className="sum"><span>商品 {money(order.merchandise_total)}＋寄放 {money(order.storage_fee)}</span><strong>{money(order.total_amount)}</strong></div><button className="checkout onlinePrint" onClick={()=>printOnlineReceipt(order)}>列印／重新列印 58mm 收據</button><p className="muted">列印紙本不會重複建立銷售紀錄；線上訂單匯入 POS 的付款確認及防重複機制仍獨立處理。</p></article>) : <p className="muted">目前沒有線上冷藏店到店訂單</p>}</section> : mode === 'stall' ? <section className="catalog stallPanel">
       <h2>擺攤口味價格設定</h2>
       <label className="fieldLabel">選擇擺攤場次</label>
