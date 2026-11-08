@@ -34,3 +34,5 @@ button:disabled{opacity:.58;cursor:not-allowed}
 .member-save-message{min-height:1.5em;margin:14px 0 0;color:var(--gold);line-height:1.6;overflow-wrap:anywhere}.member-save-message:empty{display:none}#member-profile-save:disabled{opacity:.65;cursor:wait}
 
 .member-tier-card{border:1px solid var(--line,#40382b);padding:22px;margin:16px 0;background:rgba(205,170,95,.06)}.member-tier-card h2{color:var(--gold,#d7b66d);margin:6px 0}.member-tier-stats{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:22px 0}.member-tier-stats div{display:flex;flex-direction:column;gap:6px}.member-tier-stats strong{font-size:1.35rem;color:var(--gold,#d7b66d)}.member-tier-stats span,.member-tier-note{color:var(--muted,#aaa);font-size:.92rem;line-height:1.7}.member-tier-note{border-top:1px solid var(--line,#40382b);padding-top:14px}
+
+.member-tier-list{list-style:none;padding:0;margin:12px 0 22px}.member-tier-list li{display:flex;justify-content:space-between;gap:12px;padding:14px 0;border-bottom:1px solid var(--line,#40382b)}.member-tier-list strong{color:var(--gold,#d7b66d)}
