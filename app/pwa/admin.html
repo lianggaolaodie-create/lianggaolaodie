@@ -8,7 +8,7 @@
 <div id="admin-login">
 <label>管理員電子郵件<input id="admin-email" type="email" autocomplete="username" placeholder="管理員登入 Email"></label>
 <label>密碼<input id="admin-password" type="password" autocomplete="current-password" placeholder="管理員密碼"></label>
-<button class="admin-save" id="admin-signin" type="button">管理員登入</button>
+<button class="admin-save" id="admin-signin" type="button">管理員登入</button><p id="admin-login-message" role="status" aria-live="polite"></p>
 </div>
 <div id="admin-workspace" hidden>
 <div class="admin-loginbar"><span id="admin-identity"></span><button class="admin-back" id="admin-signout" type="button">登出</button></div>
@@ -26,7 +26,7 @@
 const db=window.supabase?.createClient('https://yemzdwxtyosuaczsqwea.supabase.co','sb_publishable_7b4hgNL68yiYbec7fXToYQ_UxPE4sEB');
 const $=id=>document.getElementById(id);
 let user=null,flavors=[],regions=[],existing=[];
-const say=(m,bad=false)=>{ $('admin-message').textContent=m;$('admin-message').style.color=bad?'#ff9b86':'#d7b56d'; };
+const say=(m,bad=false)=>{ for(const id of ['admin-message','admin-login-message']){const el=$(id);if(el){el.textContent=m;el.style.color=bad?'#ff9b86':'#d7b56d';}} };
 const authCheck=async()=>{const {data:{session}}=await db.auth.getSession();if(!session)return false;user=session.user;const {data:p,error}=await db.from('admin_profiles').select('role,enabled,can_manage_products').eq('user_id',user.id).maybeSingle();if(error){await db.auth.signOut();say('已登入，但讀取管理員權限失敗：'+error.message,true);return false;}if(!p||!p.enabled||!(p.role==='super_admin'||p.can_manage_products)){await db.auth.signOut();say('登入成功，但此帳號未啟用商品／每日口味管理權限。請由超級管理員檢查帳號權限。',true);return false;}return true;};
 async function loadDates(){const {data,error}=await db.from('daily_order_settings').select('order_date,ordering_enabled').gte('order_date',new Date().toLocaleDateString('en-CA',{timeZone:'Asia/Taipei'})).order('order_date');if(error)throw error;$('admin-date').innerHTML='<option value="">請選擇日期</option>'+data.filter(x=>x.ordering_enabled).map(x=>'<option value="'+x.order_date+'">'+x.order_date+'</option>').join('');}
 async function loadRegions(){const date=$('admin-date').value;$('admin-region').innerHTML='<option value="">載入中…</option>';const {data,error}=await db.from('daily_order_regions').select('region_name').eq('order_date',date).eq('enabled',true).order('region_name');if(error)throw error;regions=data||[];$('admin-region').innerHTML='<option value="">請選擇服務地區</option>'+regions.map(x=>'<option value="'+x.region_name.replace(/&/g,'&amp;').replace(/"/g,'&quot;')+'">'+x.region_name+'</option>').join('');}
