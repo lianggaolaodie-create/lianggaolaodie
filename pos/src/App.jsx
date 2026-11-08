@@ -23,6 +23,8 @@ export default function App() {
   const [stallSalesLoading, setStallSalesLoading] = useState(false)
   const [onlineOrders, setOnlineOrders] = useState([])
   const [onlineLoading, setOnlineLoading] = useState(false)
+  const [prepDateFilter, setPrepDateFilter] = useState('')
+  const [prepDateDrafts, setPrepDateDrafts] = useState({})
   const [dailyStats, setDailyStats] = useState({ cashier: { boxes: 0, amount: 0 }, stall: { boxes: 0, amount: 0 }, online: { boxes: 0, amount: 0, storage: 0 } })
   const [statsLoading, setStatsLoading] = useState(false)
   const [truckSession, setTruckSession] = useState(null)
@@ -237,11 +239,30 @@ export default function App() {
   async function loadOnlineOrders() {
     setOnlineLoading(true)
     const { data, error } = await supabase.from('cooling_pickup_orders')
-      .select('id,order_number,order_date,convenience_store,store_name,merchandise_total,storage_fee,total_amount,status,created_at,cooling_pickup_order_items(id,product_name,flavor_name,unit_price,quantity,line_total)')
+      .select('id,order_number,order_date,paid_at,prep_date,convenience_store,store_name,merchandise_total,storage_fee,total_amount,status,created_at,cooling_pickup_order_items(id,product_name,flavor_name,unit_price,quantity,line_total)')
       .order('created_at', { ascending: false }).limit(100)
     setOnlineLoading(false)
     if (error) { setNotice('線上訂單讀取失敗：' + error.message); return }
     setOnlineOrders(data ?? [])
+    setPrepDateDrafts(Object.fromEntries((data||[]).map(order=>[order.id,order.prep_date||''])))
+  }
+  async function savePrepDate(order) {
+    const prep_date = prepDateDrafts[order.id] || null
+    const {error}=await supabase.from('cooling_pickup_orders').update({prep_date}).eq('id',order.id)
+    if(error){setNotice('預計出餐日期更新失敗：'+error.message);return}
+    setOnlineOrders(rows=>rows.map(row=>row.id===order.id?{...row,prep_date}:row))
+    setNotice('訂單 '+order.order_number+' 的預計出餐日期已更新')
+  }
+  async function printPrepList(date) {
+    const w=window.open('about:blank','_blank')
+    if(!w){setNotice('請允許彈出視窗後重新列印備貨清單');return}
+    const {data,error}=await supabase.from('cooling_pickup_orders').select('id,order_number,paid_at,prep_date,convenience_store,store_name,merchandise_total,status,cooling_pickup_order_items(flavor_name,product_name,quantity)').eq('prep_date',date).order('order_number')
+    if(error){w.close();setNotice('備貨清單讀取失敗：'+error.message);return}
+    const eligible=(data||[]).filter(o=>new Set(['paid','stored','preparing','shipping','delivering','delivered','completed','已付款','已寄放','製作中','配送中','已送達','已完成']).has(String(o.status||'').trim().toLowerCase()))
+    const counts=new Map()
+    eligible.forEach(o=>(o.cooling_pickup_order_items||[]).forEach(i=>{const k=i.flavor_name||i.product_name||'商品';counts.set(k,(counts.get(k)||0)+Number(i.quantity||0))}))
+    w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>指定日期備貨清單</title><style>@page{size:58mm auto;margin:2mm}body{width:54mm;margin:0;font:11px monospace}h2,p{text-align:center}li{margin:7px 0}.n{font-weight:bold}</style></head><body><h2>老爹．涼糕</h2><p>備貨清單｜'+escapeHtml(date)+'</p><hr><ul>'+[...counts].map(([name,qty])=>'<li>'+escapeHtml(name)+'　<span class="n">'+qty+'盒</span></li>').join('')+'</ul><hr><p>訂單數：'+eligible.length+'</p><p>總盒數：'+[...counts.values()].reduce((a,b)=>a+b,0)+'</p><script>window.onload=()=>window.print()</script></body></html>')
+    w.document.close()
   }
 
   async function loadProducts() {
@@ -333,7 +354,7 @@ export default function App() {
       <><label className="fieldLabel">開始營業日期及時間</label><input className="scheduleSelect" type="datetime-local" value={truckStartAt} onChange={e=>setTruckStartAt(e.target.value)}/><label className="fieldLabel">出車地點（選填）</label><input className="scheduleSelect" value={truckLocation} onChange={e=>setTruckLocation(e.target.value)} placeholder="輸入出車地點"/><button className="checkout" disabled={busy} onClick={startTruckSession}>開始餐車營業</button></>}
       <div className="stallHistory"><h3>歷史餐車場次</h3>{truckSessions.map(session=><article className="onlineOrder" key={session.id}><b>{session.session_date}｜{session.location||'餐車場次'}</b><small>{new Date(session.started_at).toLocaleString('zh-TW')}｜{session.status==='open'?'營業中':'已結束'}</small><button className="ghost" onClick={()=>printTruckSessionReport(session)}>查詢／補印場次報表</button></article>)}</div>
     </section>}
-    {mode === 'online' ? <section className="catalog onlinePanel"><div className="orderTitle"><h2>冷藏店到店訂單</h2><button className="ghost" onClick={loadOnlineOrders} disabled={onlineLoading}>{onlineLoading ? '更新中…' : '重新整理'}</button></div><p className="muted">這裡只顯示冷藏店到店訂單，不包含宅配及餐車現場收銀。</p>{onlineLoading ? <p>讀取線上訂單中…</p> : onlineOrders.length ? onlineOrders.map(order => <article className="onlineOrder" key={order.id}><div className="orderTitle"><b>{order.order_number}</b><strong>{order.status || '待確認'}</strong></div><small>{order.order_date || new Date(order.created_at).toLocaleDateString('zh-TW')}｜{order.convenience_store || ''} {order.store_name || ''}</small>{(order.cooling_pickup_order_items || []).map(item => <div className="line" key={item.id}><span>{item.product_name || item.flavor_name} × {item.quantity}</span><b>{money(item.line_total ?? item.unit_price * item.quantity)}</b></div>)}<div className="sum"><span>商品 {money(order.merchandise_total)}＋寄放 {money(order.storage_fee)}</span><strong>{money(order.total_amount)}</strong></div><button className="checkout onlinePrint" onClick={()=>printOnlineReceipt(order)}>列印／重新列印 58mm 收據</button><p className="muted">列印紙本不會重複建立銷售紀錄；線上訂單匯入 POS 的付款確認及防重複機制仍獨立處理。</p></article>) : <p className="muted">目前沒有線上冷藏店到店訂單</p>}</section> : mode === 'stall' ? <section className="catalog stallPanel">
+    {mode === 'online' ? <section className="catalog onlinePanel"><div className="orderTitle"><h2>冷藏店到店訂單</h2><button className="ghost" onClick={loadOnlineOrders} disabled={onlineLoading}>{onlineLoading ? '更新中…' : '重新整理'}</button></div><p className="muted">這裡只顯示冷藏店到店訂單，不包含宅配及餐車現場收銀。</p><div className="orderTitle"><label className="fieldLabel">依預計出餐日期查詢</label><input type="date" value={prepDateFilter} onChange={e=>setPrepDateFilter(e.target.value)}/><button className="checkout onlinePrint" disabled={!prepDateFilter} onClick={()=>printPrepList(prepDateFilter)}>列印指定日期備貨清單</button></div>{onlineLoading ? <p>讀取線上訂單中…</p> : onlineOrders.filter(order=>!prepDateFilter||order.prep_date===prepDateFilter).length ? onlineOrders.filter(order=>!prepDateFilter||order.prep_date===prepDateFilter).map(order => <article className="onlineOrder" key={order.id}><div className="orderTitle"><b>{order.order_number}</b><strong>{order.status || '待確認'}</strong></div><small>付款日期：{order.paid_at ? new Date(order.paid_at).toLocaleDateString('zh-TW') : '舊訂單未記錄付款時間'}｜預計出餐：{order.prep_date||'未設定'}｜{order.convenience_store || ''} {order.store_name || ''}</small><div className="line"><label>修改預計出餐日期</label><input type="date" value={prepDateDrafts[order.id]??''} onChange={e=>setPrepDateDrafts(current=>({...current,[order.id]:e.target.value}))}/><button className="ghost" onClick={()=>savePrepDate(order)}>儲存日期</button></div>{(order.cooling_pickup_order_items || []).map(item => <div className="line" key={item.id}><span>{item.product_name || item.flavor_name} × {item.quantity}</span><b>{money(item.line_total ?? item.unit_price * item.quantity)}</b></div>)}<div className="sum"><span>商品 {money(order.merchandise_total)}＋寄放 {money(order.storage_fee)}</span><strong>{money(order.total_amount)}</strong></div><button className="checkout onlinePrint" onClick={()=>printOnlineReceipt(order)}>列印／重新列印 58mm 收據</button><p className="muted">列印紙本不會重複建立銷售紀錄；線上訂單匯入 POS 的付款確認及防重複機制仍獨立處理。</p></article>) : <p className="muted">目前沒有線上冷藏店到店訂單</p>}</section> : mode === 'stall' ? <section className="catalog stallPanel">
       <h2>擺攤口味價格設定</h2>
       <label className="fieldLabel">選擇擺攤場次</label>
       <select className="scheduleSelect" value={selectedSchedule} onChange={e=>setSelectedSchedule(e.target.value)}>
