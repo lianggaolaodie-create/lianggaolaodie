@@ -95,7 +95,7 @@ export default function App() {
 
   async function loadStallSchedules() {
     const { data, error } = await supabase.from('food_truck_schedules')
-      .select('id,schedule_date,region,start_time,end_time,enabled')
+      .select('id,schedule_date,region,start_time,end_time,enabled,closed_at')
       .eq('schedule_type', 'stall').order('schedule_date', { ascending: false })
     if (error) { setNotice('擺攤場次讀取失敗：' + error.message); return }
     setStallSchedules(data ?? [])
@@ -142,6 +142,7 @@ export default function App() {
   }
   async function checkoutStall() {
     if(!stallCart.length||busy||!selectedSchedule)return
+    if(stallSchedules.find(x=>String(x.id)===String(selectedSchedule))?.closed_at){setNotice('此擺攤場次已結束，不能再新增銷售');return}
     const items=stallCart.map(item=>({flavor_id:item.flavor_id,name:item.name,price:Number(item.price),quantity:Number(item.quantity)}))
     const amount=items.reduce((sum,item)=>sum+item.price*item.quantity,0)
     const receiptNumber='ST'+new Date().toISOString().slice(0,10).replace(/-/g,'')+'-'+Date.now().toString().slice(-6)
@@ -158,6 +159,28 @@ export default function App() {
     loadStallSales(selectedSchedule)
     loadDailyStats()
   }
+  async function closeStallSchedule() {
+    const schedule=stallSchedules.find(x=>String(x.id)===String(selectedSchedule))
+    if(!schedule||schedule.closed_at||busy)return
+    const {error}=await supabase.from('food_truck_schedules').update({closed_at:new Date().toISOString(),enabled:false}).eq('id',selectedSchedule)
+    if(error){setNotice('結束擺攤場次失敗：'+error.message);return}
+    setNotice('擺攤場次已結束，正在產生結帳報表')
+    await loadStallSchedules()
+    await printStallScheduleReport(schedule)
+  }
+  async function printStallScheduleReport(schedule) {
+    const w=window.open('about:blank','_blank')
+    if(!w){setNotice('請允許彈出視窗後重新列印');return}
+    const {data,error}=await supabase.from('stall_sales').select('items,total_amount,sold_at').eq('schedule_id',schedule.id).order('sold_at')
+    if(error){w.close();setNotice('擺攤報表讀取失敗：'+error.message);return}
+    const flavors=new Map()
+    ;(data||[]).forEach(sale=>(Array.isArray(sale.items)?sale.items:[]).forEach(item=>{const k=item.name||item.flavor_name||'商品',v=flavors.get(k)||{boxes:0,amount:0};v.boxes+=Number(item.quantity||0);v.amount+=Number(item.price||0)*Number(item.quantity||0);flavors.set(k,v)}))
+    const rows=[...flavors.entries()]
+    const boxes=rows.reduce((n,[,v])=>n+v.boxes,0),amount=rows.reduce((n,[,v])=>n+v.amount,0)
+    w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>擺攤場次結帳報表</title><style>@page{size:58mm auto;margin:2mm}body{width:54mm;margin:0;font:11px monospace}h2,p{text-align:center}table{width:100%}td{padding:4px 0;border-bottom:1px dashed #aaa}td:last-child{text-align:right}</style></head><body><h2>老爹．涼糕</h2><p>擺攤場次結帳報表</p><p>'+escapeHtml(schedule.schedule_date)+'｜'+escapeHtml(schedule.region||'')+'</p><hr><table>'+rows.map(([name,v])=>'<tr><td>'+escapeHtml(name)+' × '+v.boxes+'盒</td><td>'+money(v.amount)+'</td></tr>').join('')+'</table><hr><p>交易筆數：'+(data||[]).length+'</p><p>總盒數：'+boxes+'盒</p><h3>商品總額：'+money(amount)+'</h3><script>window.onload=()=>window.print()</script></body></html>')
+    w.document.close()
+  }
+
   async function saveStallPrice(row) {
     const value = Number(priceDrafts[row.flavor_id])
     if (!Number.isFinite(value) || value < 0 || !Number.isInteger(value)) {
@@ -361,6 +384,7 @@ export default function App() {
         {stallSchedules.map(s=><option key={s.id} value={s.id}>{s.schedule_date}｜{s.region}</option>)}
       </select>
       {!stallSchedules.length && <p className="muted">目前沒有擺攤場次資料</p>}
+      {!!selectedSchedule && <div className="orderTitle"><span>{stallSchedules.find(x=>String(x.id)===String(selectedSchedule))?.closed_at?'本場已結束':'本場營業中'}</span><button className="ghost" onClick={()=>printStallScheduleReport(stallSchedules.find(x=>String(x.id)===String(selectedSchedule)))}>場次報表／補印</button>{!stallSchedules.find(x=>String(x.id)===String(selectedSchedule))?.closed_at && <button className="checkout" onClick={closeStallSchedule} disabled={busy}>結束本場並列印結帳</button>}</div>}
       {stallLoading ? <p>讀取口味中…</p> : stallFlavors.map(row=><div className="priceEditor" key={row.flavor_id}>
         <div><b>{row.flavorName}</b><small>目前價格：{money(row.currentPrice)}</small></div>
         <input aria-label={row.flavorName + '價格'} type="number" min="0" step="1" value={priceDrafts[row.flavor_id] ?? ''} onChange={e=>setPriceDrafts(current=>({...current,[row.flavor_id]:e.target.value}))}/>
