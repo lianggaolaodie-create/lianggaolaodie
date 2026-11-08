@@ -1,61 +1,24 @@
 <!doctype html>
-<html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#11100e"><title>老爹．涼糕｜老闆後台</title><link rel="stylesheet" href="./styles.css"><style>
-.admin-shell{max-width:980px;margin:30px auto;padding:0 18px 60px}.admin-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:18px}.admin-head h1{font-size:26px;margin:5px 0}.admin-head p{color:var(--muted);margin:0}.admin-back{color:var(--gold2);text-decoration:none;border:1px solid var(--gold);padding:9px 13px;border-radius:4px;font-size:13px}.admin-alert{margin:20px 0;padding:14px;border:1px solid #8c6b36;background:#2a2114;border-radius:8px;color:#f0d79c;line-height:1.7}.admin-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px;margin-top:22px}.admin-card{display:block;text-align:left;text-decoration:none;color:var(--white);background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px}.admin-card b{display:block;color:var(--gold2);font-size:16px;margin:6px 0}.admin-card small{color:var(--muted);line-height:1.6}.admin-card .ico{font-size:24px}.admin-section{margin-top:24px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px}.admin-section h2{font-size:18px;margin-top:0}.admin-section p{color:var(--muted);line-height:1.7}.admin-section label{display:block;margin:12px 0;color:var(--muted)}.admin-section input,.admin-section select{display:block;width:100%;margin-top:6px;background:#11100e;color:var(--white);border:1px solid var(--line);padding:12px;border-radius:5px}.admin-disabled{opacity:.65;cursor:not-allowed}
- .admin-save{background:linear-gradient(135deg,#e7c77e,#b68a3c);color:#17120a;border:0;border-radius:5px;padding:12px 18px;font-weight:700;cursor:pointer}.admin-save:disabled{opacity:.5}.admin-loginbar{display:flex;justify-content:space-between;align-items:center;margin:12px 0;color:var(--gold2)}.flavor-editor{margin:14px 0}.flavor-edit-row{display:grid;grid-template-columns:minmax(150px,1fr) 100px 100px;gap:10px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}.flavor-edit-row label{margin:0}.flavor-check{display:flex!important;align-items:flex-start;gap:9px;color:var(--white)!important}.flavor-check input{width:auto!important;margin:3px 0!important}.flavor-check small{display:block;color:var(--muted);font-size:12px;margin-top:3px}.flavor-edit-row input[type=number]{padding:9px!important}@media(max-width:540px){.flavor-edit-row{grid-template-columns:1fr 78px 78px;gap:7px}.flavor-edit-row label{font-size:12px}}
-</style></head><body><header class="topbar"><a class="brand" href="./index.html"><span class="brand-mark">老</span><span><b>老爹．涼糕</b><small>OWNER ADMIN</small></span></a><span class="demo-tag">共用管理員帳號</span></header><main class="admin-shell"><div class="admin-head"><div><p class="eyebrow">OWNER CONSOLE</p><h1>老闆管理總覽</h1><p>營運管理入口｜黑金版</p></div><a class="admin-back" href="./index.html">← 返回 App</a></div><div class="admin-alert"><b>管理員登入說明</b><br>請使用官網既有管理員 Email 與密碼登入。登入後依帳號權限開放可管理的功能；此頁目前先提供 App 每日口味設定，其他模組仍在整合中。</div><div class="admin-cards"><a class="admin-card" href="#daily"><span class="ico">📅</span><b>每日訂購設定</b><small>指定日期、開放地區、每日開放口味與最低購買數量。</small></a><a class="admin-card" href="#products"><span class="ico">🍡</span><b>商品與口味</b><small>商品資料、照片、介紹、價格及上架狀態。</small></a><a class="admin-card" href="#orders"><span class="ico">🧾</span><b>訂單管理</b><small>線上訂單、現場臨時單與處理進度。</small></a><a class="admin-card" href="#truck"><span class="ico">🚚</span><b>餐車／擺攤排程</b><small>出攤日期、服務地區、時間與販售口味。</small></a><a class="admin-card" href="#pda"><span class="ico">▣</span><b>員工 PDA</b><small>掃碼、備貨、出貨與現場訂單作業。</small></a><a class="admin-card" href="#members"><span class="ico">♙</span><b>會員與優惠</b><small>會員資料、優惠券及刮刮活動。</small></a></div><section class="admin-section" id="daily">
-<h2>每日訂購設定｜指定開放口味</h2>
-<p>先選官網已開放的日期與地區，再勾選該地區當天實際販售的涼糕口味。未勾選的口味不會在 App 開放訂購。</p>
-<div id="admin-login">
-<label>管理員電子郵件<input id="admin-email" type="email" autocomplete="username" placeholder="管理員登入 Email"></label>
-<label>密碼<input id="admin-password" type="password" autocomplete="current-password" placeholder="管理員密碼"></label>
-<button class="admin-save" id="admin-signin" type="button">管理員登入</button><p id="admin-login-message" role="status" aria-live="polite"></p>
-</div>
-<div id="admin-workspace" hidden>
-<div class="admin-section" style="margin:12px 0;border-color:#8c6b36">
-<h2>日期／地區建立（暫不開放下單）</h2>
-<p>新增的日期與地區會先以「關閉訂購」狀態保存，只供管理員設定口味；不會讓客人下單。</p>
-<label>新增訂購日期<input id="new-order-date" type="date"></label>
-<button class="admin-save" id="add-order-date" type="button">建立日期（保持關閉）</button>
-<label>新增服務地區<input id="new-order-region" type="text" maxlength="60" placeholder="例如：台北市／新北市"></label>
-<button class="admin-save" id="add-order-region" type="button" disabled>建立地區（保持關閉）</button>
-<p id="setup-message" role="status" aria-live="polite"></p>
-</div>
-<div class="admin-loginbar"><span id="admin-identity"></span><button class="admin-back" id="admin-signout" type="button">登出</button></div>
-<label>訂購日期<select id="admin-date"><option value="">請選擇已設定的訂購日期</option></select></label>
-<label>服務地區<select id="admin-region"><option value="">請先選擇日期</option></select></label>
-<div id="flavor-editor" class="flavor-editor"><p>選擇日期及地區後，載入可設定的口味。</p></div>
-<label>最低購買盒數<input type="number" value="2" min="2" disabled></label>
-<p>最低購買：整筆訂單合計 2 盒即可，可混搭當日已開放的不同口味。</p>
-<button class="admin-save" id="admin-save-flavors" type="button" disabled>儲存此日期／地區的開放口味</button>
-<p id="admin-message" role="status" aria-live="polite"></p>
-</div>
-</section><section class="admin-section" id="products"><h2>商品與口味</h2><p>商品資料讀取與正式修改功能待管理員登入及安全權限完成後啟用。</p></section><section class="admin-section" id="orders"><h2>訂單管理</h2><p>正式訂單列表與狀態更新尚未啟用。</p></section><section class="admin-section" id="truck"><h2>餐車／擺攤排程</h2><p>排程管理與官網同步功能待串接。</p></section><section class="admin-section" id="pda"><h2>員工 PDA</h2><p>條碼掃描、備貨及出貨功能待整合。</p></section><section class="admin-section" id="members"><h2>會員與優惠</h2><p>會員及優惠管理待正式登入權限完成後啟用。</p></section><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-(()=>{'use strict';
-const db=window.supabase?.createClient('https://yemzdwxtyosuaczsqwea.supabase.co','sb_publishable_7b4hgNL68yiYbec7fXToYQ_UxPE4sEB');
-const $=id=>document.getElementById(id);
-let user=null,flavors=[],regions=[],existing=[];
-const say=(m,bad=false)=>{ for(const id of ['admin-message','admin-login-message']){const el=$(id);if(el){el.textContent=m;el.style.color=bad?'#ff9b86':'#d7b56d';}} };
-const authCheck=async()=>{const {data:{session}}=await db.auth.getSession();if(!session)return false;user=session.user;const {data:p,error}=await db.from('admin_profiles').select('role,enabled,can_manage_products').eq('user_id',user.id).maybeSingle();if(error){await db.auth.signOut();say('已登入，但讀取管理員權限失敗：'+error.message,true);return false;}if(!p||!p.enabled||!(p.role==='super_admin'||p.can_manage_products)){await db.auth.signOut();say('登入成功，但此帳號未啟用商品／每日口味管理權限。請由超級管理員檢查帳號權限。',true);return false;}return true;};
-async function loadDates(){const parts=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Taipei',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());const today=parts.find(x=>x.type==='year').value+'-'+parts.find(x=>x.type==='month').value+'-'+parts.find(x=>x.type==='day').value;const {data,error}=await db.from('daily_order_settings').select('order_date,ordering_enabled').gte('order_date',today).order('order_date');if(error)throw error;const available=data||[];$('admin-date').innerHTML=available.length?'<option value="">請選擇日期</option>'+available.map(x=>'<option value="'+x.order_date+'">'+x.order_date+(x.ordering_enabled?'（已開放）':'（關閉／待設定）')+'</option>').join(''):'<option value="">尚未建立日期</option>';$('admin-date').disabled=available.length===0;if(!available.length)say('尚未建立未來日期，請先在上方新增日期。',false);}
-async function loadRegions(){const date=$('admin-date').value;$('admin-region').innerHTML='<option value="">載入中…</option>';const {data,error}=await db.from('daily_order_regions').select('region_name').eq('order_date',date).order('region_name');if(error)throw error;regions=data||[];$('admin-region').innerHTML='<option value="">請選擇服務地區</option>'+regions.map(x=>'<option value="'+x.region_name.replace(/&/g,'&amp;').replace(/"/g,'&quot;')+'">'+x.region_name+(x.enabled?'（已啟用）':'（關閉／待設定）')+'</option>').join('');$('add-order-region').disabled=false;}
-async function loadEditor(){const date=$('admin-date').value,region=$('admin-region').value;if(!date||!region){$('flavor-editor').innerHTML='<p>請先選擇日期與服務地區。</p>';$('admin-save-flavors').disabled=true;return;}
-const [f,e,d]=await Promise.all([
-db.from('flavors').select('id,name,description,price,image_url').eq('enabled',true).eq('product_name','涼糕').order('name'),
-db.from('daily_order_region_flavors').select('*').eq('order_date',date).eq('region_name',region),
-db.from('daily_order_flavors').select('flavor_id,price,quantity,enabled').eq('order_date',date).eq('product_name','涼糕')
-]);if(f.error||e.error||d.error)throw(f.error||e.error||d.error);
-flavors=f.data||[];existing=e.data||[];const base=new Map((d.data||[]).map(x=>[String(x.flavor_id),x]));const current=new Map(existing.map(x=>[String(x.flavor_id),x]));
-$('flavor-editor').innerHTML=flavors.map(x=>{const saved=current.get(String(x.id)),old=base.get(String(x.id));const on=saved?saved.enabled:false;const price=saved?.price??old?.price??x.price;const qty=saved?.quantity??old?.quantity??0;return '<div class="flavor-edit-row"><label class="flavor-check"><input type="checkbox" data-flavor="'+x.id+'" '+(on?'checked':'')+'><span><b>'+x.name+'</b><small>'+(x.description||'')+'</small></span></label><label>價格<input type="number" min="0" data-price="'+x.id+'" value="'+price+'"></label><label>數量<input type="number" min="0" data-qty="'+x.id+'" value="'+qty+'"></label></div>';}).join('')||'<p>目前沒有已上架的涼糕口味。</p>';
-$('admin-save-flavors').disabled=flavors.length===0;
-}
-$('admin-signin').addEventListener('click',async()=>{try{if(!db)throw new Error('資料庫連線未載入');$('admin-signin').disabled=true;const {error}=await db.auth.signInWithPassword({email:$('admin-email').value.trim(),password:$('admin-password').value});if(error){if(error.message==='Invalid login credentials')throw new Error('Email 或密碼不正確，請確認使用官網管理員帳號。');throw error;}if(!await authCheck())return;$('admin-login').hidden=true;$('admin-workspace').hidden=false;$('admin-identity').textContent='已登入：'+user.email;await loadDates();say('管理員驗證成功。請選日期與地區。');}catch(e){say(e.message||'登入失敗',true);}finally{$('admin-signin').disabled=false;}});
-$('admin-signout').addEventListener('click',async()=>{await db.auth.signOut();user=null;$('admin-workspace').hidden=true;$('admin-login').hidden=false;say('已登出。');});
-$('add-order-date').addEventListener('click',async()=>{const date=$('new-order-date').value;if(!date){$('setup-message').textContent='請先選擇日期。';return;}try{if(!user||!await authCheck())throw new Error('管理員登入已失效，請重新登入');const {error}=await db.from('daily_order_settings').upsert({order_date:date,ordering_enabled:false,notes:'App日期／地區預先設定；尚未開放客人下單。'},{onConflict:'order_date'});if(error)throw error;$('setup-message').textContent='日期 '+date+' 已建立，訂購保持關閉。';await loadDates();$('admin-date').value=date;await loadRegions();await loadEditor();}catch(e){$('setup-message').textContent=e.message||'日期建立失敗';}});
-$('add-order-region').addEventListener('click',async()=>{const date=$('admin-date').value,name=$('new-order-region').value.trim();if(!date||!name){$('setup-message').textContent='請先選日期並輸入服務地區。';return;}try{if(!user||!await authCheck())throw new Error('管理員登入已失效，請重新登入');const {data:found,error:findError}=await db.from('daily_order_regions').select('id').eq('order_date',date).eq('region_name',name).maybeSingle();if(findError)throw findError;if(found)throw new Error('這個日期已經有相同地區，不必重複建立。');const {error}=await db.from('daily_order_regions').insert({order_date:date,region_name:name,enabled:false});if(error)throw error;$('setup-message').textContent='已建立 '+date+'／'+name+'，地區保持關閉。';$('new-order-region').value='';await loadRegions();await loadEditor();}catch(e){$('setup-message').textContent=e.message||'地區建立失敗';}});
-$('admin-date').addEventListener('change',async()=>{try{await loadRegions();await loadEditor();}catch(e){say(e.message,true);}});
-$('admin-region').addEventListener('change',async()=>{try{await loadEditor();}catch(e){say(e.message,true);}});
-$('admin-save-flavors').addEventListener('click',async()=>{try{if(!user||!await authCheck())throw new Error('管理員登入已失效，請重新登入');const date=$('admin-date').value,region=$('admin-region').value;if(!date||!region)throw new Error('請選擇日期及地區');const rows=flavors.map(x=>({order_date:date,region_name:region,flavor_id:x.id,flavor_name:x.name,price:Number($('[data-price="'+x.id+'"]').value),quantity:Number($('[data-qty="'+x.id+'"]').value),enabled:$('[data-flavor="'+x.id+'"]').checked,updated_at:new Date().toISOString()}));if(rows.some(x=>!Number.isInteger(x.price)||x.price<0||!Number.isInteger(x.quantity)||x.quantity<0))throw new Error('價格與數量必須是 0 或正整數');$('admin-save-flavors').disabled=true;const {error}=await db.from('daily_order_region_flavors').upsert(rows,{onConflict:'order_date,region_name,flavor_id'});if(error)throw error;say('已儲存 '+date+'／'+region+' 的口味設定。此設定先供 App 地區口味流程使用，官網既有訂單流程尚未切換。');await loadEditor();}catch(e){say(e.message||'儲存失敗',true);}finally{$('admin-save-flavors').disabled=false;}});
-(async()=>{if(!db){say('資料庫連線未載入，請重新整理。',true);return;}if(await authCheck()){ $('admin-login').hidden=true;$('admin-workspace').hidden=false;$('admin-identity').textContent='已登入：'+user.email;try{await loadDates();}catch(e){say(e.message,true);}}})();
-})();
-</script></main></body></html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#11100e">
+<title>老爹．涼糕｜官網統一管理</title>
+<link rel="stylesheet" href="./styles.css">
+<style>
+*{box-sizing:border-box}body{margin:0;background:#11100e;color:#f7f1e5;font-family:-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC",sans-serif}.wrap{max-width:680px;margin:9vh auto;padding:24px}.panel{border:1px solid #8c6b36;border-radius:14px;background:#1b1915;padding:26px}.eyebrow{color:#d7b56d;letter-spacing:.12em;font-size:12px}.title{font-size:25px;margin:10px 0}.desc{color:#c8bfae;line-height:1.9}.btn{display:inline-block;margin-top:16px;padding:14px 20px;border-radius:6px;background:linear-gradient(135deg,#e7c77e,#b68a3c);color:#17120a;text-decoration:none;font-weight:800}.note{margin-top:18px;padding:13px;border:1px solid #51432d;border-radius:8px;color:#d7c49c;line-height:1.8}
+</style>
+</head>
+<body>
+<main class="wrap">
+<section class="panel">
+<p class="eyebrow">LAODIE LIANGGAO · OWNER ADMIN</p>
+<h1 class="title">管理入口已統一至官方網站</h1>
+<p class="desc">日期、服務地區、每日販售口味、價格及數量，請統一在官網管理後台設定。App 不再另外建立一套管理資料，避免兩邊資料不同步。</p>
+<a class="btn" href="../../admin-orders-fixed-v3.html">前往官網管理後台</a>
+<div class="note">提醒：新增日期與服務地區時，請先保持訂購關閉。尚未完成官網與 App 同步驗證前，不要開放客人下單。</div>
+</section>
+</main>
+</body>
+</html>
