@@ -6,3 +6,13 @@
 .stallCheckout .sum{margin-top:16px}
 .stallHistory .onlineOrder{border:1px solid #eee;border-radius:12px;padding:12px;margin:10px 0}
 @media(max-width:420px){.priceEditor{grid-template-columns:minmax(0,1fr) 66px 52px 52px;gap:5px}.priceEditor input{font-size:14px}.priceEditor button{font-size:12px;padding:10px 4px}}
+
+.dailyStats{background:#171717;color:#fff;border-radius:16px;padding:14px 16px;margin:14px 0}
+.dailyStatsHead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+.dailyStatsHead .ghost{background:#fff;color:#171717;border:0}
+.statGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.statGrid article{background:#292929;border:1px solid #454545;border-radius:12px;padding:12px;min-width:0}
+.statGrid small{display:block;color:#d4d4d4;font-size:13px;line-height:1.4}
+.statGrid strong{display:block;font-size:23px;margin-top:5px;overflow-wrap:anywhere}
+.statsFoot{display:block;color:#c7c7c7;margin-top:10px;font-size:11px}
+@media(max-width:420px){.statGrid strong{font-size:20px}.dailyStats{padding:12px}}
