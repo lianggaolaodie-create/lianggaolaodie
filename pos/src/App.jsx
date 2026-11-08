@@ -18,6 +18,8 @@ export default function App() {
   const [stallFlavors, setStallFlavors] = useState([])
   const [priceDrafts, setPriceDrafts] = useState({})
   const [stallLoading, setStallLoading] = useState(false)
+  const [onlineOrders, setOnlineOrders] = useState([])
+  const [onlineLoading, setOnlineLoading] = useState(false)
   const scanRef = useRef(null)
   const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0)
 
@@ -30,6 +32,7 @@ export default function App() {
 
   useEffect(() => { if (user) { loadProducts(); loadStallSchedules() } }, [user])
   useEffect(() => { if (user && selectedSchedule) loadStallFlavors(selectedSchedule) }, [user, selectedSchedule])
+  useEffect(() => { if (user && mode === 'online') loadOnlineOrders() }, [user, mode])
 
   async function loadStallSchedules() {
     const { data, error } = await supabase.from('food_truck_schedules')
@@ -69,6 +72,16 @@ export default function App() {
     if (error) { setNotice('價格儲存失敗：' + error.message); return }
     setStallFlavors(current => current.map(item => item.flavor_id === row.flavor_id ? { ...item, currentPrice: value } : item))
     setNotice(row.flavorName + ' 價格已更新為 ' + money(value))
+  }
+
+  async function loadOnlineOrders() {
+    setOnlineLoading(true)
+    const { data, error } = await supabase.from('cooling_pickup_orders')
+      .select('id,order_number,order_date,convenience_store,store_name,merchandise_total,storage_fee,total_amount,status,created_at,cooling_pickup_order_items(id,product_name,flavor_name,unit_price,quantity,line_total)')
+      .order('created_at', { ascending: false }).limit(100)
+    setOnlineLoading(false)
+    if (error) { setNotice('線上訂單讀取失敗：' + error.message); return }
+    setOnlineOrders(data ?? [])
   }
 
   async function loadProducts() {
@@ -135,10 +148,10 @@ export default function App() {
   if (!user) return <main className="login"><div className="brand">老爹<span>POS</span></div><h1>管理員登入</h1><form onSubmit={signIn}><label>管理員 Email<input type="email" value={email} onChange={e=>setEmail(e.target.value)} required autoComplete="username" /></label><label>密碼<input type="password" value={password} onChange={e=>setPassword(e.target.value)} required autoComplete="current-password" /></label><button disabled={busy}>{busy ? '登入中…' : '登入'}</button></form>{notice && <p className="notice">{notice}</p>}</main>
 
   return <main className="app">
-    <header><div><div className="brand">老爹<span>POS</span></div><small>{mode === 'cashier' ? '餐車模式 · 收銀' : '擺攤管理 · 口味價格'}</small></div><button className="ghost" onClick={()=>supabase.auth.signOut()}>登出</button></header>
-    <nav className="modeSwitch"><button className={mode === 'cashier' ? 'modeActive' : ''} onClick={()=>setMode('cashier')}>餐車收銀</button><button className={mode === 'stall' ? 'modeActive' : ''} onClick={()=>setMode('stall')}>擺攤管理</button></nav>
+    <header><div><div className="brand">老爹<span>POS</span></div><small>{mode === 'cashier' ? '餐車模式 · 收銀' : mode === 'stall' ? '擺攤管理 · 口味價格' : '線上訂單 · 冷藏店到店'}</small></div><button className="ghost" onClick={()=>supabase.auth.signOut()}>登出</button></header>
+    <nav className="modeSwitch"><button className={mode === 'cashier' ? 'modeActive' : ''} onClick={()=>setMode('cashier')}>餐車收銀</button><button className={mode === 'stall' ? 'modeActive' : ''} onClick={()=>setMode('stall')}>擺攤管理</button><button className={mode === 'online' ? 'modeActive' : ''} onClick={()=>setMode('online')}>線上訂單</button></nav>
     {notice && <p className="notice">{notice}</p>}
-    {mode === 'stall' ? <section className="catalog stallPanel">
+    {mode === 'online' ? <section className="catalog onlinePanel"><div className="orderTitle"><h2>冷藏店到店訂單</h2><button className="ghost" onClick={loadOnlineOrders} disabled={onlineLoading}>{onlineLoading ? '更新中…' : '重新整理'}</button></div><p className="muted">這裡只顯示冷藏店到店訂單，不包含宅配及餐車現場收銀。</p>{onlineLoading ? <p>讀取線上訂單中…</p> : onlineOrders.length ? onlineOrders.map(order => <article className="onlineOrder" key={order.id}><div className="orderTitle"><b>{order.order_number}</b><strong>{order.status || '待確認'}</strong></div><small>{order.order_date || new Date(order.created_at).toLocaleDateString('zh-TW')}｜{order.convenience_store || ''} {order.store_name || ''}</small>{(order.cooling_pickup_order_items || []).map(item => <div className="line" key={item.id}><span>{item.product_name || item.flavor_name} × {item.quantity}</span><b>{money(item.line_total ?? item.unit_price * item.quantity)}</b></div>)}<div className="sum"><span>商品 {money(order.merchandise_total)}＋寄放 {money(order.storage_fee)}</span><strong>{money(order.total_amount)}</strong></div><p className="muted">匯入收據功能待完成付款狀態及防重複機制核對，暫不寫入銷售紀錄。</p></article>) : <p className="muted">目前沒有線上冷藏店到店訂單</p>}</section> : mode === 'stall' ? <section className="catalog stallPanel">
       <h2>擺攤口味價格設定</h2>
       <label className="fieldLabel">選擇擺攤場次</label>
       <select className="scheduleSelect" value={selectedSchedule} onChange={e=>setSelectedSchedule(e.target.value)}>
