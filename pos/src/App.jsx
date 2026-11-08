@@ -23,6 +23,8 @@ export default function App() {
   const [stallSalesLoading, setStallSalesLoading] = useState(false)
   const [onlineOrders, setOnlineOrders] = useState([])
   const [onlineLoading, setOnlineLoading] = useState(false)
+  const [dailyStats, setDailyStats] = useState({ cashier: { boxes: 0, amount: 0 }, stall: { boxes: 0, amount: 0 }, online: { boxes: 0, amount: 0, storage: 0 } })
+  const [statsLoading, setStatsLoading] = useState(false)
   const scanRef = useRef(null)
   const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0)
 
@@ -33,7 +35,7 @@ export default function App() {
     return () => listener.subscription.unsubscribe()
   }, [])
 
-  useEffect(() => { if (user) { loadProducts(); loadStallSchedules() } }, [user])
+  useEffect(() => { if (user) { loadProducts(); loadStallSchedules(); loadDailyStats() } }, [user])
   useEffect(() => { if (user && selectedSchedule) { loadStallFlavors(selectedSchedule); loadStallSales(selectedSchedule); setStallCart([]) } }, [user, selectedSchedule])
   useEffect(() => { if (user && mode === 'online') loadOnlineOrders() }, [user, mode])
 
@@ -116,6 +118,30 @@ export default function App() {
     setNotice(row.flavorName + ' 價格已更新為 ' + money(value))
   }
 
+  async function loadDailyStats() {
+    if (!supabase) return
+    setStatsLoading(true)
+    const now = new Date()
+    const start = new Date(now); start.setHours(0,0,0,0)
+    const end = new Date(now); end.setHours(23,59,59,999)
+    const today = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0')
+    const paidStatuses = new Set(['paid','stored','preparing','shipping','delivering','delivered','completed','已付款','已寄放','製作中','配送中','已送達','已完成'])
+    const [cashierResult, stallResult, onlineResult] = await Promise.all([
+      supabase.from('food_truck_sales').select('quantity,total_amount').gte('sold_at',start.toISOString()).lte('sold_at',end.toISOString()),
+      supabase.from('stall_sales').select('items,total_amount').gte('sold_at',start.toISOString()).lte('sold_at',end.toISOString()),
+      supabase.from('cooling_pickup_orders').select('order_date,status,merchandise_total,storage_fee,cooling_pickup_order_items(quantity)').eq('order_date',today)
+    ])
+    const errors = [cashierResult.error,stallResult.error,onlineResult.error].filter(Boolean)
+    if (errors.length) setNotice('今日銷售統計讀取提醒：' + errors.map(e=>e.message).join('；'))
+    const cashierRows = cashierResult.data ?? []
+    const stallRows = stallResult.data ?? []
+    const onlineRows = (onlineResult.data ?? []).filter(order=>paidStatuses.has(String(order.status || '').trim().toLowerCase()))
+    const cashier = { boxes: cashierRows.reduce((n,row)=>n+Number(row.quantity||0),0), amount: cashierRows.reduce((n,row)=>n+Number(row.total_amount||0),0) }
+    const stall = { boxes: stallRows.reduce((n,row)=>n+(Array.isArray(row.items)?row.items.reduce((m,item)=>m+Number(item.quantity||0),0):0),0), amount: stallRows.reduce((n,row)=>n+Number(row.total_amount||0),0) }
+    const online = { boxes: onlineRows.reduce((n,order)=>n+(order.cooling_pickup_order_items||[]).reduce((m,item)=>m+Number(item.quantity||0),0),0), amount: onlineRows.reduce((n,order)=>n+Number(order.merchandise_total||0),0), storage: onlineRows.reduce((n,order)=>n+Number(order.storage_fee||0),0) }
+    setDailyStats({cashier,stall,online})
+    setStatsLoading(false)
+  }
   async function loadOnlineOrders() {
     setOnlineLoading(true)
     const { data, error } = await supabase.from('cooling_pickup_orders')
@@ -176,6 +202,7 @@ export default function App() {
     setNotice('結帳成功，準備列印收據')
     printReceipt()
     setCart([])
+    loadDailyStats()
   }
 
   function printOnlineReceipt(order) {
@@ -202,6 +229,11 @@ export default function App() {
     <header><div><div className="brand">老爹<span>POS</span></div><small>{mode === 'cashier' ? '餐車模式 · 收銀' : mode === 'stall' ? '擺攤管理 · 口味價格' : '線上訂單 · 冷藏店到店'}</small></div><button className="ghost" onClick={()=>supabase.auth.signOut()}>登出</button></header>
     <nav className="modeSwitch"><button className={mode === 'cashier' ? 'modeActive' : ''} onClick={()=>setMode('cashier')}>餐車收銀</button><button className={mode === 'stall' ? 'modeActive' : ''} onClick={()=>setMode('stall')}>擺攤管理</button><button className={mode === 'online' ? 'modeActive' : ''} onClick={()=>setMode('online')}>線上訂單</button></nav>
     {notice && <p className="notice">{notice}</p>}
+    <section className="dailyStats">
+      <div className="dailyStatsHead"><b>今日銷售統計</b><button className="ghost" onClick={loadDailyStats} disabled={statsLoading}>{statsLoading ? '更新中…' : '更新統計'}</button></div>
+      {mode === 'cashier' ? <div className="statGrid"><article><small>餐車銷售盒數</small><strong>{dailyStats.cashier.boxes} 盒</strong></article><article><small>餐車銷售金額</small><strong>{money(dailyStats.cashier.amount)}</strong></article></div> : mode === 'stall' ? <div className="statGrid"><article><small>擺攤銷售盒數</small><strong>{dailyStats.stall.boxes} 盒</strong></article><article><small>擺攤銷售金額</small><strong>{money(dailyStats.stall.amount)}</strong></article></div> : <div className="statGrid"><article><small>線上已付款盒數</small><strong>{dailyStats.online.boxes} 盒</strong></article><article><small>線上商品銷售額（不含寄放）</small><strong>{money(dailyStats.online.amount)}</strong></article><article><small>寄放費（另計）</small><strong>{money(dailyStats.online.storage)}</strong></article></div>}
+      <small className="statsFoot">統計日期：{new Date().toLocaleDateString('zh-TW')}｜線上統計只計已付款及後續處理中的訂單</small>
+    </section>
     {mode === 'online' ? <section className="catalog onlinePanel"><div className="orderTitle"><h2>冷藏店到店訂單</h2><button className="ghost" onClick={loadOnlineOrders} disabled={onlineLoading}>{onlineLoading ? '更新中…' : '重新整理'}</button></div><p className="muted">這裡只顯示冷藏店到店訂單，不包含宅配及餐車現場收銀。</p>{onlineLoading ? <p>讀取線上訂單中…</p> : onlineOrders.length ? onlineOrders.map(order => <article className="onlineOrder" key={order.id}><div className="orderTitle"><b>{order.order_number}</b><strong>{order.status || '待確認'}</strong></div><small>{order.order_date || new Date(order.created_at).toLocaleDateString('zh-TW')}｜{order.convenience_store || ''} {order.store_name || ''}</small>{(order.cooling_pickup_order_items || []).map(item => <div className="line" key={item.id}><span>{item.product_name || item.flavor_name} × {item.quantity}</span><b>{money(item.line_total ?? item.unit_price * item.quantity)}</b></div>)}<div className="sum"><span>商品 {money(order.merchandise_total)}＋寄放 {money(order.storage_fee)}</span><strong>{money(order.total_amount)}</strong></div><button className="checkout onlinePrint" onClick={()=>printOnlineReceipt(order)}>列印／重新列印 58mm 收據</button><p className="muted">列印紙本不會重複建立銷售紀錄；線上訂單匯入 POS 的付款確認及防重複機制仍獨立處理。</p></article>) : <p className="muted">目前沒有線上冷藏店到店訂單</p>}</section> : mode === 'stall' ? <section className="catalog stallPanel">
       <h2>擺攤口味價格設定</h2>
       <label className="fieldLabel">選擇擺攤場次</label>
