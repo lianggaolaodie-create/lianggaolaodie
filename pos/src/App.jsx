@@ -263,7 +263,16 @@ export default function App() {
     ;(onlineRes.data||[]).filter(x=>paid.has(String(x.status||'').trim().toLowerCase())).forEach(x=>{const d=dayFor(x.paid_at),v=getDay(d);(x.cooling_pickup_order_items||[]).forEach(i=>{v.online.boxes+=Number(i.quantity||0);v.online.amount+=Number(i.line_total??Number(i.unit_price||0)*Number(i.quantity||0))});v.online.storage+=Number(x.storage_fee||0);if(String(x.convenience_store||'').includes('全家'))v.online.family+=Number(x.storage_fee||0);if(String(x.convenience_store||'').includes('7'))v.online.seven+=Number(x.storage_fee||0)})
     const all=[...days.entries()].sort((a,b)=>a[0].localeCompare(b[0]))
     const totals=all.reduce((a,[,v])=>{for(const k of ['truck','stall','online']){a[k].boxes+=v[k].boxes;a[k].amount+=v[k].amount}a.storage+=v.online.storage;a.family+=v.online.family;a.seven+=v.online.seven;return a},{truck:{boxes:0,amount:0},stall:{boxes:0,amount:0},online:{boxes:0,amount:0},storage:0,family:0,seven:0})
-    const fmt=n=>'
+    const fmt=n=>String.fromCharCode(36)+Number(n||0).toLocaleString('zh-TW')
+    const table=all.map(([d,v])=>'<tr><td colspan="3"><b>'+d+'</b></td></tr>'+['truck','stall','online'].map(k=>'<tr><td>'+({truck:'餐車',stall:'擺攤',online:'線上'}[k])+'</td><td>'+v[k].boxes+'盒</td><td>'+fmt(v[k].amount)+'</td></tr>').join('')).join('')
+    const totalBoxes=totals.truck.boxes+totals.stall.boxes+totals.online.boxes
+    const totalAmount=totals.truck.amount+totals.stall.amount+totals.online.amount
+    const html='<!doctype html><html><head><meta charset="utf-8"><title>日期區間營業報表</title><style>@page{size:58mm auto;margin:2mm}body{width:54mm;margin:0;font:10px monospace}h2,p{text-align:center}table{width:100%;border-collapse:collapse}td{padding:3px 1px;border-bottom:1px dashed #aaa}td:nth-child(2),td:nth-child(3){text-align:right}.sum{font-weight:bold;margin-top:7px}</style></head><body><h2>老爹．涼糕</h2><p>日期區間營業報表</p><p>'+reportStartDate+' ～ '+reportEndDate+'</p><table>'+table+'</table><hr><p>餐車：'+totals.truck.boxes+'盒｜'+fmt(totals.truck.amount)+'</p><p>擺攤：'+totals.stall.boxes+'盒｜'+fmt(totals.stall.amount)+'</p><p>線上：'+totals.online.boxes+'盒｜'+fmt(totals.online.amount)+'</p><p>全家寄放費：'+fmt(totals.family)+'</p><p>7-ELEVEN寄放費：'+fmt(totals.seven)+'</p><p>寄放費合計：'+fmt(totals.storage)+'</p><h3 class="sum">區間總盒數：'+totalBoxes+'盒</h3><h3 class="sum">商品總營收：'+fmt(totalAmount)+'</h3><script>window.onload=()=>window.print()</script></body></html>'
+    w.document.write(html);w.document.close()
+    setNotice('日期區間報表已產生，可使用 58mm PDA 列印')
+  }
+
+  async function loadDailyStats() {
     if (!supabase) return
     setStatsLoading(true)
     const now = new Date()
