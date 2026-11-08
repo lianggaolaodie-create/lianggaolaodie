@@ -102,6 +102,7 @@ export default function App() {
     if(printWindow){setNotice('擺攤結帳成功，正在列印收據');printStallReceipt(data,printWindow)}
     else{setNotice('結帳已成功並保存。iPhone 擋住列印視窗，請在「最近擺攤交易」按「重新列印」')}
     loadStallSales(selectedSchedule)
+    loadDailyStats()
   }
   async function saveStallPrice(row) {
     const value = Number(priceDrafts[row.flavor_id])
