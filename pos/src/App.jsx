@@ -12,6 +12,12 @@ export default function App() {
   const [barcode, setBarcode] = useState('')
   const [busy, setBusy] = useState(false)
   const [notice, setNotice] = useState('')
+  const [mode, setMode] = useState('cashier')
+  const [stallSchedules, setStallSchedules] = useState([])
+  const [selectedSchedule, setSelectedSchedule] = useState('')
+  const [stallFlavors, setStallFlavors] = useState([])
+  const [priceDrafts, setPriceDrafts] = useState({})
+  const [stallLoading, setStallLoading] = useState(false)
   const scanRef = useRef(null)
   const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0)
 
@@ -22,7 +28,48 @@ export default function App() {
     return () => listener.subscription.unsubscribe()
   }, [])
 
-  useEffect(() => { if (user) loadProducts() }, [user])
+  useEffect(() => { if (user) { loadProducts(); loadStallSchedules() } }, [user])
+  useEffect(() => { if (user && selectedSchedule) loadStallFlavors(selectedSchedule) }, [user, selectedSchedule])
+
+  async function loadStallSchedules() {
+    const { data, error } = await supabase.from('food_truck_schedules')
+      .select('id,schedule_date,region,start_time,end_time,enabled')
+      .eq('schedule_type', 'stall').order('schedule_date', { ascending: false })
+    if (error) { setNotice('擺攤場次讀取失敗：' + error.message); return }
+    setStallSchedules(data ?? [])
+    if (!selectedSchedule && data?.length) setSelectedSchedule(String(data[0].id))
+  }
+
+  async function loadStallFlavors(scheduleId) {
+    setStallLoading(true)
+    const { data, error } = await supabase.from('food_truck_schedule_flavors')
+      .select('schedule_id,flavor_id,price_per_box,price,unit_price,flavors(id,name,price,enabled)')
+      .eq('schedule_id', scheduleId)
+    setStallLoading(false)
+    if (error) { setNotice('擺攤口味讀取失敗：' + error.message); return }
+    const rows = (data ?? []).map(row => ({
+      ...row,
+      flavorName: row.flavors?.name ?? ('口味 #' + row.flavor_id),
+      currentPrice: row.price_per_box ?? row.price ?? row.unit_price ?? row.flavors?.price ?? 0
+    }))
+    setStallFlavors(rows)
+    setPriceDrafts(Object.fromEntries(rows.map(row => [row.flavor_id, String(row.currentPrice)])))
+  }
+
+  async function saveStallPrice(row) {
+    const value = Number(priceDrafts[row.flavor_id])
+    if (!Number.isFinite(value) || value < 0 || !Number.isInteger(value)) {
+      setNotice('價格請輸入 0 以上的整數'); return
+    }
+    setBusy(true); setNotice('')
+    const { error } = await supabase.from('food_truck_schedule_flavors')
+      .update({ price_per_box: value, price: value, unit_price: value })
+      .eq('schedule_id', selectedSchedule).eq('flavor_id', row.flavor_id)
+    setBusy(false)
+    if (error) { setNotice('價格儲存失敗：' + error.message); return }
+    setStallFlavors(current => current.map(item => item.flavor_id === row.flavor_id ? { ...item, currentPrice: value } : item))
+    setNotice(row.flavorName + ' 價格已更新為 ' + money(value))
+  }
 
   async function loadProducts() {
     const { data, error } = await supabase.from('food_truck_products')
@@ -85,15 +132,32 @@ export default function App() {
   }
 
   if (!isSupabaseConfigured) return <main className="setup"><h1>老爹 POS</h1><p>尚未設定 Supabase。請在 Vercel 的 POS 專案環境變數加入：</p><code>VITE_SUPABASE_URL</code><code>VITE_SUPABASE_PUBLISHABLE_KEY</code><p>請勿將 service_role key 放進前端。</p></main>
-  if (!user) return <main className="login"><div className="brand">老爹<span>POS</span></div><h1>餐車收銀登入</h1><form onSubmit={signIn}><label>管理員 Email<input type="email" value={email} onChange={e=>setEmail(e.target.value)} required autoComplete="username" /></label><label>密碼<input type="password" value={password} onChange={e=>setPassword(e.target.value)} required autoComplete="current-password" /></label><button disabled={busy}>{busy ? '登入中…' : '登入收銀'}</button></form>{notice && <p className="notice">{notice}</p>}</main>
+  if (!user) return <main className="login"><div className="brand">老爹<span>POS</span></div><h1>管理員登入</h1><form onSubmit={signIn}><label>管理員 Email<input type="email" value={email} onChange={e=>setEmail(e.target.value)} required autoComplete="username" /></label><label>密碼<input type="password" value={password} onChange={e=>setPassword(e.target.value)} required autoComplete="current-password" /></label><button disabled={busy}>{busy ? '登入中…' : '登入'}</button></form>{notice && <p className="notice">{notice}</p>}</main>
 
   return <main className="app">
-    <header><div><div className="brand">老爹<span>POS</span></div><small>餐車模式 · 收銀</small></div><button className="ghost" onClick={()=>supabase.auth.signOut()}>登出</button></header>
-    <section className="scanner"><label htmlFor="barcode">掃描商品條碼</label><form onSubmit={scan}><input ref={scanRef} id="barcode" value={barcode} onChange={e=>setBarcode(e.target.value)} placeholder="掃碼槍掃描後按 Enter" autoFocus/><button>加入</button></form><small>支援 USB／藍牙鍵盤型掃碼槍</small></section>
+    <header><div><div className="brand">老爹<span>POS</span></div><small>{mode === 'cashier' ? '餐車模式 · 收銀' : '擺攤管理 · 口味價格'}</small></div><button className="ghost" onClick={()=>supabase.auth.signOut()}>登出</button></header>
+    <nav className="modeSwitch"><button className={mode === 'cashier' ? 'modeActive' : ''} onClick={()=>setMode('cashier')}>餐車收銀</button><button className={mode === 'stall' ? 'modeActive' : ''} onClick={()=>setMode('stall')}>擺攤管理</button></nav>
     {notice && <p className="notice">{notice}</p>}
-    <section className="catalog"><h2>商品快速加入</h2><div className="products">{products.map(p=><button className="product" key={p.id} onClick={()=>addProduct(p)}><b>{p.product_name}</b><span>{money(p.price)}</span></button>)}</div>{!products.length && <p className="muted">目前沒有啟用中的餐車商品</p>}</section>
-    <section className="order"><div className="orderTitle"><h2>本筆訂單</h2><button className="ghost" onClick={()=>setCart([])}>清空</button></div>{cart.length ? cart.map(item=><div className="line" key={item.id}><div><b>{item.name}</b><small>{money(item.price)}／盒</small></div><div className="qty"><button onClick={()=>changeQty(item.id,-1)}>−</button><strong>{item.quantity}</strong><button onClick={()=>changeQty(item.id,1)}>＋</button></div><b>{money(item.price*item.quantity)}</b></div>) : <p className="empty">掃描條碼或點選商品開始結帳</p>}</section>
-    <footer><div className="sum"><span>應收總額</span><strong>{money(total)}</strong></div><button className="checkout" disabled={!cart.length || busy} onClick={checkout}>{busy ? '處理中…' : '結帳並列印 58mm 收據'}</button><button className="print" disabled={!cart.length} onClick={printReceipt}>只列印預覽</button></footer>
+    {mode === 'stall' ? <section className="catalog stallPanel">
+      <h2>擺攤口味價格設定</h2>
+      <label className="fieldLabel">選擇擺攤場次</label>
+      <select className="scheduleSelect" value={selectedSchedule} onChange={e=>setSelectedSchedule(e.target.value)}>
+        {stallSchedules.map(s=><option key={s.id} value={s.id}>{s.schedule_date}｜{s.region}</option>)}
+      </select>
+      {!stallSchedules.length && <p className="muted">目前沒有擺攤場次資料</p>}
+      {stallLoading ? <p>讀取口味中…</p> : stallFlavors.map(row=><div className="priceEditor" key={row.flavor_id}>
+        <div><b>{row.flavorName}</b><small>目前價格：{money(row.currentPrice)}</small></div>
+        <input aria-label={row.flavorName + '價格'} type="number" min="0" step="1" value={priceDrafts[row.flavor_id] ?? ''} onChange={e=>setPriceDrafts(current=>({...current,[row.flavor_id]:e.target.value}))}/>
+        <button disabled={busy || Number(priceDrafts[row.flavor_id]) === Number(row.currentPrice)} onClick={()=>saveStallPrice(row)}>儲存</button>
+      </div>)}
+      {!!selectedSchedule && !stallLoading && !stallFlavors.length && <p className="muted">這場擺攤尚未設定販售口味</p>}
+      <p className="muted">每場擺攤的口味價格獨立保存，不會更動餐車價格或其他場次。</p>
+    </section> : <>
+      <section className="scanner"><label htmlFor="barcode">掃描商品條碼</label><form onSubmit={scan}><input ref={scanRef} id="barcode" value={barcode} onChange={e=>setBarcode(e.target.value)} placeholder="掃碼槍掃描後按 Enter" autoFocus/><button>加入</button></form><small>支援 USB／藍牙鍵盤型掃碼槍</small></section>
+      <section className="catalog"><h2>商品快速加入</h2><div className="products">{products.map(p=><button className="product" key={p.id} onClick={()=>addProduct(p)}><b>{p.product_name}</b><span>{money(p.price)}</span></button>)}</div>{!products.length && <p className="muted">目前沒有啟用中的餐車商品</p>}</section>
+      <section className="order"><div className="orderTitle"><h2>本筆訂單</h2><button className="ghost" onClick={()=>setCart([])}>清空</button></div>{cart.length ? cart.map(item=><div className="line" key={item.id}><div><b>{item.name}</b><small>{money(item.price)}／盒</small></div><div className="qty"><button onClick={()=>changeQty(item.id,-1)}>−</button><strong>{item.quantity}</strong><button onClick={()=>changeQty(item.id,1)}>＋</button></div><b>{money(item.price*item.quantity)}</b></div>) : <p className="empty">掃描條碼或點選商品開始結帳</p>}</section>
+      <footer><div className="sum"><span>應收總額</span><strong>{money(total)}</strong></div><button className="checkout" disabled={!cart.length || busy} onClick={checkout}>{busy ? '處理中…' : '結帳並列印 58mm 收據'}</button><button className="print" disabled={!cart.length} onClick={printReceipt}>只列印預覽</button></footer>
+    </>}
   </main>
 }
 
