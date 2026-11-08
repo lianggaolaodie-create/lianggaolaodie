@@ -76,10 +76,10 @@ export default function App() {
     setNotice('已加入擺攤訂單：' + row.flavorName)
   }
   function changeStallQty(flavorId,delta) { setStallCart(current=>current.map(item=>item.flavor_id===flavorId?{...item,quantity:Math.max(1,item.quantity+delta)}:item)) }
-  function printStallReceipt(sale) {
+  function printStallReceipt(sale, openedWindow = null) {
     const items=Array.isArray(sale.items)?sale.items:[]
     const rows=items.map(item=>`<tr><td>${escapeHtml(item.name)} × ${Number(item.quantity)}</td><td>${money(Number(item.price)*Number(item.quantity))}</td></tr>`).join('')
-    const w=window.open('','_blank','width=360,height=640')
+    const w=openedWindow || window.open('','_blank','width=360,height=640')
     if(!w){setNotice('瀏覽器封鎖列印視窗，請允許彈出視窗後再試');return}
     w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>老爹涼糕擺攤收據</title><style>@page{size:58mm auto;margin:2mm}*{box-sizing:border-box}body{width:54mm;margin:0;font:12px/1.55 monospace;color:#000}h1,h2,p{text-align:center;margin:4px 0}h1{font-size:20px;font-weight:900}h2{font-size:15px;letter-spacing:2px}.sub{font-size:10px}.rule{border:0;border-top:1px dashed #333;margin:8px 0}.meta{font-size:11px;overflow-wrap:anywhere}table{width:100%;border-collapse:collapse}td{padding:5px 0;border-bottom:1px dashed #aaa;vertical-align:top}td:last-child{text-align:right;white-space:nowrap}.total{font-size:18px;font-weight:900;text-align:right;margin-top:10px}.thanks{font-weight:bold;font-size:14px;margin-top:12px}</style></head><body><h1>老爹．涼糕</h1><h2>擺 攤 銷 貨 收 據</h2><p class="sub">感謝您的支持與購買</p><hr class="rule"><p class="meta">收據編號：${escapeHtml(sale.receipt_number)}</p><p class="meta">交易日期：${new Date(sale.sold_at).toLocaleString('zh-TW')}</p><hr class="rule"><p><b>商品明細</b></p><table>${rows}</table><div class="total">應付總額：${money(sale.total_amount)}</div><hr class="rule"><p class="thanks">謝謝光臨！</p><p class="sub">老爹．涼糕 敬上</p><script>window.onload=()=>{window.print();window.onafterprint=()=>window.close()}</script></body></html>`)
     w.document.close()
@@ -89,11 +89,17 @@ export default function App() {
     const items=stallCart.map(item=>({flavor_id:item.flavor_id,name:item.name,price:Number(item.price),quantity:Number(item.quantity)}))
     const amount=items.reduce((sum,item)=>sum+item.price*item.quantity,0)
     const receiptNumber='ST'+new Date().toISOString().slice(0,10).replace(/-/g,'')+'-'+Date.now().toString().slice(-6)
+    // iOS Safari blocks popups opened after an awaited network request. Open synchronously from the tap.
+    const printWindow=window.open('about:blank','_blank')
+    if(printWindow){printWindow.document.write('<!doctype html><html><head><meta charset="utf-8"><title>收據準備中</title></head><body style="font:16px sans-serif;padding:24px">收據準備中，請稍候…</body></html>');printWindow.document.close()}
     setBusy(true);setNotice('')
     const {data,error}=await supabase.from('stall_sales').insert({schedule_id:Number(selectedSchedule),receipt_number:receiptNumber,items,total_amount:amount}).select('id,schedule_id,receipt_number,items,total_amount,sold_at').single()
     setBusy(false)
-    if(error){setNotice('擺攤結帳失敗，未建立交易：'+error.message);return}
-    setStallCart([]);setNotice('擺攤結帳成功，正在開啟收據列印');printStallReceipt(data);loadStallSales(selectedSchedule)
+    if(error){if(printWindow)printWindow.close();setNotice('擺攤結帳失敗，未建立交易：'+error.message);return}
+    setStallCart([])
+    if(printWindow){setNotice('擺攤結帳成功，正在列印收據');printStallReceipt(data,printWindow)}
+    else{setNotice('結帳已成功並保存。iPhone 擋住列印視窗，請在「最近擺攤交易」按「重新列印」')}
+    loadStallSales(selectedSchedule)
   }
   async function saveStallPrice(row) {
     const value = Number(priceDrafts[row.flavor_id])
