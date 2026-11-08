@@ -19,16 +19,16 @@
       <p class="eyebrow">A LITTLE SWEETNESS, EVERY DAY</p>
       <h1>一口涼糕，<em>一份想念。</em></h1>
       <p class="hero-copy">老爹的招牌好味道，正在準備與你見面。</p>
-      <div class="hero-actions"><button class="gold-button" data-go="products">看看商品 <span>→</span></button><button class="text-button" data-go="schedule">查看出攤資訊</button></div>
+      <div class="hero-actions"><button class="gold-button" data-go="products" onclick="window.LaodieNavigate('products')">看看商品 <span>→</span></button><button class="text-button" data-go="schedule" onclick="window.LaodieNavigate('schedule')">查看出攤資訊</button></div>
       <div class="hero-stamp">老爹<br>出品</div>
     </section>
     <section class="section">
       <div class="section-heading"><div><p class="eyebrow">EXPLORE</p><h2>快速選單</h2></div><span class="section-note">為你準備的入口</span></div>
       <div class="quick-grid">
-        <button class="quick-card" data-go="products"><span class="quick-icon">▧</span><b>商品專區</b><small>涼糕・蘿蔔糕</small></button>
-        <button class="quick-card" data-go="cart"><span class="quick-icon">⌑</span><b>購物車</b><small>查看選購內容</small></button>
-        <button class="quick-card" data-go="schedule"><span class="quick-icon">⌖</span><b>餐車／擺攤</b><small>出攤資訊</small></button>
-        <button class="quick-card" data-go="member"><span class="quick-icon">♙</span><b>會員中心</b><small>登入功能準備中</small></button>
+        <button class="quick-card" data-go="products" onclick="window.LaodieNavigate('products')"><span class="quick-icon">▧</span><b>商品專區</b><small>涼糕・蘿蔔糕</small></button>
+        <button class="quick-card" data-go="cart" onclick="window.LaodieNavigate('cart')"><span class="quick-icon">⌑</span><b>購物車</b><small>查看選購內容</small></button>
+        <button class="quick-card" data-go="schedule" onclick="window.LaodieNavigate('schedule')"><span class="quick-icon">⌖</span><b>餐車／擺攤</b><small>出攤資訊</small></button>
+        <button class="quick-card" data-go="member" onclick="window.LaodieNavigate('member')"><span class="quick-icon">♙</span><b>會員中心</b><small>登入功能準備中</small></button>
       </div>
     </section>
     <section class="feature">
@@ -38,10 +38,10 @@
     <section id="view" class="view" aria-live="polite"></section>
   </main>
   <nav class="bottom-nav" aria-label="主要導覽">
-    <button class="nav-item active" data-go="home"><span>⌂</span>首頁</button>
-    <button class="nav-item" data-go="products"><span>▧</span>商品</button>
-    <button class="nav-item" data-go="cart"><span>⌑</span>購物車 <i id="cart-count">0</i></button>
-    <button class="nav-item" data-go="member"><span>♙</span>會員</button>
+    <button class="nav-item active" data-go="home" onclick="window.LaodieNavigate('home')"><span>⌂</span>首頁</button>
+    <button class="nav-item" data-go="products" onclick="window.LaodieNavigate('products')"><span>▧</span>商品</button>
+    <button class="nav-item" data-go="cart" onclick="window.LaodieNavigate('cart')"><span>⌑</span>購物車 <i id="cart-count">0</i></button>
+    <button class="nav-item" data-go="member" onclick="window.LaodieNavigate('member')"><span>♙</span>會員</button>
   </nav>
   <script src="./core.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
