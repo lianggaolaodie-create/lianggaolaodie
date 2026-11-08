@@ -241,35 +241,66 @@ export default function App() {
     if(!reportStartDate||!reportEndDate||reportStartDate>reportEndDate){setNotice('請確認報表開始及結束日期');return}
     const w=window.open('about:blank','_blank')
     if(!w){setNotice('請允許彈出視窗後重新列印');return}
+    w.document.write('<!doctype html><html><body style="font:14px sans-serif;padding:20px">正在整理口味銷售明細…</body></html>')
+    w.document.close()
     const start=new Date(reportStartDate+'T00:00:00+08:00').toISOString()
     const end=new Date(new Date(reportEndDate+'T00:00:00+08:00').getTime()+86400000-1).toISOString()
-    const [truckRes,stallSchedulesRes,onlineRes]=await Promise.all([
-      supabase.from('food_truck_sales').select('product_name,quantity,total_amount,sold_at').gte('sold_at',start).lte('sold_at',end),
+    const [truckRes,sessionRes,stallSchedulesRes,onlineRes]=await Promise.all([
+      supabase.from('food_truck_sales').select('business_session_id,product_name,quantity,unit_price,total_amount,sold_at').gte('sold_at',start).lte('sold_at',end),
+      supabase.from('food_truck_sessions').select('id,session_date'),
       supabase.from('food_truck_schedules').select('id,schedule_date').eq('schedule_type','stall').gte('schedule_date',reportStartDate).lte('schedule_date',reportEndDate),
       supabase.from('cooling_pickup_orders').select('id,status,paid_at,merchandise_total,storage_fee,convenience_store,cooling_pickup_order_items(product_name,flavor_name,quantity,unit_price,line_total)').gte('paid_at',start).lte('paid_at',end)
     ])
-    const err=[truckRes.error,stallSchedulesRes.error,onlineRes.error].find(Boolean)
+    const err=[truckRes.error,sessionRes.error,stallSchedulesRes.error,onlineRes.error].find(Boolean)
     if(err){w.close();setNotice('區間報表讀取失敗：'+err.message);return}
     const ids=(stallSchedulesRes.data||[]).map(x=>x.id)
     const stallRes=ids.length?await supabase.from('stall_sales').select('schedule_id,items,total_amount').in('schedule_id',ids):{data:[],error:null}
     if(stallRes.error){w.close();setNotice('擺攤區間報表讀取失敗：'+stallRes.error.message);return}
     const paid=new Set(['paid','stored','preparing','shipping','delivering','delivered','completed','已付款','已寄放','製作中','配送中','已送達','已完成'])
+    const sessionDates=new Map((sessionRes.data||[]).map(x=>[String(x.id),x.session_date]))
+    const scheduleDates=new Map((stallSchedulesRes.data||[]).map(x=>[String(x.id),x.schedule_date]))
     const days=new Map()
     const dayFor=ts=>new Date(ts).toLocaleDateString('en-CA',{timeZone:'Asia/Taipei'})
-    const getDay=d=>{const v=days.get(d)||{truck:{boxes:0,amount:0},stall:{boxes:0,amount:0},online:{boxes:0,amount:0,storage:0,family:0,seven:0}};days.set(d,v);return v}
-    ;(truckRes.data||[]).forEach(x=>{const d=dayFor(x.sold_at),v=getDay(d);v.truck.boxes+=Number(x.quantity||0);v.truck.amount+=Number(x.total_amount||0)})
-    const schedDate=new Map((stallSchedulesRes.data||[]).map(x=>[String(x.id),x.schedule_date]))
-    ;(stallRes.data||[]).forEach(x=>{const d=schedDate.get(String(x.schedule_id));if(!d)return;const v=getDay(d);(Array.isArray(x.items)?x.items:[]).forEach(i=>{v.stall.boxes+=Number(i.quantity||0);v.stall.amount+=Number(i.price||0)*Number(i.quantity||0)})})
-    ;(onlineRes.data||[]).filter(x=>paid.has(String(x.status||'').trim().toLowerCase())).forEach(x=>{const d=dayFor(x.paid_at),v=getDay(d);(x.cooling_pickup_order_items||[]).forEach(i=>{v.online.boxes+=Number(i.quantity||0);v.online.amount+=Number(i.line_total??Number(i.unit_price||0)*Number(i.quantity||0))});v.online.storage+=Number(x.storage_fee||0);if(String(x.convenience_store||'').includes('全家'))v.online.family+=Number(x.storage_fee||0);if(String(x.convenience_store||'').includes('7'))v.online.seven+=Number(x.storage_fee||0)})
+    const empty=()=>({truck:new Map(),stall:new Map(),online:new Map(),onlineStorage:0,family:0,seven:0})
+    const getDay=d=>{const v=days.get(d)||empty();days.set(d,v);return v}
+    const add=(map,name,qty,amount)=>{const flavor=String(name||'未記錄口味');const row=map.get(flavor)||{name:flavor,boxes:0,amount:0};row.boxes+=Number(qty||0);row.amount+=Number(amount||0);map.set(flavor,row)}
+    ;(truckRes.data||[]).forEach(x=>{
+      const d=x.business_session_id?sessionDates.get(String(x.business_session_id)):dayFor(x.sold_at)
+      if(!d||d<reportStartDate||d>reportEndDate)return
+      const qty=Number(x.quantity||0)
+      add(getDay(d).truck,x.product_name,qty,x.total_amount??Number(x.unit_price||0)*qty)
+    })
+    ;(stallRes.data||[]).forEach(x=>{
+      const d=scheduleDates.get(String(x.schedule_id));if(!d)return
+      ;(Array.isArray(x.items)?x.items:[]).forEach(i=>add(getDay(d).stall,i.name||i.flavor_name,i.quantity,Number(i.price||0)*Number(i.quantity||0)))
+    })
+    ;(onlineRes.data||[]).filter(x=>paid.has(String(x.status||'').trim().toLowerCase())&&x.paid_at).forEach(x=>{
+      const d=dayFor(x.paid_at);if(d<reportStartDate||d>reportEndDate)return
+      const v=getDay(d)
+      ;(x.cooling_pickup_order_items||[]).forEach(i=>add(v.online,i.flavor_name||i.product_name,i.quantity,i.line_total??Number(i.unit_price||0)*Number(i.quantity||0)))
+      v.onlineStorage+=Number(x.storage_fee||0)
+      if(String(x.convenience_store||'').includes('全家'))v.family+=Number(x.storage_fee||0)
+      if(String(x.convenience_store||'').includes('7'))v.seven+=Number(x.storage_fee||0)
+    })
+    const sort=map=>[...map.values()].sort((a,b)=>a.name.localeCompare(b.name,'zh-Hant'))
+    const sum=map=>sort(map).reduce((t,x)=>({boxes:t.boxes+x.boxes,amount:t.amount+x.amount}),{boxes:0,amount:0})
+    const fmt=n=>'$'+Number(n||0).toLocaleString('zh-TW')
     const all=[...days.entries()].sort((a,b)=>a[0].localeCompare(b[0]))
-    const totals=all.reduce((a,[,v])=>{for(const k of ['truck','stall','online']){a[k].boxes+=v[k].boxes;a[k].amount+=v[k].amount}a.storage+=v.online.storage;a.family+=v.online.family;a.seven+=v.online.seven;return a},{truck:{boxes:0,amount:0},stall:{boxes:0,amount:0},online:{boxes:0,amount:0},storage:0,family:0,seven:0})
-    const fmt=n=>String.fromCharCode(36)+Number(n||0).toLocaleString('zh-TW')
-    const table=all.map(([d,v])=>'<tr><td colspan="3"><b>'+d+'</b></td></tr>'+['truck','stall','online'].map(k=>'<tr><td>'+({truck:'餐車',stall:'擺攤',online:'線上'}[k])+'</td><td>'+v[k].boxes+'盒</td><td>'+fmt(v[k].amount)+'</td></tr>').join('')).join('')
+    const channelBlock=(title,map)=>{const rows=sort(map),t=sum(map);return '<h4>'+title+'</h4><table><thead><tr><th>口味</th><th>盒數</th><th>金額</th></tr></thead><tbody>'+(rows.length?rows.map(x=>'<tr><td>'+escapeHtml(x.name)+'</td><td>'+x.boxes+'</td><td>'+fmt(x.amount)+'</td></tr>').join(''):'<tr><td colspan="3">無銷售資料</td></tr>')+'</tbody><tfoot><tr><th>小計</th><th>'+t.boxes+'盒</th><th>'+fmt(t.amount)+'</th></tr></tfoot></table>'}
+    const totals={truck:{boxes:0,amount:0},stall:{boxes:0,amount:0},online:{boxes:0,amount:0},storage:0,family:0,seven:0}
+    const overall=new Map()
+    const dailyHtml=all.map(([date,v])=>{
+      for(const k of ['truck','stall','online']){const t=sum(v[k]);totals[k].boxes+=t.boxes;totals[k].amount+=t.amount;sort(v[k]).forEach(x=>add(overall,x.name,x.boxes,x.amount))}
+      totals.storage+=v.onlineStorage;totals.family+=v.family;totals.seven+=v.seven
+      return '<section><h3>'+date+'</h3>'+channelBlock('餐車收銀',v.truck)+channelBlock('擺攤銷售',v.stall)+channelBlock('線上訂單（依付款日）',v.online)+'<p class="fees">寄放費另計：全家 '+fmt(v.family)+'｜7-ELEVEN '+fmt(v.seven)+'｜合計 '+fmt(v.onlineStorage)+'</p></section>'
+    }).join('')
+    const overallRows=sort(overall)
     const totalBoxes=totals.truck.boxes+totals.stall.boxes+totals.online.boxes
     const totalAmount=totals.truck.amount+totals.stall.amount+totals.online.amount
-    const html='<!doctype html><html><head><meta charset="utf-8"><title>日期區間營業報表</title><style>@page{size:58mm auto;margin:2mm}body{width:54mm;margin:0;font:10px monospace}h2,p{text-align:center}table{width:100%;border-collapse:collapse}td{padding:3px 1px;border-bottom:1px dashed #aaa}td:nth-child(2),td:nth-child(3){text-align:right}.sum{font-weight:bold;margin-top:7px}</style></head><body><h2>老爹．涼糕</h2><p>日期區間營業報表</p><p>'+reportStartDate+' ～ '+reportEndDate+'</p><table>'+table+'</table><hr><p>餐車：'+totals.truck.boxes+'盒｜'+fmt(totals.truck.amount)+'</p><p>擺攤：'+totals.stall.boxes+'盒｜'+fmt(totals.stall.amount)+'</p><p>線上：'+totals.online.boxes+'盒｜'+fmt(totals.online.amount)+'</p><p>全家寄放費：'+fmt(totals.family)+'</p><p>7-ELEVEN寄放費：'+fmt(totals.seven)+'</p><p>寄放費合計：'+fmt(totals.storage)+'</p><h3 class="sum">區間總盒數：'+totalBoxes+'盒</h3><h3 class="sum">商品總營收：'+fmt(totalAmount)+'</h3><script>window.onload=()=>window.print()</script></body></html>'
-    w.document.write(html);w.document.close()
-    setNotice('日期區間報表已產生，可使用 58mm PDA 列印')
+    const overallHtml='<h3>區間全部通路口味總計</h3><table><thead><tr><th>口味</th><th>盒數</th><th>金額</th></tr></thead><tbody>'+(overallRows.length?overallRows.map(x=>'<tr><td>'+escapeHtml(x.name)+'</td><td>'+x.boxes+'</td><td>'+fmt(x.amount)+'</td></tr>').join(''):'<tr><td colspan="3">無銷售資料</td></tr>')+'</tbody><tfoot><tr><th>總計</th><th>'+totalBoxes+'盒</th><th>'+fmt(totalAmount)+'</th></tr></tfoot></table>'
+    const html='<!doctype html><html><head><meta charset="utf-8"><title>日期區間口味營業報表</title><style>@page{size:58mm auto;margin:2mm}*{box-sizing:border-box}body{width:54mm;margin:0;font:9px/1.4 monospace;color:#000}h1,h2,p{text-align:center;margin:3px 0}h1{font-size:16px}h2{font-size:12px}h3{font-size:12px;border-bottom:1px solid #000;padding-bottom:3px;margin:12px 0 5px}h4{font-size:10px;margin:7px 0 3px}table{width:100%;border-collapse:collapse;table-layout:fixed;margin:3px 0 6px}th,td{padding:3px 1px;border-bottom:1px dashed #aaa;overflow-wrap:anywhere;text-align:right}th:first-child,td:first-child{text-align:left;width:48%}tfoot{font-weight:bold;border-top:1px solid #000}.fees{font-size:8px;text-align:left}.grand{font-weight:bold;border:1px solid #000;padding:5px;margin:6px 0}section{page-break-inside:avoid}</style></head><body><h1>老爹．涼糕</h1><h2>日期區間口味銷售報表</h2><p>'+reportStartDate+' ～ '+reportEndDate+'</p>'+dailyHtml+overallHtml+'<h3>通路總結</h3><p>餐車：'+totals.truck.boxes+'盒｜'+fmt(totals.truck.amount)+'</p><p>擺攤：'+totals.stall.boxes+'盒｜'+fmt(totals.stall.amount)+'</p><p>線上：'+totals.online.boxes+'盒｜'+fmt(totals.online.amount)+'</p><p>全家寄放費：'+fmt(totals.family)+'</p><p>7-ELEVEN寄放費：'+fmt(totals.seven)+'</p><p>寄放費合計：'+fmt(totals.storage)+'</p><div class="grand">全部通路總盒數：'+totalBoxes+'盒<br>商品總營收：'+fmt(totalAmount)+'</div><p>舊資料未記錄口味者列為「未記錄口味」，不推測、不回填。</p><script>window.onload=()=>window.print()</script></body></html>'
+    w.document.open();w.document.write(html);w.document.close()
+    setNotice('日期區間口味報表已產生，可使用 58mm PDA 列印')
   }
 
   async function loadDailyStats() {
@@ -406,7 +437,7 @@ export default function App() {
     <section className="dailyStats">
       <div className="dailyStatsHead"><b>今日銷售統計</b><button className="ghost" onClick={loadDailyStats} disabled={statsLoading}>{statsLoading ? '更新中…' : '更新統計'}</button></div>
       {mode === 'cashier' ? <div className="statGrid"><article><small>餐車銷售盒數</small><strong>{dailyStats.cashier.boxes} 盒</strong></article><article><small>餐車銷售金額</small><strong>{money(dailyStats.cashier.amount)}</strong></article></div> : mode === 'stall' ? <div className="statGrid"><article><small>擺攤銷售盒數</small><strong>{dailyStats.stall.boxes} 盒</strong></article><article><small>擺攤銷售金額</small><strong>{money(dailyStats.stall.amount)}</strong></article></div> : <div className="statGrid"><article><small>線上已付款盒數</small><strong>{dailyStats.online.boxes} 盒</strong></article><article><small>線上商品銷售額（不含寄放）</small><strong>{money(dailyStats.online.amount)}</strong></article><article><small>全家寄放費（另計）</small><strong>{money(dailyStats.online.family)}</strong></article><article><small>7-ELEVEN寄放費（另計）</small><strong>{money(dailyStats.online.seven)}</strong></article></div>}
-      <div className="orderTitle"><label>報表開始日期 <input type="date" value={reportStartDate} onChange={e=>setReportStartDate(e.target.value)}/></label><label>結束日期 <input type="date" value={reportEndDate} onChange={e=>setReportEndDate(e.target.value)}/></label><button className="checkout onlinePrint" onClick={printDateRangeReport}>列印日期區間報表</button></div>
+      <div className="orderTitle"><label>報表開始日期 <input type="date" value={reportStartDate} onChange={e=>setReportStartDate(e.target.value)}/></label><label>結束日期 <input type="date" value={reportEndDate} onChange={e=>setReportEndDate(e.target.value)}/></label><button className="checkout onlinePrint" onClick={printDailySalesReport}>列印今日口味報表</button><button className="checkout onlinePrint" onClick={printDateRangeReport}>列印日期區間報表</button></div>
       <small className="statsFoot">統計日期：{new Date().toLocaleDateString('zh-TW')}｜線上統計只計已付款及後續處理中的訂單</small>
     </section>
     {mode === 'cashier' && <section className="catalog">
