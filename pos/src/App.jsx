@@ -61,7 +61,7 @@ export default function App() {
     setBusy(true)
     const { data, error } = await supabase.from('food_truck_sessions').insert({
       session_date: truckStartAt.slice(0,10), title: '餐車營業場次', location: truckLocation.trim() || null,
-      started_at: started.toISOString(), created_by: user.id
+      started_at: started.toISOString()
     }).select('id,session_date,title,location,started_at,ended_at,status').single()
     setBusy(false)
     if (error) { setNotice('建立餐車場次失敗：' + error.message); return }
