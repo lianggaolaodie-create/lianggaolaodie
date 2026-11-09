@@ -122,7 +122,7 @@ export default function App() {
 
   async function loadStallSales(scheduleId) {
     setStallSalesLoading(true)
-    const { data, error } = await supabase.from('stall_sales').select('id,schedule_id,receipt_number,items,total_amount,sold_at').eq('schedule_id', scheduleId).order('sold_at', { ascending: false }).limit(30)
+    const { data, error } = await supabase.from('stall_sales').select('id,schedule_id,receipt_number,items,total_amount,sold_at,is_voided,voided_at').eq('schedule_id', scheduleId).order('sold_at', { ascending: false }).limit(30)
     setStallSalesLoading(false)
     if (error) { setNotice('擺攤交易紀錄讀取失敗：' + error.message); return }
     setStallSales(data ?? [])
@@ -152,7 +152,7 @@ export default function App() {
     const printWindow=window.open('about:blank','_blank')
     if(printWindow){printWindow.document.write('<!doctype html><html><head><meta charset="utf-8"><title>收據準備中</title></head><body style="font:16px sans-serif;padding:24px">收據準備中，請稍候…</body></html>');printWindow.document.close()}
     setBusy(true);setNotice('')
-    const {data,error}=await supabase.from('stall_sales').insert({schedule_id:Number(selectedSchedule),receipt_number:receiptNumber,items,total_amount:amount}).select('id,schedule_id,receipt_number,items,total_amount,sold_at').single()
+    const {data,error}=await supabase.from('stall_sales').insert({schedule_id:Number(selectedSchedule),receipt_number:receiptNumber,items,total_amount:amount}).select('id,schedule_id,receipt_number,items,total_amount,sold_at,is_voided,voided_at').single()
     setBusy(false)
     if(error){if(printWindow)printWindow.close();setNotice('擺攤結帳失敗，未建立交易：'+error.message);return}
     setStallCart([])
@@ -161,6 +161,21 @@ export default function App() {
     loadStallSales(selectedSchedule)
     loadDailyStats()
   }
+  async function voidStallSale(sale) {
+    if (!sale || sale.is_voided || busy) return
+    const confirmed = window.confirm('確定作廢這筆擺攤交易？\\n\\n' + sale.receipt_number + '｜' + money(sale.total_amount) + '\\n作廢後保留歷史紀錄，但不再計入營收報表。')
+    if (!confirmed) return
+    setBusy(true); setNotice('')
+    const { error } = await supabase.from('stall_sales')
+      .update({ is_voided: true, voided_at: new Date().toISOString(), voided_by: user.id })
+      .eq('id', sale.id).eq('is_voided', false)
+    setBusy(false)
+    if (error) { setNotice('作廢失敗：' + error.message); return }
+    setNotice('交易已作廢，歷史紀錄保留，報表將排除這筆交易')
+    await loadStallSales(selectedSchedule)
+    await loadDailyStats()
+  }
+
   async function closeStallSchedule() {
     const schedule=stallSchedules.find(x=>String(x.id)===String(selectedSchedule))
     if(!schedule||schedule.closed_at||busy)return
@@ -173,7 +188,7 @@ export default function App() {
   async function printStallScheduleReport(schedule) {
     const w=window.open('about:blank','_blank')
     if(!w){setNotice('請允許彈出視窗後重新列印');return}
-    const {data,error}=await supabase.from('stall_sales').select('items,total_amount,sold_at').eq('schedule_id',schedule.id).order('sold_at')
+    const {data,error}=await supabase.from('stall_sales').select('items,total_amount,sold_at').eq('schedule_id',schedule.id).eq('is_voided',false).order('sold_at')
     if(error){w.close();setNotice('擺攤報表讀取失敗：'+error.message);return}
     const flavors=new Map()
     ;(data||[]).forEach(sale=>(Array.isArray(sale.items)?sale.items:[]).forEach(item=>{const k=item.name||item.flavor_name||'商品',v=flavors.get(k)||{boxes:0,amount:0};v.boxes+=Number(item.quantity||0);v.amount+=Number(item.price||0)*Number(item.quantity||0);flavors.set(k,v)}))
@@ -211,7 +226,7 @@ export default function App() {
     const paidStatuses = new Set(['paid','stored','preparing','shipping','delivering','delivered','completed','已付款','已寄放','製作中','配送中','已送達','已完成'])
     const [cashierResult, stallResult, onlineResult] = await Promise.all([
       supabase.from('food_truck_sales').select('*').gte('sold_at',startDate.toISOString()).lte('sold_at',endDate.toISOString()),
-      supabase.from('stall_sales').select('items,total_amount,sold_at,receipt_number').gte('sold_at',startDate.toISOString()).lte('sold_at',endDate.toISOString()),
+      supabase.from('stall_sales').select('items,total_amount,sold_at,receipt_number').eq('is_voided',false).gte('sold_at',startDate.toISOString()).lte('sold_at',endDate.toISOString()),
       supabase.from('cooling_pickup_orders').select('order_number,status,paid_at,merchandise_total,storage_fee,convenience_store,cooling_pickup_order_items(product_name,flavor_name,quantity,unit_price,line_total)').gte('paid_at',startDate.toISOString()).lte('paid_at',endDate.toISOString())
     ])
     const errors = [cashierResult.error,stallResult.error,onlineResult.error].filter(Boolean)
@@ -254,7 +269,7 @@ export default function App() {
     const err=[truckRes.error,sessionRes.error,stallSchedulesRes.error,onlineRes.error].find(Boolean)
     if(err){w.close();setNotice('區間報表讀取失敗：'+err.message);return}
     const ids=(stallSchedulesRes.data||[]).map(x=>x.id)
-    const stallRes=ids.length?await supabase.from('stall_sales').select('schedule_id,items,total_amount').in('schedule_id',ids):{data:[],error:null}
+    const stallRes=ids.length?await supabase.from('stall_sales').select('schedule_id,items,total_amount').eq('is_voided',false).in('schedule_id',ids):{data:[],error:null}
     if(stallRes.error){w.close();setNotice('擺攤區間報表讀取失敗：'+stallRes.error.message);return}
     const paid=new Set(['paid','stored','preparing','shipping','delivering','delivered','completed','已付款','已寄放','製作中','配送中','已送達','已完成'])
     const sessionDates=new Map((sessionRes.data||[]).map(x=>[String(x.id),x.session_date]))
@@ -313,7 +328,7 @@ export default function App() {
     const paidStatuses = new Set(['paid','stored','preparing','shipping','delivering','delivered','completed','已付款','已寄放','製作中','配送中','已送達','已完成'])
     const [cashierResult, stallResult, onlineResult] = await Promise.all([
       supabase.from('food_truck_sales').select('quantity,total_amount').gte('sold_at',start.toISOString()).lte('sold_at',end.toISOString()),
-      supabase.from('stall_sales').select('items,total_amount').gte('sold_at',start.toISOString()).lte('sold_at',end.toISOString()),
+      supabase.from('stall_sales').select('items,total_amount').eq('is_voided',false).gte('sold_at',start.toISOString()).lte('sold_at',end.toISOString()),
       supabase.from('cooling_pickup_orders').select('paid_at,status,merchandise_total,storage_fee,convenience_store,cooling_pickup_order_items(quantity)').gte('paid_at',start.toISOString()).lte('paid_at',end.toISOString())
     ])
     const errors = [cashierResult.error,stallResult.error,onlineResult.error].filter(Boolean)
@@ -467,7 +482,7 @@ export default function App() {
         <div className="sum"><span>應收總額</span><strong>{money(stallCart.reduce((sum,item)=>sum+item.price*item.quantity,0))}</strong></div>
         <button className="checkout" disabled={!stallCart.length || busy} onClick={checkoutStall}>{busy ? '處理中…' : '擺攤結帳並列印 58mm 收據'}</button></section>
       <section className="stallHistory"><div className="orderTitle"><h2>最近擺攤交易</h2><button className="ghost" onClick={()=>loadStallSales(selectedSchedule)} disabled={stallSalesLoading}>{stallSalesLoading ? '更新中…' : '重新整理'}</button></div>
-        {stallSalesLoading ? <p>讀取交易紀錄中…</p> : stallSales.length ? stallSales.map(sale=><article className="onlineOrder" key={sale.id}><div className="orderTitle"><b>{sale.receipt_number}</b><strong>{money(sale.total_amount)}</strong></div><small>{new Date(sale.sold_at).toLocaleString('zh-TW')}</small><button className="checkout onlinePrint" onClick={()=>printStallReceipt(sale)}>重新列印 58mm 收據</button></article>) : <p className="muted">這個場次還沒有擺攤交易</p>}</section>
+        {stallSalesLoading ? <p>讀取交易紀錄中…</p> : stallSales.length ? stallSales.map(sale=><article className="onlineOrder" key={sale.id}><div className="orderTitle"><b>{sale.receipt_number}</b><strong>{sale.is_voided ? '已作廢' : money(sale.total_amount)}</strong></div><small>{new Date(sale.sold_at).toLocaleString('zh-TW')}{sale.is_voided && sale.voided_at ? '｜作廢時間：'+new Date(sale.voided_at).toLocaleString('zh-TW') : ''}</small>{!sale.is_voided && <><button className="checkout onlinePrint" onClick={()=>printStallReceipt(sale)}>重新列印 58mm 收據</button><button className="ghost" disabled={busy} onClick={()=>voidStallSale(sale)}>作廢交易</button></>}</article>) : <p className="muted">這個場次還沒有擺攤交易</p>}</section>
     </section> : <>
       <section className="scanner"><label htmlFor="barcode">掃描商品條碼</label><form onSubmit={scan}><input ref={scanRef} id="barcode" value={barcode} onChange={e=>setBarcode(e.target.value)} placeholder="掃碼槍掃描後按 Enter" autoFocus/><button>加入</button></form><small>支援 USB／藍牙鍵盤型掃碼槍</small></section>
       <section className="catalog"><h2>商品快速加入</h2><div className="products">{products.map(p=><button className="product" key={p.id} onClick={()=>addProduct(p)}><b>{p.product_name}</b><span>{money(p.price)}</span></button>)}</div>{!products.length && <p className="muted">目前沒有啟用中的餐車商品</p>}</section>
