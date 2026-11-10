@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#11100e">
-  <meta name="description" content="老爹．涼糕官方 App">
+  <meta name="description" content="老爹．涼糕官方 App"><meta name="application-name" content="老爹涼糕"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="老爹涼糕">
   <title>老爹．涼糕｜App</title>
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="stylesheet" href="./styles.css">
@@ -12,7 +12,7 @@
 <body>
   <header class="topbar">
     <a class="brand" href="#home" aria-label="老爹涼糕首頁"><span class="brand-mark">老</span><span><b>老爹．涼糕</b><small>LAO DIE LIANG GAO</small></span></a>
-    
+    <button id="installAppButton" class="gold-button" type="button" style="padding:10px 14px;font-size:13px;white-space:nowrap">免費安裝</button>
   </header>
   <main id="app" class="shell">
     <section id="home" class="hero">
@@ -43,6 +43,29 @@
     <a class="nav-item" href="#cart" onclick="window.LaodieNavigate('cart');return false;" role="button"><span>⌑</span>購物車 <i id="cart-count">0</i></a>
     <a class="nav-item" href="#member" onclick="window.LaodieNavigate('member');return false;" role="button"><span>♙</span>會員</a>
   </nav>
+  <div id="installHelp" role="dialog" aria-modal="true" aria-labelledby="installHelpTitle" hidden style="position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.72);padding:22px;display:none;align-items:center;justify-content:center"><div style="width:min(100%,420px);padding:24px;border:1px solid #b99652;border-radius:18px;background:#171512;color:#f7edda;box-shadow:0 16px 50px #0008"><h2 id="installHelpTitle" style="margin:0 0 12px;color:#e4c477">安裝老爹．涼糕 App</h2><p id="installHelpText" style="line-height:1.8;margin:0 0 18px">將老爹．涼糕加入主畫面，之後就能從手機桌面直接開啟。</p><button id="closeInstallHelp" class="gold-button" type="button">知道了</button></div></div>
+  <script>
+  (function(){
+    let installPrompt=null;
+    const button=document.getElementById("installAppButton");
+    const dialog=document.getElementById("installHelp");
+    const message=document.getElementById("installHelpText");
+    const close=document.getElementById("closeInstallHelp");
+    function help(text){message.textContent=text;dialog.hidden=false;dialog.style.display="flex";}
+    close.addEventListener("click",()=>{dialog.hidden=true;dialog.style.display="none";});
+    dialog.addEventListener("click",e=>{if(e.target===dialog){dialog.hidden=true;dialog.style.display="none";}});
+    window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();installPrompt=e;button.textContent="安裝 App";});
+    window.addEventListener("appinstalled",()=>{installPrompt=null;button.textContent="已安裝";button.disabled=true;});
+    button.addEventListener("click",async()=>{
+      if(installPrompt){installPrompt.prompt();const choice=await installPrompt.userChoice;if(choice?.outcome==="accepted")button.textContent="安裝中…";installPrompt=null;return;}
+      const ua=navigator.userAgent;
+      if(/iphone|ipad|ipod/i.test(ua)&&!window.MSStream){help("iPhone／iPad 安裝方式：請使用 Safari 開啟此頁，點擊畫面下方「分享」圖示，再選擇「加入主畫面」，最後按「新增」。不需要付費，也不需要從 App Store 下載。");return;}
+      if(/android/i.test(ua)){help("請使用 Chrome 開啟此頁，點擊右上角「⋮」選單，再選擇「安裝應用程式」或「加入主畫面」。");return;}
+      help("請使用 iPhone Safari 或 Android Chrome 開啟此頁，再依照瀏覽器提供的「加入主畫面／安裝應用程式」功能安裝。");
+    });
+    if("serviceWorker" in navigator && location.protocol!=="file:"){window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));}
+  })();
+  </script>
   <script defer src="./core.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script defer src="./app.js"></script>
