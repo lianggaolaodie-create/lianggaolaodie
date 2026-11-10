@@ -15,6 +15,7 @@ export default function App() {
   const [mode, setMode] = useState('cashier')
   const [stallSchedules, setStallSchedules] = useState([])
   const [selectedSchedule, setSelectedSchedule] = useState('')
+  const [stallScheduleSearch, setStallScheduleSearch] = useState('')
   const [stallFlavors, setStallFlavors] = useState([])
   const [priceDrafts, setPriceDrafts] = useState({})
   const [stallLoading, setStallLoading] = useState(false)
@@ -34,6 +35,10 @@ export default function App() {
   const [truckStartAt, setTruckStartAt] = useState(() => { const d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0,16) })
   const [truckLocation, setTruckLocation] = useState('')
   const scanRef = useRef(null)
+  const stallScheduleQuery = stallScheduleSearch.trim().toLocaleLowerCase('zh-TW')
+  const visibleStallSchedules = stallScheduleQuery
+    ? stallSchedules.filter(item => [item.schedule_date, item.region].some(value => String(value ?? '').toLocaleLowerCase('zh-TW').includes(stallScheduleQuery)))
+    : stallSchedules.slice(0, 3)
   const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0)
 
   useEffect(() => {
@@ -98,7 +103,7 @@ export default function App() {
   async function loadStallSchedules() {
     const { data, error } = await supabase.from('food_truck_schedules')
       .select('id,schedule_date,region,start_time,end_time,enabled,closed_at')
-      .eq('schedule_type', 'stall').order('schedule_date', { ascending: false })
+      .eq('schedule_type', 'stall').order('schedule_date', { ascending: false }).order('id', { ascending: false })
     if (error) { setNotice('擺攤場次讀取失敗：' + error.message); return }
     setStallSchedules(data ?? [])
     if (!selectedSchedule && data?.length) setSelectedSchedule(String(data[0].id))
@@ -463,10 +468,14 @@ export default function App() {
     </section>}
     {mode === 'online' ? <section className="catalog onlinePanel"><div className="orderTitle"><h2>冷藏店到店訂單</h2><button className="ghost" onClick={loadOnlineOrders} disabled={onlineLoading}>{onlineLoading ? '更新中…' : '重新整理'}</button></div><p className="muted">這裡只顯示冷藏店到店訂單，不包含宅配及餐車現場收銀。</p><div className="orderTitle"><label className="fieldLabel">依預計出餐日期查詢</label><input type="date" value={prepDateFilter} onChange={e=>setPrepDateFilter(e.target.value)}/><button className="checkout onlinePrint" disabled={!prepDateFilter} onClick={()=>printPrepList(prepDateFilter)}>列印指定日期備貨清單</button></div>{onlineLoading ? <p>讀取線上訂單中…</p> : onlineOrders.filter(order=>!prepDateFilter||order.prep_date===prepDateFilter).length ? onlineOrders.filter(order=>!prepDateFilter||order.prep_date===prepDateFilter).map(order => <article className="onlineOrder" key={order.id}><div className="orderTitle"><b>{order.order_number}</b><strong>{order.status || '待確認'}</strong></div><small>付款日期：{order.paid_at ? new Date(order.paid_at).toLocaleDateString('zh-TW') : '舊訂單未記錄付款時間'}｜預計出餐：{order.prep_date||'未設定'}｜{order.convenience_store || ''} {order.store_name || ''}</small><div className="line"><label>修改預計出餐日期</label><input type="date" value={prepDateDrafts[order.id]??''} onChange={e=>setPrepDateDrafts(current=>({...current,[order.id]:e.target.value}))}/><button className="ghost" onClick={()=>savePrepDate(order)}>儲存日期</button></div>{(order.cooling_pickup_order_items || []).map(item => <div className="line" key={item.id}><span>{item.product_name || item.flavor_name} × {item.quantity}</span><b>{money(item.line_total ?? item.unit_price * item.quantity)}</b></div>)}<div className="sum"><span>商品 {money(order.merchandise_total)}＋寄放 {money(order.storage_fee)}</span><strong>{money(order.total_amount)}</strong></div><button className="checkout onlinePrint" onClick={()=>printOnlineReceipt(order)}>列印／重新列印 58mm 收據</button><p className="muted">列印紙本不會重複建立銷售紀錄；線上訂單匯入 POS 的付款確認及防重複機制仍獨立處理。</p></article>) : <p className="muted">目前沒有線上冷藏店到店訂單</p>}</section> : mode === 'stall' ? <section className="catalog stallPanel">
       <h2>擺攤口味價格設定</h2>
-      <label className="fieldLabel">選擇擺攤場次</label>
-      <select className="scheduleSelect" value={selectedSchedule} onChange={e=>setSelectedSchedule(e.target.value)}>
-        {stallSchedules.map(s=><option key={s.id} value={s.id}>{s.schedule_date}｜{s.region}</option>)}
+      <label className="fieldLabel">搜尋歷史場次（日期／市場名稱／擺攤地點）</label>
+      <input className="scheduleSearch" type="search" value={stallScheduleSearch} onChange={e=>setStallScheduleSearch(e.target.value)} placeholder="輸入日期或市場、地點關鍵字" />
+      <label className="fieldLabel">選擇擺攤場次（預設最近 3 筆）</label>
+      <select className="scheduleSelect" value={visibleStallSchedules.some(item=>String(item.id)===String(selectedSchedule))?selectedSchedule:''} onChange={e=>setSelectedSchedule(e.target.value)}>
+        {!visibleStallSchedules.length && <option value="">沒有符合的歷史場次</option>}
+        {visibleStallSchedules.map(item=><option key={item.id} value={item.id}>{item.schedule_date}｜{item.region}</option>)}
       </select>
+      <p className="muted">{stallScheduleQuery ? '搜尋結果：' + visibleStallSchedules.length + ' 筆（可搜尋全部歷史場次）' : '顯示最近 3 筆；輸入關鍵字即可搜尋並選取所有歷史場次。歷史場次及銷售資料完整保留。'}</p>
       {!stallSchedules.length && <p className="muted">目前沒有擺攤場次資料</p>}
       {!!selectedSchedule && <div className="orderTitle"><span>{stallSchedules.find(x=>String(x.id)===String(selectedSchedule))?.closed_at?'本場已結束':'本場營業中'}</span><button className="ghost" onClick={()=>printStallScheduleReport(stallSchedules.find(x=>String(x.id)===String(selectedSchedule)))}>場次報表／補印</button>{!stallSchedules.find(x=>String(x.id)===String(selectedSchedule))?.closed_at && <button className="checkout" onClick={closeStallSchedule} disabled={busy}>結束本場並列印結帳</button>}</div>}
       {stallLoading ? <p>讀取口味中…</p> : stallFlavors.map(row=><div className="priceEditor" key={row.flavor_id}>
