@@ -37,7 +37,7 @@ export default function App() {
   const scanRef = useRef(null)
   const stallScheduleQuery = stallScheduleSearch.trim().toLocaleLowerCase('zh-TW')
   const visibleStallSchedules = stallScheduleQuery
-    ? stallSchedules.filter(item => [item.schedule_date, item.region].some(value => String(value ?? '').toLocaleLowerCase('zh-TW').includes(stallScheduleQuery)))
+    ? stallSchedules.filter(item => [item.schedule_date, item.title, item.region].some(value => String(value ?? '').toLocaleLowerCase('zh-TW').includes(stallScheduleQuery)))
     : stallSchedules.slice(0, 3)
   const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0)
 
@@ -102,7 +102,7 @@ export default function App() {
 
   async function loadStallSchedules() {
     const { data, error } = await supabase.from('food_truck_schedules')
-      .select('id,schedule_date,region,start_time,end_time,enabled,closed_at')
+      .select('id,schedule_date,title,region,start_time,end_time,enabled,closed_at')
       .eq('schedule_type', 'stall').order('schedule_date', { ascending: false }).order('id', { ascending: false })
     if (error) { setNotice('擺攤場次讀取失敗：' + error.message); return }
     setStallSchedules(data ?? [])
