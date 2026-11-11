@@ -339,12 +339,8 @@ export default function App() {
 
 function escapeHtml(value) {
   return String(value).replace(/[&<>"']/g, char => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[char]))
-}+Number(n||0).toLocaleString('zh-TW')
-    const section=(title,list,total)=>`<h3>${title}</h3><table><thead><tr><th>口味／商品</th><th>盒數</th><th>金額</th></tr></thead><tbody>${list.length?list.map(x=>`<tr><td>${escapeHtml(x.name)}</td><td>${x.boxes}</td><td>${fmt(x.amount)}</td></tr>`).join(''):'<tr><td colspan="3">今日無銷售</td></tr>'}</tbody><tfoot><tr><th>小計</th><th>${total.boxes} 盒</th><th>${fmt(total.amount)}</th></tr></tfoot></table>`
-    const html=`<!doctype html><html><head><meta charset="utf-8"><title>老爹今日銷售報表</title><style>@page{size:58mm auto;margin:2mm}*{box-sizing:border-box}body{width:54mm;margin:0;font:10px/1.45 monospace;color:#000}h1,h2,p{text-align:center;margin:3px 0}h1{font-size:17px;font-weight:900}h2{font-size:13px}h3{font-size:11px;margin:10px 0 4px;border-bottom:1px dashed #333;padding-bottom:3px}table{width:100%;border-collapse:collapse;margin:4px 0 8px;table-layout:fixed}th,td{border-bottom:1px dashed #aaa;padding:3px 1px;text-align:right;overflow-wrap:anywhere}th:first-child,td:first-child{text-align:left;width:48%}th:nth-child(2),td:nth-child(2){width:17%}tfoot{font-weight:bold;border-top:1px solid #000}.grand{border:1px solid #000;padding:5px;margin-top:7px;font-size:12px;font-weight:bold;display:flex;justify-content:space-between;gap:4px}.note{font-size:8px;margin-top:8px;text-align:left}</style></head><body><h1>老爹．涼糕</h1><h2>每日銷售結帳報表</h2><p>${today}｜${now.toLocaleTimeString('zh-TW')}</p>${section('餐車收銀',rows.cashier,totals.cashier)}${section('擺攤銷售',rows.stall,totals.stall)}${section('線上訂單（已付款）',rows.online,totals.online)}<p>寄放費另計：${fmt(totals.online.storage)}</p><div class="grand"><span>總盒數</span><span>${allBoxes} 盒</span></div><div class="grand"><span>商品總銷售額</span><span>${fmt(allAmount)}</span></div><p class="note">線上寄放費不計入商品銷售額</p><script>window.onload=()=>setTimeout(()=>window.print(),400)</script></body></html>`
-    printWindow.document.open();printWindow.document.write(html);printWindow.document.close()
-    setStatsLoading(false);setNotice('今日銷售報表已整理，可使用 58mm PDA 熱感印表機列印')
-  }
+
+
   async function loadDailyStats() {
 
     setStatsLoading(true)
