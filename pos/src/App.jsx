@@ -34,6 +34,8 @@ export default function App() {
   const [truckSessions, setTruckSessions] = useState([])
   const [truckStartAt, setTruckStartAt] = useState(() => { const d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0,16) })
   const [truckLocation, setTruckLocation] = useState('')
+  const [truckSchedules, setTruckSchedules] = useState([])
+  const [truckScheduleId, setTruckScheduleId] = useState('')
   const scanRef = useRef(null)
   const stallScheduleQuery = stallScheduleSearch.trim().toLocaleLowerCase('zh-TW')
   const visibleStallSchedules = stallScheduleQuery
@@ -48,7 +50,7 @@ export default function App() {
     return () => listener.subscription.unsubscribe()
   }, [])
 
-  useEffect(() => { if (user) { loadProducts(); loadStallSchedules(); loadDailyStats(); loadTruckSessions() } }, [user])
+  useEffect(() => { if (user) { loadProducts(); loadStallSchedules(); loadDailyStats(); loadTruckSessions(); loadTruckSchedules() } }, [user])
   useEffect(() => { if (user && selectedSchedule) { loadStallFlavors(selectedSchedule); loadStallSales(selectedSchedule); setStallCart([]) } }, [user, selectedSchedule])
   useEffect(() => { if (user && mode === 'online') loadOnlineOrders() }, [user, mode])
 
@@ -59,13 +61,30 @@ export default function App() {
     setTruckSessions(rows)
     setTruckSession(rows.find(row => row.status === 'open') || null)
   }
+  async function loadTruckSchedules() {
+    const { data, error } = await supabase.from('food_truck_schedules')
+      .select('id,schedule_date,title,region,enabled,closed_at,schedule_type')
+      .eq('schedule_type','food_truck').eq('enabled',true)
+      .order('schedule_date',{ascending:false}).order('id',{ascending:false})
+    if (error) { setNotice('餐車後台行程讀取失敗：' + error.message); return }
+    setTruckSchedules(data || [])
+  }
+
+  function selectTruckSchedule(id) {
+    setTruckScheduleId(id)
+    const schedule = truckSchedules.find(item => String(item.id) === String(id))
+    if (!schedule) return
+    setTruckStartAt(current => schedule.schedule_date + 'T' + (current.slice(11,16) || '08:00'))
+    setTruckLocation(schedule.region || '')
+  }
+
   async function startTruckSession() {
     if (truckSession || busy) return
     const started = new Date(truckStartAt)
     if (!Number.isFinite(started.getTime())) { setNotice('請設定正確的開始營業日期及時間'); return }
     setBusy(true)
     const { data, error } = await supabase.from('food_truck_sessions').insert({
-      session_date: truckStartAt.slice(0,10), title: '餐車營業場次', location: truckLocation.trim() || null,
+      session_date: truckStartAt.slice(0,10), title: '餐車營業場次', location: truckLocation.trim() || null, schedule_id: truckScheduleId ? Number(truckScheduleId) : null,
       started_at: started.toISOString()
     }).select('id,session_date,title,location,started_at,ended_at,status').single()
     setBusy(false)
@@ -75,16 +94,58 @@ export default function App() {
   }
   async function closeTruckSession() {
     if (!truckSession || busy) return
-    const { data: sales, error: salesError } = await supabase.from('food_truck_sales').select('quantity,total_amount').eq('business_session_id',truckSession.id)
-    if (salesError) { setNotice('讀取場次銷售失敗：' + salesError.message); return }
-    const boxes = (sales||[]).reduce((n,row)=>n+Number(row.quantity||0),0)
-    const amount = (sales||[]).reduce((n,row)=>n+Number(row.total_amount||0),0)
+    const pendingCount = cart.reduce((n,item)=>n+Number(item.quantity||0),0)
+    const confirmText = '確定結束本次餐車營業？\\n\\n場次日期：' + truckSession.session_date +
+      '\\n出車地點：' + (truckSession.location || '未設定') +
+      '\\n未結帳購物車：' + pendingCount + ' 件' +
+      '\\n\\n系統會先確認所有交易已同步至後台，再結束場次並停用已連結的後台行程。' +
+      '\\n銷售明細及歷史報表不會刪除。'
+    if (!window.confirm(confirmText)) return
+
     setBusy(true)
-    const { error } = await supabase.from('food_truck_sessions').update({status:'closed',ended_at:new Date().toISOString()}).eq('id',truckSession.id).eq('status','open')
+    setNotice('正在確認本場交易已同步至後台…')
+    const { data: sales, error: salesError } = await supabase.from('food_truck_sales')
+      .select('id,quantity,total_amount,business_session_id')
+      .eq('business_session_id',truckSession.id)
+      .order('id',{ascending:true})
+    if (salesError) {
+      setBusy(false)
+      setNotice('同步確認失敗，場次及購物車均未清除。請確認網路後重新同步：' + salesError.message)
+      return
+    }
+    const salesRows = sales || []
+    if (salesRows.some(row => Number(row.business_session_id) !== Number(truckSession.id))) {
+      setBusy(false)
+      setNotice('同步資料核對失敗，未結束營業、未清除任何資料。請重新同步。')
+      return
+    }
+    const boxes = salesRows.reduce((n,row)=>n+Number(row.quantity||0),0)
+    const amount = salesRows.reduce((n,row)=>n+Number(row.total_amount||0),0)
+
+    setNotice('交易已在後台核對，正在安全結束場次及同步後台行程…')
+    const { data: closeResult, error: closeError } = await supabase.rpc('close_food_truck_session', { p_session_id: truckSession.id })
+    if (closeError || !closeResult) {
+      setBusy(false)
+      setNotice('結束／同步失敗，POS 商品、購物車及場次均保留。請重新整理網路後再試：' + (closeError?.message || '後台未回傳確認'))
+      return
+    }
+    if (Number(closeResult.sales_count) !== salesRows.length ||
+        Number(closeResult.boxes) !== boxes || Number(closeResult.amount) !== amount) {
+      setBusy(false)
+      setNotice('後台交易核對數量不一致。為安全起見未清除 POS 暫存資料，請聯絡管理員核對場次。')
+      return
+    }
+
+    setCart([])
+    setBarcode('')
+    setTruckSession(null)
+    setTruckScheduleId('')
+    setTruckLocation('')
     setBusy(false)
-    if (error) { setNotice('結束營業失敗：' + error.message); return }
-    setNotice('本場餐車已結束｜' + boxes + ' 盒｜' + money(amount))
+    setNotice('結束營業完成：' + salesRows.length + ' 筆交易已確認同步｜' + boxes + ' 盒｜' + money(amount) + '。歷史銷售及報表完整保留。')
     await loadTruckSessions()
+    await loadTruckSchedules()
+    await loadDailyStats()
     printTruckSessionReport(truckSession,{boxes,amount})
   }
   async function printTruckSessionReport(session, totals = null) {
@@ -462,8 +523,8 @@ export default function App() {
     </section>
     {mode === 'cashier' && <section className="catalog">
       <h2>餐車營業場次</h2>
-      {truckSession ? <><p className="muted">目前營業中｜出車日期：{truckSession.session_date}｜開始：{new Date(truckSession.started_at).toLocaleString('zh-TW')} {truckSession.location ? '｜'+truckSession.location : ''}</p><p className="muted">跨日不會自動切換日期；所有銷售都綁定本場次。</p><button className="checkout" disabled={busy} onClick={closeTruckSession}>結束本次營業並結帳列印</button></> :
-      <><label className="fieldLabel">開始營業日期及時間</label><input className="scheduleSelect" type="datetime-local" value={truckStartAt} onChange={e=>setTruckStartAt(e.target.value)}/><label className="fieldLabel">出車地點（選填）</label><input className="scheduleSelect" value={truckLocation} onChange={e=>setTruckLocation(e.target.value)} placeholder="輸入出車地點"/><button className="checkout" disabled={busy} onClick={startTruckSession}>開始餐車營業</button></>}
+      {truckSession ? <><p className="muted">目前營業中｜出車日期：{truckSession.session_date}｜開始：{new Date(truckSession.started_at).toLocaleString('zh-TW')} {truckSession.location ? '｜'+truckSession.location : ''}</p><p className="muted">跨日不會自動切換日期；所有銷售都綁定本場次。結束前會先核對後台同步，失敗不會清除資料。</p><button className="checkout" disabled={busy} onClick={closeTruckSession}>{busy ? '正在同步核對…' : '結束營業｜同步後清除本場次'}</button></> :
+      <><label className="fieldLabel">連結餐車後台行程（選填，結束時會自動停用）</label><select className="scheduleSelect" value={truckScheduleId} onChange={e=>selectTruckSchedule(e.target.value)}><option value="">不連結後台行程</option>{truckSchedules.map(item=><option key={item.id} value={item.id}>{item.schedule_date}｜{item.title}｜{item.region}</option>)}</select><label className="fieldLabel">開始營業日期及時間</label><input className="scheduleSelect" type="datetime-local" value={truckStartAt} onChange={e=>setTruckStartAt(e.target.value)}/><label className="fieldLabel">出車地點（選填）</label><input className="scheduleSelect" value={truckLocation} onChange={e=>setTruckLocation(e.target.value)} placeholder="輸入出車地點"/><button className="checkout" disabled={busy} onClick={startTruckSession}>開始餐車營業</button></>}
       <div className="stallHistory"><h3>歷史餐車場次</h3>{truckSessions.map(session=><article className="onlineOrder" key={session.id}><b>{session.session_date}｜{session.location||'餐車場次'}</b><small>{new Date(session.started_at).toLocaleString('zh-TW')}｜{session.status==='open'?'營業中':'已結束'}</small><button className="ghost" onClick={()=>printTruckSessionReport(session)}>查詢／補印場次報表</button></article>)}</div>
     </section>}
     {mode === 'online' ? <section className="catalog onlinePanel"><div className="orderTitle"><h2>冷藏店到店訂單</h2><button className="ghost" onClick={loadOnlineOrders} disabled={onlineLoading}>{onlineLoading ? '更新中…' : '重新整理'}</button></div><p className="muted">這裡只顯示冷藏店到店訂單，不包含宅配及餐車現場收銀。</p><div className="orderTitle"><label className="fieldLabel">依預計出餐日期查詢</label><input type="date" value={prepDateFilter} onChange={e=>setPrepDateFilter(e.target.value)}/><button className="checkout onlinePrint" disabled={!prepDateFilter} onClick={()=>printPrepList(prepDateFilter)}>列印指定日期備貨清單</button></div>{onlineLoading ? <p>讀取線上訂單中…</p> : onlineOrders.filter(order=>!prepDateFilter||order.prep_date===prepDateFilter).length ? onlineOrders.filter(order=>!prepDateFilter||order.prep_date===prepDateFilter).map(order => <article className="onlineOrder" key={order.id}><div className="orderTitle"><b>{order.order_number}</b><strong>{order.status || '待確認'}</strong></div><small>付款日期：{order.paid_at ? new Date(order.paid_at).toLocaleDateString('zh-TW') : '舊訂單未記錄付款時間'}｜預計出餐：{order.prep_date||'未設定'}｜{order.convenience_store || ''} {order.store_name || ''}</small><div className="line"><label>修改預計出餐日期</label><input type="date" value={prepDateDrafts[order.id]??''} onChange={e=>setPrepDateDrafts(current=>({...current,[order.id]:e.target.value}))}/><button className="ghost" onClick={()=>savePrepDate(order)}>儲存日期</button></div>{(order.cooling_pickup_order_items || []).map(item => <div className="line" key={item.id}><span>{item.product_name || item.flavor_name} × {item.quantity}</span><b>{money(item.line_total ?? item.unit_price * item.quantity)}</b></div>)}<div className="sum"><span>商品 {money(order.merchandise_total)}＋寄放 {money(order.storage_fee)}</span><strong>{money(order.total_amount)}</strong></div><button className="checkout onlinePrint" onClick={()=>printOnlineReceipt(order)}>列印／重新列印 58mm 收據</button><p className="muted">列印紙本不會重複建立銷售紀錄；線上訂單匯入 POS 的付款確認及防重複機制仍獨立處理。</p></article>) : <p className="muted">目前沒有線上冷藏店到店訂單</p>}</section> : mode === 'stall' ? <section className="catalog stallPanel">
