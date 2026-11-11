@@ -193,11 +193,44 @@ export default function App() {
   }
 
   async function loadProducts() {
-    const { data, error } = await supabase.from('food_truck_products')
-      .select('id, product_name, price, barcode, stock, active, flavor')
-      .eq('active', true).order('product_name')
-    if (error) setNotice('商品讀取失敗：' + error.message)
-    else setProducts(data ?? [])
+    // POS 商品清單只讀取今天「開啟中場次」已設定的販售口味。
+    const now = new Date()
+    const today = [now.getFullYear(), String(now.getMonth() + 1).padStart(2, '0'), String(now.getDate()).padStart(2, '0')].join('-')
+    const { data: sessions, error: sessionError } = await supabase.from('food_truck_sessions')
+      .select('id').eq('session_date', today).eq('status', 'open').order('id', { ascending: false }).limit(1)
+    if (sessionError) { setProducts([]); setNotice('今日場次讀取失敗：' + sessionError.message); return }
+    const session = sessions?.[0]
+    if (!session) { setProducts([]); setNotice('今日尚未建立營業場次，POS 暫無可販售口味'); return }
+
+    const { data: sessionFlavors, error: flavorError } = await supabase.from('food_truck_session_flavors')
+      .select('flavor_id, product_id, price').eq('session_id', session.id).order('id')
+    if (flavorError) { setProducts([]); setNotice('今日販售口味讀取失敗：' + flavorError.message); return }
+    if (!sessionFlavors?.length) { setProducts([]); setNotice('今日場次尚未加入販售口味'); return }
+
+    const productIds = [...new Set(sessionFlavors.map(row => row.product_id).filter(Boolean))]
+    const flavorIds = [...new Set(sessionFlavors.map(row => row.flavor_id).filter(Boolean))]
+    const [{ data: baseProducts, error: productError }, { data: flavorNames, error: namesError }] = await Promise.all([
+      supabase.from('food_truck_products').select('id, product_name, barcode, stock, active, flavor').in('id', productIds).eq('active', true),
+      supabase.from('flavors').select('id, name').in('id', flavorIds)
+    ])
+    if (productError || namesError) { setProducts([]); setNotice('今日口味商品資料讀取失敗：' + (productError?.message || namesError?.message)); return }
+
+    const productMap = new Map((baseProducts || []).map(product => [Number(product.id), product]))
+    const flavorMap = new Map((flavorNames || []).map(flavor => [Number(flavor.id), flavor]))
+    const todayProducts = sessionFlavors.flatMap(row => {
+      const product = productMap.get(Number(row.product_id))
+      const flavor = flavorMap.get(Number(row.flavor_id))
+      if (!product || !flavor) return []
+      return [{
+        ...product,
+        product_name: flavor.name,
+        flavor: flavor.name,
+        price: Number(row.price),
+        business_session_id: session.id
+      }]
+    })
+    setProducts(todayProducts)
+    setNotice(todayProducts.length ? '' : '今日場次沒有可販售的啟用商品')
   }
 
   async function signIn(event) {
@@ -212,7 +245,7 @@ export default function App() {
     setCart(current => {
       const found = current.find(item => item.id === product.id)
       if (found) return current.map(item => item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item)
-      return [...current, { id: product.id, name: product.product_name, barcode: product.barcode, price: product.price, quantity: 1 }]
+      return [...current, { id: product.id, name: product.product_name, flavor: product.flavor, barcode: product.barcode, business_session_id: product.business_session_id, price: product.price, quantity: 1 }]
     })
     setNotice('已加入：' + product.product_name)
     setBarcode('')
@@ -235,7 +268,7 @@ export default function App() {
   async function checkout() {
     if (!cart.length || busy) return
     setBusy(true); setNotice('')
-    const rows = cart.map(item => ({ product_id: item.id, barcode: item.barcode, product_name: item.name, quantity: item.quantity, unit_price: item.price, total_amount: item.price * item.quantity }))
+    const rows = cart.map(item => ({ product_id: item.id, barcode: item.barcode, product_name: item.name, flavor: item.flavor || item.name, business_session_id: item.business_session_id, quantity: item.quantity, unit_price: item.price, total_amount: item.price * item.quantity }))
     const { error } = await supabase.from('food_truck_sales').insert(rows)
     setBusy(false)
     if (error) { setNotice('結帳未完成，資料未寫入：' + error.message); return }
