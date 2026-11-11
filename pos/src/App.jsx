@@ -339,7 +339,7 @@ export default function App() {
 
 function escapeHtml(value) {
   return String(value).replace(/[&<>"']/g, char => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[char]))
-
+}
 
   async function loadDailyStats() {
 
