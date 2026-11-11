@@ -57,7 +57,7 @@ export default function App() {
   useEffect(() => { if (user && mode === 'online') loadOnlineOrders() }, [user, mode])
 
   async function loadTruckSessions() {
-    const { data, error } = await supabase.from('food_truck_sessions').select('id,session_date,title,location,started_at,ended_at,status').order('started_at',{ascending:false}).limit(30)
+    const { data, error } = await supabase.from('food_truck_sessions').select('id,session_date,title,location,started_at,ended_at,status,schedule_id').order('started_at',{ascending:false}).limit(30)
     if (error) { setNotice('餐車營業場次讀取失敗：' + error.message); return }
     const rows = data || []
     setTruckSessions(rows)
@@ -88,7 +88,7 @@ export default function App() {
     const { data, error } = await supabase.from('food_truck_sessions').insert({
       session_date: truckStartAt.slice(0,10), title: '餐車營業場次', location: truckLocation.trim() || null, schedule_id: truckScheduleId ? Number(truckScheduleId) : null,
       started_at: started.toISOString()
-    }).select('id,session_date,title,location,started_at,ended_at,status').single()
+    }).select('id,session_date,title,location,started_at,ended_at,status,schedule_id').single()
     setBusy(false)
     if (error) { setNotice('建立餐車場次失敗：' + error.message); return }
     setTruckSession(data); setTruckSessions(current => [data,...current])
