@@ -15,6 +15,9 @@ async function dailyInit(){
 }
 async function dailyCreateSession(){
  const today=new Date().toLocaleDateString('en-CA'),location=$('dailySessionLocation').value.trim()||'餐車';
+ const existing=await db.from('food_truck_sessions').select('id').eq('session_date',today).eq('status','open').maybeSingle();
+ if(existing.error){$('dailySessionStatus').textContent='查詢今天場次失敗：'+existing.error.message;return}
+ if(existing.data){await dailyInit();$('dailySessionSelect').value=String(existing.data.id);await dailySelectSession(existing.data.id);return}
  const r=await db.from('food_truck_sessions').insert({session_date:today,title:'餐車營業場次',location,status:'open'}).select('id').single();
  if(r.error){$('dailySessionStatus').textContent='建立失敗：'+r.error.message;return}
  await dailyInit();$('dailySessionSelect').value=String(r.data.id);await dailySelectSession(r.data.id);
