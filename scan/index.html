@@ -148,7 +148,7 @@ async function loadSessions(){
  if(error){$('sessionStatus').textContent='讀取場次失敗：'+error.message;return}
  const rows=data||[],today=new Date().toLocaleDateString('en-CA');
  $('sessionSelect').innerHTML='<option value="">請選擇營業場次</option>'+rows.map(s=>'<option value="'+s.id+'">'+esc(s.session_date)+'｜'+esc(s.location||s.title||'餐車場次')+'｜開啟中</option>').join('');
- let target=rows.find(s=>s.session_date===today)||rows[0];
+ let target=rows.find(s=>s.session_date===today);
  if(target){$('sessionSelect').value=String(target.id);await selectSession(String(target.id))}
  else{$('sessionStatus').textContent='目前沒有開啟中的場次，請建立今天的新場次';$('sessionFlavorEditor').classList.add('hidden');activeSessionId=null;sessionFlavorRows=[]}
 }
