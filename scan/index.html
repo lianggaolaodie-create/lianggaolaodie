@@ -16,7 +16,7 @@
 <main class="wrap">
 <div class="summary"><div class="summaryCard"><div class="summaryTitle">📦 今日銷售數量</div><div class="summaryValue"><span id="todayQty">0</span> <small>盒</small></div></div><div class="summaryCard"><div class="summaryTitle">💰 今日營業額</div><div class="summaryValue">$<span id="todayAmount">0</span></div></div></div>
 <div class="toolbar"><button class="btn" onclick="openAdd()">＋ 新增商品</button><button class="btn" onclick="openBarcode()">🔢 新增條碼</button><button class="btn" onclick="openBatch()">🏷️ 批量產生條碼</button><button class="btn" onclick="loadProducts()">🔄 商品管理</button><button class="btn" onclick="document.getElementById('historySection').scrollIntoView({behavior:'smooth'})">📊 銷售歷史紀錄</button></div>
-<div id="manager" class="status hidden"><b>📦 商品管理</b><div class="muted">可查看商品、口味、條碼、價格與庫存。</div><div id="productList" class="list"></div></div>
+<section class="status" id="dailySetup"><b>🗓️ 今日營業場次／口味</b><p class="muted">每日重新設定今天販售口味，今天價格不修改商品預設價格。</p><div class="field"><label>今天場次</label><select id="dailySessionSelect"><option value="">尚未選擇</option></select></div><div class="field"><label>場次地點</label><input id="dailySessionLocation" placeholder="餐車／活動名稱"></div><button class="btn" onclick="dailyCreateSession()">＋ 建立今天場次</button><div id="dailySessionStatus" class="muted"></div><div id="dailyFlavorArea" class="hidden"><div class="field"><label>口味</label><select id="dailyFlavorSelect"></select></div><div class="field"><label>對應商品</label><select id="dailyProductSelect"></select></div><div class="field"><label>今日售價</label><input id="dailyPriceInput" type="number" min="0"></div><button class="btn" onclick="dailyAddFlavor()">加入今天販售清單</button><div id="dailyFlavorList" class="list"></div></div></section><div id="manager" class="status hidden"><b>📦 商品管理</b><div class="muted">可查看商品、口味、條碼、價格與庫存。</div><div id="productList" class="list"></div></div>
 <div class="notice"><b>掃描條碼 → 馬上辨識口味</b><br>確認口味、條碼、售價、庫存後，再按「確認銷售」。</div>
 <button id="cameraBtn" class="btn" style="margin-bottom:12px" onclick="startScanner()">📷 開啟相機掃描</button>
 <div class="scanner"><video id="video" playsinline muted autoplay></video><div class="frame"></div></div>
@@ -75,5 +75,6 @@ async function lookupFlavor(){const q=$('flavorSearch').value.trim();if(!q)retur
 window.addEventListener('pagehide',stopScanner);document.addEventListener('visibilitychange',()=>{if(document.hidden)stopScanner()});
 db.auth.getSession().then(async({data})=>{if(data.session&&await allowed(data.session.user.id)){$('login').style.display='none';$('app').style.display='block';$('user').textContent=data.session.user.email||'';setToday();await loadProducts();await loadHistory();await loadTodaySummary()}});
 </script>
+<script src="./daily.js?v=1"></script>
 </body>
 </html>
