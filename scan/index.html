@@ -16,7 +16,23 @@
 <main class="wrap">
 <div class="summary"><div class="summaryCard"><div class="summaryTitle">📦 今日銷售數量</div><div class="summaryValue"><span id="todayQty">0</span> <small>盒</small></div></div><div class="summaryCard"><div class="summaryTitle">💰 今日營業額</div><div class="summaryValue">$<span id="todayAmount">0</span></div></div></div>
 <div class="toolbar"><button class="btn" onclick="openAdd()">＋ 新增商品</button><button class="btn" onclick="openBarcode()">🔢 新增條碼</button><button class="btn" onclick="openBatch()">🏷️ 批量產生條碼</button><button class="btn" onclick="loadProducts()">🔄 商品管理</button><button class="btn" onclick="document.getElementById('historySection').scrollIntoView({behavior:'smooth'})">📊 銷售歷史紀錄</button></div>
-<div id="manager" class="status hidden"><b>📦 商品管理</b><div class="muted">可查看商品、口味、條碼、價格與庫存。</div><div id="productList" class="list"></div></div>
+<section class="status" id="dailySetup" style="margin-bottom:12px">
+<b>🗓️ 今日營業場次／販售口味設定</b>
+<p class="muted">每天重新設定今天販售口味。今天的售價不會修改商品預設價格。</p>
+<div class="field"><label>今天的營業場次</label><select id="dailySessionSelect" onchange="dailySelectSession(this.value)"><option value="">尚未選擇場次</option></select></div>
+<div class="field"><label>場次地點／活動名稱</label><input id="dailySessionLocation" placeholder="例如：台北餐車／活動名稱"></div>
+<button class="btn" onclick="dailyCreateSession()">＋ 建立今天場次</button>
+<div id="dailySessionStatus" class="muted" style="margin-top:10px">請先建立或選擇今天場次</div>
+<div id="dailyFlavorArea" class="hidden">
+<hr style="border:0;border-top:1px solid #eee;margin:16px 0">
+<b>🍡 今天販售口味</b>
+<div class="field"><label>選擇口味（自動帶入預設價格）</label><select id="dailyFlavorSelect" onchange="dailyApplyFlavor()"><option value="">請選擇口味</option></select></div>
+<div class="field"><label>對應掃碼商品</label><select id="dailyProductSelect"><option value="">請選擇商品</option></select></div>
+<div class="field"><label>今天售價（可修改）</label><input id="dailyPriceInput" type="number" min="0" step="1"></div>
+<button class="btn" onclick="dailyAddFlavor()">＋ 加入今天販售清單</button>
+<div id="dailyFlavorMessage"></div>
+<div id="dailyFlavorList" class="list"></div>
+</div></section><div id="manager" class="status hidden"><b>📦 商品管理</b><div class="muted">可查看商品、口味、條碼、價格與庫存。</div><div id="productList" class="list"></div></div>
 <div class="notice"><b>掃描條碼 → 馬上辨識口味</b><br>確認口味、條碼、售價、庫存後，再按「確認銷售」。</div>
 <button id="cameraBtn" class="btn" style="margin-bottom:12px" onclick="startScanner()">📷 開啟相機掃描</button>
 <div class="scanner"><video id="video" playsinline muted autoplay></video><div class="frame"></div></div>
@@ -74,6 +90,104 @@ function printBatch(){window.print()}function saveBatchPdf(){window.print()}
 async function lookupFlavor(){const q=$('flavorSearch').value.trim();if(!q)return;const{data,error}=await db.from('food_truck_products').select('*').eq('active',true).ilike('flavor','%'+q+'%').order('id',{ascending:false});if(error){$('searchResults').innerHTML='<div class="err">'+esc(error.message)+'</div>';return}$('searchResults').innerHTML=(data||[]).map((p,i)=>'<div class="item" data-index="'+i+'"><div><b>'+esc(p.product_name)+'</b><small>'+esc(p.flavor||'')+'｜'+esc(p.barcode||'')+'｜庫存 '+Number(p.stock||0)+'盒</small></div><strong>$'+Number(p.price||0)+'</strong></div>').join('')||'<div class="muted">找不到商品</div>';(data||[]).forEach((p,i)=>$('searchResults').children[i]?.addEventListener('click',()=>showProduct(p)))}
 window.addEventListener('pagehide',stopScanner);document.addEventListener('visibilitychange',()=>{if(document.hidden)stopScanner()});
 db.auth.getSession().then(async({data})=>{if(data.session&&await allowed(data.session.user.id)){$('login').style.display='none';$('app').style.display='block';$('user').textContent=data.session.user.email||'';setToday();await loadProducts();await loadHistory();await loadTodaySummary()}});
+</script>
+<script>
+let dailyActiveSessionId=null,dailyRows=[],dailyFlavors=[];
+async function dailyLoadFlavors(){
+ const {data,error}=await db.from('flavors').select('id,name,price,enabled').eq('enabled',true).order('name');
+ if(error){$('dailySessionStatus').textContent='口味清單讀取失敗：'+error.message;return}
+ dailyFlavors=data||[];
+ $('dailyFlavorSelect').innerHTML='<option value="">請選擇口味</option>'+dailyFlavors.map(f=>'<option value="'+f.id+'">'+esc(f.name)+'｜預設 
+</html>
++Number(f.price||0)+'</option>').join('');
+}
+async function dailyLoadSessions(){
+ await dailyLoadFlavors();
+ const today=new Date().toLocaleDateString('en-CA');
+ const {data,error}=await db.from('food_truck_sessions').select('id,session_date,title,location,status').eq('session_date',today).eq('status','open').order('id',{ascending:false});
+ if(error){$('dailySessionStatus').textContent='場次讀取失敗：'+error.message;return}
+ const rows=data||[];
+ $('dailySessionSelect').innerHTML='<option value="">請選擇今天場次</option>'+rows.map(s=>'<option value="'+s.id+'">'+esc(s.location||s.title||'餐車')+'｜'+esc(s.session_date)+'</option>').join('');
+ if(rows.length){$('dailySessionSelect').value=String(rows[0].id);await dailySelectSession(String(rows[0].id))}
+ else{dailyActiveSessionId=null;dailyRows=[];$('dailyFlavorArea').classList.add('hidden');$('dailySessionStatus').textContent='今天尚未建立場次，請建立今天場次'}
+}
+async function dailyCreateSession(){
+ const today=new Date().toLocaleDateString('en-CA'),location=$('dailySessionLocation').value.trim()||'餐車';
+ const {data,error}=await db.from('food_truck_sessions').insert({session_date:today,title:'餐車營業場次',location,status:'open'}).select('id,session_date,title,location,status').single();
+ if(error){$('dailySessionStatus').textContent='建立場次失敗：'+error.message;return}
+ await dailyLoadSessions();$('dailySessionSelect').value=String(data.id);await dailySelectSession(String(data.id));
+}
+async function dailySelectSession(id){
+ dailyActiveSessionId=id?Number(id):null;dailyRows=[];clearProduct();
+ if(!dailyActiveSessionId){$('dailyFlavorArea').classList.add('hidden');$('dailySessionStatus').textContent='請選擇今天場次';return}
+ const {data,error}=await db.from('food_truck_sessions').select('id,session_date,title,location,status').eq('id',dailyActiveSessionId).maybeSingle();
+ if(error||!data){$('dailySessionStatus').textContent='讀取場次失敗';dailyActiveSessionId=null;return}
+ $('dailySessionStatus').textContent='目前場次：'+(data.location||data.title||'餐車')+'｜'+data.session_date;
+ $('dailyFlavorArea').classList.toggle('hidden',data.status!=='open');
+ if(data.status!=='open'){dailyActiveSessionId=null;return}
+ $('dailyProductSelect').innerHTML='<option value="">請選擇商品</option>'+products.filter(p=>p.active!==false).map(p=>'<option value="'+p.id+'">'+esc(p.product_name)+'｜'+esc(p.flavor||'未設定')+'</option>').join('');
+ await dailyLoadRows();
+}
+function dailyApplyFlavor(){
+ const f=dailyFlavors.find(x=>Number(x.id)===Number($('dailyFlavorSelect').value));if(!f)return;
+ $('dailyPriceInput').value=Number(f.price||0);
+ const p=products.find(x=>x.active!==false&&String(x.flavor||'').trim()===String(f.name||'').trim());
+ if(p)$('dailyProductSelect').value=String(p.id);
+}
+async function dailyLoadRows(){
+ if(!dailyActiveSessionId)return;
+ const {data,error}=await db.from('food_truck_session_flavors').select('*').eq('session_id',dailyActiveSessionId).order('id');
+ if(error){$('dailyFlavorMessage').innerHTML='<div class="err">'+esc(error.message)+'</div>';return}
+ dailyRows=data||[];dailyRenderRows();
+}
+async function dailyAddFlavor(){
+ const flavor_id=Number($('dailyFlavorSelect').value),product_id=Number($('dailyProductSelect').value),price=Number($('dailyPriceInput').value);
+ if(!dailyActiveSessionId||!flavor_id||!product_id||!Number.isInteger(price)||price<0){$('dailyFlavorMessage').innerHTML='<div class="err">請選口味、對應商品及有效價格</div>';return}
+ const {error}=await db.from('food_truck_session_flavors').insert({session_id:dailyActiveSessionId,flavor_id,product_id,price});
+ if(error){$('dailyFlavorMessage').innerHTML='<div class="err">'+esc(error.message)+'</div>';return}
+ $('dailyFlavorMessage').innerHTML='<div class="success">已加入今天販售清單</div>';await dailyLoadRows();
+}
+function dailyRenderRows(){
+ $('dailyFlavorList').innerHTML=dailyRows.map(r=>{
+ const f=dailyFlavors.find(x=>Number(x.id)===Number(r.flavor_id)),p=products.find(x=>Number(x.id)===Number(r.product_id));
+ return '<div class="item"><div style="flex:1"><b>'+esc(f?.name||p?.flavor||'口味')+'</b><small>'+esc(p?.product_name||'')+'｜今天售價 
+</html>
++Number(r.price||0)+'</small></div><div style="min-width:105px"><input id="dailyPrice'+r.id+'" type="number" min="0" step="1" value="'+Number(r.price||0)+'" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:8px;margin-bottom:6px"><button class="btn" style="padding:8px" onclick="dailyUpdatePrice('+r.id+')">更新價格</button><button class="btn danger" style="padding:8px;margin-top:5px" onclick="dailyRemoveFlavor('+r.id+')">移除口味</button></div></div>'
+ }).join('')||'<div class="muted">今天尚未加入販售口味</div>';
+}
+async function dailyUpdatePrice(id){
+ const price=Number($('dailyPrice'+id).value);if(!Number.isInteger(price)||price<0){alert('價格請輸入 0 或正整數');return}
+ const {error}=await db.from('food_truck_session_flavors').update({price}).eq('id',id);
+ if(error){alert('更新價格失敗：'+error.message);return}await dailyLoadRows();
+}
+async function dailyRemoveFlavor(id){
+ if(!confirm('確定從今天販售清單移除？既有銷售紀錄不會刪除。'))return;
+ const {error}=await db.from('food_truck_session_flavors').delete().eq('id',id);
+ if(error){alert('移除失敗：'+error.message);return}await dailyLoadRows();
+}
+const dailyOriginalShowProduct=showProduct;
+showProduct=function(product){
+ if(!dailyActiveSessionId){$('hint').textContent='請先建立或選擇今天營業場次';clearProduct();return}
+ const row=dailyRows.find(x=>Number(x.product_id)===Number(product.id));
+ if(!row){$('hint').textContent='此商品尚未加入今天販售清單';clearProduct();return}
+ dailyOriginalShowProduct({...product,price:Number(row.price)});
+};
+const dailyOriginalSell=sell;
+sell=async function(){
+ if(!selected||qty<1)return;
+ $('result').innerHTML='<div class="muted">銷售處理中…</div>';
+ const soldQty=qty;
+ const {data,error}=await db.rpc('food_truck_scan_sale',{p_barcode:selected.barcode,p_quantity:soldQty,p_business_session_id:dailyActiveSessionId});
+ if(error){$('result').innerHTML='<div class="notice">❌ '+esc(error.message)+'</div>';return}
+ const row=Array.isArray(data)?data[0]:data;
+ $('result').innerHTML='<div class="success">✅ 銷售完成！已扣 '+soldQty+' 盒，成交單價 
+</html>
++Number(row?.unit_price||selected.price||0)+'，剩餘 '+Number(row?.remaining_stock??0)+' 盒</div>';
+ selected.stock=Number(row?.remaining_stock??0);$('pstock').textContent='目前庫存：'+selected.stock+' 盒';
+ await loadProducts();await loadHistory();await loadTodaySummary();
+ setTimeout(clearProduct,1600);
+};
+db.auth.onAuthStateChange((event,session)=>{if(session&&['SIGNED_IN','INITIAL_SESSION','TOKEN_REFRESHED'].includes(event)){setTimeout(()=>{if($('app').style.display!=='none')dailyLoadSessions()},300)}});
 </script>
 </body>
 </html>
