@@ -194,48 +194,64 @@ export default function App() {
 
   async function loadProducts() {
     if (!supabase) return
-    const now = new Date()
-    const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Taipei' }).format(now)
-    const { data: sessions, error: sessionError } = await supabase.from('food_truck_sessions')
-      .select('id,session_date,status')
-      .eq('session_date', today)
+    const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Taipei' }).format(new Date())
+
+    // POS 商品清單以後台「涼糕餐車管理」當日行程為唯一來源
+    const { data: schedules, error: scheduleError } = await supabase.from('food_truck_schedules')
+      .select('id,schedule_date,schedule_type,enabled')
+      .eq('schedule_date', today)
+      .eq('schedule_type', 'food_truck')
+      .eq('enabled', true)
       .order('id', { ascending: false })
       .limit(1)
-    if (sessionError) { setProducts([]); setNotice('今日營業場次讀取失敗：' + sessionError.message); return }
-    const session = sessions?.[0]
-    if (!session) { setProducts([]); setNotice('今日尚未設定營業場次及販售口味'); return }
+    if (scheduleError) { setProducts([]); setNotice('今日餐車行程讀取失敗：' + scheduleError.message); return }
+    const schedule = schedules?.[0]
+    if (!schedule) { setProducts([]); setNotice('今日尚未設定涼糕餐車行程'); return }
 
-    const { data: flavorRows, error: flavorError } = await supabase.from('food_truck_session_flavors')
-      .select('id,session_id,flavor_id,product_id,price,flavors(id,name)')
-      .eq('session_id', session.id)
-      .order('id')
-    if (flavorError) { setProducts([]); setNotice('今日販售口味讀取失敗：' + flavorError.message); return }
-    const productIds = [...new Set((flavorRows ?? []).map(row => row.product_id).filter(Boolean))]
-    let productRows = []
-    if (productIds.length) {
-      const { data, error } = await supabase.from('food_truck_products')
-        .select('id,barcode,stock,active')
-        .in('id', productIds)
-      if (error) { setProducts([]); setNotice('今日口味商品資料讀取失敗：' + error.message); return }
-      productRows = data ?? []
-    }
-    const productMap = new Map(productRows.map(row => [row.id, row]))
-    setProducts((flavorRows ?? []).map(row => {
-      const product = productMap.get(row.product_id) ?? {}
+    const { data: links, error: linksError } = await supabase.from('food_truck_schedule_flavors')
+      .select('flavor_id,price_per_box')
+      .eq('schedule_id', schedule.id)
+    if (linksError) { setProducts([]); setNotice('今日販售口味讀取失敗：' + linksError.message); return }
+    if (!links?.length) { setProducts([]); setNotice('今日餐車行程尚未勾選販售口味'); return }
+
+    const flavorIds = [...new Set(links.map(row => row.flavor_id))]
+    const { data: flavorRows, error: flavorError } = await supabase.from('flavors')
+      .select('id,name,price')
+      .in('id', flavorIds)
+    if (flavorError) { setProducts([]); setNotice('口味名稱讀取失敗：' + flavorError.message); return }
+
+    const { data: productRows, error: productError } = await supabase.from('food_truck_products')
+      .select('id,product_name,flavor,barcode,stock,active')
+      .eq('active', true)
+    if (productError) { setProducts([]); setNotice('商品條碼資料讀取失敗：' + productError.message); return }
+
+    const normalize = value => String(value ?? '').trim().toLowerCase()
+    const fallbackProduct = (productRows ?? []).find(p => normalize(p.product_name) === '仙草') ?? productRows?.[0]
+    const flavorMap = new Map((flavorRows ?? []).map(row => [row.id, row]))
+    const mapped = links.map((row, index) => {
+      const flavor = flavorMap.get(row.flavor_id)
+      if (!flavor) return null
+      const product = (productRows ?? []).find(p =>
+        normalize(p.flavor) === normalize(flavor.name) ||
+        normalize(p.product_name) === normalize(flavor.name)
+      ) ?? fallbackProduct
+      if (!product) return null
       return {
-        id: row.id,
-        product_id: row.product_id,
-        product_name: row.flavors?.name ?? ('口味 #' + row.flavor_id),
-        flavor: row.flavors?.name ?? '',
+        id: row.flavor_id,
+        product_id: product.id,
         flavor_id: row.flavor_id,
-        business_session_id: session.id,
-        price: Number(row.price ?? 0),
-        barcode: product.barcode ?? null,
+        business_session_id: null,
+        product_name: flavor.name,
+        flavor: flavor.name,
+        price: Number(row.price_per_box ?? flavor.price ?? 0),
+        barcode: product.flavor && normalize(product.flavor) === normalize(flavor.name) ? product.barcode : null,
         stock: product.stock ?? null,
-        active: true
+        active: true,
+        _display_order: index
       }
-    }))
-    setNotice('')
+    }).filter(Boolean)
+    setProducts(mapped)
+    setNotice(mapped.length ? '' : '今日販售口味尚未對應到可用商品資料')
   }
 
   async function signIn(event) {
@@ -272,7 +288,7 @@ export default function App() {
   async function checkout() {
     if (!cart.length || busy) return
     setBusy(true); setNotice('')
-    const rows = cart.map(item => ({ product_id: item.product_id ?? item.id, barcode: item.barcode, product_name: item.name, flavor: item.flavor ?? item.name, business_session_id: item.business_session_id, quantity: item.quantity, unit_price: item.price, total_amount: item.price * item.quantity }))
+    const rows = cart.map(item => ({ product_id: item.product_id ?? item.id, barcode: item.barcode ?? '', product_name: item.name, flavor: item.flavor ?? item.name, business_session_id: item.business_session_id ?? null, quantity: item.quantity, unit_price: item.price, total_amount: item.price * item.quantity }))
     const { error } = await supabase.from('food_truck_sales').insert(rows)
     setBusy(false)
     if (error) { setNotice('結帳未完成，資料未寫入：' + error.message); return }
