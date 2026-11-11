@@ -216,7 +216,6 @@ export default function App() {
     })
     setNotice('已加入：' + product.product_name)
     setBarcode('')
-    scanRef.current?.focus()
   }
 
   function scan(event) {
