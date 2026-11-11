@@ -68,7 +68,10 @@ function showProduct(data){
  const daily=sessionFlavorRows.find(x=>Number(x.product_id)===Number(data.id));
  if(!daily){$('hint').textContent='❌ 此商品尚未加入今天的販售口味清單';clearProduct();return}
  selected={...data,price:Number(daily.price),sessionFlavorId:daily.id};qty=Number(data.stock||0)>0?1:0;
- $('productTag').textContent='今日場次商品';$('pname').textContent=data.product_name||'未命名商品';$('pflavor').textContent=data.flavor||'未設定';$('pbarcode').textContent=data.barcode||'—';$('pprice').textContent='
+ $('productTag').textContent='今日場次商品';$('pname').textContent=data.product_name||'未命名商品';$('pflavor').textContent=data.flavor||'未設定';$('pbarcode').textContent=data.barcode||'—';
+ $('pprice').textContent='$'+Number(daily.price||0).toLocaleString();$('pstock').textContent='目前庫存：'+Number(data.stock||0)+' 盒';$('qty').textContent=qty;
+ $('result').innerHTML=Number(data.stock||0)>0?'':'<div class="notice">⚠️ 目前庫存為 0</div>'
+}
 function clearProduct(){selected=null;qty=1;$('productTag').textContent='尚未掃描';$('pname').textContent='掃描後顯示商品';$('pflavor').textContent='等待掃描';$('pbarcode').textContent='等待掃描';$('pprice').textContent='$—';$('pstock').textContent='目前庫存：— 盒';$('qty').textContent='1';$('result').innerHTML=''}
 function changeQty(n){if(!selected)return;const max=Math.max(0,Number(selected.stock||0));qty=Math.max(1,qty+n);if(qty>max)qty=max;$('qty').textContent=qty}
 async function loadTodaySummary(){const d=new Date();const date=d.toLocaleDateString('en-CA');const start=date+'T00:00:00+08:00',end=date+'T23:59:59+08:00';const{data,error}=await db.from('food_truck_sales').select('quantity,total_amount').gte('sold_at',start).lte('sold_at',end);if(error){$('todayQty').textContent='0';$('todayAmount').textContent='0';return}const rows=data||[];const totalQty=rows.reduce((s,r)=>s+Number(r.quantity||0),0);const totalAmt=rows.reduce((s,r)=>s+Number(r.total_amount||0),0);$('todayQty').textContent=totalQty.toLocaleString();$('todayAmount').textContent=totalAmt.toLocaleString()}
