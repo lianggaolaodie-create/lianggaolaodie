@@ -50,7 +50,9 @@ export default function App() {
     return () => listener.subscription.unsubscribe()
   }, [])
 
-  useEffect(() => { if (user) { loadProducts(); loadStallSchedules(); loadDailyStats(); loadTruckSessions(); loadTruckSchedules() } }, [user])
+  useEffect(() => { if (user) { loadStallSchedules(); loadDailyStats(); loadTruckSessions(); loadTruckSchedules() } }, [user])
+  useEffect(() => { if (user) loadProducts(truckSession) }, [user, truckSession?.id])
+  useEffect(() => { if (!user || !truckSession?.schedule_id) return; const channel=supabase.channel('truck-session-flavors-'+truckSession.schedule_id).on('postgres_changes',{event:'*',schema:'public',table:'food_truck_schedule_flavors',filter:'schedule_id=eq.'+truckSession.schedule_id},()=>loadProducts(truckSession)).subscribe(); return ()=>{supabase.removeChannel(channel)} }, [user, truckSession?.id, truckSession?.schedule_id])
   useEffect(() => { if (user && selectedSchedule) { loadStallFlavors(selectedSchedule); loadStallSales(selectedSchedule); setStallCart([]) } }, [user, selectedSchedule])
   useEffect(() => { if (user && mode === 'online') loadOnlineOrders() }, [user, mode])
 
@@ -437,12 +439,59 @@ export default function App() {
     w.document.close()
   }
 
-  async function loadProducts() {
-    const { data, error } = await supabase.from('food_truck_products')
-      .select('id, product_name, price, barcode, stock, active, flavor')
-      .eq('active', true).order('product_name')
-    if (error) setNotice('商品讀取失敗：' + error.message)
-    else setProducts(data ?? [])
+  async function loadProducts(sessionOverride = truckSession) {
+    if (!sessionOverride || sessionOverride.status !== 'open' || !sessionOverride.schedule_id) {
+      setProducts([])
+      if (sessionOverride?.status === 'open' && !sessionOverride.schedule_id) setNotice('目前營業場次尚未連結餐車後台行程，請結束後重新開啟並選擇行程，避免顯示錯誤口味。')
+      return
+    }
+    const scheduleId = Number(sessionOverride.schedule_id)
+    const { data: selectedRows, error: flavorError } = await supabase.from('food_truck_schedule_flavors')
+      .select('flavor_id,price_per_box,price,unit_price,flavors(id,name)')
+      .eq('schedule_id', scheduleId)
+    if (flavorError) {
+      setProducts([])
+      setNotice('讀取本場販售口味失敗，已停止顯示快速商品，請重新整理：' + flavorError.message)
+      return
+    }
+    const flavors = selectedRows || []
+    if (!flavors.length) {
+      setProducts([])
+      setNotice('目前場次尚未勾選販售口味，POS 快速商品暫不顯示。')
+      return
+    }
+    const { data: productRows, error: productError } = await supabase.from('food_truck_products')
+      .select('id,product_name,price,barcode,stock,active,flavor')
+      .eq('active', true)
+    if (productError) {
+      setProducts([])
+      setNotice('讀取商品條碼對應資料失敗，已停止顯示快速商品：' + productError.message)
+      return
+    }
+    const mapped = flavors.map(row => {
+      const flavorName = row.flavors?.name
+      if (!flavorName) return null
+      const product = (productRows || []).find(p =>
+        String(p.product_name || '').trim() === String(flavorName).trim() ||
+        String(p.flavor || '').trim() === String(flavorName).trim()
+      )
+      const price = row.price_per_box ?? row.price ?? row.unit_price
+      return {
+        id: product?.id ?? ('flavor-' + row.flavor_id),
+        product_id: product?.id ?? null,
+        product_name: flavorName,
+        price: Number(price ?? 0),
+        barcode: product?.barcode ?? null,
+        stock: product?.stock ?? null,
+        active: true,
+        flavor: flavorName,
+        flavor_id: row.flavor_id,
+        schedule_id: scheduleId
+      }
+    }).filter(Boolean)
+    setProducts(mapped)
+    setCart(current => current.filter(item => mapped.some(p => p.id === item.id)))
+    setNotice('已同步本場販售口味：' + mapped.length + ' 種｜場次 ' + scheduleId)
   }
 
   async function signIn(event) {
@@ -457,7 +506,7 @@ export default function App() {
     setCart(current => {
       const found = current.find(item => item.id === product.id)
       if (found) return current.map(item => item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item)
-      return [...current, { id: product.id, name: product.product_name, barcode: product.barcode, price: product.price, quantity: 1 }]
+      return [...current, { id: product.id, product_id: product.product_id ?? product.id, name: product.product_name, barcode: product.barcode, price: product.price, flavor_id: product.flavor_id, quantity: 1 }]
     })
     setNotice('已加入：' + product.product_name)
     setBarcode('')
@@ -481,7 +530,7 @@ export default function App() {
     if (!cart.length || busy) return
     setBusy(true); setNotice('')
     if (!truckSession || truckSession.status !== 'open') { setNotice('請先開始餐車營業場次，才能結帳'); setBusy(false); return }
-    const rows = cart.map(item => ({ product_id: item.id, barcode: item.barcode, product_name: item.name, quantity: item.quantity, unit_price: item.price, total_amount: item.price * item.quantity, business_session_id: truckSession.id }))
+    const rows = cart.map(item => ({ product_id: item.product_id ?? null, barcode: item.barcode ?? null, product_name: item.name, flavor: item.name, quantity: item.quantity, unit_price: item.price, total_amount: item.price * item.quantity, business_session_id: truckSession.id }))
     const { error } = await supabase.from('food_truck_sales').insert(rows)
     setBusy(false)
     if (error) { setNotice('結帳未完成，資料未寫入：' + error.message); return }
@@ -555,7 +604,7 @@ export default function App() {
         {stallSalesLoading ? <p>讀取交易紀錄中…</p> : stallSales.length ? stallSales.map(sale=><article className="onlineOrder" key={sale.id}><div className="orderTitle"><b>{sale.receipt_number}</b><strong>{sale.is_voided ? '已作廢' : money(sale.total_amount)}</strong></div><small>{new Date(sale.sold_at).toLocaleString('zh-TW')}{sale.is_voided && sale.voided_at ? '｜作廢時間：'+new Date(sale.voided_at).toLocaleString('zh-TW') : ''}</small>{!sale.is_voided && <><button className="checkout onlinePrint" onClick={()=>printStallReceipt(sale)}>重新列印 58mm 收據</button><button className="ghost" disabled={busy} onClick={()=>voidStallSale(sale)}>作廢交易</button></>}</article>) : <p className="muted">這個場次還沒有擺攤交易</p>}</section>
     </section> : <>
       <section className="scanner"><label htmlFor="barcode">掃描商品條碼</label><form onSubmit={scan}><input ref={scanRef} id="barcode" value={barcode} onChange={e=>setBarcode(e.target.value)} placeholder="掃碼槍掃描後按 Enter" autoFocus/><button>加入</button></form><small>支援 USB／藍牙鍵盤型掃碼槍</small></section>
-      <section className="catalog"><h2>商品快速加入</h2><div className="products">{products.map(p=><button className="product" key={p.id} onClick={()=>addProduct(p)}><b>{p.product_name}</b><span>{money(p.price)}</span></button>)}</div>{!products.length && <p className="muted">目前沒有啟用中的餐車商品</p>}</section>
+      <section className="catalog"><div className="orderTitle"><h2>本場販售口味</h2><button className="ghost" onClick={()=>loadProducts(truckSession)} disabled={busy}>同步後台口味</button></div><small className="muted">依目前營業場次設定顯示；價格以後台場次價格為準。</small><div className="products">{products.map(p=><button className="product" key={p.id} onClick={()=>addProduct(p)}><b>{p.product_name}</b><span>{money(p.price)}</span></button>)}</div>{!products.length && <p className="muted">目前場次沒有可販售口味，或尚未連結後台行程。系統不會顯示全部商品。</p>}</section>
       <section className="order"><div className="orderTitle"><h2>本筆訂單</h2><button className="ghost" onClick={()=>setCart([])}>清空</button></div>{cart.length ? cart.map(item=><div className="line" key={item.id}><div><b>{item.name}</b><small>{money(item.price)}／盒</small></div><div className="qty"><button onClick={()=>changeQty(item.id,-1)}>−</button><strong>{item.quantity}</strong><button onClick={()=>changeQty(item.id,1)}>＋</button></div><b>{money(item.price*item.quantity)}</b></div>) : <p className="empty">掃描條碼或點選商品開始結帳</p>}</section>
       <footer><div className="sum"><span>應收總額</span><strong>{money(total)}</strong></div><button className="checkout" disabled={!cart.length || busy} onClick={checkout}>{busy ? '處理中…' : '結帳並列印 58mm 收據'}</button><button className="print" disabled={!cart.length} onClick={printReceipt}>只列印預覽</button></footer>
     </>}
