@@ -193,11 +193,49 @@ export default function App() {
   }
 
   async function loadProducts() {
-    const { data, error } = await supabase.from('food_truck_products')
-      .select('id, product_name, price, barcode, stock, active, flavor')
-      .eq('active', true).order('product_name')
-    if (error) setNotice('商品讀取失敗：' + error.message)
-    else setProducts(data ?? [])
+    if (!supabase) return
+    const now = new Date()
+    const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Taipei' }).format(now)
+    const { data: sessions, error: sessionError } = await supabase.from('food_truck_sessions')
+      .select('id,session_date,status')
+      .eq('session_date', today)
+      .order('id', { ascending: false })
+      .limit(1)
+    if (sessionError) { setProducts([]); setNotice('今日營業場次讀取失敗：' + sessionError.message); return }
+    const session = sessions?.[0]
+    if (!session) { setProducts([]); setNotice('今日尚未設定營業場次及販售口味'); return }
+
+    const { data: flavorRows, error: flavorError } = await supabase.from('food_truck_session_flavors')
+      .select('id,session_id,flavor_id,product_id,price,flavors(id,name)')
+      .eq('session_id', session.id)
+      .order('id')
+    if (flavorError) { setProducts([]); setNotice('今日販售口味讀取失敗：' + flavorError.message); return }
+    const productIds = [...new Set((flavorRows ?? []).map(row => row.product_id).filter(Boolean))]
+    let productRows = []
+    if (productIds.length) {
+      const { data, error } = await supabase.from('food_truck_products')
+        .select('id,barcode,stock,active')
+        .in('id', productIds)
+      if (error) { setProducts([]); setNotice('今日口味商品資料讀取失敗：' + error.message); return }
+      productRows = data ?? []
+    }
+    const productMap = new Map(productRows.map(row => [row.id, row]))
+    setProducts((flavorRows ?? []).map(row => {
+      const product = productMap.get(row.product_id) ?? {}
+      return {
+        id: row.id,
+        product_id: row.product_id,
+        product_name: row.flavors?.name ?? ('口味 #' + row.flavor_id),
+        flavor: row.flavors?.name ?? '',
+        flavor_id: row.flavor_id,
+        business_session_id: session.id,
+        price: Number(row.price ?? 0),
+        barcode: product.barcode ?? null,
+        stock: product.stock ?? null,
+        active: true
+      }
+    }))
+    setNotice('')
   }
 
   async function signIn(event) {
@@ -212,7 +250,7 @@ export default function App() {
     setCart(current => {
       const found = current.find(item => item.id === product.id)
       if (found) return current.map(item => item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item)
-      return [...current, { id: product.id, name: product.product_name, barcode: product.barcode, price: product.price, quantity: 1 }]
+      return [...current, { id: product.id, product_id: product.product_id ?? product.id, business_session_id: product.business_session_id ?? null, flavor: product.flavor ?? product.product_name, name: product.product_name, barcode: product.barcode, price: product.price, quantity: 1 }]
     })
     setNotice('已加入：' + product.product_name)
     setBarcode('')
@@ -234,7 +272,7 @@ export default function App() {
   async function checkout() {
     if (!cart.length || busy) return
     setBusy(true); setNotice('')
-    const rows = cart.map(item => ({ product_id: item.id, barcode: item.barcode, product_name: item.name, quantity: item.quantity, unit_price: item.price, total_amount: item.price * item.quantity }))
+    const rows = cart.map(item => ({ product_id: item.product_id ?? item.id, barcode: item.barcode, product_name: item.name, flavor: item.flavor ?? item.name, business_session_id: item.business_session_id, quantity: item.quantity, unit_price: item.price, total_amount: item.price * item.quantity }))
     const { error } = await supabase.from('food_truck_sales').insert(rows)
     setBusy(false)
     if (error) { setNotice('結帳未完成，資料未寫入：' + error.message); return }
