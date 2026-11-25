@@ -12,3 +12,6 @@ test('all order filter preserves every row',()=>assert.equal(core.filterOrders([
 
 test('tracking lookup finds only exact normalized demo order id',()=>{const orders=[{id:'DEMO-1001',status:'待確認'}];assert.equal(core.findOrder(orders,' demo-1001 ').status,'待確認');assert.equal(core.findOrder(orders,'REAL-1001'),null);});
 test('tracking lookup does not mutate order list',()=>{const orders=[{id:'DEMO-1001',status:'待確認'}];assert.equal(core.findOrder(orders,'DEMO-1001').id,'DEMO-1001');assert.equal(orders.length,1);});
+
+test('only products in the selected day sale map are visible',()=>{const products=[{id:1},{id:2},{id:3}];const daily=new Map([['2',{quantity:4}],['3',{quantity:1}]]);assert.deepEqual(core.filterSellableProducts(products,daily,true),[{id:2},{id:3}]);});
+test('no products are visible until a valid date and region are open',()=>{const products=[{id:1}];const daily=new Map([['1',{quantity:1}]]);assert.deepEqual(core.filterSellableProducts(products,daily,false),[]);});
